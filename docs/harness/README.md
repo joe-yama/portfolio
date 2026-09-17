@@ -57,6 +57,7 @@ CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `ope
 - **npm グローバル**: `/opt/homebrew` と `~/.npm/_cacache` は書き込み不可。npm は「root 所有ファイル」と誤報するが実際はサンドボックス起因（所有者は全て joe）
 - **git 署名**: `commit.gpgsign=true` + 1Password `op-ssh-sign`。エージェントソケットへの接続がサンドボックスで拒否されるため、`git commit` は単体コマンド（`excludedCommands` 対象）として実行するか、サンドボックス外で行う
 - **Playwright MCP**: `file:` プロトコル不可。スクリーンショットは `filename` を渡すとサーバーの cwd 基準で保存される（`--output-dir` は自動命名時のみ）
+- **gh の複数アカウント**: `gh auth status` には github.com の joe-yama と職場アカウント、および社内 GitHub Enterprise が登録されている。2026-09-17 時点で有効だったのは職場アカウントで、joe-yama のトークンは失効していた（PO が `gh auth login -h github.com -w` で再認証し `gh auth switch -h github.com -u joe-yama` で切り替え済み）。Agent は `gh` で書き込む前に `gh api user --jq .login` を確認する（`.claude/rules/git.md`）
 
 ## 4. 権限設定（PO 承認待ち）
 
@@ -65,9 +66,11 @@ CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `ope
 
 | 区分 | 内容 |
 |---|---|
-| allow（自動） | Read / Glob / Grep、読み取り系 git（status, log, diff, show, branch, worktree list）、`git add` / `git commit`、`npm test` / `npm run test|lint|typecheck|build`、`npx playwright test`、`openspec`、Playwright MCP の全ツール |
+| allow（自動） | Read / Glob / Grep、読み取り系 git（status, log, diff, show, branch, worktree list）、`git add` / `git commit`、`pnpm test` / `pnpm lint|typecheck|build|preview|e2e`、`pnpm exec biome` / `pnpm exec playwright test`、`gh api user`、`gh issue list|view|comment`、`gh release view|list`、`openspec`、Playwright MCP の全ツール |
 | deny（禁止） | `.env` / `.env.*` の Read と Edit、`~/.ssh` `~/.aws` `~/.gnupg` `~/.config/op` の Read、`git push --force` 系、`git reset --hard`、`git clean`、`sudo` |
-| ask（毎回確認） | `git push`、`git worktree remove`、`rm`、`curl` / `wget`、`gh pr create|merge`、`gh repo create`、`npm install` / `npm publish` |
+| ask（毎回確認） | `git push`、`git worktree remove`、`rm`、`curl` / `wget`、`gh pr create|merge`、`gh repo create`、`gh issue create|close|edit`、`gh release create|upload|delete-asset`、`pnpm install` / `pnpm add` / `pnpm publish` |
+
+2026-09-17 の設計レビュー反映で npm → pnpm に置き換え、GitHub Issue 運用と Release への写真保管に必要な `gh` コマンドを追加した。
 | sandbox | 有効。ネットワーク許可先は npm / GitHub / PyPI のみ。`allowLocalBinding: true`（dev サーバーと Playwright 用） |
 | MCP | `.mcp.json` の `playwright` を自動承認（`enabledMcpjsonServers`） |
 
@@ -83,4 +86,4 @@ CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `ope
 2. 自律実行時のコミット署名の扱い
 3. OpenSpec の成果物言語を日本語にした（`--language ja`）ことの確認。英語に変えるなら `openspec/config.yaml` の `context` を編集
 4. OpenSpec プロファイルをデフォルト（core）にした。拡張ワークフロー（`/opsx:ff` 等）が必要になったら追加
-5. 技術スタック決定時に、同じ change で更新するもの: `.claude/rules/testing.md` のテストコマンド節（test / lint / typecheck）、`.claude/hooks/lint-on-edit.sh` の `detect_lint()` と `.claude/hooks/test-on-stop.sh` の `detect_test()` を確定コマンド 1 行に置き換え、`.claude/settings.json` の `permissions.allow` にテスト・lint の実行コマンドを追加、`CLAUDE.md` の「技術スタック」「コマンド」節と本ファイルの記録
+5. 技術スタック（Astro + pnpm、設計書 §2・§9 で決定済み）の導入 change で更新するもの: `.claude/rules/testing.md` のテストコマンド節（`pnpm test` / `pnpm lint` / `pnpm typecheck` / `pnpm e2e`）、`.claude/hooks/lint-on-edit.sh` の `detect_lint()` を `pnpm exec biome check <file>` に、`.claude/hooks/test-on-stop.sh` の `detect_test()` を `pnpm test` に置き換え、`.claude/settings.json` の `permissions.allow` に不足があれば追記（pnpm への置き換えは 2026-09-17 に済み）、`CLAUDE.md` の「コマンド」節と本ファイルの記録
