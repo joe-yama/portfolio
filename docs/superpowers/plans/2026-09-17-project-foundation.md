@@ -1230,7 +1230,7 @@ git commit -m "docs: project-foundation の tasks.md を完了状態に更新"
 gh api user --jq .login   # joe-yama であることを確認
 git push -u origin feature/project-foundation
 gh pr create --title "feat: プロジェクト土台（pnpm + Astro、スキーマと検証、i18n 骨格、CI）" --body "$(cat <<'EOF'
-Closes #<Issue 番号>
+Closes #1
 
 ## 内容
 - pnpm + Astro の初期化（`.node-version`、`packageManager`、i18n、image.domains）
@@ -1255,5 +1255,5 @@ CI が緑になったことを確認し、Issue に「PR 作成、CI 緑」を�
 
 - **Spec カバレッジ**: §2（pnpm、Releases の URL 規約 → Task 1, 4, 5）、§4（`/ja/` `/en/`、リダイレクト → Task 1, 6）、§5（コレクション構造、スキーマ、独自検証 → Task 4, 5, 6）、§5.2（日英件数一致 → Task 5, 6）、§8（Zod + 独自検証、Vitest、Biome、astro check → Task 2〜6）、§8.1（ハーネス反映 → Task 7。settings.json は 2026-09-17 に済み）、§9（CI、Node / pnpm 固定 → Task 1, 8）。§4 のページ本体・§5.1 の写真実データ・§5.3 の photo:add・§6・§7・§8 の Playwright・§9 のデプロイと CNAME はロードマップの Change 2〜5
 - **spec との差分（PO 確認済みとして進める点）**: §5.2 は「件数一致を単体テストで確認」とあるが、Vitest から YAML を読むには追加依存が要るため、判定関数を単体テスト（Task 5）し、実データはビルド時検証（Task 6）で確認する。検出タイミングはビルド時と CI で、spec の意図（マージ前に気づく）は満たす
-- **Placeholder**: `2026-09-XX`（実施日）、`<Issue 番号>`、`<biome init が書いた URL>` は実行時にしか決まらない値で、置き換え指示を添えた
+- **Placeholder**: `2026-09-XX`（実施日）、`<biome init が書いた URL>` は実行時にしか決まらない値で、置き換え指示を添えた。Issue 番号は #1 に確定（2026-09-17）
 - **型の整合**: `Locale` / `locales` / `isLocale`（Task 3）、`Photo` / `Career` / `Profile` / `PHOTO_BASE_URL`（Task 4）、`PhotoEntry` / `validatePhotos` / `validateCareerParity` / `assertValid`（Task 5）、`getPhotos` / `getProfile` / `getCareer`（Task 6）の名前と引数を全タスクで統一した
