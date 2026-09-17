@@ -1,15 +1,18 @@
 ---
-name: openspec-propose
-description: Propose a new OpenSpec change with all artifacts generated in one step. Use when the user wants to quickly describe what they want to build and get a complete proposal with design, specs, and tasks ready for implementation. Also use when the user says "openspec propose" or "opsx propose".
 allowed-tools: Bash(openspec:*)
-license: MIT
 compatibility: Requires openspec CLI.
+description: Propose a new OpenSpec change with all artifacts generated in one step. Use when the user wants to quickly describe what they want to build and get a complete proposal with design, specs, and tasks ready for implementation. Also use when the user says "openspec propose" or "opsx propose".
+license: MIT
 metadata:
-  author: openspec
-  version: "1.0"
-  generatedBy: "1.13.1"
+    author: openspec
+    github-path: skills/openspec-propose
+    github-pinned: v1.13.1
+    github-ref: refs/tags/v1.13.1
+    github-repo: https://github.com/Fission-AI/OpenSpec
+    github-tree-sha: c0565ab613a5191113fd6e296fa23ba954c19634
+    version: "1.0"
+name: openspec-propose
 ---
-
 Propose a new change - create the change and generate all artifacts in one step.
 
 **Planning boundary**: This workflow creates planning artifacts only. The user request that selected or triggered this workflow authorizes planning only, even if it asks to build or fix something. Do not edit project code. After the planning artifacts are complete, stop. Do not start implementation in the same response, even if the initial request asks for it. Wait for a new user request after the artifacts are presented; then start the apply workflow.
@@ -152,7 +155,7 @@ After completing all artifacts, summarize:
 - Change name and location
 - List of artifacts created with brief descriptions, plus any conditional artifact you skipped and why
 - What's ready: "All artifacts needed for implementation are ready."
-- Prompt: "The artifacts are ready for review. When you are ready, run `/opsx:apply` or ask me to apply this change."
+- Prompt: "The artifacts are ready for review. When you are ready, run `/openspec-apply-change` or ask me to apply this change."
 
 **Artifact Creation Guidelines**
 

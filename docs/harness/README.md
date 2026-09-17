@@ -9,7 +9,8 @@
 | 層 | 部品 | バージョン | 導入場所 / 方法 |
 |---|---|---|---|
 | 実行規律 | Superpowers | 6.3.0（`superpowers@claude-plugins-official`） | ユーザースコープのプラグイン。公式マーケットプレイス経由で既に導入済みだったため再導入なし |
-| 仕様・変更管理 | OpenSpec | 1.13.1（`@fission-ai/openspec`） | `npm install -g` → `openspec init --tools claude --language ja`。スキル 6 個・コマンド 6 個を `.claude/` に生成 |
+| 仕様・変更管理 | OpenSpec CLI | 1.13.1（`@fission-ai/openspec`） | `npm install -g` → `openspec init --tools claude --language ja`。`openspec/` と `/opsx:*` コマンド 6 個を生成 |
+| 仕様・変更管理 | OpenSpec スキル 6 個 | v1.13.1 にピン留め（`Fission-AI/OpenSpec` の `skills/`） | PO 指示により `gh skill install Fission-AI/OpenSpec skills/<name> --agent claude-code --scope project --pin v1.13.1` で導入（init 生成物を置き換え）。`gh skill list` で管理 |
 | UI 検証 | Playwright MCP | @playwright/mcp 0.0.81（Playwright 1.64.0-alpha-2026-09-14） | `.mcp.json`（プロジェクトスコープ）。`--headless --isolated --output-dir .playwright-mcp` |
 | ブラウザ | Chromium | build 1228（`~/Library/Caches/ms-playwright`） | 既存のキャッシュを利用。追加インストールなし |
 | 運用ルール | CLAUDE.md + `.claude/rules/` | — | `CLAUDE.md` 66 行、rules 4 ファイル（testing / git / security / scope） |
@@ -27,6 +28,13 @@ PO 受け入れ後に `/opsx:archive` すると、デルタが `specs/` に統�
 Claude Code 向けコマンド（デフォルトプロファイル）: `/opsx:explore`, `/opsx:propose`, `/opsx:apply`, `/opsx:update`, `/opsx:sync`, `/opsx:archive`。
 拡張プロファイル（`new`, `continue`, `ff`, `verify`, `bulk-archive`, `onboard`）は `openspec config profile` で追加可能。
 
+### スキルの更新ルール
+
+`.claude/skills/openspec-*` は `gh skill` 管理下にある。更新は `gh skill update --all`（または `--pin` を新タグに変えて再 install）で行う。
+`openspec update` を実行すると CLI が同じディレクトリを init 版で上書きし、`gh skill` のメタデータ（`github-*`）が消えて `gh skill list` の出所が `-` に戻る。
+CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `openspec update`（コマンド更新）→ `gh skill install ... --pin v<ver> --force`（スキル再導入）」の順に行う。
+拡張プロファイルのスキル（`openspec-new-change`, `openspec-continue-change`, `openspec-ff-change`, `openspec-verify-change`, `openspec-bulk-archive-change`, `openspec-onboard`）も同じリポジトリの `skills/` から個別に導入できる。
+
 ## 2. 動作確認結果
 
 | 対象 | 実行したこと | 結果 |
@@ -34,6 +42,7 @@ Claude Code 向けコマンド（デフォルトプロファイル）: `/opsx:ex
 | Superpowers | セッションのスキル一覧を確認 | brainstorming / writing-plans / subagent-driven-development / test-driven-development を含む 14 スキルを認識 |
 | OpenSpec CLI | `openspec --version` | `1.13.1` |
 | OpenSpec 連携 | `openspec init --tools claude --language ja --no-animation` | `OpenSpec Setup Complete — 6 skills and 6 commands in .claude/`。同セッション内で `opsx:propose` 等 6 コマンド + `openspec-*` 6 スキルが認識された |
+| OpenSpec スキル（gh skill） | core 6 スキルを `gh skill install ... --pin v1.13.1 --force` で再導入 → `gh skill list` | 6 件とも `claude-code / project / Fission-AI/OpenSpec` として一覧に出た。SKILL.md の frontmatter に `github-repo` / `github-pinned: v1.13.1` / `github-tree-sha` が記録される。本文は init 生成物と同一（末尾の案内が `/opsx:apply` から `/openspec-apply-change` に変わるのみ） |
 | Playwright MCP | stdio で MCP クライアントを自作し `initialize` → `tools/list` → `browser_navigate` → `browser_take_screenshot` | serverInfo `{"name":"Playwright","version":"1.64.0-alpha-2026-09-14"}`。ツール 26 個。ローカル HTTP サーバー上のテストページに遷移し `Page Title: Playwright MCP smoke test` を取得、`smoke.png`（14,505 bytes）を保存。画像を開いて見出しテキストの描画を確認 |
 | Playwright MCP 制約 | `file://` URL へ遷移 | `Access to "file:" protocol is blocked` → UI 検証は必ず HTTP で配信する（メモ） |
 | Hooks: PreToolUse | 合成 JSON を `block-destructive.sh` にパイプ | ブロック対象 22 ケース全て rc=2、許可対象 16 ケース全て rc=0 |

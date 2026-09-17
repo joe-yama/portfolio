@@ -1,15 +1,18 @@
 ---
-name: openspec-sync-specs
-description: Sync delta specs from an OpenSpec change to main specs. Use when the user wants to update main specs with changes from a delta spec, without archiving the change. Also use when the user says "openspec sync" or "opsx sync".
 allowed-tools: Bash(openspec:*)
-license: MIT
 compatibility: Requires openspec CLI.
+description: Sync delta specs from an OpenSpec change to main specs. Use when the user wants to update main specs with changes from a delta spec, without archiving the change. Also use when the user says "openspec sync" or "opsx sync".
+license: MIT
 metadata:
-  author: openspec
-  version: "1.0"
-  generatedBy: "1.13.1"
+    author: openspec
+    github-path: skills/openspec-sync-specs
+    github-pinned: v1.13.1
+    github-ref: refs/tags/v1.13.1
+    github-repo: https://github.com/Fission-AI/OpenSpec
+    github-tree-sha: 4632c00cd2915a3b8ceea483a434fe65800ef7ac
+    version: "1.0"
+name: openspec-sync-specs
 ---
-
 Sync delta specs from a change to main specs.
 
 This is an **agent-driven** operation - you will read delta specs and directly edit main specs to apply the changes. This allows intelligent merging (e.g., adding a scenario without copying the entire requirement).
@@ -42,7 +45,7 @@ In both branches, never create the root as a side effect: do not run `openspec i
 
    When prompting, show changes that have delta specs (under `specs/` directory).
 
-   Always announce: "Using change: <name>" and how to override (e.g., `/opsx:sync <other>`).
+   Always announce: "Using change: <name>" and how to override (e.g., `/openspec-sync-specs <other>`).
 
 2. **Resolve change context**
 

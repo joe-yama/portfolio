@@ -1,15 +1,18 @@
 ---
-name: openspec-archive-change
-description: Archive a completed OpenSpec change in the experimental workflow. Use when the user wants to finalize and archive a change after implementation is complete. Also use when the user says "openspec archive" or "opsx archive".
 allowed-tools: Bash(openspec:*)
-license: MIT
 compatibility: Requires openspec CLI.
+description: Archive a completed OpenSpec change in the experimental workflow. Use when the user wants to finalize and archive a change after implementation is complete. Also use when the user says "openspec archive" or "opsx archive".
+license: MIT
 metadata:
-  author: openspec
-  version: "1.0"
-  generatedBy: "1.13.1"
+    author: openspec
+    github-path: skills/openspec-archive-change
+    github-pinned: v1.13.1
+    github-ref: refs/tags/v1.13.1
+    github-repo: https://github.com/Fission-AI/OpenSpec
+    github-tree-sha: 0f5fd5e0f15bb8ec2c6e6f9026603987574c676c
+    version: "1.0"
+name: openspec-archive-change
 ---
-
 Archive a completed change in the experimental workflow.
 
 **Store selection:** If the user names a store (a store is a standalone OpenSpec repo registered on this machine) or the work lives in one, run `openspec store list --json` to discover registered store ids, then pass `--store <id>` on the commands that read or write specs and changes (`new change`, `status`, `instructions`, `list`, `show`, `validate`, `archive`, `doctor`, `context`, `schemas`, `view`). Once selected, treat `--store <id>` as sticky for the rest of the workflow. Every unscoped example of those commands below is shorthand: before running it, append the flag. For example, run `openspec status --change "<name>" --json --store "<id>"`, not the unscoped form shown below. Other commands do not take the flag. Hints printed by commands already carry the flag; keep it on follow-ups. Without a store, commands act on the nearest local `openspec/` root.
@@ -41,7 +44,7 @@ In both branches, never create the root as a side effect: do not run `openspec i
    When prompting, show only active changes (not already archived).
    Include the schema used for each change if available.
 
-   Always announce: "Using change: <name>" and how to override (e.g., `/opsx:archive <other>`).
+   Always announce: "Using change: <name>" and how to override (e.g., `/openspec-archive-change <other>`).
 
    **Load current archive inputs before the existing archive checks:**
 
