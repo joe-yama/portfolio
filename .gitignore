@@ -1,0 +1,26 @@
+# secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# dependencies / build
+node_modules/
+dist/
+build/
+coverage/
+.venv/
+__pycache__/
+
+# tooling
+.DS_Store
+*.log
+npm-debug.log*
+.playwright-mcp/
+test-results/
+playwright-report/
+
+# Claude Code local-only settings
+.claude/settings.local.json
