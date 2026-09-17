@@ -13,6 +13,7 @@ build/
 coverage/
 .venv/
 __pycache__/
+.astro/
 
 # tooling
 .DS_Store
