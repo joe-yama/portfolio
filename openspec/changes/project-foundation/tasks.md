@@ -10,7 +10,7 @@
 
 ## 2. Biome
 
-- [ ] 2.1 `pnpm add -D @biomejs/biome` と `biome.json` を追加し、scripts に `lint`（検査のみ）と `format`（修正）を足し、`pnpm lint` が 0 で終わること、わざと整形を崩したファイルで非 0 になることを確認する
+- [x] 2.1 `pnpm add -D @biomejs/biome` と `biome.json`（対象から `dist` `.astro` `pnpm-lock.yaml` に加え、gh skill 管理の第三者コードを含む `.claude` とハーネス設定 `.mcp.json` を除外）を追加し、scripts に `lint`（`biome check . --error-on-warnings`。Biome は warning だけでは exit 0 のため）と `format`（修正）を足し、`pnpm lint` が診断 0 件・終了コード 0 で終わること、未使用変数を仮に入れたファイルで非 0 になることを確認する
 
 ## 3. Vitest と i18n ユーティリティ
 
