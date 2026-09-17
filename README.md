@@ -9,3 +9,10 @@ Claude Code を Agent、人間を PO とする開発ハーネス上で進める�
 - `docs/harness/` — 導入したハーネス部品の記録（README / hooks）
 - `openspec/` — 仕様・変更提案（OpenSpec）
 - `CLAUDE.md` — Agent 向けの運用ルール
+
+## ライセンス
+
+- コード: MIT License
+- 写真・文章などのコンテンツ: Copyright (c) 2026 joe-yama. All rights reserved（無断転載・再配布禁止）
+
+詳細は `LICENSE` を参照。
