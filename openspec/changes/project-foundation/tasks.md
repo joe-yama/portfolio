@@ -4,9 +4,9 @@
 
 ## 1. pnpm + Astro の初期化
 
-- [ ] 1.1 `.node-version`（26.8.2）、`package.json`（`packageManager: pnpm@12.4.2`、scripts dev/build/preview/typecheck）、`pnpm-workspace.yaml`（`onlyBuiltDependencies: esbuild, sharp`）を作り、`pnpm add astro` / `pnpm add -D @astrojs/check typescript` で `pnpm-lock.yaml` が生成され「Ignored build scripts」の警告が出ないことを確認する
-- [ ] 1.2 `astro.config.ts`（`site`、`trailingSlash: 'always'`、i18n `ja`/`en` + `prefixDefaultLocale` + `redirectToDefaultLocale`、`image.domains: ['github.com']`）と `tsconfig.json`（strict）、仮の `src/pages/index.astro` を作り、`.gitignore` に `.astro/` を足し、`pnpm typecheck` と `pnpm build` が終了コード 0 で `dist/` を出すことを確認する
-- [ ] 1.3 計画の「確認ポイント」（`src/content.config.ts` と `astro/loaders` の `glob`、`astro/zod`、i18n 設定キー名、`[lang]` 動的セグメントとの併用、`getViteConfig`）を `node_modules/astro/` の型定義で確認し、想定と違う点を Issue にコメントする
+- [x] 1.1 `.node-version`（26.8.2）、`package.json`（`packageManager: pnpm@12.4.2`、scripts dev/build/preview/typecheck）、`pnpm-workspace.yaml`（`allowBuilds: esbuild, sharp`。pnpm 12 では `onlyBuiltDependencies` が効かないため置き換え）を作り、`pnpm add astro` / `pnpm add -D @astrojs/check typescript@^6`（7 系は `astro check` 未対応）で `pnpm-lock.yaml` が生成され「Ignored build scripts」の警告が出ないことを確認する
+- [x] 1.2 `astro.config.ts`（`site`、`trailingSlash: 'always'`、i18n `ja`/`en` + `prefixDefaultLocale: true` + `redirectToDefaultLocale: false`、`image.domains: ['github.com']`）と `tsconfig.json`（strict）、`/` → `/ja/` の自前リダイレクトページ `src/pages/index.astro`（`<meta http-equiv="refresh" content="0;url=/ja/">`、script なし。Astro の自動リダイレクトはルート index を要求し競合警告を出すため使わない）、仮の `src/pages/ja/index.astro` を作り、`.gitignore` に `.astro/` を足し、`pnpm typecheck` と `pnpm build` が警告なしの終了コード 0 で `dist/index.html` と `dist/ja/index.html` を出すことを確認する
+- [x] 1.3 計画の「確認ポイント」（`src/content.config.ts` と `astro/loaders` の `glob`、`astro/zod`、i18n 設定キー名、`[lang]` 動的セグメントとの併用、`getViteConfig`）を `node_modules/astro/` の型定義で確認し、想定と違う点を Issue にコメントする
 
 ## 2. Biome
 
@@ -31,7 +31,7 @@
 
 - [ ] 6.1 `src/content.config.ts`（`glob` ローダー + Task 4 のスキーマで `profile` / `career` / `photos` を定義）と、日英のサンプル `src/content/profile/{ja,en}.yaml`・`src/content/career/{ja,en}.yaml`（件数一致、プレースホルダーの名前と一行紹介）を作り、`pnpm typecheck` が 0 になることを確認する
 - [ ] 6.2 `src/lib/content.ts`（`getPhotos`: 検証済み `order` 昇順、`getProfile(lang)`、`getCareer(lang)`: 日英件数を検証してから返す）を実装し、`pnpm typecheck` 0 を確認する
-- [ ] 6.3 `src/pages/[lang]/index.astro`（`getStaticPaths` で `locales`、`<html lang>`、名前と一行紹介のみ、`<script>` なし）を作って仮の `src/pages/index.astro` を消し、`pnpm build` 後に `dist/ja/index.html` と `dist/en/index.html` に各言語の名前が入ること、`dist/index.html` が `/ja/` へのリダイレクトを含むこと、`dist/**/*.html` に `<script` が無いことを `grep` で確認する
+- [ ] 6.3 `src/pages/[lang]/index.astro`（`getStaticPaths` で `locales`、`<html lang>`、名前と一行紹介のみ、`<script>` なし）を作って仮の `src/pages/ja/index.astro` を消し（リダイレクト用の `src/pages/index.astro` は残す）、`pnpm build` 後に `dist/ja/index.html` と `dist/en/index.html` に各言語の名前が入ること、`dist/index.html` が `/ja/` へのリダイレクトを含むこと、`dist/**/*.html` に `<script` が無いことを `grep` で確認する
 - [ ] 6.4 サンプルの `career/en.yaml` の `achievements` を 1 件減らして `pnpm build` が `achievements` と件数を含むエラーで失敗することを確認し、元に戻してビルドが通ることを確認する（ビルド時検証の実効性）
 
 ## 7. ハーネスへの反映（設計書 §8.1）
