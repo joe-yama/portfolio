@@ -13,10 +13,11 @@
 | 仕様・変更管理 | OpenSpec スキル 6 個 | v1.13.1 にピン留め（`Fission-AI/OpenSpec` の `skills/`） | PO 指示により `gh skill install Fission-AI/OpenSpec skills/<name> --agent claude-code --scope project --pin v1.13.1` で導入（init 生成物を置き換え）。`gh skill list` で管理 |
 | UI 検証 | Playwright MCP | @playwright/mcp 0.0.81（Playwright 1.64.0-alpha-2026-09-14） | `.mcp.json`（プロジェクトスコープ）。`--headless --isolated --output-dir .playwright-mcp` |
 | ブラウザ | Chromium | build 1228（`~/Library/Caches/ms-playwright`） | 既存のキャッシュを利用。追加インストールなし |
-| 運用ルール | CLAUDE.md + `.claude/rules/` | — | `CLAUDE.md` 66 行、rules 4 ファイル（testing / git / security / scope） |
+| 運用ルール | CLAUDE.md + `.claude/rules/` | — | rules 5 ファイル（testing / git / security / scope / review） |
 | 強制 | Hooks | — | `.claude/settings.json` + `.claude/hooks/*.sh`。詳細は `hooks.md` |
 | 権限・隔離 | permissions + sandbox | — | `.claude/settings.json`（下記「4. 権限設定」） |
 | 作業記憶（任意） | Beads | 未導入 | PO 判断待ち（HANDOFF 6.） |
+| 役割別サブエージェント | `.claude/agents/implementer.md`（Sonnet）、`.claude/agents/reviewer.md`（Opus） | — | 2026-09-17 PO 指示。実装と別コンテキストで敵対的 + ponytail 観点のレビュー。モデルの使い分けと Opus 実装への切り替え条件は `.claude/rules/review.md` |
 
 ### openspec/ の構成
 

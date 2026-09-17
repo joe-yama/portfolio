@@ -1,6 +1,6 @@
 # CLAUDE.md — Agent 向け運用ルール
 
-「人間 = PO、Claude Code = Agent」の開発ハーネス上で進める。経緯と未決事項は `docs/HANDOFF.md`、導入したハーネス部品と動作確認の記録は `docs/harness/README.md`（hooks の理由は `docs/harness/hooks.md`）。testing / git / security / scope の詳細ルールは `.claude/rules/` にあり、毎セッション自動ロードされる。
+「人間 = PO、Claude Code = Agent」の開発ハーネス上で進める。経緯と未決事項は `docs/HANDOFF.md`、導入したハーネス部品と動作確認の記録は `docs/harness/README.md`（hooks の理由は `docs/harness/hooks.md`）。testing / git / security / scope / review の詳細ルールは `.claude/rules/` にあり、毎セッション自動ロードされる。
 
 現在のフェーズ: ハーネス構築完了（2026-09-17）、設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` を PO 承認・レビュー反映済み（2026-09-17）。`docs/HANDOFF.md` §3 のセットアップ手順は再実行しない。次の作業は `superpowers:writing-plans` で実装計画を作り、`/opsx:propose` で最初の change を起こす。残る未決事項（HANDOFF §6、harness README §5）は影響する時点で PO に確認する。
 
@@ -13,14 +13,15 @@ PO 本人の名刺となる Web サイト。採用担当・転職エージェン
 - PO（人間）: 何を作るか・優先順位・受け入れ判断・質問への回答。コードや実装詳細は指定しない
 - Agent（Claude Code）: 設計提案・実装・テスト・レビュー・ドキュメント。設計承認前の実装と仕様外の機能追加はしない
 - 判断が必要な点は勝手に決めず PO に質問する。作った側の自己評価を信用せず、レビュー/QA は別コンテキストのサブエージェントが行う
+- 使用モデル（予算。PO 指示 2026-09-17）: 実装は Sonnet（`subagent_type: implementer`）、レビューは Opus（`subagent_type: reviewer`）。レビューは敵対的 + ponytail 観点。レビュー結果がひどい場合の Opus 実装への切り替え条件は `.claude/rules/review.md`
 
 ## 標準ワークフロー（1 機能あたり）
 
 1. PO がアイデアを 1〜4 文で提示する
 2. `superpowers:brainstorming` で Agent が質問し、設計を段階的に提示。PO が承認する
 3. `/opsx:propose` で proposal / spec / design / tasks を生成し、同時に GitHub Issue を 1 つ作る（change 1 つ = Issue 1 つ。詳細は `.claude/rules/git.md`）。PO がレビューし承認する
-4. `superpowers:writing-plans` → `superpowers:subagent-driven-development` で実装（TDD 強制）。ブロッカー以外で PO を呼ばない。実装開始・方針変更・ブロッカーは Issue にコメントで記録する
-5. 独立レビュー: 別サブエージェントが「仕様準拠 → コード品質」の順でレビュー。UI は Playwright MCP で実操作して検証する。結果を Issue に記録する
+4. `superpowers:writing-plans` → `superpowers:subagent-driven-development` で実装（TDD 強制）。実装は `implementer`（Sonnet）サブエージェント。ブロッカー以外で PO を呼ばない。実装開始・方針変更・ブロッカーは Issue にコメントで記録する
+5. 独立レビュー: `reviewer`（Opus）サブエージェントが「仕様準拠 → コード品質 → ponytail」の順で敵対的にレビュー。UI は Playwright MCP で実操作して検証する。結果を Issue に記録する。詳細は `.claude/rules/review.md`
 6. PR を作る（本文に `Closes #<Issue 番号>`）。PO が受け入れてマージすると Issue が閉じる。その後 `/opsx:archive` で change をアーカイブする
 
 ## 完了の定義

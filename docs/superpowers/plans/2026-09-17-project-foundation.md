@@ -1,6 +1,6 @@
 # ポートフォリオサイト v1 実装計画 — Change 1: project-foundation
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. 実装は `subagent_type: implementer`（Sonnet）、レビューは `subagent_type: reviewer`（Opus）で起こす。切り替え条件と手順は `.claude/rules/review.md`。
 
 **Goal:** pnpm + Astro のプロジェクト土台を作り、内容データ（profile / career / photos）のスキーマと検証、日英ルーティングの骨格、lint / typecheck / test / build の CI を動かす。
 
