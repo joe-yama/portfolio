@@ -83,3 +83,4 @@ CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `ope
 2. 自律実行時のコミット署名の扱い
 3. OpenSpec の成果物言語を日本語にした（`--language ja`）ことの確認。英語に変えるなら `openspec/config.yaml` の `context` を編集
 4. OpenSpec プロファイルをデフォルト（core）にした。拡張ワークフロー（`/opsx:ff` 等）が必要になったら追加
+5. 技術スタック決定時に、同じ change で更新するもの: `.claude/rules/testing.md` のテストコマンド節（test / lint / typecheck）、`.claude/hooks/lint-on-edit.sh` の `detect_lint()` と `.claude/hooks/test-on-stop.sh` の `detect_test()` を確定コマンド 1 行に置き換え、`.claude/settings.json` の `permissions.allow` にテスト・lint の実行コマンドを追加、`CLAUDE.md` の「技術スタック」「コマンド」節と本ファイルの記録
