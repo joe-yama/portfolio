@@ -47,4 +47,4 @@
 
 - [x] 9.1 `pnpm lint && pnpm typecheck && pnpm test && pnpm build` がすべて 0 で、`git status --short` が空であることを確認し、本ファイルの完了項目を `[x]` にしてコミットする
 - [x] 9.2 `reviewer`（Opus）でブランチ全体を「仕様準拠（specs 3 件）→ コード品質 → ponytail」の順にレビューし、指摘（Stop hook の root 解決）を修正して再レビューが Approved になったら結果を Issue にコメントする
-- [ ] 9.3 `gh api user --jq .login` が `joe-yama` であることを確認してから push し、`Closes #1` を本文に含む PR を作り、CI 緑を確認して Issue に「PR 作成、CI 緑」をコメントする
+- [x] 9.3 `gh api user --jq .login` が `joe-yama` であることを確認してから push し、`Closes #1` を本文に含む PR（#2）を作り、CI 緑（run 35330999569）を確認して Issue に「PR 作成、CI 緑」をコメントする。PR は `f9b8a09` でマージ、Issue #1 クローズ（2026-09-18）

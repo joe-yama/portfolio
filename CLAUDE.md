@@ -2,7 +2,7 @@
 
 「人間 = PO、Claude Code = Agent」の開発ハーネス上で進める。経緯と未決事項は `docs/HANDOFF.md`、導入したハーネス部品と動作確認の記録は `docs/harness/README.md`（hooks の理由は `docs/harness/hooks.md`）。testing / git / security / scope / review の詳細ルールは `.claude/rules/` にあり、毎セッション自動ロードされる。
 
-現在のフェーズ: ハーネス構築完了（2026-09-17）、設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` を PO 承認・レビュー反映済み（2026-09-17）。`docs/HANDOFF.md` §3 のセットアップ手順は再実行しない。最初の change `project-foundation`（`openspec/changes/project-foundation/`、GitHub Issue #1）は実装と独立レビューが完了し、PR の作成・マージ待ち（2026-09-18）。マージ後に `/opsx:archive` し、Change 2 `layout-shell` の brainstorming に進む。実装中の裁定と後続 change への申し送りは Issue #1 のコメントにある。残る未決事項（HANDOFF §6、harness README §5）は影響する時点で PO に確認する。
+現在のフェーズ: ハーネス構築完了（2026-09-17）、設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` を PO 承認・レビュー反映済み（2026-09-17）。`docs/HANDOFF.md` §3 のセットアップ手順は再実行しない。Change 1 `project-foundation` は PR #2 でマージ済み・アーカイブ済み（2026-09-18。`openspec/changes/archive/2026-09-18-project-foundation/`、main spec は `openspec/specs/{content-schema,i18n-routing,quality-gates}`）。実装中の裁定と後続 change への申し送り（photos コレクションと `getPhotos` は Change 3 へ、`[lang]/index.astro` の `await getCareer` を残す、保留 Minor の一覧）は GitHub Issue #1 のコメントにある。次は Change 2 `layout-shell` の `superpowers:brainstorming` から始める（計画のロードマップは `docs/superpowers/plans/2026-09-17-project-foundation.md`）。残る未決事項（HANDOFF §6、harness README §5）は影響する時点で PO に確認する。
 
 ## プロジェクト概要
 
