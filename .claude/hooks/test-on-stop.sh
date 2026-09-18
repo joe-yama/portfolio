@@ -2,7 +2,7 @@
 # Stop hook: Claude がターンを終える前にテストを実行し、失敗していれば停止をブロックして続行させる。
 # - stop_hook_active が true のとき（この hook が原因で続行した直後）は無限ループ防止のため何もしない
 # - ソースコードに未コミットの変更が無ければテストは走らせない（ドキュメント作業のみのターンを遅くしない）
-# - テストコマンドはプロジェクト構成から自動検出。スタック決定後は detect_test() を確定コマンドに置き換える
+# - テストは Vitest（`pnpm test`）
 set -u
 input=$(cat)
 active=$(printf '%s' "$input" | jq -r '.stop_hook_active // false')
@@ -17,15 +17,8 @@ changed=$(git status --porcelain 2>/dev/null | awk '{print $NF}' \
 [ -n "$changed" ] || exit 0
 
 detect_test() {
-  if [ -f package.json ] && jq -e '.scripts.test' package.json >/dev/null 2>&1; then
-    echo "npm test --silent"
-  elif [ -f pyproject.toml ] || [ -f pytest.ini ] || [ -d tests ] && command -v pytest >/dev/null 2>&1; then
-    echo "pytest -q"
-  elif [ -f Cargo.toml ]; then
-    echo "cargo test --quiet"
-  elif [ -f go.mod ]; then
-    echo "go test ./..."
-  fi
+  [ -f package.json ] || return 0
+  echo "pnpm test"
 }
 
 test_cmd=$(detect_test)

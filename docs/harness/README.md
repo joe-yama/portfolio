@@ -87,4 +87,4 @@ CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `ope
 2. 自律実行時のコミット署名の扱い
 3. OpenSpec の成果物言語を日本語にした（`--language ja`）ことの確認。英語に変えるなら `openspec/config.yaml` の `context` を編集
 4. OpenSpec プロファイルをデフォルト（core）にした。拡張ワークフロー（`/opsx:ff` 等）が必要になったら追加
-5. 技術スタック（Astro + pnpm、設計書 §2・§9 で決定済み）の導入 change で更新するもの: `.claude/rules/testing.md` のテストコマンド節（`pnpm test` / `pnpm lint` / `pnpm typecheck` / `pnpm e2e`）、`.claude/hooks/lint-on-edit.sh` の `detect_lint()` を `pnpm exec biome check <file>` に、`.claude/hooks/test-on-stop.sh` の `detect_test()` を `pnpm test` に置き換え、`.claude/settings.json` の `permissions.allow` に不足があれば追記（pnpm への置き換えは 2026-09-17 に済み）、`CLAUDE.md` の「コマンド」節と本ファイルの記録
+5. 技術スタック導入時のハーネス更新は change `project-foundation` で実施済み（2026-09-18）: testing.md のコマンド節、hooks の `detect_lint()` → `pnpm exec biome check --error-on-warnings <file>`、`detect_test()` → `pnpm test`、CLAUDE.md のコマンド表
