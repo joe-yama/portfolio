@@ -19,8 +19,8 @@
 
 ## 4. 内容データの Zod スキーマ
 
-- [ ] 4.1 `tests/unit/schemas.test.ts` を先に書く: profile（必須 3 項目、リンク `kind` の列挙、未知の `kind` で失敗）、career（`bullets` 5 件は通り 6 件で失敗、`to: null` が通る、`achievements.kind` の列挙）、photos（全項目で通る、`alt.en` 欠落・`exif.iso` 欠落・`aperture` 文字列で失敗、`image` が URL 形式でないと失敗）。RED を確認する
-- [ ] 4.2 `src/content/schemas.ts`（`PHOTO_BASE_URL`、`localizedSchema`、`photoSchema`、`careerSchema`、`profileSchema`、型 `Photo`/`Career`/`Profile`/`Localized`）を `astro/zod` だけで実装し、`pnpm test` 緑・`pnpm typecheck` 0 を確認する
+- [x] 4.1 `tests/unit/schemas.test.ts` を先に書く: profile（必須 3 項目、`tagline` 欠落で失敗、リンク `kind` の列挙、未知の `kind` で失敗、`links: []` は通る）、career（`bullets` 5 件は通り 6 件で失敗、`to` は省略と `null` の両方が通る、`achievements.kind` の列挙）、photos（全項目で通る、`alt.en` 欠落・`exif.iso` 欠落・`aperture` 文字列・`order` 非整数で失敗、`image` が URL 形式でないと失敗、`takenAt` は `Date` と `YYYY-MM-DD` 文字列だけ通り `null` / 数値は失敗）。RED を確認する
+- [x] 4.2 `src/content/schemas.ts`（`PHOTO_BASE_URL`、`photoSchema`、`careerSchema`、`profileSchema`、型 `Photo`/`Career`/`Profile`/`Localized`）を `astro/zod`（Zod v4。`z.url()`、`takenAt` は `z.coerce.date()` でなく `z.union([z.date(), isoDate.transform(...)])`）だけで実装し、`pnpm test` 緑・`pnpm typecheck` 0 を確認する
 
 ## 5. スキーマで表せない制約の検証
 
