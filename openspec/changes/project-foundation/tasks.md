@@ -24,8 +24,8 @@
 
 ## 5. スキーマで表せない制約の検証
 
-- [ ] 5.1 `tests/unit/validate.test.ts` を先に書く: `validatePhotos`（正常 3 枚で空配列、`featured` 2 枚で両 slug を含むエラー、`featured` 0 枚でエラー、`order` 重複で値と両 slug を含むエラー、他ホストの URL でエラー、ファイル名が slug と違う URL でエラー、0 枚で空配列）、`validateCareerParity`（一致で空配列、`achievements` 2 対 1 で配列名と両件数を含むエラー）、`assertValid`（空なら何もしない、1 件以上で `subject` を含む `Error`）。RED を確認する
-- [ ] 5.2 `src/lib/validate.ts`（`PhotoEntry`、`validatePhotos`、`validateCareerParity`、`assertValid`）を実装し、`pnpm test` 緑・`pnpm lint` 0 を確認する
+- [x] 5.1 `tests/unit/validate.test.ts` を先に書く: `validatePhotos`（正常で空配列、`featured` 2 枚で両 slug を含むエラー、`featured` 0 枚でエラー、`order` 重複で値と両 slug を含むエラー、他ホストの URL / ファイル名が slug と違う URL で slug と URL を含むエラー、0 枚で空配列）、`validateCareerParity`（一致で空配列、`achievements` 2 対 1 で配列名と両件数を含むエラー）、`assertValid`（空なら何もしない、1 件以上で `subject` を含む `Error`）。RED を確認する
+- [x] 5.2 `src/lib/validate.ts`（`PhotoEntry`、`validatePhotos`、`validateCareerParity`、`assertValid`）を実装し、`pnpm test` 緑・`pnpm lint` 0 を確認する
 
 ## 6. コンテンツコレクションとサンプルデータ、言語別トップ
 
