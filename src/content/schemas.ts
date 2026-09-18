@@ -25,9 +25,9 @@ export const exifSchema = z.object({
 
 export const photoSchema = z.object({
   image: z.url(),
-  order: z.number().int().positive(),
+  order: z.number().int(),
   featured: z.boolean().default(false),
-  takenAt: z.coerce.date(),
+  takenAt: z.union([z.date(), isoDate.transform((s) => new Date(s))]),
   title: localizedSchema,
   location: localizedSchema,
   alt: localizedSchema,
@@ -61,14 +61,12 @@ export type Career = z.infer<typeof careerSchema>;
 export const profileSchema = z.object({
   name: nonEmpty,
   tagline: nonEmpty,
-  links: z
-    .array(
-      z.object({
-        label: nonEmpty,
-        url: z.url(),
-        kind: z.enum(['github', 'email', 'x', 'linkedin', 'other']),
-      }),
-    )
-    .min(1),
+  links: z.array(
+    z.object({
+      label: nonEmpty,
+      url: z.url(),
+      kind: z.enum(['github', 'email', 'x', 'linkedin', 'other']),
+    }),
+  ),
 });
 export type Profile = z.infer<typeof profileSchema>;

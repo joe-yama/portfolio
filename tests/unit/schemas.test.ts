@@ -35,6 +35,18 @@ describe('photoSchema', () => {
     expect(photoSchema.parse(rest).featured).toBe(false);
   });
 
+  it('takenAt は Date か YYYY-MM-DD 文字列のみ受け付ける（null / 数値 / 真偽値は拒否）', () => {
+    expect(photoSchema.safeParse({ ...validPhoto, takenAt: null }).success).toBe(false);
+    expect(photoSchema.safeParse({ ...validPhoto, takenAt: 0 }).success).toBe(false);
+    expect(photoSchema.safeParse({ ...validPhoto, takenAt: true }).success).toBe(false);
+
+    const parsedFromDate = photoSchema.parse({ ...validPhoto, takenAt: new Date('2025-11-03') });
+    expect(parsedFromDate.takenAt).toBeInstanceOf(Date);
+
+    const parsedFromString = photoSchema.parse({ ...validPhoto, takenAt: '2025-11-03' });
+    expect(parsedFromString.takenAt).toBeInstanceOf(Date);
+  });
+
   it('image が URL でなければ拒否する', () => {
     expect(photoSchema.safeParse({ ...validPhoto, image: '../../assets/x.jpg' }).success).toBe(
       false,
@@ -60,6 +72,16 @@ describe('photoSchema', () => {
 
   it('alt は両言語とも空文字を許さない', () => {
     expect(photoSchema.safeParse({ ...validPhoto, alt: { ja: '', en: 'x' } }).success).toBe(false);
+  });
+
+  it('alt は en キーが無いと拒否する', () => {
+    const altJaOnly: Record<string, unknown> = { ...validPhoto.alt };
+    delete altJaOnly.en;
+    expect(photoSchema.safeParse({ ...validPhoto, alt: altJaOnly }).success).toBe(false);
+  });
+
+  it('order は整数のみ許す（小数は拒否）', () => {
+    expect(photoSchema.safeParse({ ...validPhoto, order: 1.5 }).success).toBe(false);
   });
 });
 
@@ -87,6 +109,11 @@ describe('careerSchema', () => {
   it('experience の bullets は最大 5', () => {
     const six = { ...validCareer.experience[0], bullets: ['1', '2', '3', '4', '5', '6'] };
     expect(careerSchema.safeParse({ ...validCareer, experience: [six] }).success).toBe(false);
+  });
+
+  it('experience の bullets はちょうど 5 件なら成功する', () => {
+    const five = { ...validCareer.experience[0], bullets: ['1', '2', '3', '4', '5'] };
+    expect(careerSchema.safeParse({ ...validCareer, experience: [five] }).success).toBe(true);
   });
 
   it('from / to は YYYY-MM 形式', () => {
@@ -121,9 +148,16 @@ describe('profileSchema', () => {
     expect(profileSchema.safeParse(validProfile).success).toBe(true);
   });
 
-  it('links は 1 件以上、kind は列挙のみ', () => {
-    expect(profileSchema.safeParse({ ...validProfile, links: [] }).success).toBe(false);
+  // spec は links[] の件数を制約しない（Ruling 12）。brief 由来の「1 件以上」は外し、
+  // links: [] は成功、kind は列挙のみという期待値にする。
+  it('links は空配列も許すが、kind は列挙のみ', () => {
+    expect(profileSchema.safeParse({ ...validProfile, links: [] }).success).toBe(true);
     const bad = { ...validProfile.links[0], kind: 'mastodon' };
     expect(profileSchema.safeParse({ ...validProfile, links: [bad] }).success).toBe(false);
+  });
+
+  it('tagline を欠くと失敗する', () => {
+    const { tagline: _omit, ...rest } = validProfile;
+    expect(profileSchema.safeParse(rest).success).toBe(false);
   });
 });
