@@ -1,13 +1,7 @@
-import { type CollectionEntry, getCollection, getEntry } from 'astro:content';
+import { getEntry } from 'astro:content';
 import type { Career, Profile } from '../content/schemas';
 import type { Locale } from './i18n';
-import { assertValid, validateCareerParity, validatePhotos } from './validate';
-
-export async function getPhotos(): Promise<CollectionEntry<'photos'>[]> {
-  const entries = await getCollection('photos');
-  assertValid(validatePhotos(entries), 'photos');
-  return [...entries].sort((a, b) => a.data.order - b.data.order);
-}
+import { assertValid, validateCareerParity } from './validate';
 
 export async function getProfile(lang: Locale): Promise<Profile> {
   const entry = await getEntry('profile', lang);

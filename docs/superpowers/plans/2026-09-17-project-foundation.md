@@ -18,7 +18,7 @@
 |---|---|---|---|
 | 1 | `project-foundation` | 本計画。ツール一式、スキーマ、検証、i18n 骨格、ハーネス反映、CI | §5, §8, §8.1, §9（CI） |
 | 2 | `layout-shell` | `BaseLayout`（`<html lang>`、hreflang、モノトーン配色、ダーク/ライト追従）、DotGothic16 の同梱、ヘッダー（ロゴ・ナビ・言語切り替え）、ドット絵、404 ページ。モックを PO が確認 | §4（404、言語切り替え）, §7 |
-| 3 | `photo-pipeline` | Release `photos` の作成、`pnpm photo:add`（EXIF → upload → YAML 雛形）、ギャラリー `/photos/`、個別ページ `/photos/<slug>/`、トップの代表写真、`<Picture>` の出力設定 | §4（photos）, §5.1, §5.3, §6 |
+| 3 | `photo-pipeline` | Release `photos` の作成、`pnpm photo:add`（EXIF → upload → YAML 雛形）、`photos` コンテンツコレクションの定義と `getPhotos`（Change 1 から移管。空ディレクトリの glob ローダーが `[WARN]` を出すため）、ギャラリー `/photos/`、個別ページ `/photos/<slug>/`、トップの代表写真、`<Picture>` の出力設定 | §4（photos）, §5.1, §5.3, §6 |
 | 4 | `profile-and-career` | トップの完成（名前、一行紹介、連絡先、導線）、`/career/`（職歴・スキル・資格・実績） | §4（トップ、career）, §5.2 |
 | 5 | `deploy-and-e2e` | Playwright + axe の e2e、ビルド後 HTML の内部リンク検査、GitHub Pages デプロイ workflow、`public/CNAME` と `site` の独自ドメイン化 | §8（表示の検証、リンク切れ）, §9 |
 

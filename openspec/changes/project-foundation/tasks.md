@@ -29,8 +29,8 @@
 
 ## 6. コンテンツコレクションとサンプルデータ、言語別トップ
 
-- [ ] 6.1 `src/content.config.ts`（`glob` ローダー + Task 4 のスキーマで `profile` / `career` / `photos` を定義）と、日英のサンプル `src/content/profile/{ja,en}.yaml`・`src/content/career/{ja,en}.yaml`（件数一致、プレースホルダーの名前と一行紹介）を作り、`pnpm typecheck` が 0 になることを確認する
-- [ ] 6.2 `src/lib/content.ts`（`getPhotos`: 検証済み `order` 昇順、`getProfile(lang)`、`getCareer(lang)`: 日英件数を検証してから返す）を実装し、`pnpm typecheck` 0 を確認する
+- [ ] 6.1 `src/content.config.ts`（`glob` ローダー + Task 4 のスキーマで `profile` / `career` を定義。`photos` コレクションは写真が 0 枚だと glob ローダーが毎ビルド `[WARN]` を出すため Change 3 で写真と同時に定義する）と、日英のサンプル `src/content/profile/{ja,en}.yaml`・`src/content/career/{ja,en}.yaml`（件数一致、プレースホルダーの名前と一行紹介）を作り、`pnpm typecheck` が 0 になることを確認する
+- [ ] 6.2 `src/lib/content.ts`（`getProfile(lang)`、`getCareer(lang)`: 日英件数を検証してから返す。`getPhotos`（検証済み `order` 昇順）は呼び出し元と写真が入る Change 3 で追加）を実装し、`pnpm typecheck` 0 を確認する
 - [ ] 6.3 `src/pages/[lang]/index.astro`（`getStaticPaths` で `locales`、`<html lang>`、名前と一行紹介のみ、`<script>` なし）を作って仮の `src/pages/ja/index.astro` を消し（リダイレクト用の `src/pages/index.astro` は残す）、`pnpm build` 後に `dist/ja/index.html` と `dist/en/index.html` に各言語の名前が入ること、`dist/index.html` が `/ja/` へのリダイレクトを含むこと、`dist/**/*.html` に `<script` が無いことを `grep` で確認する
 - [ ] 6.4 サンプルの `career/en.yaml` の `achievements` を 1 件減らして `pnpm build` が `achievements` と件数を含むエラーで失敗することを確認し、元に戻してビルドが通ることを確認する（ビルド時検証の実効性）
 
