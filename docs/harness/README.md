@@ -87,4 +87,4 @@ CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `ope
 2. 自律実行時のコミット署名の扱い
 3. OpenSpec の成果物言語を日本語にした（`--language ja`）ことの確認。英語に変えるなら `openspec/config.yaml` の `context` を編集
 4. OpenSpec プロファイルをデフォルト（core）にした。拡張ワークフロー（`/opsx:ff` 等）が必要になったら追加
-5. 技術スタック導入時のハーネス更新は change `project-foundation` で実施済み（2026-09-18）: testing.md のコマンド節、hooks の `detect_lint()` → `pnpm exec biome check --error-on-warnings <file>`、`detect_test()` → `pnpm test`、CLAUDE.md のコマンド表
+5. 技術スタック導入時のハーネス更新は change `project-foundation` で実施済み（2026-09-18）: testing.md のコマンド節、hooks の `detect_lint()` → `pnpm exec biome check --error-on-warnings --no-errors-on-unmatched <file>`、`detect_test()` → `pnpm test`、CLAUDE.md のコマンド表

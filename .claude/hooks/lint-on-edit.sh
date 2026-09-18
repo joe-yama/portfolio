@@ -5,9 +5,12 @@
 set -u
 input=$(cat)
 file=$(printf '%s' "$input" | jq -r '.tool_response.filePath // .tool_input.file_path // ""')
-root="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 
 [ -n "$file" ] && [ -f "$file" ] || exit 0
+
+# root はファイルが属する git worktree の toplevel から求める（CLAUDE_PROJECT_DIR が
+# main リポジトリの root を指す環境では、worktree 内のファイルの root として誤るため）
+root=$(git -C "$(dirname "$file")" rev-parse --show-toplevel 2>/dev/null) || root="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 
 # ドキュメント・設定類は対象外（root からの相対パスで判定。絶対パスで */.claude/* を見ると
 # .claude/worktrees/ 配下の worktree では全ファイルが一致してしまう）
@@ -18,7 +21,7 @@ esac
 
 detect_lint() {
   [ -f "$root/biome.json" ] || return 0
-  echo "pnpm exec biome check --error-on-warnings \"$file\""
+  echo "pnpm exec biome check --error-on-warnings --no-errors-on-unmatched \"$file\""
 }
 
 lint_cmd=$(detect_lint)

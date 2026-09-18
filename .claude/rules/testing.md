@@ -16,4 +16,4 @@
 | ビルド | `pnpm build` |
 | e2e（Playwright。Change 5 で追加） | `pnpm e2e` |
 
-hooks: 編集ごとに `pnpm exec biome check --error-on-warnings <file>`、ターン終了時に `pnpm test`（`.claude/hooks/`）。e2e は数十秒かかるので hooks に入れず、CI とレビュー用サブエージェントが実行する。
+hooks: 編集ごとに `pnpm exec biome check --error-on-warnings --no-errors-on-unmatched <file>`、ターン終了時に `pnpm test`（`.claude/hooks/`）。e2e は数十秒かかるので hooks に入れず、CI とレビュー用サブエージェントが実行する。
