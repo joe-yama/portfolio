@@ -1,0 +1,24 @@
+experience:
+  - from: "2020-04"
+    organization: サンプル株式会社
+    role: ソフトウェアエンジニア
+    bullets:
+      - 社内向け Web アプリケーションの設計と実装
+      - CI/CD パイプラインの整備
+  - from: "2017-04"
+    to: "2020-03"
+    organization: 例示システムズ
+    role: プログラマ
+    bullets:
+      - 業務システムの保守と機能追加
+skills:
+  言語: [TypeScript, Python]
+  クラウド: [AWS]
+certifications:
+  - date: "2023-06-01"
+    name: 応用情報技術者
+achievements:
+  - date: "2024-10-12"
+    name: 社外勉強会で登壇（サンプル）
+    kind: talk
+    url: https://example.com/talk

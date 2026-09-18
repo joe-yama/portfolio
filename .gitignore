@@ -13,6 +13,7 @@ build/
 coverage/
 .venv/
 __pycache__/
+.astro/
 
 # tooling
 .DS_Store
@@ -24,3 +25,7 @@ playwright-report/
 
 # Claude Code local-only settings
 .claude/settings.local.json
+
+# Agent の作業用（git 管理外）
+.claude/worktrees/
+.superpowers/

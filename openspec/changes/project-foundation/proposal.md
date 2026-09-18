@@ -14,7 +14,7 @@
 - GitHub Actions で PR と `main` への push に対して `lint → typecheck → test → build` を実行する CI を追加する
 - ハーネスを確定したコマンドに合わせる（`.claude/rules/testing.md` のコマンド節、hooks の lint / test 検出、`CLAUDE.md` のコマンド表、`docs/harness/README.md` §5）
 
-含めないもの（後続の change）: レイアウトとデザイン（`layout-shell`）、Release `photos` の作成・`pnpm photo:add`・ギャラリー（`photo-pipeline`）、トップの完成と経歴ページ（`profile-and-career`）、e2e と GitHub Pages デプロイ・独自ドメイン（`deploy-and-e2e`）。
+含めないもの（後続の change）: レイアウトとデザイン（`layout-shell`）、Release `photos` の作成・`pnpm photo:add`・`photos` コンテンツコレクションの定義と `getPhotos`（`order` 昇順の要求を含む。実装時に移管）・ギャラリー（`photo-pipeline`）、トップの完成と経歴ページ（`profile-and-career`）、e2e と GitHub Pages デプロイ・独自ドメイン（`deploy-and-e2e`）。
 
 ## Capabilities
 

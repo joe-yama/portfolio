@@ -18,7 +18,7 @@
 |---|---|---|---|
 | 1 | `project-foundation` | 本計画。ツール一式、スキーマ、検証、i18n 骨格、ハーネス反映、CI | §5, §8, §8.1, §9（CI） |
 | 2 | `layout-shell` | `BaseLayout`（`<html lang>`、hreflang、モノトーン配色、ダーク/ライト追従）、DotGothic16 の同梱、ヘッダー（ロゴ・ナビ・言語切り替え）、ドット絵、404 ページ。モックを PO が確認 | §4（404、言語切り替え）, §7 |
-| 3 | `photo-pipeline` | Release `photos` の作成、`pnpm photo:add`（EXIF → upload → YAML 雛形）、ギャラリー `/photos/`、個別ページ `/photos/<slug>/`、トップの代表写真、`<Picture>` の出力設定 | §4（photos）, §5.1, §5.3, §6 |
+| 3 | `photo-pipeline` | Release `photos` の作成、`pnpm photo:add`（EXIF → upload → YAML 雛形）、`photos` コンテンツコレクションの定義と `getPhotos`（Change 1 から移管。空ディレクトリの glob ローダーが `[WARN]` を出すため）、ギャラリー `/photos/`、個別ページ `/photos/<slug>/`、トップの代表写真、`<Picture>` の出力設定 | §4（photos）, §5.1, §5.3, §6 |
 | 4 | `profile-and-career` | トップの完成（名前、一行紹介、連絡先、導線）、`/career/`（職歴・スキル・資格・実績） | §4（トップ、career）, §5.2 |
 | 5 | `deploy-and-e2e` | Playwright + axe の e2e、ビルド後 HTML の内部リンク検査、GitHub Pages デプロイ workflow、`public/CNAME` と `site` の独自ドメイン化 | §8（表示の検証、リンク切れ）, §9 |
 
@@ -826,6 +826,8 @@ git commit -m "feat: featured / order / 画像 URL / 日英件数の検証関数
 ---
 
 ### Task 6: コンテンツコレクションの定義、サンプルデータ、言語別トップ
+
+> **実装時の変更（2026-09-18、Issue #1）:** 以下の本文は計画時のもの。実装では (1) `photos` コレクション・`getPhotos`・`src/content/photos/.gitkeep` を Change 3 に移した（空ディレクトリの glob ローダーが毎ビルド `[WARN]` を出すため）、(2) 削除対象は Task 1 の仮ページ `src/pages/ja/index.astro` で、`src/pages/index.astro` は `/`→`/ja/` の自前リダイレクトページとして残す（Task 1 の Ruling 6）、(3) `.astro` の `noUnusedVariables` は `biome.json` の `overrides` で無効化した。正は `openspec/changes/project-foundation/tasks.md`。
 
 **Files:**
 - Create: `src/content.config.ts`, `src/content/profile/ja.yaml`, `src/content/profile/en.yaml`, `src/content/career/ja.yaml`, `src/content/career/en.yaml`, `src/lib/content.ts`, `src/pages/[lang]/index.astro`

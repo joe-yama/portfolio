@@ -8,5 +8,12 @@
 
 ## テストコマンド
 
-<!-- 技術スタック決定後に追記する -->
-未決定。決定後、ここに `test` / `lint` / `typecheck` の実行コマンドを記載し、hooks の設定も更新する。
+| 目的 | コマンド |
+|---|---|
+| 単体テスト（Vitest） | `pnpm test` |
+| lint と整形の検査（Biome） | `pnpm lint`（修正は `pnpm format`） |
+| 型チェック（astro check） | `pnpm typecheck` |
+| ビルド | `pnpm build` |
+| e2e（Playwright。Change 5 で追加） | `pnpm e2e` |
+
+hooks: 編集ごとに `pnpm exec biome check --error-on-warnings --no-errors-on-unmatched <file>`、ターン終了時に `pnpm test`（`.claude/hooks/`）。e2e は数十秒かかるので hooks に入れず、CI とレビュー用サブエージェントが実行する。

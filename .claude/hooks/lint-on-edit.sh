@@ -1,32 +1,27 @@
 #!/usr/bin/env bash
 # PostToolUse hook (Edit|Write): 編集されたファイルに対して lint を実行する。
 # lint が失敗した場合は exit 2 で stderr を Claude に返し、その場で修正させる。
-# 技術スタックが未決定のため、プロジェクトの構成ファイルから lint コマンドを自動検出する。
-# スタック決定後は detect_lint() を確定したコマンドに置き換える（docs/harness/hooks.md 参照）。
+# lint は Biome。編集されたファイル 1 つだけを検査する。
 set -u
 input=$(cat)
 file=$(printf '%s' "$input" | jq -r '.tool_response.filePath // .tool_input.file_path // ""')
-root="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 
 [ -n "$file" ] && [ -f "$file" ] || exit 0
 
-# ドキュメント・設定類は対象外
-case "$file" in
-  *.md|*.txt|*.json|*.yaml|*.yml|*.toml|*.lock|*/.claude/*|*/openspec/*|*/docs/*) exit 0 ;;
+# root はファイルが属する git worktree の toplevel から求める（CLAUDE_PROJECT_DIR が
+# main リポジトリの root を指す環境では、worktree 内のファイルの root として誤るため）
+root=$(git -C "$(dirname "$file")" rev-parse --show-toplevel 2>/dev/null) || root="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+
+# ドキュメント・設定類は対象外（root からの相対パスで判定。絶対パスで */.claude/* を見ると
+# .claude/worktrees/ 配下の worktree では全ファイルが一致してしまう）
+rel="${file#"$root"/}"
+case "$rel" in
+  *.md|*.txt|*.json|*.yaml|*.yml|*.toml|*.lock|.claude/*|openspec/*|docs/*) exit 0 ;;
 esac
 
 detect_lint() {
-  if [ -f "$root/package.json" ] && jq -e '.scripts.lint' "$root/package.json" >/dev/null 2>&1; then
-    echo "npm run --silent lint --prefix \"$root\""
-  elif [ -f "$root/biome.json" ] || [ -f "$root/biome.jsonc" ]; then
-    echo "npx --no-install biome check \"$file\""
-  elif [ -f "$root/pyproject.toml" ] || [ -f "$root/ruff.toml" ]; then
-    command -v ruff >/dev/null 2>&1 && echo "ruff check \"$file\""
-  elif [ -f "$root/Cargo.toml" ]; then
-    echo "cargo clippy --quiet --manifest-path \"$root/Cargo.toml\""
-  elif [ -f "$root/go.mod" ]; then
-    echo "go vet ./..."
-  fi
+  [ -f "$root/biome.json" ] || return 0
+  echo "pnpm exec biome check --error-on-warnings --no-errors-on-unmatched \"$file\""
 }
 
 lint_cmd=$(detect_lint)

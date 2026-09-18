@@ -1,0 +1,9 @@
+name: joe-yama
+tagline: Software engineer who takes photographs (sample)
+links:
+  - label: GitHub
+    url: https://github.com/joe-yama
+    kind: github
+  - label: Email
+    url: mailto:hello@example.com
+    kind: email

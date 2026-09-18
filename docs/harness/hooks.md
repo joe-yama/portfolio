@@ -40,10 +40,9 @@ permissions がプレフィックス一致しか見ないのに対し、hook は
 | スクリプト | `.claude/hooks/lint-on-edit.sh` |
 | 動作 | lint が失敗したら `exit 2` で stderr を Claude に返し、その場で修正させる。成功時は無出力 |
 
-- ドキュメント・設定ファイル（`.md`, `.json`, `.yaml`, `.toml`, `.claude/`, `openspec/`, `docs/`）は対象外
-- lint コマンドはプロジェクト構成から自動検出する（`package.json` の `scripts.lint` → biome → ruff → cargo clippy → go vet）。
-  **技術スタック未決定のため、現状は何も検出せず即 exit 0 する**
-- スタック決定後: `detect_lint()` を確定したコマンド 1 行に置き換え、`.claude/rules/testing.md` のテストコマンド節と一致させる
+- ドキュメント・設定ファイル（`.md`, `.json`, `.yaml`, `.toml`, `.claude/`, `openspec/`, `docs/`）は対象外。判定は `root` からの相対パスで行う（絶対パスで判定すると `.claude/worktrees/` 配下の worktree では全ファイルが誤って除外対象になる）
+- lint は Biome 固定: `detect_lint()` が編集ファイル 1 つに対して `pnpm exec biome check --error-on-warnings --no-errors-on-unmatched "$file"` を実行する。`error-on-warnings` で警告も失敗扱いにし、`no-errors-on-unmatched` で Biome の対象外ファイル（`LICENSE` など）でも exit 1 にならないようにする
+- `root` はファイルが属する git worktree の toplevel（`git -C "$(dirname "$file")" rev-parse --show-toplevel`）から求める。取得できない場合のみ `CLAUDE_PROJECT_DIR`（無ければ `pwd`）にフォールバックする。`CLAUDE_PROJECT_DIR` が main リポジトリの root を指す環境では、worktree 内のファイルに対してこれをそのまま `root` にすると相対パス判定と Biome の実行ディレクトリの両方を誤るため
 
 理由: 「完了の定義」に lint 通過が含まれる。編集直後に失敗を返すことで、最後にまとめて直すより修正コストが小さい。
 
@@ -59,7 +58,7 @@ permissions がプレフィックス一致しか見ないのに対し、hook は
 
 - `stop_hook_active: true`（この hook が原因で続行した直後）のときは何もしない → 無限ループ防止
 - ソースコードに未コミット変更が無いときはテストを走らせない → ドキュメントだけのターンを遅くしない
-- テストコマンドはプロジェクト構成から自動検出（`scripts.test` → pytest → cargo test → go test）。**現状は未検出で即 exit 0**
+- テストは Vitest 固定: `detect_test()` が `pnpm test` を実行する
 - タイムアウト 600 秒
 
 理由: 「テストが緑」は完了の定義の第一条件。Agent の自己申告ではなく、hook が実際に走らせて確認する。

@@ -36,7 +36,7 @@ PO 本人の名刺となる Web サイト。役割の優先順位は次のとお
 
 ## 4. サイト構成と URL
 
-すべてのページを `/ja/` と `/en/` の下に置く（`prefixDefaultLocale: true`）。`/` は `/ja/` へ静的リダイレクト（Astro の i18n 設定 `redirectToDefaultLocale` で生成。JavaScript 不要）。
+すべてのページを `/ja/` と `/en/` の下に置く（`prefixDefaultLocale: true`）。`/` は `/ja/` へ静的リダイレクト（`src/pages/index.astro` の `<meta http-equiv="refresh" content="0;url=/ja/">`。JavaScript 不要。Astro の `redirectToDefaultLocale` はルートの index.astro の存在を要求したうえで同じ `/` と競合する警告を出すため使わない。実装時判断 2026-09-17、Issue #1）。
 
 | URL | 役割 | 内容 |
 |---|---|---|

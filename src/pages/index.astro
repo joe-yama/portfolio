@@ -1,0 +1,16 @@
+---
+// 設計書 §4 の静的リダイレクト。Astro の redirectToDefaultLocale は
+// ルート index.astro の存在を要求し競合 WARN を出すため自前で書く
+---
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content="0;url=/ja/" />
+    <meta name="robots" content="noindex" />
+    <title>portfolio</title>
+  </head>
+  <body>
+    <a href="/ja/">Redirecting from <code>/</code> to <code>/ja/</code></a>
+  </body>
+</html>
