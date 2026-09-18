@@ -4,5 +4,11 @@
   "files": { "includes": ["**", "!dist", "!.astro", "!pnpm-lock.yaml", "!.claude", "!.mcp.json"] },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 100 },
   "linter": { "enabled": true },
-  "javascript": { "formatter": { "quoteStyle": "single", "semicolons": "always" } }
+  "javascript": { "formatter": { "quoteStyle": "single", "semicolons": "always" } },
+  "overrides": [
+    {
+      "includes": ["**/*.astro"],
+      "linter": { "rules": { "correctness": { "noUnusedVariables": "off" } } }
+    }
+  ]
 }

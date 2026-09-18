@@ -7,7 +7,6 @@ export function getStaticPaths() {
 }
 
 const lang = Astro.params.lang as Locale;
-// biome-ignore lint/correctness/noUnusedVariables: Biome は Astro テンプレート側の {profile.*} 参照を見ないため誤検知する
 const profile = await getProfile(lang);
 // 検証をビルドに乗せるため呼ぶ。表示は Change 4 で行う
 await getCareer(lang);
