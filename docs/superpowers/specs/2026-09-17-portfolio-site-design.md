@@ -1,7 +1,7 @@
 # ポートフォリオサイト 設計書
 
 - 作成日: 2026-09-17
-- 状態: brainstorming で PO 承認済み（5 セクションすべて）。2026-09-17 の PO レビューで 3 点を反映（pnpm 採用、写真は GitHub Releases に保管、change ごとに GitHub Issue で進行管理）。次は writing-plans で実装計画を作る
+- 状態: brainstorming で PO 承認済み（5 セクションすべて）。2026-09-17 の PO レビューで 3 点を反映（pnpm 採用、写真は GitHub Releases に保管、change ごとに GitHub Issue で進行管理）。2026-09-18 の Change 2 `layout-shell` の brainstorming で §4・§5・§6・§7 を更新（ヘッダーとフッターの内容、フォントの配信方式、ドット絵の形式）
 - 対象: 初回リリース（v1）。ここに書かれていない機能は含めない
 
 ## 1. 目的と読者
@@ -46,7 +46,13 @@ PO 本人の名刺となる Web サイト。役割の優先順位は次のとお
 | `/ja/career/` | 経歴 | 職歴の時系列、スキル、資格、登壇・執筆などの実績、外部リンク |
 | `/404.html` | 見つからない | ドット絵 1 枚と両言語への戻りリンク |
 
-`/en/` 配下も同じ構成。各ページのヘッダーに言語切り替えを置き、**同じページの他言語版**に飛ぶ（トップに戻さない）。`<html lang>` と `hreflang` の `<link rel="alternate">` を全ページに出す。
+`/en/` 配下も同じ構成。各ページのヘッダーに言語切り替えを置き、**同じページの他言語版**に飛ぶ（トップに戻さない）。`<html lang>` と `hreflang` の `<link rel="alternate">`（`ja` / `en` / `x-default` = `ja`）を全ページに出す。
+
+ヘッダーとフッター（PO 決定 2026-09-18）:
+
+- ヘッダーは 1 行。左にロゴ（`profile` の `name` をドット文字で表示。クリックでその言語のトップへ）、右にナビ「Photos」「Career」（両言語とも英字）と言語切り替え（相手の言語名を表示。日本語ページでは「English」、英語ページでは「日本語」）。狭い画面では折り返すだけで、開閉メニューは作らない
+- フッターは「© 年 名前」の 1 行のみ。年はビルド時の年
+- `/404.html` にはナビと言語切り替えを置かない（どの言語のページか決められないため）。フッターは共通
 
 ## 5. 内容データの構造
 
@@ -57,8 +63,7 @@ src/content/
 ├── profile/   ja.yaml, en.yaml   # 名前、一行紹介、連絡先リンク
 ├── career/    ja.yaml, en.yaml   # 職歴、スキル、資格、実績
 └── photos/    <slug>.yaml        # 写真 1 枚 = 1 ファイル。二言語を同居。画像本体は Releases（下記）
-src/assets/pixel/*.png            # ドット絵（最適化対象外）
-public/fonts/DotGothic16-Regular.ttf  # ピクセルフォント（同梱・自己配信）
+src/components/pixel/*.astro      # ドット絵（インライン SVG。Agent 作の仮の絵）
 public/CNAME                      # 独自ドメイン名
 
 GitHub Releases（タグ photos、`--latest=false`）
@@ -119,15 +124,15 @@ Astro 本体の `astro:assets`（sharp）でビルド時に最適化する。実
 
 - `<Picture>` コンポーネントを使い、`formats={['avif','webp']}`、`widths`、`inferSize` を指定する
 - 公開画像から EXIF は sharp の既定で除去される。撮影情報は YAML から表示するので、位置情報などが漏れることはない
-- ドット絵は `public/` か `src/assets/pixel/` に置き、`<img>` に `image-rendering: pixelated` を当てて整数倍で拡大する。最適化パイプラインは通さない
+- ドット絵は Agent が描く仮の絵を Astro コンポーネント内のインライン SVG（`shape-rendering="crispEdges"`、`fill="currentColor"`）で表現する。文字色に追従するのでダーク/ライトで描き分けず、PNG も最適化パイプラインも使わない。PO が自作の絵に差し替えるときは別 change で行う（PO 決定 2026-09-18）
 
 ## 7. デザインの土台
 
 - **色**: モノトーン基調。写真の色を邪魔しない。ダークとライトは OS 設定に追従（`prefers-color-scheme`）。切り替え UI は置かない
-- **文字**: 見出し・ロゴ・ナビ・撮影情報の 1 行は DotGothic16（Google Fonts、SIL OFL 1.1、`public/fonts/` に同梱して自己配信）。本文はシステムフォント（`system-ui`）
-- **ドット絵**: トップのアイコン、404 ページ、言語切り替えのマークなど数点に限定する
+- **文字**: 見出し・ロゴ・ナビ・言語切り替え・撮影情報の 1 行は DotGothic16（Google Fonts、SIL OFL 1.1）。配信は Astro の Fonts API（Google プロバイダー）で、ビルド時に unicode-range 分割済みの woff2 を取得して `dist/_astro/fonts/` から自己配信する。読み込み中は代替フォントで即表示（`display: swap`）。本文はシステムフォント（`system-ui`）。TTF（約 2 MB）の `public/fonts/` 同梱は、初回訪問の読み込み量が大きいためやめた（PO 決定 2026-09-18）
+- **ドット絵**: トップのアイコンと 404 ページの 2 点（v1）。言語切り替えは文字のみ
 - **配信 JavaScript**: ゼロ。Astro の島も使わない
-- **外部通信**: ゼロ。フォント、画像、スクリプトすべて同一オリジン
+- **外部通信**: 公開サイトからはゼロ。フォント、画像、スクリプトすべて同一オリジン。ビルド時の外部取得は GitHub Releases（写真）と Google Fonts（DotGothic16）の 2 箇所のみ
 - **アクセシビリティ**: すべての写真に `alt`、キーボードで全リンクに到達、コントラスト比 4.5:1 以上、言語切り替えに `hreflang`
 
 具体的な余白・サイズ・配置は実装計画の中でモックを作り、PO が確認する。
