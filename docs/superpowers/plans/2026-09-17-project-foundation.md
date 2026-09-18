@@ -827,6 +827,8 @@ git commit -m "feat: featured / order / 画像 URL / 日英件数の検証関数
 
 ### Task 6: コンテンツコレクションの定義、サンプルデータ、言語別トップ
 
+> **実装時の変更（2026-09-18、Issue #1）:** 以下の本文は計画時のもの。実装では (1) `photos` コレクション・`getPhotos`・`src/content/photos/.gitkeep` を Change 3 に移した（空ディレクトリの glob ローダーが毎ビルド `[WARN]` を出すため）、(2) 削除対象は Task 1 の仮ページ `src/pages/ja/index.astro` で、`src/pages/index.astro` は `/`→`/ja/` の自前リダイレクトページとして残す（Task 1 の Ruling 6）、(3) `.astro` の `noUnusedVariables` は `biome.json` の `overrides` で無効化した。正は `openspec/changes/project-foundation/tasks.md`。
+
 **Files:**
 - Create: `src/content.config.ts`, `src/content/profile/ja.yaml`, `src/content/profile/en.yaml`, `src/content/career/ja.yaml`, `src/content/career/en.yaml`, `src/lib/content.ts`, `src/pages/[lang]/index.astro`
 - Delete: `src/pages/index.astro`（Task 1 の仮ページ）
