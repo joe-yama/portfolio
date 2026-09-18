@@ -36,12 +36,10 @@ describe('validatePhotos', () => {
 
   it('featured が 2 枚なら報告する', () => {
     const errors = validatePhotos([
-      photo('a', { featured: true, order: 1 }),
-      photo('b', { featured: true, order: 2 }),
+      photo('alpha', { featured: true, order: 1 }),
+      photo('bravo', { featured: true, order: 2 }),
     ]);
-    expect(errors.some((e) => e.includes('featured') && e.includes('a') && e.includes('b'))).toBe(
-      true,
-    );
+    expect(errors.some((e) => e.includes('featured') && e.includes('alpha, bravo'))).toBe(true);
   });
 
   it('order が重複したら両方の slug を挙げて報告する', () => {
@@ -58,7 +56,22 @@ describe('validatePhotos', () => {
     const wrongHost = photo('a', { featured: true, order: 1, image: 'https://example.com/a.jpg' });
     const wrongName = photo('b', { order: 2, image: `${PHOTO_BASE_URL}other.jpg` });
     const errors = validatePhotos([wrongHost, wrongName]);
-    expect(errors.filter((e) => e.includes('image'))).toHaveLength(2);
+    expect(
+      errors.some(
+        (e) =>
+          e.includes('a') &&
+          e.includes(`${PHOTO_BASE_URL}a.jpg`) &&
+          e.includes('https://example.com/a.jpg'),
+      ),
+    ).toBe(true);
+    expect(
+      errors.some(
+        (e) =>
+          e.includes('b') &&
+          e.includes(`${PHOTO_BASE_URL}b.jpg`) &&
+          e.includes(`${PHOTO_BASE_URL}other.jpg`),
+      ),
+    ).toBe(true);
   });
 });
 
