@@ -14,8 +14,8 @@
 
 ## 3. Vitest と i18n ユーティリティ
 
-- [ ] 3.1 `pnpm add -D vitest`、`vitest.config.ts`（`getViteConfig`）、scripts `test` を追加し、空のテストで `pnpm test` が動くことを確認する
-- [ ] 3.2 `tests/unit/i18n.test.ts` を先に書き（`localeFromPath`: `/ja/career/`→`ja`、`/photos/`・`/`・`/japan/`→`null`。`alternatePath`: `/ja/photos/x/`+`en`→`/en/photos/x/`、`/en/`+`ja`→`/ja/`、`/photos/`+`en`→`/en/photos/`。`otherLocale`）、RED を確認してから `src/lib/i18n.ts`（`locales`、`Locale`、`defaultLocale`、`isLocale`、`otherLocale`、`localeFromPath`、`alternatePath`）を実装し、`pnpm test` が緑になることを確認する
+- [x] 3.1 `pnpm add -D vitest`、`vitest.config.ts`（`getViteConfig`。`astro check` が `test` キーの型を解決できるよう先頭に `/// <reference types="vitest/config" />`）、scripts `test` を追加し、空のテストで `pnpm test` が動くことを確認する
+- [x] 3.2 `tests/unit/i18n.test.ts` を先に書き（`localeFromPath`: `/ja/career/`→`ja`、`/photos/`・`/`・`/japan/`→`null`。`alternatePath`: `/ja/photos/x/`+`en`→`/en/photos/x/`、`/en/`+`ja`→`/ja/`、`/photos/`+`en`→`/en/photos/`。`otherLocale`）、RED を確認してから `src/lib/i18n.ts`（`locales`、`Locale`、`defaultLocale`、`isLocale`、`otherLocale`、`localeFromPath`、`alternatePath`）を実装し、`pnpm test` が緑になることを確認する
 
 ## 4. 内容データの Zod スキーマ
 
