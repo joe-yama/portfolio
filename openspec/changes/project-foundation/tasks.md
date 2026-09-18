@@ -36,8 +36,8 @@
 
 ## 7. ハーネスへの反映（設計書 §8.1）
 
-- [ ] 7.1 `.claude/hooks/lint-on-edit.sh` の `detect_lint()` を `pnpm exec biome check "$file"` に、`.claude/hooks/test-on-stop.sh` の `detect_test()` を `pnpm test` に Write / Edit ツールで置き換え、ヘッダーコメントの「未決定」を直し、合成 JSON をパイプして lint 違反ファイルで rc=2、正常ファイルで rc=0 になることを確認する
-- [ ] 7.2 `.claude/rules/testing.md` のコマンド節（`pnpm test` / `pnpm lint` / `pnpm typecheck`、`pnpm e2e` は Change 5 で追加と明記）、`CLAUDE.md` のコマンド表と「hooks は何も実行せず通過する」の記述、`docs/harness/README.md` §5-5 を更新し、記述したコマンドがすべて実際に存在することを `pnpm run` の一覧で確認する
+- [x] 7.1 `.claude/hooks/lint-on-edit.sh` の `detect_lint()` を `pnpm exec biome check --error-on-warnings --no-errors-on-unmatched "$file"`（warning でも止める。Biome 非対象ファイルではブロックしない）に、`.claude/hooks/test-on-stop.sh` の `detect_test()` を `pnpm test` に Write / Edit ツールで置き換え、ヘッダーコメントの「未決定」を直し、合成 JSON をパイプして lint 違反ファイルで rc=2、正常ファイルと Biome 非対象ファイルで rc=0 になることを確認する。あわせて lint hook の除外判定を root からの相対パスにし、root はファイルの git toplevel から求める（`.claude/worktrees/` 配下の worktree で hook が no-op になっていたバグの修正）
+- [x] 7.2 `.claude/rules/testing.md` のコマンド節（`pnpm test` / `pnpm lint` / `pnpm typecheck`、`pnpm e2e` は Change 5 で追加と明記）、`CLAUDE.md` のコマンド表と「hooks は何も実行せず通過する」の記述、`docs/harness/README.md` §5-5、`docs/harness/hooks.md` の旧仕様記述を更新し、記述したコマンドがすべて実際に存在することを `pnpm run` の一覧で確認する
 
 ## 8. GitHub Actions CI
 
