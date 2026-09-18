@@ -9,9 +9,11 @@ root="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 
 [ -n "$file" ] && [ -f "$file" ] || exit 0
 
-# ドキュメント・設定類は対象外
-case "$file" in
-  *.md|*.txt|*.json|*.yaml|*.yml|*.toml|*.lock|*/.claude/*|*/openspec/*|*/docs/*) exit 0 ;;
+# ドキュメント・設定類は対象外（root からの相対パスで判定。絶対パスで */.claude/* を見ると
+# .claude/worktrees/ 配下の worktree では全ファイルが一致してしまう）
+rel="${file#"$root"/}"
+case "$rel" in
+  *.md|*.txt|*.json|*.yaml|*.yml|*.toml|*.lock|.claude/*|openspec/*|docs/*) exit 0 ;;
 esac
 
 detect_lint() {
