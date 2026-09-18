@@ -8,7 +8,7 @@ input=$(cat)
 active=$(printf '%s' "$input" | jq -r '.stop_hook_active // false')
 [ "$active" = "true" ] && exit 0
 
-root="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+root=$(git rev-parse --show-toplevel 2>/dev/null) || root="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 cd "$root" || exit 0
 
 # 変更されたファイルのうち、ドキュメント・設定以外があるか
