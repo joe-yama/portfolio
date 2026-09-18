@@ -1,0 +1,24 @@
+experience:
+  - from: "2020-04"
+    organization: Sample Inc.
+    role: Software Engineer
+    bullets:
+      - Designed and built internal web applications
+      - Set up CI/CD pipelines
+  - from: "2017-04"
+    to: "2020-03"
+    organization: Example Systems
+    role: Programmer
+    bullets:
+      - Maintained and extended business systems
+skills:
+  Languages: [TypeScript, Python]
+  Cloud: [AWS]
+certifications:
+  - date: "2023-06-01"
+    name: Applied Information Technology Engineer
+achievements:
+  - date: "2024-10-12"
+    name: Talk at a community meetup (sample)
+    kind: talk
+    url: https://example.com/talk
