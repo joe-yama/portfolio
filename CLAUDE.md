@@ -2,7 +2,7 @@
 
 「人間 = PO、Claude Code = Agent」の開発ハーネス上で進める。経緯と未決事項は `docs/HANDOFF.md`、導入したハーネス部品と動作確認の記録は `docs/harness/README.md`（hooks の理由は `docs/harness/hooks.md`）。testing / git / security / scope / review の詳細ルールは `.claude/rules/` にあり、毎セッション自動ロードされる。
 
-現在のフェーズ: ハーネス構築完了（2026-09-17）、設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` を PO 承認・レビュー反映済み（2026-09-17、Change 2 の決定を 2026-09-18 に反映）。`docs/HANDOFF.md` §3 のセットアップ手順は再実行しない。Change 1 `project-foundation` は PR #2、Change 2 `layout-shell` は PR #4 でマージ・アーカイブ済み（`openspec/changes/archive/`、main spec は `openspec/specs/{content-schema,i18n-routing,quality-gates,layout-shell}`）。Change 2 の経緯・裁定・申し送りは GitHub Issue #3 のコメントにある。Change 2 から派生した 2 つの change が起票済みで別セッションで進める: `layout-followups`（Issue #5。`<Font>` のインライン CSS、見た目の Minor、favicon、テストの整理。design の Open Questions を PO が決めてから実装）と `harness-ui-review`（Issue #6。reviewer サブエージェントに Playwright MCP が渡らない問題とルールの整合。`skip_specs`）。次のサイト機能は Change 3 `photo-pipeline` の `superpowers:brainstorming` から始める（ロードマップは `docs/superpowers/plans/2026-09-17-project-foundation.md`、Change 2 の計画は `docs/superpowers/plans/2026-09-19-layout-shell.md`）。残る未決事項（HANDOFF §6、harness README §5）は影響する時点で PO に確認する。
+現在のフェーズ: ハーネス構築完了（2026-09-17）、設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` を PO 承認・レビュー反映済み（2026-09-17、Change 2 の決定を 2026-09-18 に反映）。`docs/HANDOFF.md` §3 のセットアップ手順は再実行しない。Change 1 `project-foundation` は PR #2、Change 2 `layout-shell` は PR #4 でマージ・アーカイブ済み（`openspec/changes/archive/`、main spec は `openspec/specs/{content-schema,i18n-routing,quality-gates,layout-shell}`）。Change 2 の経緯・裁定・申し送りは GitHub Issue #3 のコメントにある。Change 2 から派生した 2 つの change が起票済みで別セッションで進める: `layout-followups`（Issue #5。`<Font>` のインライン CSS、見た目の Minor、favicon、テストの整理。design の Open Questions を PO が決めてから実装）と `harness-ui-review`（Issue #6。reviewer サブエージェントの UI 検証手段とルールの整合。`skip_specs`）。次のサイト機能は Change 3 `photo-pipeline` の `superpowers:brainstorming` から始める（ロードマップは `docs/superpowers/plans/2026-09-17-project-foundation.md`、Change 2 の計画は `docs/superpowers/plans/2026-09-19-layout-shell.md`）。残る未決事項（HANDOFF §6、harness README §5）は影響する時点で PO に確認する。
 
 ## プロジェクト概要
 
@@ -21,7 +21,7 @@ PO 本人の名刺となる Web サイト。採用担当・転職エージェン
 2. `superpowers:brainstorming` で Agent が質問し、設計を段階的に提示。PO が承認する
 3. `/opsx:propose` で proposal / spec / design / tasks を生成し、同時に GitHub Issue を 1 つ作る（change 1 つ = Issue 1 つ。詳細は `.claude/rules/git.md`）。PO がレビューし承認する
 4. `superpowers:writing-plans` → `superpowers:subagent-driven-development` で実装（TDD 強制）。実装は `implementer`（Sonnet）サブエージェント。ブロッカー以外で PO を呼ばない。実装開始・方針変更・ブロッカーは Issue にコメントで記録する
-5. 独立レビュー: `reviewer`（Opus）サブエージェントが「仕様準拠 → コード品質 → ponytail」の順で敵対的にレビュー。UI は Playwright MCP で実操作して検証する。結果を Issue に記録する。詳細は `.claude/rules/review.md`
+5. 独立レビュー: `reviewer`（Opus）サブエージェントが「仕様準拠 → コード品質 → ponytail」の順で敵対的にレビュー。UI は reviewer 自身が Playwright MCP で HTTP の URL を実操作して検証する（`reviewer.md` の `tools` に必要な 11 ツールを列挙済み。`browser_run_code_unsafe` は渡さない）。結果を Issue に記録する。詳細は `.claude/rules/review.md`
 6. PR を作る（本文に `Closes #<Issue 番号>`）。PO が受け入れてマージすると Issue が閉じる。その後 `/opsx:archive` で change をアーカイブする
 
 ## 完了の定義
@@ -40,7 +40,8 @@ PostToolUse hook が編集ファイルに Biome を、Stop hook が `pnpm test` 
 - `.claude/settings.json` / `.claude/hooks/` / `.claude/skills/` / `.mcp.json` はサンドボックス内 Bash から書き込めない。Write / Edit ツールで編集する
 - `git commit` は 1Password の SSH 署名を使うため、サンドボックス内では `Could not connect to socket` で失敗する。サンドボックス外で実行する。ネットワークを使う `gh` 操作も同様
 - `gh` には職場アカウントを含む複数のログインがある。Issue / PR / Release に書き込む前に `gh api user --jq .login` が `joe-yama` であることを確認し、違えば PO に切り替え（`gh auth switch -h github.com -u joe-yama`）を依頼して止まる
-- Playwright MCP は `file:` URL を拒否する。UI 検証は HTTP で配信する（例: `python3 -m http.server`）
+- Playwright MCP は `file:` URL を拒否する。UI 検証は `pnpm build && pnpm preview` で HTTP 配信する（`http://127.0.0.1:4321/`。停止は `pnpm exec astro preview stop`）
+- `.claude/agents/*.md` の変更は実行中のセッションに反映されない（セッション開始時の定義が使われる）。`tools` を変えたらセッションを開き直してから dispatch する。worktree で編集した場合も同じ（2026-09-20 実測）
 - permissions の `Read(.env.*)` deny は `.env.example` にも当たる。`.env.example` の作成・更新は PO が行う
 
 ## スキルの管理（PO 指示）
