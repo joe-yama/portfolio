@@ -4,8 +4,8 @@
 
 ## 1. 事実の確定
 
-- [ ] 1.1 Claude Code の公式ドキュメント（サブエージェントの `tools`、MCP サーバー）で、MCP ツールをサブエージェントに渡す方法と制約を確認し、結果（可否・書き方・出典 URL）を GitHub Issue にコメントする
-- [ ] 1.2 `reviewer.md` の `tools` に `mcp__playwright__browser_navigate` だけを足し、`pnpm build && pnpm preview` の `http://127.0.0.1:4321/ja/` を開いてタイトルを返すだけの reviewer を起こして、ツールが渡るか実測する。結果を Issue にコメントし、試験用の変更は元に戻す
+- [x] 1.1 Claude Code の公式ドキュメント（サブエージェントの `tools`、MCP サーバー）で、MCP ツールをサブエージェントに渡す方法と制約を確認し、結果（可否・書き方・出典 URL）を GitHub Issue にコメントする
+- [x] 1.2 `reviewer.md` の `tools` に `mcp__playwright__browser_navigate` だけを足し、`pnpm build && pnpm preview` の `http://127.0.0.1:4321/ja/` を開いてタイトルを返すだけの reviewer を起こして、ツールが渡るか実測する。結果を Issue にコメントし、試験用の変更は元に戻す
 
 ## 2. 方針決定（PO）
 
