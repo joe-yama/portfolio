@@ -59,6 +59,9 @@ CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `ope
 - **git 署名**: `commit.gpgsign=true` + 1Password `op-ssh-sign`。エージェントソケットへの接続がサンドボックスで拒否されるため、`git commit` は単体コマンド（`excludedCommands` 対象）として実行するか、サンドボックス外で行う
 - **Playwright MCP**: `file:` プロトコル不可。スクリーンショットは `filename` を渡すとサーバーの cwd 基準で保存される（`--output-dir` は自動命名時のみ）
 - **gh の複数アカウント**: `gh auth status` には github.com の joe-yama と職場アカウント、および社内 GitHub Enterprise が登録されている。2026-09-17 時点で有効だったのは職場アカウントで、joe-yama のトークンは失効していた（PO が `gh auth login -h github.com -w` で再認証し `gh auth switch -h github.com -u joe-yama` で切り替え済み）。Agent は `gh` で書き込む前に `gh api user --jq .login` を確認する（`.claude/rules/git.md`）
+- **サブエージェントへの MCP ツールの受け渡し**（2026-09-20、change `harness-ui-review` で実測）: `.claude/agents/*.md` の `tools:` に `mcp__<server>__<tool>` を列挙すれば MCP ツールはサブエージェントに渡る。ただし **agent 定義の変更は実行中のセッションには反映されない**。同一セッションで編集して dispatch すると、セッション開始時の定義で起動し `No such tool available: mcp__playwright__browser_navigate` になる（Change 2 の失敗の原因はこれ）。定義を変えたらセッションを開き直す。検証は 3 回の dispatch で行った: 同一セッション ❌ 2 回 / 新しいセッション（`claude -p`）✅ 1 回（`http://127.0.0.1:4321/ja/` のタイトル `joe-yama` を取得）。`tools:` を省略すると MCP 込みで全継承になるが、reviewer には必要な 11 個だけを列挙する方針（`browser_run_code_unsafe` を渡さない。PO 判断）。なおセッション自体で無効なツール（例: `claude -p` セッションの `Glob` / `Grep`）は `tools:` に書いても渡らない。`.mcp.json` は `@playwright/mcp@latest` を指しているので、`reviewer.md` に列挙したツール名は上流のリネームで使えなくなることがある。reviewer が `No such tool available` を報告したら、まず `@playwright/mcp` の README で現行のツール名を確認する
+- **Playwright MCP の保存先**: `browser_run_code_unsafe` や `browser_take_screenshot` で相対パスを指定すると、worktree で作業していてもファイルは**メインリポジトリの root** に落ちる。保存先は絶対パスで指定する
+- **worktree セッションの Bash ガード**: worktree に入ったセッションでは複合コマンドが拒否される。`printf ... | bash script`、`for ... do ...; done`、`sed ... && git ...` のように git と他コマンドを `&&` でつないだもの、git という語を含む heredoc などが該当する。1 コマンドずつ実行し、合成入力が必要なときは `/tmp` にファイルを置いて `bash script < file` の形にする
 
 ## 4. 権限設定（PO 承認待ち）
 
