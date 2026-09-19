@@ -43,17 +43,15 @@ export const experienceSchema = z.object({
   bullets: z.array(nonEmpty).max(5),
 });
 
+/** 日付付きの項目（資格・実績の共通部分） */
+const datedItemSchema = z.object({ date: isoDate, name: nonEmpty, url: z.url().optional() });
+
 export const careerSchema = z.object({
   experience: z.array(experienceSchema),
   skills: z.record(nonEmpty, z.array(nonEmpty)),
-  certifications: z.array(z.object({ date: isoDate, name: nonEmpty, url: z.url().optional() })),
+  certifications: z.array(datedItemSchema),
   achievements: z.array(
-    z.object({
-      date: isoDate,
-      name: nonEmpty,
-      url: z.url().optional(),
-      kind: z.enum(['talk', 'article', 'award', 'other']),
-    }),
+    datedItemSchema.extend({ kind: z.enum(['talk', 'article', 'award', 'other']) }),
   ),
 });
 export type Career = z.infer<typeof careerSchema>;

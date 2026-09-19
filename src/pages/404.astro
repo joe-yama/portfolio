@@ -1,0 +1,24 @@
+---
+// /404.html。GitHub Pages がそのまま 404 応答に使う。どの言語のページか決められないので
+// ナビと言語切り替えは置かず、日英の文言と両言語のトップへのリンクを並べる（設計書 §4）
+import PixelArt from '../components/pixel/PixelArt.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { locales } from '../lib/i18n';
+import { lost } from '../lib/pixel';
+import { ui } from '../lib/site';
+---
+
+<BaseLayout lang="ja" title="404" showNav={false}>
+  <PixelArt rows={lost} scale={6} />
+  {
+    locales.map((lang) => (
+      <p lang={lang}>
+        <span class="dot">{ui[lang].notFound}</span>
+        {' '}
+        <a href={`/${lang}/`} hreflang={lang}>
+          {ui[lang].backToTop}
+        </a>
+      </p>
+    ))
+  }
+</BaseLayout>

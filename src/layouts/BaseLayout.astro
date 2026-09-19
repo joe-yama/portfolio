@@ -1,0 +1,40 @@
+---
+// 全ページ共通の殻（design D1）。<head> のメタデータ、Header、<main><slot/>、Footer。
+// ページは本文だけを書く。hreflang は /ja/ /en/ 配下のページだけに出す（404 は対象外）
+import { Font } from 'astro:assets';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { getProfile } from '../lib/content';
+import { type Locale, localeFromPath } from '../lib/i18n';
+import { alternateLinks } from '../lib/site';
+import '../styles/global.css';
+
+interface Props {
+  lang: Locale;
+  /** ページ名。省略時はトップ扱いで名前のみ */
+  title?: string;
+  showNav?: boolean;
+}
+
+const { lang, title, showNav } = Astro.props;
+const profile = await getProfile(lang);
+const path = Astro.url.pathname;
+if (!Astro.site) throw new Error('astro.config の site が必要（hreflang の絶対 URL に使う）');
+const alternates = localeFromPath(path) ? alternateLinks(path, Astro.site) : [];
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title ? `${title} · ${profile.name}` : profile.name}</title>
+    {alternates.map((link) => <link rel="alternate" hreflang={link.hreflang} href={link.href} />)}
+    <Font cssVariable="--font-dot" />
+  </head>
+  <body>
+    <Header lang={lang} name={profile.name} path={path} showNav={showNav} />
+    <main><slot /></main>
+    <Footer name={profile.name} />
+  </body>
+</html>

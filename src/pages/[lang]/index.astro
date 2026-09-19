@@ -1,6 +1,9 @@
 ---
+import PixelArt from '../../components/pixel/PixelArt.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCareer, getProfile } from '../../lib/content';
 import { type Locale, locales } from '../../lib/i18n';
+import { camera } from '../../lib/pixel';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
@@ -8,19 +11,12 @@ export function getStaticPaths() {
 
 const lang = Astro.params.lang as Locale;
 const profile = await getProfile(lang);
-// 検証をビルドに乗せるため呼ぶ。表示は Change 4 で行う
+// 日英件数の検証をビルドに乗せるため呼ぶ。表示は Change 4 で行う（Issue #1 の申し送り。消さない）
 await getCareer(lang);
 ---
 
-<!doctype html>
-<html lang={lang}>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{profile.name}</title>
-  </head>
-  <body>
-    <h1>{profile.name}</h1>
-    <p>{profile.tagline}</p>
-  </body>
-</html>
+<BaseLayout lang={lang}>
+  <PixelArt rows={camera} />
+  <h1>{profile.name}</h1>
+  <p class="muted">{profile.tagline}</p>
+</BaseLayout>

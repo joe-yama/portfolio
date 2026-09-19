@@ -16,19 +16,11 @@ changed=$(git status --porcelain 2>/dev/null | awk '{print $NF}' \
   | grep -Ev '(\.md|\.txt|\.json|\.ya?ml|\.toml|\.lock)$|^\.claude/|^openspec/|^docs/' || true)
 [ -n "$changed" ] || exit 0
 
-detect_test() {
-  [ -f package.json ] || return 0
-  echo "pnpm test"
-}
-
-test_cmd=$(detect_test)
-[ -n "$test_cmd" ] || exit 0
-
-out=$(eval "$test_cmd" 2>&1)
+out=$(pnpm test 2>&1)
 status=$?
 if [ $status -ne 0 ]; then
   reason=$(printf 'Tests failed (%s, exit %d). Fix the failures before finishing; do not skip or delete tests.\n%s' \
-    "$test_cmd" "$status" "$(printf '%s\n' "$out" | tail -30)")
+    "pnpm test" "$status" "$(printf '%s\n' "$out" | tail -30)")
   jq -n --arg r "$reason" '{"decision":"block","reason":$r}'
   exit 0
 fi

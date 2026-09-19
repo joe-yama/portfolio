@@ -19,16 +19,8 @@ case "$rel" in
   *.md|*.txt|*.json|*.yaml|*.yml|*.toml|*.lock|.claude/*|openspec/*|docs/*) exit 0 ;;
 esac
 
-detect_lint() {
-  [ -f "$root/biome.json" ] || return 0
-  echo "pnpm exec biome check --error-on-warnings --no-errors-on-unmatched \"$file\""
-}
-
-lint_cmd=$(detect_lint)
-[ -n "$lint_cmd" ] || exit 0   # lint 設定がまだ無いプロジェクトでは何もしない
-
 cd "$root" || exit 0
-out=$(eval "$lint_cmd" 2>&1)
+out=$(pnpm exec biome check --error-on-warnings --no-errors-on-unmatched "$file" 2>&1)
 status=$?
 if [ $status -ne 0 ]; then
   {

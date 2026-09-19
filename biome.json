@@ -1,14 +1,16 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
-  "files": { "includes": ["**", "!dist", "!.astro", "!pnpm-lock.yaml", "!.claude", "!.mcp.json"] },
+  "files": { "includes": ["**", "!.claude", "!.mcp.json"] },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 100 },
   "linter": { "enabled": true },
   "javascript": { "formatter": { "quoteStyle": "single", "semicolons": "always" } },
   "overrides": [
     {
       "includes": ["**/*.astro"],
-      "linter": { "rules": { "correctness": { "noUnusedVariables": "off" } } }
+      "linter": {
+        "rules": { "correctness": { "noUnusedVariables": "off", "noUnusedImports": "off" } }
+      }
     }
   ]
 }
