@@ -3,7 +3,7 @@
 - 設定ファイル: `.claude/settings.json`（プロジェクト共有、コミット対象）
 - スクリプト: `.claude/hooks/*.sh`（`bash` 経由で起動するため実行ビット不要）
 - 公式仕様: https://code.claude.com/docs/en/hooks
-- 最終更新: 2026-09-17
+- 最終更新: 2026-09-19
 
 ## なぜ hooks が必要か
 
@@ -41,7 +41,7 @@ permissions がプレフィックス一致しか見ないのに対し、hook は
 | 動作 | lint が失敗したら `exit 2` で stderr を Claude に返し、その場で修正させる。成功時は無出力 |
 
 - ドキュメント・設定ファイル（`.md`, `.json`, `.yaml`, `.toml`, `.claude/`, `openspec/`, `docs/`）は対象外。判定は `root` からの相対パスで行う（絶対パスで判定すると `.claude/worktrees/` 配下の worktree では全ファイルが誤って除外対象になる）
-- lint は Biome 固定: `detect_lint()` が編集ファイル 1 つに対して `pnpm exec biome check --error-on-warnings --no-errors-on-unmatched "$file"` を実行する。`error-on-warnings` で警告も失敗扱いにし、`no-errors-on-unmatched` で Biome の対象外ファイル（`LICENSE` など）でも exit 1 にならないようにする
+- lint は Biome 固定: 編集ファイル 1 つに対して `pnpm exec biome check --error-on-warnings --no-errors-on-unmatched "$file"` を実行する。`error-on-warnings` で警告も失敗扱いにし、`no-errors-on-unmatched` で Biome の対象外ファイル（`LICENSE` など）でも exit 1 にならないようにする
 - `root` はファイルが属する git worktree の toplevel（`git -C "$(dirname "$file")" rev-parse --show-toplevel`）から求める。取得できない場合のみ `CLAUDE_PROJECT_DIR`（無ければ `pwd`）にフォールバックする。`CLAUDE_PROJECT_DIR` が main リポジトリの root を指す環境では、worktree 内のファイルに対してこれをそのまま `root` にすると相対パス判定と Biome の実行ディレクトリの両方を誤るため
 
 理由: 「完了の定義」に lint 通過が含まれる。編集直後に失敗を返すことで、最後にまとめて直すより修正コストが小さい。
@@ -58,7 +58,7 @@ permissions がプレフィックス一致しか見ないのに対し、hook は
 
 - `stop_hook_active: true`（この hook が原因で続行した直後）のときは何もしない → 無限ループ防止
 - ソースコードに未コミット変更が無いときはテストを走らせない → ドキュメントだけのターンを遅くしない
-- テストは Vitest 固定: `detect_test()` が `pnpm test` を実行する
+- テストは Vitest 固定: `pnpm test` を実行する
 - タイムアウト 600 秒
 
 理由: 「テストが緑」は完了の定義の第一条件。Agent の自己申告ではなく、hook が実際に走らせて確認する。
