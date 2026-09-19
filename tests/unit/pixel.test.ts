@@ -27,6 +27,10 @@ describe('gridSize', () => {
     expect(gridSize(['#', '##'])).toEqual({ width: 2, height: 2 });
   });
 
+  it('縦長の格子でも幅と高さを取り違えない', () => {
+    expect(gridSize(['#', '##', '#'])).toEqual({ width: 2, height: 3 });
+  });
+
   it('16 × 16 の絵は 16 × 16', () => {
     expect(gridSize(camera)).toEqual({ width: 16, height: 16 });
   });
