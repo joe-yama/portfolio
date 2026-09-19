@@ -30,6 +30,6 @@
 
 - [x] 5.1 `reviewer`（Opus）が `pnpm build && pnpm preview` の URL を実ブラウザで操作し（Playwright MCP のツールが reviewer サブエージェントに渡らなかったため、Task 5 / 6 のレビューで ms-playwright の chrome-headless-shell を CLI で使って同じ項目を実測。Issue #3 に記録）、`/ja/`・`/en/`・`/404.html` をライト/ダーク × 幅 390px / 1280px で表示して spec のシナリオ（ヘッダーのリンク先、言語切り替え、320px で横スクロールなし、フォーカス枠、ダークでのドット絵の色）を確認する。結果を Issue にコメントする
 - [ ] 5.2 コントローラーが同じ 3 ページのスクリーンショット（ライト/ダーク × スマホ/PC）を撮って PO に送り、OK または修正指示を受ける。修正があれば該当タスクに戻る
-- [ ] 5.3 `pnpm lint && pnpm typecheck && pnpm test && pnpm build` がすべて 0 で `git status --short` が空であることを確認し、本ファイルの完了項目を `[x]` にしてコミットする
-- [ ] 5.4 `reviewer`（Opus）でブランチ全体を「仕様準拠（`layout-shell`、`quality-gates` の delta）→ コード品質 → ponytail」の順にレビューし、Approved になったら結果を Issue にコメントする
+- [x] 5.3 `pnpm lint && pnpm typecheck && pnpm test && pnpm build` がすべて 0 で `git status --short` が空であることを確認し、本ファイルの完了項目を `[x]` にしてコミットする
+- [x] 5.4 `reviewer`（Opus）でブランチ全体を「仕様準拠（`layout-shell`、`quality-gates` の delta）→ コード品質 → ponytail」の順にレビューし、Approved になったら結果を Issue にコメントする
 - [ ] 5.5 `gh api user --jq .login` が `joe-yama` であることを確認してから push（毎回 PO に確認）し、`Closes #3` を本文に含む PR を作り、CI 緑を確認して Issue にコメントする
