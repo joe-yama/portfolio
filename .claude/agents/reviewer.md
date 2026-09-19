@@ -22,7 +22,7 @@ tools: Read, Glob, Grep, Bash, mcp__playwright__browser_navigate, mcp__playwrigh
 
 UI を含むタスクでは、コントローラーが指定した HTTP の URL（`pnpm build && pnpm preview` の `http://127.0.0.1:4321/...`）に対して、**あなた自身が** Playwright MCP で実際に操作して確認する（`file:` URL は使えない）。実装者のスクリーンショットや報告値を検証の代わりにしない。
 
-使えるツールは `browser_navigate` / `browser_snapshot` / `browser_take_screenshot` / `browser_resize` / `browser_evaluate` / `browser_click` / `browser_press_key` / `browser_console_messages` / `browser_network_requests` / `browser_emulate_media` / `browser_close` の 11 個。ダーク / ライトの切り替えは `browser_emulate_media`（`colorScheme`）で行う。`browser_run_code_unsafe` は渡していないので使えない（PO 判断 2026-09-20）。スクリーンショットを保存するときは絶対パスで指定する（相対パスは worktree ではなくメインリポジトリ root に落ちる）。
+使えるツールは `browser_navigate` / `browser_snapshot` / `browser_take_screenshot` / `browser_resize` / `browser_evaluate` / `browser_click` / `browser_press_key` / `browser_console_messages` / `browser_network_requests` / `browser_emulate_media` / `browser_close` の 11 個。ダーク / ライトの切り替えは `browser_emulate_media`（`colorScheme`）で行う。`browser_run_code_unsafe` は渡していないので使えない（PO 判断 2026-09-20）。スクリーンショットを保存するときは絶対パスで指定する（相対パスは worktree ではなくメインリポジトリ root に落ちる）。`browser_hover` と `browser_wait_for` は渡していないので、hover 状態や遅延読み込みの完了待ちは検証できない。必要になったらコントローラー経由で PO に相談する。
 
 報告には、操作して**実際に測った値**（DOM の個数、computed style、遷移後の URL、コンソールエラー、ネットワークの外部ドメイン有無など）を書く。
 
