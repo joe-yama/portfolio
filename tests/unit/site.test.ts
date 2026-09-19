@@ -21,6 +21,14 @@ describe('alternateLinks', () => {
   it('末尾スラッシュの無いパスも正規化する', () => {
     expect(alternateLinks('/ja', 'https://example.com')[0]?.href).toBe('https://example.com/ja/');
   });
+
+  it('接頭辞の無いパスには接頭辞を付けて返す', () => {
+    expect(alternateLinks('/', 'https://example.com')).toEqual([
+      { hreflang: 'ja', href: 'https://example.com/ja/' },
+      { hreflang: 'en', href: 'https://example.com/en/' },
+      { hreflang: 'x-default', href: 'https://example.com/ja/' },
+    ]);
+  });
 });
 
 describe('navLinks', () => {

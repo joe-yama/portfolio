@@ -33,4 +33,8 @@ describe.each([
   it('少なくとも 1 セルは塗られている', () => {
     expect(cells(rows).length).toBeGreaterThan(0);
   });
+
+  it('全面塗りではない（. と # を取り違えたデータを弾く）', () => {
+    expect(cells(rows).length).toBeLessThan(256);
+  });
 });
