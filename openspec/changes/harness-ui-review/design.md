@@ -47,7 +47,7 @@ Change 2 での事実（2026-09-19〜20、Issue #3）:
 
 ### D4. README への制約の追記
 
-`docs/harness/README.md` §3（環境の注意点）に Change 2 で判明した 3 点を足す: MCP ツールのサブエージェントへの受け渡し（D1 の結論）、`browser_run_code_unsafe` の相対パス保存先がメインリポジトリ root になること、worktree セッションの Bash ガードが拒否する複合コマンドの形（パイプ、for ループ、git を含む heredoc）。
+`docs/harness/README.md` §3（環境の注意点）に Change 2 で判明した 3 点を足す: MCP ツールのサブエージェントへの受け渡し（D1 の結論）、`browser_run_code_unsafe` の相対パス保存先がメインリポジトリ root になること、worktree 分離セッションの Bash ガードが拒否するコマンドの形（2026-09-20 の実測では「git を含み、worktree 内に留まると検証できない形」。パイプや for ループそのものは拒否されない）。
 
 ## Risks / Trade-offs
 
