@@ -32,7 +32,7 @@
 
 1. 実装者（Sonnet）が TDD で実装・テスト・コミットし、報告ファイルを書く
 2. コントローラーが review package（diff）を作り、reviewer（Opus）を起こす。渡すもの: task brief、Global Constraints、実装者の報告ファイル、diff ファイル
-3. reviewer は「仕様準拠 → コード品質 → ponytail」の順で報告する。UI があるタスクでは Playwright MCP で実際に操作する
+3. reviewer は「仕様準拠 → コード品質 → ponytail」の順で報告する。UI があるタスクでは、コントローラーが渡した HTTP の URL に対して reviewer 自身が Playwright MCP で実際に操作し、測った値を報告に書く（`reviewer.md` の `tools` に 11 ツールを列挙済み。`browser_run_code_unsafe` は渡さない。定義を変えたらセッションを開き直す）
 4. Approved なら次のタスク。そうでなければ修正ラウンド（上記の切り替え条件を毎回確認する）
 5. 全タスク完了後、ブランチ全体のレビューも reviewer（Opus）で行う
 6. 各レビューの結果（Approved / 指摘数 / 切り替えの有無）を change の GitHub Issue にコメントする
