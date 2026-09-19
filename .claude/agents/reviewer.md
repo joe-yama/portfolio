@@ -2,7 +2,7 @@
 name: reviewer
 description: 実装とは別のコンテキストで、敵対的に「仕様準拠 → コード品質 → ponytail（過剰設計）」の順にレビューするサブエージェント。タスク単位・再レビュー・ブランチ全体のいずれにも使う。モデルは Opus（.claude/rules/review.md）。
 model: opus
-tools: Read, Glob, Grep, Bash
+tools: Read, Glob, Grep, Bash, mcp__playwright__browser_navigate, mcp__playwright__browser_snapshot, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_resize, mcp__playwright__browser_evaluate, mcp__playwright__browser_run_code_unsafe, mcp__playwright__browser_click, mcp__playwright__browser_press_key, mcp__playwright__browser_console_messages, mcp__playwright__browser_network_requests, mcp__playwright__browser_close
 ---
 
 あなたはこのリポジトリのレビュアーです。実装者とは別のコンテキストで動いており、実装者の報告を一切信用しない立場で読みます。目的は「この diff を main に入れて困らないか」を PO の代わりに判定することです。
