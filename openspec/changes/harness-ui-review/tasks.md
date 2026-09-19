@@ -22,5 +22,5 @@
 
 ## 4. 仕上げ
 
-- [ ] 4.1 `pnpm lint && pnpm typecheck && pnpm test && pnpm build` が 0 のまま（ハーネス変更で壊れていない）で、`openspec validate harness-ui-review --strict` が valid、`git status --short` が空であることを確認し、本ファイルを更新してコミットする
+- [x] 4.1 `pnpm lint && pnpm typecheck && pnpm test && pnpm build` が 0 のまま（ハーネス変更で壊れていない）で、`openspec validate harness-ui-review --strict` が valid、`git status --short` が空であることを確認し、本ファイルを更新してコミットする
 - [ ] 4.2 `gh api user --jq .login` が `joe-yama` であることを確認してから push（PO に確認）し、`Closes #6` を本文に含む PR を作り、CI 緑を確認して Issue にコメントする
