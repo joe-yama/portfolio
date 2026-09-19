@@ -5,7 +5,6 @@
   --fg: #111111;
   --fg-muted: #5c5c5c;
   --line: #d4d4d4;
-  --font-body: system-ui, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -26,7 +25,7 @@
 html {
   background: var(--bg);
   color: var(--fg);
-  font-family: var(--font-body);
+  font-family: system-ui, sans-serif;
   line-height: 1.6;
   -webkit-text-size-adjust: 100%;
 }
@@ -40,7 +39,6 @@ body {
 
 main {
   flex: 1;
-  width: 100%;
   max-width: 80rem;
   margin: 0 auto;
   padding: 2rem 1rem;
