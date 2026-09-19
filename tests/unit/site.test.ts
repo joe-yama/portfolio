@@ -54,7 +54,7 @@ describe('ui', () => {
   it('両言語に 404 の文言と戻りリンクの文言がある', () => {
     expect(ui.ja.notFound).toBe('ページが見つかりません');
     expect(ui.en.notFound).toBe('Page not found');
-    expect(ui.ja.backToTop.length).toBeGreaterThan(0);
-    expect(ui.en.backToTop.length).toBeGreaterThan(0);
+    expect(ui.ja.backToTop).toBe('日本語のトップへ');
+    expect(ui.en.backToTop).toBe('Go to the English top');
   });
 });

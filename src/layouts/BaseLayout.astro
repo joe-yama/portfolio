@@ -16,10 +16,9 @@ interface Props {
   showNav?: boolean;
 }
 
-const { lang, title, showNav = true } = Astro.props;
+const { lang, title, showNav } = Astro.props;
 const profile = await getProfile(lang);
 const path = Astro.url.pathname;
-const pageTitle = title ? `${title} · ${profile.name}` : profile.name;
 if (!Astro.site) throw new Error('astro.config の site が必要（hreflang の絶対 URL に使う）');
 const alternates = localeFromPath(path) ? alternateLinks(path, Astro.site) : [];
 ---
@@ -29,7 +28,7 @@ const alternates = localeFromPath(path) ? alternateLinks(path, Astro.site) : [];
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{pageTitle}</title>
+    <title>{title ? `${title} · ${profile.name}` : profile.name}</title>
     {alternates.map((link) => <link rel="alternate" hreflang={link.hreflang} href={link.href} />)}
     <Font cssVariable="--font-dot" />
   </head>

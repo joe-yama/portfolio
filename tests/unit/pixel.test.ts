@@ -12,6 +12,10 @@ describe('cells', () => {
   it('# が無ければ空', () => {
     expect(cells(['..', '..'])).toEqual([]);
   });
+
+  it('空配列なら空', () => {
+    expect(cells([])).toEqual([]);
+  });
 });
 
 describe.each([

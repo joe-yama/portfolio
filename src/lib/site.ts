@@ -1,4 +1,4 @@
-import { alternatePath, type Locale, locales, otherLocale } from './i18n';
+import { alternatePath, defaultLocale, type Locale, locales, otherLocale } from './i18n';
 
 export type AlternateLink = { hreflang: Locale | 'x-default'; href: string };
 export type NavLink = { label: string; href: string };
@@ -17,7 +17,7 @@ export function alternateLinks(path: string, site: string | URL): AlternateLink[
   const href = (lang: Locale) => new URL(alternatePath(path, lang), site).href;
   return [
     ...locales.map((lang) => ({ hreflang: lang, href: href(lang) })),
-    { hreflang: 'x-default', href: href('ja') },
+    { hreflang: 'x-default', href: href(defaultLocale) },
   ];
 }
 

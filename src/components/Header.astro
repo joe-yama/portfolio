@@ -13,16 +13,15 @@ interface Props {
 }
 
 const { lang, name, path, showNav = true } = Astro.props;
-const nav = navLinks(lang);
-const sw = languageSwitch(path, lang);
+const sw = showNav ? languageSwitch(path, lang) : undefined;
 ---
 
 <header class="dot">
   <a class="logo" href={`/${lang}/`}>{name}</a>
   {
-    showNav && (
+    sw && (
       <nav>
-        {nav.map((link) => <a href={link.href}>{link.label}</a>)}
+        {navLinks(lang).map((link) => <a href={link.href}>{link.label}</a>)}
         <a href={sw.href} hreflang={sw.hreflang} lang={sw.hreflang}>
           {sw.label}
         </a>
