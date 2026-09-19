@@ -51,10 +51,11 @@ describe('faviconSvg', () => {
     const svg = faviconSvg(camera);
     expect(svg).toContain('fill="#111111"');
     expect(svg).toContain('prefers-color-scheme: dark');
+    expect(svg).toContain('rect{fill:#e8e8e8}');
   });
 
   it('名前空間以外に外部への参照を持たない', () => {
-    expect(faviconSvg(camera).replace(/xmlns="[^"]*"/g, '')).not.toMatch(/https?:/);
+    expect(faviconSvg(camera).replace(/xmlns="[^"]*"/g, '')).not.toContain('//');
   });
 });
 
