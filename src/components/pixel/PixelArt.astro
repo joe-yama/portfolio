@@ -1,0 +1,34 @@
+---
+// ドット絵をインライン SVG で描く。1 セル = 1×1 の rect、crispEdges でぼかさない、
+// currentColor で文字色に追従（設計書 §6、design D5）。装飾なので支援技術からは隠す
+// biome-ignore lint/correctness/noUnusedImports: テンプレート内でのみ使用。Biome は .astro のテンプレートを解析しない
+import { cells } from '../../lib/pixel';
+
+interface Props {
+  rows: readonly string[];
+  /** 1 セルの px 数（整数）。16 セル × 4 = 64px */
+  scale?: number;
+}
+
+const { rows, scale = 4 } = Astro.props;
+const width = rows[0]?.length ?? 0;
+const height = rows.length;
+---
+
+<svg
+  viewBox={`0 0 ${width} ${height}`}
+  width={width * scale}
+  height={height * scale}
+  shape-rendering="crispEdges"
+  fill="currentColor"
+  aria-hidden="true"
+>
+  {cells(rows).map(({ x, y }) => <rect x={x} y={y} width="1" height="1" />)}
+</svg>
+
+<style>
+  svg {
+    display: block;
+    margin-bottom: 1rem;
+  }
+</style>
