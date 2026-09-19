@@ -34,7 +34,7 @@ describe.each([
     expect(cells(rows).length).toBeGreaterThan(0);
   });
 
-  it('全面塗りではない（. と # を取り違えたデータを弾く）', () => {
+  it('全面塗りではない', () => {
     expect(cells(rows).length).toBeLessThan(256);
   });
 });

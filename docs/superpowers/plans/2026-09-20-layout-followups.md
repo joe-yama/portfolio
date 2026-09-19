@@ -96,7 +96,7 @@ openspec/changes/layout-followups/  # tasks.md の完了印、design.md に PO �
 `describe.each([...])('%s', (_name, rows) => { … })` の中、`'少なくとも 1 セルは塗られている'` の後に足す。既存の「1 セル以上」と対で「空でも全面でもない」を挟む番人:
 
 ```ts
-  it('全面塗りではない（. と # を取り違えたデータを弾く）', () => {
+  it('全面塗りではない', () => {
     expect(cells(rows).length).toBeLessThan(256);
   });
 ```
