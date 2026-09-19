@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { camera, cells, gridSize, lost } from '../../src/lib/pixel';
+import { camera, cells, faviconSvg, gridSize, lost } from '../../src/lib/pixel';
 
 describe('cells', () => {
   it('# のセル座標を行優先で返す', () => {
@@ -33,6 +33,28 @@ describe('gridSize', () => {
 
   it('16 × 16 の絵は 16 × 16', () => {
     expect(gridSize(camera)).toEqual({ width: 16, height: 16 });
+  });
+});
+
+describe('faviconSvg', () => {
+  it('絵の大きさの viewBox と、ぼかさない指定を持つ', () => {
+    const svg = faviconSvg(camera);
+    expect(svg).toContain('viewBox="0 0 16 16"');
+    expect(svg).toContain('shape-rendering="crispEdges"');
+  });
+
+  it('塗られたセルの数だけ rect を出す', () => {
+    expect(faviconSvg(camera).match(/<rect /g)).toHaveLength(cells(camera).length);
+  });
+
+  it('ライトは暗色、ダークは明色', () => {
+    const svg = faviconSvg(camera);
+    expect(svg).toContain('fill="#111111"');
+    expect(svg).toContain('prefers-color-scheme: dark');
+  });
+
+  it('名前空間以外に外部への参照を持たない', () => {
+    expect(faviconSvg(camera).replace(/xmlns="[^"]*"/g, '')).not.toMatch(/https?:/);
   });
 });
 
