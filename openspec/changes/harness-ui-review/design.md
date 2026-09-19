@@ -30,10 +30,12 @@ Change 2 での事実（2026-09-19〜20、Issue #3）:
 
 ### D2. 渡せる場合の方針
 
-- `reviewer.md` の `tools` に列挙するのは navigate / snapshot / take_screenshot / resize / evaluate / click / press_key / console_messages / network_requests / close の 10 個。`browser_run_code_unsafe`（任意コード実行）は PO が明示的に許可した場合だけ足す。ダーク切り替えは `run_code_unsafe` 無しでは `page.emulateMedia` が使えないため、代替として CSS 変数を `browser_evaluate` で読む（`matchMedia` はエミュレートできないので、ダークの実表示はコントローラーが撮る）
-- ルールの文言は現状維持
+- `reviewer.md` の `tools` に列挙するのは navigate / snapshot / take_screenshot / resize / evaluate / click / press_key / console_messages / network_requests / emulate_media / close の 11 個（PO 決定 2026-09-20）。`browser_run_code_unsafe`（任意コード実行）は渡さない。ダーク / ライトの切り替えは標準ツールの `browser_emulate_media`（`colorScheme`）で行えるので、`run_code_unsafe` 無しで reviewer 単独でも実表示を検証できる（@playwright/mcp 0.0.82 で確認）
+- ルールの文言（`CLAUDE.md`「標準ワークフロー」5、`.claude/rules/review.md`、`.claude/rules/testing.md`）は proposal.md のとおり実態に合わせて更新する
 
 ### D3. 渡せない場合の方針（PO が選ぶ）
+
+**不採用**（2026-09-20）: D1 の実測で MCP ツールはサブエージェントに渡ると判明したため、この節は検討の記録として残す。
 
 | 案 | 内容 | 利点 | 欠点 |
 |---|---|---|---|
@@ -55,5 +57,5 @@ Change 2 での事実（2026-09-19〜20、Issue #3）:
 
 ## Open Questions
 
-1. D1 の結果が「渡せない」なら、D3 の (a) / (b) / (c) のどれにするか（PO）
-2. `browser_run_code_unsafe` を reviewer に許可するか（PO）
+1. ~~D1 の結果が「渡せない」なら、D3 の (a) / (b) / (c) のどれにするか（PO）~~ → **不発**。D1 の実測で「渡せる」と判明したため D3 は不採用（Issue #6、2026-09-20）
+2. ~~`browser_run_code_unsafe` を reviewer に許可するか（PO）~~ → **許可しない**。必要な 11 個だけを列挙する（PO 決定、Issue #6、2026-09-20）
