@@ -9,7 +9,7 @@ import { ui } from '../lib/site';
 ---
 
 <BaseLayout lang="ja" title="404" showNav={false}>
-  <PixelArt rows={lost} scale={6} />
+  <div class="art"><PixelArt rows={lost} scale={6} /></div>
   {
     locales.map((lang) => (
       <p lang={lang}>
@@ -22,3 +22,9 @@ import { ui } from '../lib/site';
     ))
   }
 </BaseLayout>
+
+<style>
+  .art {
+    margin-bottom: 1rem;
+  }
+</style>

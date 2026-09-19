@@ -19,12 +19,14 @@ const sw = showNav ? languageSwitch(path, lang) : undefined;
 <header class="dot">
   <a class="logo" href={`/${lang}/`}>{name}</a>
   {
-    sw && (
+    showNav && (
       <nav>
         {navLinks(lang).map((link) => <a href={link.href}>{link.label}</a>)}
-        <a href={sw.href} hreflang={sw.hreflang} lang={sw.hreflang}>
-          {sw.label}
-        </a>
+        {sw && (
+          <a href={sw.href} hreflang={sw.hreflang} lang={sw.hreflang}>
+            {sw.label}
+          </a>
+        )}
       </nav>
     )
   }
