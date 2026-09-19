@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { camera, cells, lost } from '../../src/lib/pixel';
+import { camera, cells, gridSize, lost } from '../../src/lib/pixel';
 
 describe('cells', () => {
   it('# のセル座標を行優先で返す', () => {
@@ -15,6 +15,20 @@ describe('cells', () => {
 
   it('空配列なら空', () => {
     expect(cells([])).toEqual([]);
+  });
+});
+
+describe('gridSize', () => {
+  it('空配列なら 0 × 0', () => {
+    expect(gridSize([])).toEqual({ width: 0, height: 0 });
+  });
+
+  it('行長が不揃いなら最長行を幅にする', () => {
+    expect(gridSize(['#', '##'])).toEqual({ width: 2, height: 2 });
+  });
+
+  it('16 × 16 の絵は 16 × 16', () => {
+    expect(gridSize(camera)).toEqual({ width: 16, height: 16 });
   });
 });
 

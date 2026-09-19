@@ -5,6 +5,11 @@ export function cells(rows: readonly string[]): Cell[] {
   return rows.flatMap((row, y) => [...row].flatMap((ch, x) => (ch === '#' ? [{ x, y }] : [])));
 }
 
+/** 格子の大きさ。幅は最長行の文字数、高さは行数 */
+export function gridSize(rows: readonly string[]): { width: number; height: number } {
+  return { width: Math.max(0, ...rows.map((row) => row.length)), height: rows.length };
+}
+
 /** トップのアイコン: カメラ */
 export const camera: readonly string[] = [
   '................',
