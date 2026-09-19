@@ -1,6 +1,6 @@
 # Tasks
 
-各タスクの詳細な手順は `docs/superpowers/plans/2026-09-18-layout-shell.md`（writing-plans で作成）にある。実装は `implementer`（Sonnet）、各タスクのレビューは `reviewer`（Opus）で行う（`.claude/rules/review.md`）。実装コードの変更はテストを先に書く（RED → GREEN）。
+各タスクの詳細な手順は `docs/superpowers/plans/2026-09-19-layout-shell.md`（writing-plans で作成）にある。実装は `implementer`（Sonnet）、各タスクのレビューは `reviewer`（Opus）で行う（`.claude/rules/review.md`）。実装コードの変更はテストを先に書く（RED → GREEN）。
 
 ## 1. リンク計算の純関数
 
@@ -14,7 +14,7 @@
 
 ## 3. レイアウトと部品
 
-- [ ] 3.1 `src/components/pixel/Camera.astro` と `Lost.astro`（16×16 の `<rect>`、`shape-rendering="crispEdges"`、`fill="currentColor"`、`aria-hidden="true"`）を描き、`pnpm typecheck` 0 と、Playwright MCP のスクリーンショットで格子がぼやけずに描画されることを確認する
+- [ ] 3.1 `tests/unit/pixel.test.ts` を先に書き（`cells()` が `#` の座標を返す、`camera` / `lost` が 16 行 × 16 文字で `.` と `#` のみ）、RED を確認してから `src/lib/pixel.ts`（絵データ 2 点と `cells()`）と描画コンポーネント `src/components/pixel/PixelArt.astro`（`rows` → 1×1 の `<rect>`、`shape-rendering="crispEdges"`、`fill="currentColor"`、`aria-hidden="true"`、`scale` で整数倍）を実装し、`pnpm test` 緑・`pnpm typecheck` 0 を確認する。格子がぼやけないことは 5.1 のスクリーンショットで確認する
 - [ ] 3.2 `src/components/Header.astro`（ロゴ = `profile.name` → `/<lang>/`、`navLinks`、`languageSwitch` を `hreflang` 付きで。`showNav` が偽ならロゴのみ。1 行、折り返し可、開閉メニューなし）と `src/components/Footer.astro`（`© 年 名前`。年は `new Date().getFullYear()`）を作り、`pnpm typecheck` 0 を確認する
 - [ ] 3.3 `src/layouts/BaseLayout.astro`（props `lang` / `title?` / `showNav?`、`<head>` に charset・viewport・`<title>`（トップは名前、他は「ページ名 · 名前」）・`alternateLinks` の 3 本・`<Font cssVariable="--font-dot" />`（preload なし）、`global.css` の import、Header / `<main><slot /></main>` / Footer）を作り、`pnpm typecheck` 0 を確認する
 - [ ] 3.4 `src/pages/[lang]/index.astro` を `BaseLayout` に載せ替える（本文は `<h1>` の名前と一行紹介、`Camera` のアイコン。`await getCareer(lang)` は残す）。`pnpm build` 後に `dist/ja/index.html` / `dist/en/index.html` が `<html lang>`、`<title>` = 名前、hreflang 3 本（x-default = ja）、ヘッダーの 4 リンク（ja では `English` → `/en/`、en では `日本語` → `/ja/`）、フッターの `© 2026` を含み、`<script` を含まず、`https://` の参照が `<a>` と hreflang 以外に無く、`@font-face` の `url(` が同一オリジンであることを `grep` で確認する

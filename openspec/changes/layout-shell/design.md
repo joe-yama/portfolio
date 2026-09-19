@@ -56,7 +56,7 @@ brainstorming（2026-09-18）での PO 決定は設計書 §4・§5・§6・§7 
 
 ### D5. ドット絵はインライン SVG の Astro コンポーネント
 
-- `src/components/pixel/Camera.astro`（トップ）、`src/components/pixel/Lost.astro`（404）。`<svg viewBox="0 0 16 16" shape-rendering="crispEdges" fill="currentColor">` に 1 セルを 1×1 の `<rect>` として並べる。表示サイズは CSS の `width` / `height` で整数倍にする
+- 絵のデータは `src/lib/pixel.ts` に 16 行 × 16 文字の文字列配列（`#` = 塗り、`.` = 透過）として置き（`camera`、`lost`）、`cells(rows)` で座標に変換する。描画は `src/components/pixel/PixelArt.astro` 1 つが担い、`<svg viewBox="0 0 16 16" shape-rendering="crispEdges" fill="currentColor">` に 1 セルを 1×1 の `<rect>` として並べる。表示サイズは `scale` 属性（1 セルの px 数）で整数倍にする。データを純 TS に置くのは形式（16×16、文字種）を Vitest で検証するため
 - 装飾なので `aria-hidden="true"`。404 の絵も文言が意味を伝えるため同じ
 - 理由: 文字色に追従する（ダーク/ライトで 1 枚）、バイナリを git に入れない、`image-rendering` の指定と `<img>` の幅高さ指定が要らない。PO 決定 2026-09-18
 - 代替: PNG + `image-rendering: pixelated`（設計書の旧案）→ 上記の理由で書き換えた
