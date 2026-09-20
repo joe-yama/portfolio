@@ -28,4 +28,13 @@
 
 ## 提案（この change では実装しない。後続の change 用）
 
-（レビューで挙がった Minor をここに転記する）
+単位 A（Task 1）のレビューで挙がった Minor と ponytail。
+
+- `src/lib/career.ts` の `month: lang === 'ja' ? 'long' : 'short'` は**死んだ分岐**。Node 26.8.2 の実測では ja は `long` / `short` / `narrow` のいずれでも `2017年4月`（`2020/04` になるのは `numeric` / `2-digit`）。`'short'` 固定にできる。計画書の落とし穴 2 の「ja で `short` を使うと `2020/04` になる」は事実誤りだった
+- `src/lib/career.ts` の `toLocalDate` の `year === undefined || month === undefined` ガードは `Number` が `NaN` を返す経路を捕まえない（`'2020-13'` → `Jan 2021` に静かに丸める、`'0020-04'` → `Apr 1920`）。`src/content/schemas.ts` の正規表現が上流で形式を保証しているので到達不能
+- `src/lib/career.ts` の `to` が空文字のとき falsy 判定で「現在 / Present」になる。schema が弾くので到達不能
+- 実績の種別集合 `'talk'|'article'|'award'|'other'` が `src/lib/site.ts` と `src/content/schemas.ts` に二重定義。zod enum から `z.infer` で導出すれば片方だけ増やす事故を防げる
+- `tests/unit/site.test.ts` の `article` / `award` / `other` は `toBeTruthy()` だけなので、ja と en のラベルを取り違えても通る。`toEqual` で 4 件まとめて固定すれば短く強くなる
+- `present`（`現在` / `Present`）が `ui` ではなく `src/lib/career.ts` にある。design D2 の「文字列の置き場を割らない」と D1 / tasks 1.2 の記述が計画書の中で矛盾していた。`ui[lang].present` に移すかは PO 判断
+- design D2 は `ui` のキーを `career`、tasks 1.4 は `careerSections` と書いていた。実装は `careerSections`（tasks.md 側）に従った
+- ponytail: `[...xs].sort(f)` は Node 26 の `xs.toSorted(f)` に置換できる（非破壊が言語側の保証になる）。`formatPeriod` は呼び出しごとに `Intl.DateTimeFormat` を 2 個作っている（1 個にできる）。合計 -6 行
