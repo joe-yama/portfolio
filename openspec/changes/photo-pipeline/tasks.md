@@ -6,9 +6,9 @@
 
 ## 1. 純粋関数（写真の実物なしで進む）
 
-- [ ] 1.1 `src/lib/i18n.ts` に `toLocale(value: string | undefined): Locale` を追加する（`isLocale` で判定し、外れたら値を含む例外）。`tests/unit/i18n.test.ts` に「`'ja'` / `'en'` を返す」「`'fr'` と `undefined` で例外」のテストを先に書き、RED を確認してから実装し、`pnpm test` が緑になることを実行出力で示す
-- [ ] 1.2 `src/lib/photo.ts` に `formatExif(exif): string` を追加する。`tests/unit/photo.test.ts` に spec の例（`Fujifilm X-T5 · XF 23mm F1.4 R LM WR · f/1.4 · 1/250 · ISO 800`）と、絞りが整数のとき（`2` → `f/2`）のテストを先に書き、RED → GREEN を `pnpm test` の出力で示す
-- [ ] 1.3 `src/lib/photo.ts` に `formatTakenAt(date: Date, lang: Locale): string` を追加する。`Intl.DateTimeFormat` の `dateStyle: 'long'` と `timeZone: 'UTC'` を使う。テストは `new Date('2025-11-03')` に対し ja が `2025年11月3日`、en が `November 3, 2025` を返すことと、`TZ=America/New_York` でも同じ結果になること（`process.env.TZ` を変えず、`timeZone: 'UTC'` 指定を直接検証する形でよい）。RED → GREEN を示す
+- [x] 1.1 `src/lib/i18n.ts` に `toLocale(value: string | undefined): Locale` を追加する（`isLocale` で判定し、外れたら値を含む例外）。`tests/unit/i18n.test.ts` に「`'ja'` / `'en'` を返す」「`'fr'` と `undefined` で例外」のテストを先に書き、RED を確認してから実装し、`pnpm test` が緑になることを実行出力で示す
+- [x] 1.2 `src/lib/photo.ts` に `formatExif(exif): string` を追加する。`tests/unit/photo.test.ts` に spec の例（`Fujifilm X-T5 · XF 23mm F1.4 R LM WR · f/1.4 · 1/250 · ISO 800`）と、絞りが整数のとき（`2` → `f/2`）のテストを先に書き、RED → GREEN を `pnpm test` の出力で示す
+- [x] 1.3 `src/lib/photo.ts` に `formatTakenAt(date: Date, lang: Locale): string` を追加する。`Intl.DateTimeFormat` の `dateStyle: 'long'` と `timeZone: 'UTC'` を使う。テストは `new Date('2025-11-03')` に対し ja が `2025年11月3日`、en が `November 3, 2025` を返すことと、`TZ=America/New_York` でも同じ結果になること（`process.env.TZ` を変えず、`timeZone: 'UTC'` 指定を直接検証する形でよい）。RED → GREEN を示す
 - [ ] 1.4 `src/lib/photo.ts` に `neighbors(photos, slug): { prev?: PhotoEntry; next?: PhotoEntry }` を追加する。テストは 3 枚に対し中間（前後とも有り）、先頭（`prev` が `undefined`）、末尾（`next` が `undefined`）、存在しない slug（例外）の 4 ケース。RED → GREEN を示す
 - [ ] 1.5 `src/lib/validate.ts` の `validatePhotos` に、`title` / `location` / `alt` の 6 値が `TODO:` で始まらないことの検査を足す。`tests/unit/validate.test.ts` に「`TODO: 日本語タイトル` が slug と `title.ja` を含むエラーになる」「`TODO リストの写真` は通る」「全項目記入済みなら通る」のテストを先に書き、RED → GREEN を示す
 - [ ] 1.6 `src/lib/photo-meta.ts` を新規に作り、`toSlug`（ファイル名 → kebab-case）、`formatShutterSpeed`（`0.004` → `1/250`、`2` → `2s`、`1.6` → `1.6s`）、`exifToPhotoData`（`exifr` の生の値 → YAML に書く値。欠損項目があれば項目名の配列を返す）、`nextOrder`（既存 `order` の最大値 + 10、空なら 10）、`renderPhotoYaml`（写真データ → YAML 文字列。`title` / `location` / `alt` は `TODO:` 始まり）を実装する。`tests/unit/photo-meta.test.ts` を先に書き、各関数の RED → GREEN を `pnpm test` の出力で示す
@@ -34,3 +34,11 @@
 - [ ] 4.2 `pnpm lint && pnpm typecheck && pnpm test && pnpm build` がすべて終了コード 0、`git status --short` が空、`openspec validate photo-pipeline --strict` が valid であることを実行出力で示し、本ファイルの完了項目を `[x]` にしてコミットする
 - [ ] 4.3 `pnpm build && pnpm preview` で `http://127.0.0.1:4321/` を配信し、`reviewer`（Opus）でブランチ全体を「仕様準拠（`photo-pipeline` と `content-schema` の delta）→ コード品質 → ponytail」の順にレビューする。reviewer 自身が Playwright MCP で `/ja/photos/`、個別ページ（先頭・中間・末尾）、`/ja/` を実操作し、測った値を報告に書く。結果（Approved / 指摘数 / 切り替えの有無）を Issue にコメントする
 - [ ] 4.4 `gh api user --jq .login` が `joe-yama` であることを確認し、PO の許可を得て push、`Closes #<Issue 番号>` を本文に含む PR を作成する
+
+## 提案（この change では実装しない。後続の change 用）
+
+レビューで挙がった Minor と ponytail の指摘（`.claude/rules/review.md` 2026-09-20 により、Minor は修正ラウンドを起こさず後続に回す）。
+
+- `src/lib/i18n.ts:34` の `toLocale('')` はエラーメッセージのコロンの後ろが空になる。`${JSON.stringify(value)}` にすれば空文字と `undefined` を見分けられる
+- `tests/unit/i18n.test.ts:57` の `expect(() => toLocale(undefined)).toThrow()` は引数なしなので、実装が `TypeError` を投げても通ってしまう。`toThrow('undefined')` にすれば `String(value)` の分岐まで固定できる
+- ponytail: `src/lib/i18n.ts:30-32` の JSDoc 3 行は「無検査キャストを各ページに複製しないために置く」の 1 行で足りる（net: -2 lines）

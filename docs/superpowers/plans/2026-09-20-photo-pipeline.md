@@ -24,6 +24,23 @@
 - `verbatimModuleSyntax: true`。型だけの import は必ず `import type` で書く
 - ブロッカー・方針変更・実装開始・レビュー結果は GitHub Issue #10 にコメントする。`gh` の書き込み前に `gh api user --jq .login` が `joe-yama` であることを確認する
 
+## レビューの単位（`.claude/rules/review.md` 2026-09-20 の要求により明記）
+
+タスクごとに Opus を起こさず、下の単位でまとめてレビューする。ブランチ全体のレビューは別に必ず 1 回行う。
+
+| 単位 | 含むタスク | 理由 | UI 実測 |
+|---|---|---|---|
+| — | Task 1 | 2026-09-20 のルール改定前に単独でレビュー済み（Approved） | なし |
+| A | Task 2 / 3 / 4 | いずれも純粋関数と検証。spec の表示形式・端の挙動・プレースホルダ検出に直接対応する | なし |
+| B | Task 5 / 6 | `photo-meta.ts` の関数群が `scripts/photo-add.ts` との共有インターフェース。Ruling 1 の検証もここ | なし |
+| C | Task 7 / 8 / 9 | 実データ投入 → コレクション登録 → `PhotoPicture` とギャラリー。`getPhotos` と `PhotoPicture` の props が以降の共有インターフェース | **あり**（`/ja/photos/`、`/en/photos/`） |
+| D | Task 10 / 11 | 個別ページとトップ。C の共有インターフェースの利用側 | **あり**（個別ページの先頭 / 中間 / 末尾、`/ja/`） |
+| — | Task 12 | ドキュメントと検証コマンドのみ。単独レビューはせず、ブランチ全体のレビューに含める | なし |
+
+UI 実測の項目は単位 C / D の brief に列挙し、それ以外は測らない（reviewer の上限は 80 ターン）。
+
+Minor と ponytail の指摘は修正ラウンドを起こさない。コントローラーが `openspec/changes/photo-pipeline/tasks.md` 末尾の「提案」に転記し、後続の change に回す。Critical / Important は全部そろえてから 1 回で implementer に `SendMessage` する。再レビューは同じ reviewer に `SendMessage` で続ける（新しいコンテキストを起こさない）。
+
 ## この change 特有の落とし穴（実装前に必ず読む）
 
 実物の型定義とソースで確認済み（2026-09-20）。
