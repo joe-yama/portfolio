@@ -18,7 +18,15 @@ const sw = showNav ? languageSwitch(path, lang, base) : undefined;
 ---
 
 <header class="dot">
-  <a class="logo" href={homePath(lang, base)}>{name}</a>
+  {
+    showNav ? (
+      <a class="logo" href={homePath(lang, base)}>
+        {name}
+      </a>
+    ) : (
+      <span class="logo">{name}</span>
+    )
+  }
   {
     showNav && (
       <nav>

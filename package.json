@@ -11,6 +11,7 @@
     "lint": "biome check . --error-on-warnings",
     "format": "biome check --write .",
     "test": "vitest run",
+    "e2e": "playwright test",
     "photo:add": "node scripts/photo-add.ts"
   },
   "dependencies": {
@@ -18,7 +19,9 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@axe-core/playwright": "^4.13.0",
     "@biomejs/biome": "^2.5.14",
+    "@playwright/test": "^1.63.0",
     "@types/node": "^26.6.2",
     "exifr": "^7.1.3",
     "sharp": "^0.35.4",

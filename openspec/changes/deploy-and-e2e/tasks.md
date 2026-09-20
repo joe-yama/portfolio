@@ -15,9 +15,9 @@
 
 ## 3. e2e の土台と `base` 配下の検査（単位 B）
 
-- [ ] 3.1 `pnpm add -D @playwright/test @axe-core/playwright` を**1 回だけ**実行し、`pnpm exec playwright install chromium` でブラウザを入れる。`playwright.config.ts`（`webServer` に `pnpm preview`、`baseURL` は 2.2 で実測した URL、Chromium のみ、`reporter: 'list'`）と `package.json` の `"e2e": "playwright test"` を追加する。`pnpm e2e` が「テストが 0 件」で終了コード 0 になることで土台の成立を検証する（`tsconfig` と Biome が `tests/e2e/` を見るので `pnpm typecheck` と `pnpm lint` も緑であること）
-- [ ] 3.2 `tests/e2e/pages.spec.ts` を追加する。5 種類 × 2 言語（トップ / ギャラリー / 写真の個別ページ / 経歴 / 404）が表示されること、各ページの `document.documentElement.lang` が URL のロケールと一致すること、`link[rel=alternate][hreflang]` が 3 本で `href` が `https://joe-yama.github.io/portfolio/` 配下であること、言語切り替えのクリックで同じページの他言語版へ遷移すること、写真が `<picture>` として出力されていること、`/portfolio/` が `/portfolio/ja/` へ遷移することを検査する。`pnpm e2e` が緑になることで検証する
-- [ ] 3.3 `tests/e2e/network.spec.ts` を追加する。各ページを開いている間の `page.on('request')` を集め、配信元（`127.0.0.1`）以外のホストへの要求が 0 件であることを assert する。`pnpm e2e` が緑になることで検証する
+- [x] 3.1 `pnpm add -D @playwright/test @axe-core/playwright` を**1 回だけ**実行し、`pnpm exec playwright install chromium` でブラウザを入れる。`astro preview` がデーモンとして起動し即終了するため `webServer` ではなく `globalSetup` / `globalTeardown`（`pnpm build` → `astro preview --port 4399` / `astro preview stop`）を使う裁定（`fdde2df`）に従った。`playwright.config.ts`（`baseURL` は `http://127.0.0.1:4399/portfolio/`、Chromium のみ、`reporter: 'list'`）と `package.json` の `"e2e": "playwright test"` を追加した。`pnpm typecheck` と `pnpm lint` も緑であることを確認した
+- [x] 3.2 `tests/e2e/pages.spec.ts` を追加する。5 種類 × 2 言語（トップ / ギャラリー / 写真の個別ページ / 経歴 / 404）が表示されること、各ページの `document.documentElement.lang` が URL のロケールと一致すること、`link[rel=alternate][hreflang]` が 3 本で `href` が `https://joe-yama.github.io/portfolio/` 配下であること、言語切り替えのクリックで同じページの他言語版へ遷移すること、写真が `<picture>` として出力されていること、`/portfolio/` が `/portfolio/ja/` へ遷移することを検査する。**実行して発覚した実装の不具合**: 404 ページで `showNav={false}` でもヘッダーのロゴが `homePath('ja', base)` へのリンクとして残り、本文の日本語トップへのリンクと重複していた（`a[href$="/portfolio/ja/"]` が 2 件）。`src/components/Header.astro` を直し、`showNav` が偽のときロゴを `<span>`（リンク無し）にした。`pnpm e2e` が緑になることで検証した
+- [x] 3.3 `tests/e2e/network.spec.ts` を追加する。各ページを開いている間の `page.on('request')` を集め、配信元（`127.0.0.1`）以外のホストへの要求が 0 件であることを assert する。`pnpm e2e` が緑になることで検証した
 
 ## 4. アクセシビリティと内部リンク検査（単位 B）
 
