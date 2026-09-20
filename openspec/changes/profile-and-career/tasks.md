@@ -38,3 +38,16 @@
 - `present`（`現在` / `Present`）が `ui` ではなく `src/lib/career.ts` にある。design D2 の「文字列の置き場を割らない」と D1 / tasks 1.2 の記述が計画書の中で矛盾していた。`ui[lang].present` に移すかは PO 判断
 - design D2 は `ui` のキーを `career`、tasks 1.4 は `careerSections` と書いていた。実装は `careerSections`（tasks.md 側）に従った
 - ponytail: `[...xs].sort(f)` は Node 26 の `xs.toSorted(f)` に置換できる（非破壊が言語側の保証になる）。`formatPeriod` は呼び出しごとに `Intl.DateTimeFormat` を 2 個作っている（1 個にできる）。合計 -6 行
+
+ブランチ全体のレビューで挙がった Minor と ponytail。
+
+- **【Change 5 の前に片付ける筆頭】** `src/pages/[lang]/index.astro` で名前の無い `navigation` ランドマークが 1 ページに 3 つになった（ヘッダーの `<nav>` + 本文の連絡先 + 本文の導線）。実測で `document.querySelectorAll('nav').length = 3`、3 つとも `aria-label` が `null` で、うち 2 つはリンク 3 本の中身まで同一。`@axe-core/playwright` を既定設定（全ルール）で回すと `landmark-unique` が `/ja/` `/en/` で必ず落ちる。直し方: 連絡先は `<nav>` をやめて `<p>` / `<ul>` にし、導線側に `aria-label`（文字列は `ui` に足す）を付ける
+- `src/pages/[lang]/career.astro`: データが空のとき（`experience: []` / `skills: {}` / `certifications: []` / `achievements: []`）ビルドは通るが、見出しだけの区画 4 つと空の `<ul>` が残る。`job.bullets` が空のときも `<article>` 内に `<ul></ul>` が出る。「0 件なら区画ごと出さない」を検討する価値がある
+- `src/pages/[lang]/career.astro` の `Object.entries(career.skills)` は、カテゴリ名が純粋な数字（例 `2024:`）だと JS のキー順規則で先頭へ繰り上がり、spec の「カテゴリの順序はデータに書かれた順（MUST）」に反する。`src/content/schemas.ts` の `z.record(nonEmpty, ...)` は数字だけのキーを弾かない。現行データでは発生しない
+- `src/lib/validate.ts` の `validateCareerParity` は `skills` を検証していない。この change で `skills` が初めて画面に出たので、ja に 3 カテゴリ・en に 2 カテゴリという食い違いがビルドを通って公開される。`content-schema` spec が 3 配列しか要求していないので仕様違反ではない
+- `src/lib/career.ts` の `localeCompare` は固定形式の ISO 文字列には不要（辞書順 = 時系列順）。単純比較のほうが環境非依存で速い
+- ponytail（-15 行）: `ui` の `careerSections` の型は `achievementKind` と同じ `Record<...>` に畳める。`tests/unit/career.test.ts` の「1 月を前年 12 月に丸めない」「月初を前月に丸めない」の 2 件は TZ ブロックに包含される。`career.astro` の `t` と `kinds` は `const t = ui[lang]` 1 本にできる。`.org` クラス + `font-weight: 600` は `<b>` に置き換えれば scoped CSS が 3 行消える
+
+## 申し送り（後続への注意）
+
+- **Change 5 の `base` 対応の確認対象に `src/pages/[lang]/index.astro` を加える**。`languageSwitch(Astro.url.pathname, lang)` は `base` を入れると `pathname` が `/portfolio/ja/` になり `alternatePath` が `/en/portfolio/ja/` を返す。CLAUDE.md が警告している `localeFromPath` と同じ落とし穴の 4 つ目の呼び出し元（`Header.astro` / `BaseLayout.astro` / `alternateLinks` に続く）
