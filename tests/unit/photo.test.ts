@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { type Exif, PHOTO_BASE_URL } from '../../src/content/schemas';
 import { formatExif, formatTakenAt, neighbors } from '../../src/lib/photo';
 import type { PhotoEntry } from '../../src/lib/validate';
@@ -31,10 +31,11 @@ describe('formatTakenAt', () => {
   });
 
   it('日付の境目でも UTC で解釈するのでずれない', () => {
-    // 2025-11-03T00:00:00Z。ローカル時刻で解釈すると西半球では 11/2 になる
+    vi.stubEnv('TZ', 'America/New_York'); // 西半球。ローカル解釈だと 11/2 になる
     expect(formatTakenAt(new Date('2025-11-03T00:00:00Z'), 'ja')).toBe('2025年11月3日');
-    // 2025-11-03T23:00:00Z。ローカル時刻で解釈すると東半球では 11/4 になる
+    vi.stubEnv('TZ', 'Asia/Tokyo'); // 東半球。ローカル解釈だと 11/4 になる
     expect(formatTakenAt(new Date('2025-11-03T23:00:00Z'), 'ja')).toBe('2025年11月3日');
+    vi.unstubAllEnvs();
   });
 });
 
