@@ -1,0 +1,17 @@
+image: "https://github.com/joe-yama/portfolio/releases/download/photos/kariya-ferris-wheel.jpg"
+order: 10
+featured: false
+takenAt: 2025-12-06
+title: { ja: "冬空の観覧車", en: "Ferris Wheel in Winter Sky" }
+location: { ja: "刈谷ハイウェイオアシス（愛知）", en: "Kariya Highway Oasis, Aichi" }
+alt:
+  {
+    ja: "澄んだ青空を背に、赤いゴンドラと白い鉄骨が左右対称に連なる観覧車を見上げた構図",
+    en: "Looking up at a Ferris wheel, red gondolas and white steel lattice arranged symmetrically against a clear blue sky",
+  }
+exif:
+  camera: "SONY ILCE-7CM2"
+  lens: "FE 85mm F1.8"
+  aperture: 11
+  shutterSpeed: "1/125"
+  iso: 100

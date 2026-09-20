@@ -1,0 +1,17 @@
+image: "https://github.com/joe-yama/portfolio/releases/download/photos/sunset-dinghies.jpg"
+order: 20
+featured: true
+takenAt: 2026-08-23
+title: { ja: "陽の落ちる浜", en: "Dinghies at Sunset" }
+location: { ja: "琵琶湖", en: "Lake Biwa" }
+alt:
+  {
+    ja: "夕陽が水面に長く反射するなか、2 艇のヨットを岸へ引き上げる二人のシルエット",
+    en: "Two people silhouetted against the sunset, pulling two sailing dinghies ashore as the low sun streaks across the water",
+  }
+exif:
+  camera: "SONY ILCE-7CM2"
+  lens: "FE 24-70mm F2.8 GM II"
+  aperture: 13
+  shutterSpeed: "1/200"
+  iso: 100
