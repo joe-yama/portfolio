@@ -6,7 +6,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getPhotos } from '../../../lib/content';
 import { locales, toLocale } from '../../../lib/i18n';
 import { formatExif, formatTakenAt, neighbors } from '../../../lib/photo';
-import { ui } from '../../../lib/site';
+import { photoPath, ui } from '../../../lib/site';
 
 export async function getStaticPaths() {
   const photos = await getPhotos();
@@ -14,6 +14,7 @@ export async function getStaticPaths() {
 }
 
 const lang = toLocale(Astro.params.lang);
+const base = import.meta.env.BASE_URL;
 const photos = await getPhotos();
 const slug = Astro.params.slug;
 if (slug === undefined) throw new Error('slug が無い');
@@ -34,9 +35,9 @@ const t = ui[lang];
   </figure>
 
   <nav class="around">
-    {prev && <a rel="prev" href={`/${lang}/photos/${prev.id}/`}>← {t.prevPhoto}</a>}
-    <a class="gallery" href={`/${lang}/photos/`}>{t.backToGallery}</a>
-    {next && <a rel="next" href={`/${lang}/photos/${next.id}/`}>{t.nextPhoto} →</a>}
+    {prev && <a rel="prev" href={photoPath(prev.id, lang, base)}>← {t.prevPhoto}</a>}
+    <a class="gallery" href={photoPath(null, lang, base)}>{t.backToGallery}</a>
+    {next && <a rel="next" href={photoPath(next.id, lang, base)}>{t.nextPhoto} →</a>}
   </nav>
 </BaseLayout>
 

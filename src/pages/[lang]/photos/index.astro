@@ -4,12 +4,14 @@ import PhotoPicture from '../../../components/PhotoPicture.astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getPhotos } from '../../../lib/content';
 import { locales, toLocale } from '../../../lib/i18n';
+import { photoPath } from '../../../lib/site';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
 }
 
 const lang = toLocale(Astro.params.lang);
+const base = import.meta.env.BASE_URL;
 const photos = await getPhotos();
 ---
 
@@ -18,7 +20,7 @@ const photos = await getPhotos();
     {
       photos.map((photo) => (
         <li>
-          <a href={`/${lang}/photos/${photo.id}/`}>
+          <a href={photoPath(photo.id, lang, base)}>
             <PhotoPicture photo={photo} lang={lang} variant="grid" />
           </a>
         </li>

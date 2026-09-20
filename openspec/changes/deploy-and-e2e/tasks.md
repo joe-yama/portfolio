@@ -10,8 +10,8 @@
 
 ## 2. `base` の適用と全ページの書き換え（単位 A）
 
-- [ ] 2.1 `astro.config.ts` に `base: '/portfolio'` を追加し、`.astro` の呼び出し側（`BaseLayout.astro`、`Header.astro`、`404.astro`、`index.astro`、`[lang]/index.astro`、`[lang]/career.astro`、`[lang]/photos/index.astro`、`[lang]/photos/[slug].astro`）を、タスク 1 の関数に `import.meta.env.BASE_URL` を渡す形に書き換える。`src/pages/index.astro` の `meta http-equiv="refresh"` の遷移先と本文リンクも `/portfolio/ja/` にする。`pnpm build` 後に次をすべて確認する: `grep -rn 'href="/' src` が 0 件、`grep -o '<html lang="[^"]*"' dist/en/index.html` が `en`、`grep -c 'rel="alternate"' dist/en/career/index.html` が 3、`grep -o 'href="[^"]*"' dist/en/career/index.html` の同一オリジン参照がすべて `/portfolio/` 始まり、`grep -o 'url=[^"]*' dist/index.html` が `/portfolio/ja/`、`dist/404.html` の戻りリンクが `/portfolio/{ja,en}/`
-- [ ] 2.2 `pnpm build && pnpm preview` で配信し、`http://127.0.0.1:4321/portfolio/` が `/portfolio/ja/` に遷移すること、`/portfolio/en/career/` が 200 で表示されることを実測して報告に貼る（**preview の URL に base が含まれるかを最初に確認し、違っていたらその事実を記録して報告する**）。`pnpm lint && pnpm typecheck && pnpm test` が緑であることも示す
+- [x] 2.1 `astro.config.ts` に `base: '/portfolio'` を追加し、`.astro` の呼び出し側（`BaseLayout.astro`、`Header.astro`、`404.astro`、`index.astro`、`[lang]/index.astro`、`[lang]/career.astro`、`[lang]/photos/index.astro`、`[lang]/photos/[slug].astro`）を、タスク 1 の関数に `import.meta.env.BASE_URL` を渡す形に書き換える。`src/pages/index.astro` の `meta http-equiv="refresh"` の遷移先と本文リンクも `/portfolio/ja/` にする。`pnpm build` 後に次をすべて確認する: `grep -rn 'href="/' src` が 0 件、`grep -o '<html lang="[^"]*"' dist/en/index.html` が `en`、`grep -c 'rel="alternate"' dist/en/career/index.html` が 3、`grep -o 'href="[^"]*"' dist/en/career/index.html` の同一オリジン参照がすべて `/portfolio/` 始まり、`grep -o 'url=[^"]*' dist/index.html` が `/portfolio/ja/`、`dist/404.html` の戻りリンクが `/portfolio/{ja,en}/`
+- [x] 2.2 `pnpm build && pnpm preview` で配信し、`http://127.0.0.1:4321/portfolio/` が `/portfolio/ja/` に遷移すること、`/portfolio/en/career/` が 200 で表示されることを実測して報告に貼る（**preview の URL に base が含まれるかを最初に確認し、違っていたらその事実を記録して報告する**）。`pnpm lint && pnpm typecheck && pnpm test` が緑であることも示す
 
 ## 3. e2e の土台と `base` 配下の検査（単位 B）
 
