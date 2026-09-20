@@ -63,31 +63,56 @@ CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `ope
 - **Playwright MCP の保存先**: `browser_run_code_unsafe` で（Change 2 の実測。`browser_take_screenshot` も同じ挙動と見られる）相対パスを指定すると、worktree で作業していてもファイルは**メインリポジトリの root** に落ちる。保存先は絶対パスで指定する
 - **worktree セッションの Bash ガード**: `EnterWorktree` で worktree に分離されたセッションでは、**git を含むコマンドのうち「worktree の中に留まると検証できない形」が拒否される**。2026-09-20 の実測: `for f in a b; do echo $f; done; git log --oneline -1 | sed -n '1p'` は `This session is isolated in the worktree ..., but this command names git in a form too complex to verify that it stays inside the worktree. Refusing to run it` で拒否。一方 `git status --short && echo ok`、`git log --oneline -1 | cat`、git を含まない `for` ループ、`sed ... && grep ...` は通った。Change 2 では `sed ... && git ...` と git という語を含む heredoc が拒否されている。同じ worktree を cwd とするサブエージェントのセッションには、この制限はかからない（レビュアーが同じ形を実行できた）。迷ったら git は 1 コマンドずつ実行する
 
-## 4. 権限設定（PO 承認待ち）
+## 4. 権限設定（PO 承認 2026-09-20）
 
-方針: HANDOFF 3-8 の既定「読み取り・テスト実行は自動、push・削除・外部通信は確認」を `.claude/settings.json` に実装した。
-ユーザー全体の `~/.claude/settings.json` にも同趣旨のルールがあり、両方が効く（deny は片方にあれば効く）。
+方針: HANDOFF 3-8 の既定「読み取り・テスト実行は自動、push・削除・外部通信は確認」から始め、2026-09-20 に承認プロンプトの実測（§6）をもとに「個人リポジトリの feature / fix ブランチへの push、Issue / PR の作成とコメント、lockfile 固定の install、worktree の後片付け」を自動にした。
+ルールは deny → ask → allow の順で評価され、出所も具体性も順序を変えない（公式 permissions）。ユーザー全体の `~/.claude/settings.json` の `ask` はプロジェクトの `allow` に勝つので、プロジェクトで自動化する操作はユーザー設定の `ask` から外し、「個人リポジトリ以外は確認」の判定はユーザー設定の hook（`~/.claude/permission-gate.sh`）が担う。hook は締める方向（ask / deny）にしか効かない。
 
 | 区分 | 内容 |
 |---|---|
-| allow（自動） | Read / Glob / Grep、読み取り系 git（status, log, diff, show, branch, worktree list）、`git add` / `git commit`、`pnpm test` / `pnpm lint|typecheck|build|preview|e2e`、`pnpm exec biome` / `pnpm exec playwright test`、`gh api user`、`gh issue list|view|comment`、`gh release view|list`、`openspec`、Playwright MCP の全ツール |
+| allow（自動） | Read / Glob / Grep、読み取り系 git（status, log, diff, show, branch, worktree list）、`git add` / `git commit` / **`git push`** / **`git worktree remove`**、`pnpm test` / `pnpm lint|typecheck|build|preview|e2e`、`pnpm exec biome` / `pnpm exec playwright test`、**`pnpm install --frozen-lockfile`**、`gh api user`、`gh issue list|view|**create**|comment`、**`gh pr create`**、`gh release view|list`、`openspec`、Playwright MCP の全ツール |
 | deny（禁止） | `.env` / `.env.*` の Read と Edit、`~/.ssh` `~/.aws` `~/.gnupg` `~/.config/op` の Read、`git push --force` 系、`git reset --hard`、`git clean`、`sudo` |
-| ask（毎回確認） | `git push`、`git worktree remove`、`rm`、`curl` / `wget`、`gh pr create|merge`、`gh repo create`、`gh issue create|close|edit`、`gh release create|upload|delete-asset`、`pnpm install` / `pnpm add` / `pnpm publish` |
-
-2026-09-17 の設計レビュー反映で npm → pnpm に置き換え、GitHub Issue 運用と Release への写真保管に必要な `gh` コマンドを追加した。
-| sandbox | 有効。ネットワーク許可先は npm / GitHub / PyPI のみ。`allowLocalBinding: true`（dev サーバーと Playwright 用） |
+| ask（毎回確認） | `rm`、`curl` / `wget`、`gh pr merge`、`gh repo create`、`gh issue close|edit`、`gh release create|upload|delete-asset`、`pnpm add` / `pnpm publish` |
+| hook で ask（`.claude/hooks/ask-gate.sh`） | main への push、リモートブランチの削除、`--all` / `--mirror`、`git worktree remove --force`、`--frozen-lockfile` の無い `pnpm install` |
+| hook で ask（`~/.claude/permission-gate.sh`、ユーザー設定） | origin が joe-yama 配下でないリポジトリでの `git push`。`gh issue create|comment` / `gh pr create` で、対象リポジトリ（`--repo` か origin）が joe-yama 配下でない、または `gh api user` の login が joe-yama でないとき |
+| env | `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` を空にして agent teams を無効化する（サブエージェントは Agent ツールの通常サブエージェントとして動く。teammate の完了通知が 1 通ごとにコントローラーのターンになっていたため。§6）。`MCP_TIMEOUT` はユーザー設定と同値を再掲（プロジェクトの `env` がユーザーの `env` を丸ごと置き換える場合に備える） |
+| sandbox | 設定上は有効（`autoAllowBashIfSandboxed`、`excludedCommands: git, gh`、Google Fonts を含む許可ドメイン、`allowLocalBinding`）だが、このマシンでは `.claude/settings.local.json`（gitignore 済み）が無効化している。有効に戻したときの動作は**未検証**: 1Password 署名（`git` は sandbox 外で動く想定）、ビルド時の Google Fonts 取得、Playwright MCP |
 | MCP | `.mcp.json` の `playwright` を自動承認（`enabledMcpjsonServers`） |
 
-注意: `.env.*` の deny は `.env.example` にも当たる（ユーザー設定側の既存ルール）。`.env.example` の作成・更新は PO が手で行うか、ルールを `Read(.env.local)` 等の列挙に変える。
+ユーザー設定側で 2026-09-20 に `ask` から外したもの: `Bash(git push:*)`、`Bash(gh pr create:*)`、`Bash(gh issue create:*)`、`Bash(gh issue comment:*)`（バックアップは `~/.claude/settings.json.bak-autonomy-*`、hook のバックアップは `~/.claude/permission-gate.sh.bak-autonomy-*`）。職場リポジトリでは hook が origin と login を見て確認に回すので、従来どおりプロンプトが出る。
 
-自律実行（/goal, /loop）を行う場合は、上記に加えて `sandbox.allowUnsandboxedCommands: false`（サンドボックス外実行の無効化）と反復上限の明示を条件とする。ただしこの設定下では 1Password 署名付きコミットができないため、自律実行時のコミット方針（署名なし専用ブランチにするか、コミットは PO が行うか）を決める必要がある。
+注意:
+
+- `.env.*` の deny は `.env.example` にも当たる（ユーザー設定側の既存ルール）。`.env.example` の作成・更新は PO が手で行うか、ルールを `Read(.env.local)` 等の列挙に変える
+- `.claude/settings.json` と `.claude/hooks/` への Write は auto mode の分類器が「Self-Modification」として拒否する（2026-09-20 実測。プロンプトではなく拒否）。Agent は完成版を scratchpad に置き、PO が `!` の `cp` で配置するか、manual mode に切り替えて承認する
+- 無人実行は `claude -p --permission-mode auto --permission-prompts none --max-turns N`（プロンプトになる操作は拒否して進む）。sandbox を戻す場合は上の未検証 3 点を先に確かめる
 
 ## 5. 未完了・PO 判断待ち
 
-`docs/HANDOFF.md` セクション 6 の全項目が未回答。加えて本セットアップで新たに生じた判断点:
+`docs/HANDOFF.md` セクション 6 のうち「Agent に push 権限を与えるか」は 2026-09-20 に決定（feature / fix ブランチは自動、main は確認）。残りは未回答。加えて本セットアップで新たに生じた判断点:
 
-1. 権限設定（上記 4.）の承認
-2. 自律実行時のコミット署名の扱い
+1. 権限設定（上記 4.）: 2026-09-20 に承認・反映済み
+2. 自律実行時のコミット署名の扱い: sandbox が無効の間は署名付きコミットがそのまま通る。sandbox を戻すときに `excludedCommands: git` で足りるかを検証する
 3. OpenSpec の成果物言語を日本語にした（`--language ja`）ことの確認。英語に変えるなら `openspec/config.yaml` の `context` を編集
 4. OpenSpec プロファイルをデフォルト（core）にした。拡張ワークフロー（`/opsx:ff` 等）が必要になったら追加
 5. 技術スタック導入時のハーネス更新は change `project-foundation` で実施済み（2026-09-18）: testing.md のコマンド節、hooks の `detect_lint()` → `pnpm exec biome check --error-on-warnings --no-errors-on-unmatched <file>`、`detect_test()` → `pnpm test`、CLAUDE.md のコマンド表
+6. agent teams 無効化（`env`）が次のセッションで効いているか: `ListAgents` の表示が Teammates ではなく Subagents になり、`~/.claude/projects/.../<session>/subagents/*.meta.json` の `taskKind` が `in_process_teammate` でなければ効いている
+
+## 6. 承認プロンプトとターン数の実測（2026-09-20）
+
+transcript（`~/.claude/projects/-Users-joe-repo-github-personal-joe-yama-portfolio/*.jsonl`）の `PermissionRequest` hook イベントとツール呼び出しを集計した。
+
+| change | 承認プロンプト | うち Issue コメント | うち git push | コントローラー msg | Agent 起動 | サブエージェントのツール呼び出し | 平均コンテキスト / リクエスト |
+|---|---|---|---|---|---|---|---|
+| 1 project-foundation（Change 2 の設計含む） | 34 | 11 | 7 | 591 | 25 | 793 | 59 万トークン |
+| 2 layout-shell | 43 | 6 | 3 | 411 | 17 | 653 | 66 万トークン |
+| harness-ui-review | 14 | 5 | 3 | 344 | 10 | 209 | 37 万トークン |
+| layout-followups | 19 | 6 | 3 | 415 | 17 | 1,121 | 52 万トークン |
+
+読み取り:
+
+- Issue コメント 28 回はユーザー設定の `ask` がプロジェクトの `allow` に勝っていたため（`.claude/rules/git.md` の「コメントは自動許可」は一度も効いていなかった）。Change 1・2 の残りの多くは sandbox 外実行（`dangerouslyDisableSandbox`）の確認で、現在は sandbox 無効のため発生しない
+- ターン数は change の大きさに比例しない。harness-ui-review は agent 定義 1 行と文言の統一で 344 メッセージ。主因はタスク単位の Opus レビュー + 再レビュー（Change 1 は 8 タスクに 17 回）、Minor の後追い修正（Change 2 は 27 件の triage → 11 件修正 → 再レビューで回帰）、タスクごとの Issue コメントと `tasks.md` だけのコミット（Change 1 は各 11 回・8 回）、agent teams の teammate 通知（1 セッション 56〜65 通）
+- コストの大半は出力ではなく、コントローラーの巨大なコンテキストの再読込（1 リクエスト 37〜66 万トークン）。対策は CLAUDE.md「標準ワークフロー」4（実装は新しいセッション、コントローラーは Opus）、「小さな change の経路」、`.claude/rules/review.md`「レビューの単位」「Minor の扱い」、`.claude/rules/git.md`
+
+集計スクリプトはその場限り（scratchpad）で、リポジトリには置いていない。再集計が必要なら同じ jsonl から `type: assistant` の `tool_use` と `attachment.hookEvent == "PermissionRequest"` を数える。

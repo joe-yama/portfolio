@@ -1,5 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "",
+    "MCP_TIMEOUT": "120000"
+  },
   "permissions": {
     "allow": [
       "Read",
@@ -11,8 +15,10 @@
       "Bash(git show:*)",
       "Bash(git branch:*)",
       "Bash(git worktree list:*)",
+      "Bash(git worktree remove:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
+      "Bash(git push:*)",
       "Bash(pnpm test:*)",
       "Bash(pnpm lint:*)",
       "Bash(pnpm typecheck:*)",
@@ -27,10 +33,13 @@
       "Bash(pnpm run e2e:*)",
       "Bash(pnpm exec biome:*)",
       "Bash(pnpm exec playwright test:*)",
+      "Bash(pnpm install --frozen-lockfile:*)",
       "Bash(gh api user:*)",
       "Bash(gh issue list:*)",
       "Bash(gh issue view:*)",
+      "Bash(gh issue create:*)",
       "Bash(gh issue comment:*)",
+      "Bash(gh pr create:*)",
       "Bash(gh release view:*)",
       "Bash(gh release list:*)",
       "Bash(openspec:*)",
@@ -53,21 +62,16 @@
       "Bash(sudo:*)"
     ],
     "ask": [
-      "Bash(git push:*)",
-      "Bash(git worktree remove:*)",
       "Bash(rm:*)",
       "Bash(curl:*)",
       "Bash(wget:*)",
-      "Bash(gh pr create:*)",
       "Bash(gh pr merge:*)",
       "Bash(gh repo create:*)",
-      "Bash(gh issue create:*)",
       "Bash(gh issue close:*)",
       "Bash(gh issue edit:*)",
       "Bash(gh release create:*)",
       "Bash(gh release upload:*)",
       "Bash(gh release delete-asset:*)",
-      "Bash(pnpm install:*)",
       "Bash(pnpm add:*)",
       "Bash(pnpm publish:*)"
     ]
@@ -75,6 +79,8 @@
   "enabledMcpjsonServers": ["playwright"],
   "sandbox": {
     "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "excludedCommands": ["git", "gh"],
     "network": {
       "allowedDomains": [
         "registry.npmjs.org",
@@ -83,6 +89,8 @@
         "codeload.github.com",
         "raw.githubusercontent.com",
         "objects.githubusercontent.com",
+        "fonts.googleapis.com",
+        "fonts.gstatic.com",
         "pypi.org",
         "files.pythonhosted.org"
       ],
@@ -99,6 +107,12 @@
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-destructive.sh\"",
             "timeout": 10,
             "statusMessage": "破壊的操作をチェック中"
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/ask-gate.sh\"",
+            "timeout": 10,
+            "statusMessage": "確認が必要な操作をチェック中"
           }
         ]
       },
