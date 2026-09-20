@@ -27,10 +27,14 @@ export function toSlug(fileName: string): string {
   return slug;
 }
 
-/** exifr の ExposureTime（秒の数値）→ 表示用の文字列。0.004 → 1/250、2 → 2s */
+/**
+ * exifr の ExposureTime（秒の数値）→ 表示用の文字列。0.004 → 1/250、2 → 2s。
+ * 境界は 0.5 秒に置く（カメラは 1/2 秒より遅い露出を小数の秒で表示するため）。
+ * 1 秒未満をすべて分数にすると 0.9 秒などが 1/1 になってしまう
+ */
 export function formatShutterSpeed(seconds: number): string {
   if (!(seconds > 0)) throw new Error(`シャッター速度が正の数ではない: ${seconds}`);
-  if (seconds >= 1) return `${Number(seconds.toFixed(1))}s`;
+  if (seconds > 0.5) return `${Number(seconds.toFixed(1))}s`;
   return `1/${Math.round(1 / seconds)}`;
 }
 
@@ -63,13 +67,16 @@ export function exifToPhotoMeta(
   const exposure = raw.ExposureTime;
   const iso = raw.ISO;
 
+  const isPositiveFinite = (v: unknown): v is number =>
+    typeof v === 'number' && Number.isFinite(v) && v > 0;
+
   if (!(takenAt instanceof Date)) missing.push('DateTimeOriginal');
   if (typeof make !== 'string' || make.trim() === '') missing.push('Make');
   if (typeof model !== 'string' || model.trim() === '') missing.push('Model');
   if (typeof lens !== 'string' || lens.trim() === '') missing.push('LensModel');
-  if (typeof aperture !== 'number') missing.push('FNumber');
-  if (typeof exposure !== 'number') missing.push('ExposureTime');
-  if (typeof iso !== 'number') missing.push('ISO');
+  if (!isPositiveFinite(aperture)) missing.push('FNumber');
+  if (!isPositiveFinite(exposure)) missing.push('ExposureTime');
+  if (!isPositiveFinite(iso)) missing.push('ISO');
   if (missing.length > 0) return { ok: false, missing };
 
   return {

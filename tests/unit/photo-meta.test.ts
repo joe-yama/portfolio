@@ -37,6 +37,14 @@ describe('formatShutterSpeed', () => {
   it('0 以下は例外にする', () => {
     expect(() => formatShutterSpeed(0)).toThrow();
   });
+
+  it('境界は 0.5 秒に置き、それより遅い露出は秒で書く（1/1 のような表示を避ける）', () => {
+    expect(formatShutterSpeed(0.5)).toBe('1/2');
+    expect(formatShutterSpeed(0.625)).toBe('0.6s');
+    expect(formatShutterSpeed(0.7692)).toBe('0.8s');
+    expect(formatShutterSpeed(0.9)).toBe('0.9s');
+    expect(formatShutterSpeed(1 / 3)).toBe('1/3');
+  });
 });
 
 describe('formatTakenAtYmd', () => {
@@ -94,6 +102,13 @@ describe('exifToPhotoMeta', () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.missing).toEqual(['LensModel', 'ISO']);
+  });
+
+  it('数値項目が 0 / 負 / NaN のときは欠損として扱う', () => {
+    const r = exifToPhotoMeta({ ...raw, ExposureTime: 0, ISO: Number.NaN, FNumber: -1 }, 's');
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(r.missing).toEqual(['FNumber', 'ExposureTime', 'ISO']);
   });
 });
 

@@ -52,7 +52,7 @@ if (login !== 'joe-yama') {
 
 const { file, slug: slugArg } = parseArgs(process.argv.slice(2));
 if (!existsSync(file)) die(`ファイルが無い: ${file}`);
-const slug = slugArg ?? toSlug(basename(file));
+const slug = toSlug(slugArg ?? basename(file));
 
 // (2) EXIF を読む。縮小前の元画像から読む
 const raw = await exifr.parse(file, { translateValues: false });
