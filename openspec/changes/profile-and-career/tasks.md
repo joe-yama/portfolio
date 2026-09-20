@@ -4,10 +4,10 @@
 
 ## 1. 整形の純関数と表示文字列（単位 A）
 
-- [ ] 1.1 `src/lib/career.ts` に `sortExperience` / `sortByDateDesc` を TDD で実装する。`tests/unit/career.test.ts` で「`from` が `2017-04` / `2020-04` の 2 件を渡すと `2020-04` が先」「`date` が `2023-06-01` / `2024-10-12` の 2 件を渡すと `2024-10-12` が先」「元の配列を破壊しない」を固定し、`pnpm test` が緑になることで検証する
-- [ ] 1.2 `src/lib/career.ts` に `formatPeriod(from, to, lang)` を TDD で実装する。`YYYY-MM` を年・月に分解して `new Date(年, 月-1, 1)` を作り（UTC 解釈を避ける。design D1）、`Intl.DateTimeFormat(lang, { year: 'numeric', month: lang === 'ja' ? 'long' : 'short' })` で整形する。期待値は実測済み（ja: `2020年4月 – 現在` / `2017年4月 – 2020年3月`、en: `Apr 2020 – Present` / `Apr 2017 – Mar 2020`。区切りは U+2013 の前後に半角空白）。`to` が `undefined` と `null` の両方で「現在 / Present」になることをテストで固定し、`pnpm test` が緑になることで検証する
-- [ ] 1.3 `src/lib/career.ts` に `formatDate(date, lang)` を TDD で実装する（`YYYY-MM-DD` を分解して `new Date(年, 月-1, 日)`、`{ year: 'numeric', month: 'long', day: 'numeric' }`）。期待値は実測済み（ja: `2023年6月1日`、en: `June 1, 2023`）。`pnpm test` が緑になることで検証する
-- [ ] 1.4 `src/lib/site.ts` の `ui` に区画の見出し（`careerSections`: 職歴 / スキル / 資格 / 実績、Experience / Skills / Certifications / Achievements）と `achievementKind`（登壇・執筆・受賞・その他 / Talk・Article・Award・Other）を型付きで追加する。`tests/unit/site.test.ts` に「両ロケールで 4 つの種別すべてにラベルがある」テストを足し、`pnpm test` と `pnpm typecheck` が緑になることで検証する
+- [x] 1.1 `src/lib/career.ts` に `sortExperience` / `sortByDateDesc` を TDD で実装する。`tests/unit/career.test.ts` で「`from` が `2017-04` / `2020-04` の 2 件を渡すと `2020-04` が先」「`date` が `2023-06-01` / `2024-10-12` の 2 件を渡すと `2024-10-12` が先」「元の配列を破壊しない」を固定し、`pnpm test` が緑になることで検証する
+- [x] 1.2 `src/lib/career.ts` に `formatPeriod(from, to, lang)` を TDD で実装する。`YYYY-MM` を年・月に分解して `new Date(年, 月-1, 1)` を作り（UTC 解釈を避ける。design D1）、`Intl.DateTimeFormat(lang, { year: 'numeric', month: lang === 'ja' ? 'long' : 'short' })` で整形する。期待値は実測済み（ja: `2020年4月 – 現在` / `2017年4月 – 2020年3月`、en: `Apr 2020 – Present` / `Apr 2017 – Mar 2020`。区切りは U+2013 の前後に半角空白）。`to` が `undefined` と `null` の両方で「現在 / Present」になることをテストで固定し、`pnpm test` が緑になることで検証する
+- [x] 1.3 `src/lib/career.ts` に `formatDate(date, lang)` を TDD で実装する（`YYYY-MM-DD` を分解して `new Date(年, 月-1, 日)`、`{ year: 'numeric', month: 'long', day: 'numeric' }`）。期待値は実測済み（ja: `2023年6月1日`、en: `June 1, 2023`）。`pnpm test` が緑になることで検証する
+- [x] 1.4 `src/lib/site.ts` の `ui` に区画の見出し（`careerSections`: 職歴 / スキル / 資格 / 実績、Experience / Skills / Certifications / Achievements）と `achievementKind`（登壇・執筆・受賞・その他 / Talk・Article・Award・Other）を型付きで追加する。`tests/unit/site.test.ts` に「両ロケールで 4 つの種別すべてにラベルがある」テストを足し、`pnpm test` と `pnpm typecheck` が緑になることで検証する
 
 ## 2. 経歴ページ（単位 B）
 

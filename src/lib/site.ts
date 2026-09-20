@@ -11,6 +11,13 @@ type UiStrings = {
   backToGallery: string;
   prevPhoto: string;
   nextPhoto: string;
+  careerSections: {
+    experience: string;
+    skills: string;
+    certifications: string;
+    achievements: string;
+  };
+  achievementKind: Record<'talk' | 'article' | 'award' | 'other', string>;
 };
 
 /** 画面に出す文字列。ナビの「Photos」「Career」は両言語とも英字なので navLinks に直接書く */
@@ -22,6 +29,13 @@ export const ui: Record<Locale, UiStrings> = {
     backToGallery: '写真一覧へ',
     prevPhoto: '前の写真',
     nextPhoto: '次の写真',
+    careerSections: {
+      experience: '職歴',
+      skills: 'スキル',
+      certifications: '資格',
+      achievements: '実績',
+    },
+    achievementKind: { talk: '登壇', article: '執筆', award: '受賞', other: 'その他' },
   },
   en: {
     languageName: 'English',
@@ -30,6 +44,13 @@ export const ui: Record<Locale, UiStrings> = {
     backToGallery: 'Back to photos',
     prevPhoto: 'Previous photo',
     nextPhoto: 'Next photo',
+    careerSections: {
+      experience: 'Experience',
+      skills: 'Skills',
+      certifications: 'Certifications',
+      achievements: 'Achievements',
+    },
+    achievementKind: { talk: 'Talk', article: 'Article', award: 'Award', other: 'Other' },
   },
 };
 
