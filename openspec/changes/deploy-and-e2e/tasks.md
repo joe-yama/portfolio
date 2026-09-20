@@ -37,4 +37,10 @@
 
 ## 提案（この change では実装しない。後続の change 用）
 
-（レビューで挙がった Minor をここに転記する）
+単位 A（`base` 対応）のレビューで挙がった Minor と ponytail。いずれも reviewer が変異テストで「すり抜ける」ことを実測している。
+
+- `src/lib/i18n.ts` の「似た接頭辞」テストは接頭辞の**固定**を検証していない。`startsWith` を `includes` に変えても 68 passed のまま。`expect(stripBase('/x/portfolio/ja/', '/portfolio/')).toBe('/x/portfolio/ja/')` を 1 行足せば番人になる（`Astro.url.pathname` は必ず base で始まるので実害は今は無い）
+- `normalizeBase` の両端トリムにテストが無い。`return base;` に変えても 68 passed。`base` が `'portfolio'` / `'/portfolio'` のときだけ効く分岐で、現状 `BASE_URL` は常に `/portfolio/`
+- `stripBase` の `path === prefix.slice(0, -1)` の分岐は `trailingSlash: 'always'` では到達しない。削除しても 68 passed
+- `withBase` の入力前提（先頭 `/` の絶対パス）が暗黙。`withBase('/portfolio', '/portfolio/')` → `/portfolio/portfolio`、`assetPath('favicon.svg', ...)` → `/portfoliofavicon.svg`。呼び出し側はすべて絶対パスを渡すので現状は無害
+- ponytail（-8 行）: `assetPath` は `withBase` の 1:1 の別名なので削れる。`stripBase` の到達しない分岐と `normalizeBase` の両端トリムも、テストを足すか削るかのどちらかに寄せる
