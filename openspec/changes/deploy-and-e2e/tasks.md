@@ -26,8 +26,8 @@
 
 ## 5. CI とデプロイの workflow（単位 C）
 
-- [ ] 5.1 `.github/workflows/ci.yml` の `check` job に `pnpm exec playwright install --with-deps chromium` と `pnpm e2e` を `pnpm build` の後に足す（**job 名 `check` は変えない**）。YAML の構文を `python3 -c "import yaml,sys; yaml.safe_load(open('.github/workflows/ci.yml'))"` で確認することで検証する
-- [ ] 5.2 `.github/workflows/deploy.yml` を追加する（`on: push: branches: [main]` + `workflow_dispatch`、`permissions: contents: read / pages: write / id-token: write`、`concurrency: group: pages`、build job = `withastro/action@v6` に `node-version: 26.8.2` を明示、deploy job = `actions/deploy-pages@v5` と `environment: github-pages`）。同じく YAML の構文確認で検証する。**`.node-version` は `withastro/action` が読まないため `node-version` の明示が必須**（2026-09-21 に README で確認済み）
+- [x] 5.1 `.github/workflows/ci.yml` の `check` job に `pnpm exec playwright install --with-deps chromium` と `pnpm e2e` を `pnpm build` の後に足す（**job 名 `check` は変えない**）。YAML の構文を `python3 -c "import yaml,sys; yaml.safe_load(open('.github/workflows/ci.yml'))"` で確認することで検証する
+- [x] 5.2 `.github/workflows/deploy.yml` を追加する（`on: push: branches: [main]` + `workflow_dispatch`、`permissions: contents: read / pages: write / id-token: write`、`concurrency: group: pages`、build job = `withastro/action@v6` に `node-version: 26.8.2` を明示、deploy job = `actions/deploy-pages@v5` と `environment: github-pages`）。同じく YAML の構文確認で検証する。**`.node-version` は `withastro/action` が読まないため `node-version` の明示が必須**（2026-09-21 に README で確認済み）
 
 ## 6. 仕上げ
 
