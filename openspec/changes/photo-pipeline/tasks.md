@@ -42,3 +42,15 @@
 - `src/lib/i18n.ts:34` の `toLocale('')` はエラーメッセージのコロンの後ろが空になる。`${JSON.stringify(value)}` にすれば空文字と `undefined` を見分けられる
 - `tests/unit/i18n.test.ts:57` の `expect(() => toLocale(undefined)).toThrow()` は引数なしなので、実装が `TypeError` を投げても通ってしまう。`toThrow('undefined')` にすれば `String(value)` の分岐まで固定できる
 - ponytail: `src/lib/i18n.ts:30-32` の JSDoc 3 行は「無検査キャストを各ページに複製しないために置く」の 1 行で足りる（net: -2 lines）
+
+単位 A（Task 2 / 3 / 4）のレビューから:
+
+- tests/unit/photo.test.ts:20 の toContain('f/2') は 'f/2.8' でも通る。toBe で全文を固定するか toContain(' f/2 ') にすれば「絞りが整数のとき小数点を付けない」を本当に固定できる
+- src/lib/photo.ts:5 の JSDoc の例のレンズ表記 "XF 23mm F1.4" が spec とテストの "XF 23mm F1.4 R LM WR" と食い違う
+- src/lib/photo.ts の neighbors の明示的な範囲判定は、実行時には何も防いでいない。photos[-1] も photos[photos.length] も undefined を返し、戻り値の型は注釈が決めるため、単純な photos[i-1] との差は型でも実行時でも出ない。コメントが守っているものが実際には無い
+- src/lib/photo.ts の neighbors は渡された配列が order 昇順であることを暗黙の前提にしているが、その前提はシグネチャにもテストにも現れない。担保は getPhotos 側にある
+- src/lib/validate.ts の PhotoEntry は「形」の型だが「形で表せない制約」のファイルに居る。責務の分けに照らすと schemas.ts 寄り。既存コードからの継承
+- ponytail: src/lib/photo.ts の dateLocale マップは削除できる。Intl は 'ja' / 'en' をそのまま受け、出力も ja-JP / en-US と同一（測定済み）
+- ponytail: src/lib/photo.ts の neighbors の 4 行 JSDoc は 1 行で足りる
+- ponytail: src/lib/validate.ts の TODO: 検査ループは image 検査ループの中に入れれば for 1 つ分減る。コメント 2 行も 1 行で足りる
+- ponytail 合計: net -7 lines possible
