@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import type { Exif } from '../../src/content/schemas';
-import { formatExif, formatTakenAt } from '../../src/lib/photo';
+import { type Exif, PHOTO_BASE_URL } from '../../src/content/schemas';
+import { formatExif, formatTakenAt, neighbors } from '../../src/lib/photo';
+import type { PhotoEntry } from '../../src/lib/validate';
 
 const exif: Exif = {
   camera: 'Fujifilm X-T5',
@@ -34,5 +35,53 @@ describe('formatTakenAt', () => {
     expect(formatTakenAt(new Date('2025-11-03T00:00:00Z'), 'ja')).toBe('2025年11月3日');
     // 2025-11-03T23:00:00Z。ローカル時刻で解釈すると東半球では 11/4 になる
     expect(formatTakenAt(new Date('2025-11-03T23:00:00Z'), 'ja')).toBe('2025年11月3日');
+  });
+});
+
+function entry(id: string, order: number): PhotoEntry {
+  return {
+    id,
+    data: {
+      image: `${PHOTO_BASE_URL}${id}.jpg`,
+      order,
+      featured: false,
+      takenAt: new Date('2025-11-03'),
+      title: { ja: 't', en: 't' },
+      location: { ja: 'l', en: 'l' },
+      alt: { ja: 'a', en: 'a' },
+      exif,
+    },
+  };
+}
+
+describe('neighbors', () => {
+  const photos = [entry('a', 10), entry('b', 20), entry('c', 30)];
+
+  it('中間の写真は前後とも返す', () => {
+    const { prev, next } = neighbors(photos, 'b');
+    expect(prev?.id).toBe('a');
+    expect(next?.id).toBe('c');
+  });
+
+  it('先頭の写真に前は無い', () => {
+    const { prev, next } = neighbors(photos, 'a');
+    expect(prev).toBeUndefined();
+    expect(next?.id).toBe('b');
+  });
+
+  it('末尾の写真に次は無い', () => {
+    const { prev, next } = neighbors(photos, 'c');
+    expect(prev?.id).toBe('b');
+    expect(next).toBeUndefined();
+  });
+
+  it('1 枚しか無いときは前も次も無い', () => {
+    const { prev, next } = neighbors([entry('only', 10)], 'only');
+    expect(prev).toBeUndefined();
+    expect(next).toBeUndefined();
+  });
+
+  it('知らない slug は例外にする', () => {
+    expect(() => neighbors(photos, 'zzz')).toThrow('zzz');
   });
 });
