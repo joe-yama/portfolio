@@ -54,3 +54,16 @@
 - ponytail: src/lib/photo.ts の neighbors の 4 行 JSDoc は 1 行で足りる
 - ponytail: src/lib/validate.ts の TODO: 検査ループは image 検査ループの中に入れれば for 1 つ分減る。コメント 2 行も 1 行で足りる
 - ponytail 合計: net -7 lines possible
+
+単位 B（Task 5 / 6）のレビューから:
+
+- scripts/photo-add.ts の YAML を正規表現で読む 2 つの規則（order と featured）が、テストを持たないスクリプト側にある。parseOrder(text) と hasFeaturedFlag(text) を photo-meta.ts に出せば単体テストで守れる。現状は自分が生成した YAML しか読まないので実害は小さい
+- scripts/photo-add.ts で gh が失敗したとき（未ログイン・ネットワーク断）は execFileSync の例外がそのまま上がり、die の整形された 1 行ではなくスタックトレースになる。spec の「中断する」は満たすが他のエラー経路と体裁が揃わない
+- scripts/photo-add.ts の gh release view の catch が全ての失敗を「Release が無い」と解釈する。ネットワーク断でも release create に進む（既存なら create が失敗して止まるので黙って壊れはしない）
+- ponytail: scripts/photo-add.ts の手書き引数解析は node:util の parseArgs で置き換えられる
+- ponytail: scripts/photo-add.ts が同じファイルを readFileSync で 2 回読む 9 行は、一度読んでから order と featured を出す 4 行にできる
+- ponytail: src/lib/photo-meta.ts の RawExif は Record<string, unknown> の別名 1 つなので、引数の型にそのまま書けば消せる
+- ponytail 合計: net -13 lines possible
+- 修正後に見つかった点: src/lib/photo-meta.ts の toSlug のエラーメッセージ「--slug で指定する」が、ユーザーが --slug に英数字なしの値を渡した経路でも出る。その人は既に --slug を使っているので案内が行き止まりになる。由来で文言を分けるか「英数字を 1 文字以上含める」に変える
+- 修正後に見つかった点: toSlug の拡張子除去が --slug の値にも掛かる。--slug kamo-river-v1.2 が kamo-river-v1 と無警告で切り詰められる
+- 修正後に見つかった点: src/lib/photo-meta.ts の isPositiveFinite が関数の中で毎回作られる。cameraName の隣のモジュールスコープに置くほうが既存の書き方に揃う
