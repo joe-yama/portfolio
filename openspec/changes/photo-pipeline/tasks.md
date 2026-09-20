@@ -67,3 +67,10 @@
 - 修正後に見つかった点: src/lib/photo-meta.ts の toSlug のエラーメッセージ「--slug で指定する」が、ユーザーが --slug に英数字なしの値を渡した経路でも出る。その人は既に --slug を使っているので案内が行き止まりになる。由来で文言を分けるか「英数字を 1 文字以上含める」に変える
 - 修正後に見つかった点: toSlug の拡張子除去が --slug の値にも掛かる。--slug kamo-river-v1.2 が kamo-river-v1 と無警告で切り詰められる
 - 修正後に見つかった点: src/lib/photo-meta.ts の isPositiveFinite が関数の中で毎回作られる。cameraName の隣のモジュールスコープに置くほうが既存の書き方に揃う
+
+Task 8〜11（Workflow 実行）から:
+
+- 【申し送り。実害あり】温かいキャッシュでの再ビルド時、リモート画像の再検証が必ず失敗して "Proceeding with stale cache" の警告が出る。これは Astro 側のバグで、設定では直せない。node_modules/astro/dist/assets/build/remote.js の revalidateRemoteImage は第 4 引数 imageConfig を取り既定値が空の許可リスト {remotePatterns: [], domains: []} だが、呼び出し側の build/generate.js:121 が引数を 2 つしか渡していない。そのため再検証の経路だけプロジェクトの image 設定が届かず、リダイレクトする画像は必ず許可リスト検査に落ちる。実測: キャッシュを退避して冷えた状態でビルドすると警告 0 件、温かいと 2 枚 × 複数回。**実害は、gh release upload --clobber で同じ URL の写真を差し替えたとき、ローカルの温かいキャッシュでは古い画像がビルド出力に残ること。** 回避策は node_modules/.astro/assets を消してからビルドする。CI は毎回冷えているので影響しない。photo:add の説明かドキュメントに書くべき
+- 写真が 2 枚しか無いため、個別ページの「中間（前後とも出る）」ケースが未検証。3 枚以上になった時点で確認する
+- getPhotos に単体テストが無い（astro:content に依存するため。既存の getProfile / getCareer も同じ）。検証はビルドに頼っている
+- astro.config.ts の image.domains: ['github.com'] は remotePatterns を足した今も残っているが、実際に効いているのは remotePatterns だけの可能性がある。domains を外しても通るか確かめて、不要なら消す
