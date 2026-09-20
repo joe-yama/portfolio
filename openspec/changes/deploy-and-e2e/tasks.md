@@ -4,9 +4,9 @@
 
 ## 1. `base` を剥がす・前置する純関数（単位 A）
 
-- [ ] 1.1 `src/lib/i18n.ts` に `stripBase(path, base)` と `withBase(path, base)` を TDD で追加する。`base` は `/portfolio/`（末尾スラッシュ付き。`import.meta.env.BASE_URL` の実値）と `/`（未設定時）の両方を受ける。`tests/unit/i18n.test.ts` で「`/portfolio/en/career/` + `/portfolio/` → `/en/career/`」「`/en/career/` + `/portfolio/` → `/en/career/`（付いていなければそのまま）」「`/portfolio/` + `/portfolio/` → `/`」「`/ja/` + `/` → `/ja/`」「`withBase` が二重に付けない」を固定し、`pnpm test` が緑になることで検証する
-- [ ] 1.2 `localeFromPath` と `alternatePath` を `base` 引数を取る形に変え、内部で `stripBase` / `withBase` を使う。`tests/unit/i18n.test.ts` に spec の新しい Scenario（`/portfolio/en/career/` → `en`、`/portfolio/` → ロケールなし、`/portfolio/ja/photos/x/` の英語版 → `/portfolio/en/photos/x/`）を足し、既存のケース（base 無し）も通ることを確認する。`pnpm test` と `pnpm typecheck` が緑になることで検証する
-- [ ] 1.3 `src/lib/site.ts` に `homePath(lang, base)` / `photoPath(slug, lang, base)` / `assetPath(path, base)` を TDD で追加し、`navLinks` / `languageSwitch` / `alternateLinks` も `base` を受け取る形に変える。`tests/unit/site.test.ts` で「`base` が `/portfolio/` のとき全関数の戻り値が `/portfolio/` で始まる」「`base` が `/` のとき従来どおり」を固定し、`pnpm test` が緑になることで検証する
+- [x] 1.1 `src/lib/i18n.ts` に `stripBase(path, base)` と `withBase(path, base)` を TDD で追加する。`base` は `/portfolio/`（末尾スラッシュ付き。`import.meta.env.BASE_URL` の実値）と `/`（未設定時）の両方を受ける。`tests/unit/i18n.test.ts` で「`/portfolio/en/career/` + `/portfolio/` → `/en/career/`」「`/en/career/` + `/portfolio/` → `/en/career/`（付いていなければそのまま）」「`/portfolio/` + `/portfolio/` → `/`」「`/ja/` + `/` → `/ja/`」「`withBase` が二重に付けない」を固定し、`pnpm test` が緑になることで検証する
+- [x] 1.2 `localeFromPath` と `alternatePath` を `base` 引数を取る形に変え、内部で `stripBase` / `withBase` を使う。`tests/unit/i18n.test.ts` に spec の新しい Scenario（`/portfolio/en/career/` → `en`、`/portfolio/` → ロケールなし、`/portfolio/ja/photos/x/` の英語版 → `/portfolio/en/photos/x/`）を足し、既存のケース（base 無し）も通ることを確認する。`pnpm test` と `pnpm typecheck` が緑になることで検証する
+- [x] 1.3 `src/lib/site.ts` に `homePath(lang, base)` / `photoPath(slug, lang, base)` / `assetPath(path, base)` を TDD で追加し、`navLinks` / `languageSwitch` / `alternateLinks` も `base` を受け取る形に変える。`tests/unit/site.test.ts` で「`base` が `/portfolio/` のとき全関数の戻り値が `/portfolio/` で始まる」「`base` が `/` のとき従来どおり」を固定し、`pnpm test` が緑になることで検証する
 
 ## 2. `base` の適用と全ページの書き換え（単位 A）
 
