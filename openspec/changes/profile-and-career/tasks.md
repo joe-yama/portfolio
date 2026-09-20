@@ -11,8 +11,8 @@
 
 ## 2. 経歴ページ（単位 B）
 
-- [ ] 2.1 `src/pages/[lang]/career.astro` を追加する（`getStaticPaths` で両ロケール、`toLocale(Astro.params.lang)`、`getCareer(lang)`、`BaseLayout` に `title="Career"`、`h1` は `Career`）。職歴・スキル・資格・実績の 4 区画を design D5 のマークアップで出し、タスク 1 の純関数と `ui` を使う。`pnpm build` 後に `dist/ja/career/index.html` と `dist/en/career/index.html` が存在し、`<title>` が `Career · joe-yama` であることで検証する
-- [ ] 2.2 `url` を持つ項目だけをリンクにする（実績の `url` あり → `<a>`、資格の `url` なし → 素のテキスト）。`pnpm build` 後に `dist/ja/career/index.html` を `grep` し、`https://example.com/talk` へのリンクが 1 つあり、`応用情報技術者` がリンクになっていないことで検証する
+- [x] 2.1 `src/pages/[lang]/career.astro` を追加する（`getStaticPaths` で両ロケール、`toLocale(Astro.params.lang)`、`getCareer(lang)`、`BaseLayout` に `title="Career"`、`h1` は `Career`）。職歴・スキル・資格・実績の 4 区画を design D5 のマークアップで出し、タスク 1 の純関数と `ui` を使う。`pnpm build` 後に `dist/ja/career/index.html` と `dist/en/career/index.html` が存在し、`<title>` が `Career · joe-yama` であることで検証する
+- [x] 2.2 `url` を持つ項目だけをリンクにする（実績の `url` あり → `<a>`、資格の `url` なし → 素のテキスト）。`pnpm build` 後に `dist/ja/career/index.html` を `grep` し、`https://example.com/talk` へのリンクが 1 つあり、`応用情報技術者` がリンクになっていないことで検証する
 
 ## 3. トップページの完成（単位 B）
 

@@ -1,0 +1,102 @@
+---
+// 経歴。職歴・スキル・資格・実績の 4 区画。並び替えと整形は career.ts の純関数、
+// 画面の文字列は site.ts の ui に置く（design D1・D2）
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDate, formatPeriod, sortByDateDesc, sortExperience } from '../../lib/career';
+import { getCareer } from '../../lib/content';
+import { locales, toLocale } from '../../lib/i18n';
+import { ui } from '../../lib/site';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const lang = toLocale(Astro.params.lang);
+const career = await getCareer(lang);
+const t = ui[lang].careerSections;
+const kinds = ui[lang].achievementKind;
+---
+
+<BaseLayout title="Career">
+  <h1>Career</h1>
+
+  <section>
+    <h2>{t.experience}</h2>
+    {
+      sortExperience(career.experience).map((job) => (
+        <article>
+          <p class="muted">{formatPeriod(job.from, job.to, lang)}</p>
+          <p class="org">{job.organization}</p>
+          <p class="muted">{job.role}</p>
+          <ul>
+            {job.bullets.map((bullet) => (
+              <li>{bullet}</li>
+            ))}
+          </ul>
+        </article>
+      ))
+    }
+  </section>
+
+  <section>
+    <h2>{t.skills}</h2>
+    {
+      Object.entries(career.skills).map(([category, names]) => (
+        <p>
+          <span class="org">{category}</span> {names.join(', ')}
+        </p>
+      ))
+    }
+  </section>
+
+  <section>
+    <h2>{t.certifications}</h2>
+    <ul>
+      {
+        sortByDateDesc(career.certifications).map((item) => (
+          <li>
+            <span class="muted">{formatDate(item.date, lang)}</span>
+            {' · '}
+            {item.url ? <a href={item.url}>{item.name}</a> : item.name}
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section>
+    <h2>{t.achievements}</h2>
+    <ul>
+      {
+        sortByDateDesc(career.achievements).map((item) => (
+          <li>
+            <span class="muted">{formatDate(item.date, lang)}</span>
+            {' · '}
+            <span class="muted">{kinds[item.kind]}</span>
+            {' · '}
+            {item.url ? <a href={item.url}>{item.name}</a> : item.name}
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  section {
+    margin-bottom: 2.5rem;
+  }
+  article {
+    margin-bottom: 1.5rem;
+  }
+  p {
+    margin: 0 0 0.25rem;
+  }
+  .org {
+    font-weight: 600;
+  }
+  ul {
+    margin: 0.25rem 0 0;
+    padding-left: 1.25rem;
+  }
+</style>
