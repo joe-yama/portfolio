@@ -13,8 +13,13 @@ export default defineConfig({
     },
   },
   image: {
-    // 写真は GitHub Releases の URL（github.com → objects.githubusercontent.com にリダイレクト）
+    // 写真は GitHub Releases の URL。github.com は release-assets.githubusercontent.com へ
+    // 302 リダイレクトするので、リダイレクト先も許可する必要がある（2026-09-20 実測）。
+    // ホスト名は GitHub 側の都合で変わる（以前は objects.githubusercontent.com だった）ため、
+    // 厳密なホスト名ではなくワイルドカードで受ける。domains はワイルドカードを許さないので
+    // remotePatterns を使う
     domains: ['github.com'],
+    remotePatterns: [{ protocol: 'https', hostname: '**.githubusercontent.com' }],
   },
   fonts: [
     {
