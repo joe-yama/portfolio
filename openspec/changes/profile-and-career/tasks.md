@@ -16,9 +16,9 @@
 
 ## 3. トップページの完成（単位 B）
 
-- [ ] 3.1 `src/pages/[lang]/index.astro` に連絡先リンク（`profile.links` を順に、`label` を表示、`target` を付けない）を追加する。`pnpm build` 後に `dist/ja/index.html` に `mailto:hello@example.com` と `https://github.com/joe-yama` が現れ、`target=` が本文に無いことで検証する
-- [ ] 3.2 `src/pages/[lang]/index.astro` に本文の導線（`navLinks(lang)` の 2 本と `languageSwitch(Astro.url.pathname, lang)` の 1 本）を追加する。`.astro` にパスを直書きしない（design D3）。`pnpm build` 後に `dist/en/index.html` の本文に `/en/photos/`、`/en/career/`、`/ja/` が現れることで検証する
-- [ ] 3.3 `src/pages/[lang]/index.astro` の検証目的のダミー `await getCareer(lang)` とその説明コメントを削除する（design D4）。削除後に `pnpm build` が通り、`src/content/career/en.yaml` の `certifications` を 1 件減らすと `pnpm build` が「件数が日英で違う」で止まることを実測して戻すことで、検証がビルドに残っていることを確認する
+- [x] 3.1 `src/pages/[lang]/index.astro` に連絡先リンク（`profile.links` を順に、`label` を表示、`target` を付けない）を追加する。`pnpm build` 後に `dist/ja/index.html` に `mailto:hello@example.com` と `https://github.com/joe-yama` が現れ、`target=` が本文に無いことで検証する
+- [x] 3.2 `src/pages/[lang]/index.astro` に本文の導線（`navLinks(lang)` の 2 本と `languageSwitch(Astro.url.pathname, lang)` の 1 本）を追加する。`.astro` にパスを直書きしない（design D3）。`pnpm build` 後に `dist/en/index.html` の本文に `/en/photos/`、`/en/career/`、`/ja/` が現れることで検証する
+- [x] 3.3 `src/pages/[lang]/index.astro` の検証目的のダミー `await getCareer(lang)` とその説明コメントを削除する（design D4）。削除後に `pnpm build` が通り、`src/content/career/en.yaml` の `certifications` を 1 件減らすと `pnpm build` が「件数が日英で違う」で止まることを実測して戻すことで、検証がビルドに残っていることを確認する
 
 ## 4. 仕上げ
 
