@@ -10,6 +10,7 @@ import {
   readFileSync,
   writeFileSync,
 } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
 import exifr from 'exifr';
@@ -54,8 +55,10 @@ const { file, slug: slugArg } = parseArgs(process.argv.slice(2));
 if (!existsSync(file)) die(`ファイルが無い: ${file}`);
 const slug = toSlug(slugArg ?? basename(file));
 
-// (2) EXIF を読む。縮小前の元画像から読む
-const raw = await exifr.parse(file, { translateValues: false });
+// (2) EXIF を読む。縮小前の元画像から読む。
+// exifr@7.1.3 のファイルパス経路は fstat を旧 API 形で呼んでおり Node 26 で
+// ERR_INVALID_ARG_TYPE になるため、Buffer に読んでから渡す
+const raw = await exifr.parse(await readFile(file), { translateValues: false });
 if (!raw) die(`EXIF を読めない: ${file}`);
 
 // (3) 足りない項目があれば名前を挙げて中断する
