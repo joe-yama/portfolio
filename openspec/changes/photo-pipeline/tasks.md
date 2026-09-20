@@ -30,8 +30,8 @@
 
 ## 4. 仕上げ
 
-- [ ] 4.1 設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` に 2026-09-20 の PO 決定を反映する（§4 に前後リンクは端では出さない、§5.1 か §5.3 に `photo:add` が長辺 2500px へ縮小することと `TODO:` 印、§6 にギャラリーは縦横比を保ちトリミングしない）。差分を Issue にコメントする
-- [ ] 4.2 `pnpm lint && pnpm typecheck && pnpm test && pnpm build` がすべて終了コード 0、`git status --short` が空、`openspec validate photo-pipeline --strict` が valid であることを実行出力で示し、本ファイルの完了項目を `[x]` にしてコミットする
+- [x] 4.1 設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` に 2026-09-20 の PO 決定を反映する（§4 に前後リンクは端では出さない、§5.1 か §5.3 に `photo:add` が長辺 2500px へ縮小することと `TODO:` 印、§6 にギャラリーは縦横比を保ちトリミングしない）。差分を Issue にコメントする
+- [x] 4.2 `pnpm lint && pnpm typecheck && pnpm test && pnpm build` がすべて終了コード 0、`git status --short` が空、`openspec validate photo-pipeline --strict` が valid であることを実行出力で示し、本ファイルの完了項目を `[x]` にしてコミットする
 - [ ] 4.3 `pnpm build && pnpm preview` で `http://127.0.0.1:4321/` を配信し、`reviewer`（Opus）でブランチ全体を「仕様準拠（`photo-pipeline` と `content-schema` の delta）→ コード品質 → ponytail」の順にレビューする。reviewer 自身が Playwright MCP で `/ja/photos/`、個別ページ（先頭・中間・末尾）、`/ja/` を実操作し、測った値を報告に書く。結果（Approved / 指摘数 / 切り替えの有無）を Issue にコメントする
 - [ ] 4.4 `gh api user --jq .login` が `joe-yama` であることを確認し、PO の許可を得て push、`Closes #<Issue 番号>` を本文に含む PR を作成する
 
