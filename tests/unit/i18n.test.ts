@@ -5,6 +5,7 @@ import {
   localeFromPath,
   locales,
   otherLocale,
+  toLocale,
 } from '../../src/lib/i18n';
 
 describe('locales', () => {
@@ -42,5 +43,17 @@ describe('alternatePath', () => {
   it('接頭辞が無いパスにはロケールを前置する', () => {
     expect(alternatePath('/', 'ja')).toBe('/ja/');
     expect(alternatePath('/404/', 'en')).toBe('/en/404/');
+  });
+});
+
+describe('toLocale', () => {
+  it('ロケールの文字列はそのまま返す', () => {
+    expect(toLocale('ja')).toBe('ja');
+    expect(toLocale('en')).toBe('en');
+  });
+
+  it('ロケールでない値は例外にする', () => {
+    expect(() => toLocale('fr')).toThrow('fr');
+    expect(() => toLocale(undefined)).toThrow();
   });
 });
