@@ -11,7 +11,7 @@
 - [x] 1.3 `src/lib/photo.ts` に `formatTakenAt(date: Date, lang: Locale): string` を追加する。`Intl.DateTimeFormat` の `dateStyle: 'long'` と `timeZone: 'UTC'` を使う。テストは `new Date('2025-11-03')` に対し ja が `2025年11月3日`、en が `November 3, 2025` を返すことと、`TZ=America/New_York` でも同じ結果になること（`process.env.TZ` を変えず、`timeZone: 'UTC'` 指定を直接検証する形でよい）。RED → GREEN を示す
 - [x] 1.4 `src/lib/photo.ts` に `neighbors(photos, slug): { prev?: PhotoEntry; next?: PhotoEntry }` を追加する。テストは 3 枚に対し中間（前後とも有り）、先頭（`prev` が `undefined`）、末尾（`next` が `undefined`）、存在しない slug（例外）の 4 ケース。RED → GREEN を示す
 - [x] 1.5 `src/lib/validate.ts` の `validatePhotos` に、`title` / `location` / `alt` の 6 値が `TODO:` で始まらないことの検査を足す。`tests/unit/validate.test.ts` に「`TODO: 日本語タイトル` が slug と `title.ja` を含むエラーになる」「`TODO リストの写真` は通る」「全項目記入済みなら通る」のテストを先に書き、RED → GREEN を示す
-- [ ] 1.6 `src/lib/photo-meta.ts` を新規に作り、`toSlug`（ファイル名 → kebab-case）、`formatShutterSpeed`（`0.004` → `1/250`、`2` → `2s`、`1.6` → `1.6s`）、`exifToPhotoData`（`exifr` の生の値 → YAML に書く値。欠損項目があれば項目名の配列を返す）、`nextOrder`（既存 `order` の最大値 + 10、空なら 10）、`renderPhotoYaml`（写真データ → YAML 文字列。`title` / `location` / `alt` は `TODO:` 始まり）を実装する。`tests/unit/photo-meta.test.ts` を先に書き、各関数の RED → GREEN を `pnpm test` の出力で示す
+- [x] 1.6 `src/lib/photo-meta.ts` を新規に作り、`toSlug`（ファイル名 → kebab-case）、`formatShutterSpeed`（`0.004` → `1/250`、`2` → `2s`、`1.6` → `1.6s`）、`exifToPhotoData`（`exifr` の生の値 → YAML に書く値。欠損項目があれば項目名の配列を返す）、`nextOrder`（既存 `order` の最大値 + 10、空なら 10）、`renderPhotoYaml`（写真データ → YAML 文字列。`title` / `location` / `alt` は `TODO:` 始まり）を実装する。`tests/unit/photo-meta.test.ts` を先に書き、各関数の RED → GREEN を `pnpm test` の出力で示す
 
 ## 2. 入稿コマンド `pnpm photo:add`
 
