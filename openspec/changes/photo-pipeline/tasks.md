@@ -1,0 +1,36 @@
+# Tasks
+
+前提: `/opsx:propose` の成果物を PO が承認し、GitHub Issue を作成済み。`superpowers:using-git-worktrees` で `feature/photo-pipeline` の worktree を作り、その中で作業する。実装は `implementer`（Sonnet）、レビューは `reviewer`（Opus）。実装コードの変更は必ずテストを先に書く（RED → GREEN → REFACTOR）。
+
+グループ 1 は写真の実物が無くても進められる。グループ 2 の 2.3 以降は PO から受け取った JPEG が必要。
+
+## 1. 純粋関数（写真の実物なしで進む）
+
+- [ ] 1.1 `src/lib/i18n.ts` に `toLocale(value: string | undefined): Locale` を追加する（`isLocale` で判定し、外れたら値を含む例外）。`tests/unit/i18n.test.ts` に「`'ja'` / `'en'` を返す」「`'fr'` と `undefined` で例外」のテストを先に書き、RED を確認してから実装し、`pnpm test` が緑になることを実行出力で示す
+- [ ] 1.2 `src/lib/photo.ts` に `formatExif(exif): string` を追加する。`tests/unit/photo.test.ts` に spec の例（`Fujifilm X-T5 · XF 23mm F1.4 R LM WR · f/1.4 · 1/250 · ISO 800`）と、絞りが整数のとき（`2` → `f/2`）のテストを先に書き、RED → GREEN を `pnpm test` の出力で示す
+- [ ] 1.3 `src/lib/photo.ts` に `formatTakenAt(date: Date, lang: Locale): string` を追加する。`Intl.DateTimeFormat` の `dateStyle: 'long'` と `timeZone: 'UTC'` を使う。テストは `new Date('2025-11-03')` に対し ja が `2025年11月3日`、en が `November 3, 2025` を返すことと、`TZ=America/New_York` でも同じ結果になること（`process.env.TZ` を変えず、`timeZone: 'UTC'` 指定を直接検証する形でよい）。RED → GREEN を示す
+- [ ] 1.4 `src/lib/photo.ts` に `neighbors(photos, slug): { prev?: PhotoEntry; next?: PhotoEntry }` を追加する。テストは 3 枚に対し中間（前後とも有り）、先頭（`prev` が `undefined`）、末尾（`next` が `undefined`）、存在しない slug（例外）の 4 ケース。RED → GREEN を示す
+- [ ] 1.5 `src/lib/validate.ts` の `validatePhotos` に、`title` / `location` / `alt` の 6 値が `TODO:` で始まらないことの検査を足す。`tests/unit/validate.test.ts` に「`TODO: 日本語タイトル` が slug と `title.ja` を含むエラーになる」「`TODO リストの写真` は通る」「全項目記入済みなら通る」のテストを先に書き、RED → GREEN を示す
+- [ ] 1.6 `src/lib/photo-meta.ts` を新規に作り、`toSlug`（ファイル名 → kebab-case）、`formatShutterSpeed`（`0.004` → `1/250`、`2` → `2s`、`1.6` → `1.6s`）、`exifToPhotoData`（`exifr` の生の値 → YAML に書く値。欠損項目があれば項目名の配列を返す）、`nextOrder`（既存 `order` の最大値 + 10、空なら 10）、`renderPhotoYaml`（写真データ → YAML 文字列。`title` / `location` / `alt` は `TODO:` 始まり）を実装する。`tests/unit/photo-meta.test.ts` を先に書き、各関数の RED → GREEN を `pnpm test` の出力で示す
+
+## 2. 入稿コマンド `pnpm photo:add`
+
+- [ ] 2.1 `pnpm add -D exifr sharp` で依存を追加し、`package.json` の scripts に `"photo:add": "node scripts/photo-add.ts"` を足す。`node -e "require.resolve('sharp'); require.resolve('exifr')"` が成功することと、`sharp` のバージョンが Astro の依存と同じ 0.35.x であることを実行出力で示す
+- [ ] 2.2 `scripts/photo-add.ts` を実装する。順序は (1) `gh api user --jq .login` が `joe-yama` でなければ何も変更せず終了コード非 0 で中断、(2) `exifr` で元画像から EXIF を読む、(3) `exifToPhotoData` が欠損を返したら項目名を示して中断、(4) `sharp` で長辺 2500px 以下（拡大しない）・sRGB・JPEG 品質 90 に変換して一時ファイルへ、(5) Release `photos` が無ければ `gh release create photos --latest=false` で作り `gh release upload photos <slug>.jpg --clobber`、(6) `src/content/photos/<slug>.yaml` を書き、最後に「title / location / alt を記入してからビルドすること」を出力する。ロジックは 1.6 の関数を呼ぶだけにする。`pnpm lint && pnpm typecheck` が緑であることを実行出力で示し、`--help` 相当の引数なし実行が使い方を出して非 0 で終わることを確認する
+- [ ] 2.3 PO から受け取った JPEG（2〜3 枚）を `pnpm photo:add` で入稿する。`gh release view photos --json assets` で asset が登録されていること、`src/content/photos/*.yaml` が生成され `image` の URL が `https://github.com/joe-yama/portfolio/releases/download/photos/<slug>.jpg` であること、登録された画像の長辺が 2500px 以下であることを実行出力で示す。**PO の写真が未着ならここで止まり、Issue にコメントして PO に依頼する**
+- [ ] 2.4 生成された YAML の `title` / `location` / `alt` を日英で記入する。Agent が写真を見て下書きし、PO に提示して確定させる。`order` と `featured`（代表写真 1 枚）も PO に確認する。記入後に `pnpm test` が緑（`TODO:` 検証を含む）であることを示す
+
+## 3. コレクションとページ
+
+- [ ] 3.1 `src/content.config.ts` に `photos` コレクション（`glob({ pattern: '*.yaml', base: './src/content/photos' })` + `photoSchema`）を登録し、`src/lib/content.ts` に `getPhotos()`（`getCollection` → `validatePhotos` → `assertValid` → `order` 昇順）を足す。`pnpm build` が成功し `[WARN]` が出ないこと、および `order` を故意に重複させると `pnpm build` が該当 slug を示して失敗すること（確認後に戻す）を実行出力で示す
+- [ ] 3.2 `src/components/PhotoPicture.astro` を作る。props は `photo` / `lang` / `variant`（`'grid' | 'full'`）/ `eager`（既定 false）。`formats={['avif','webp']}`、`inferSize`、`alt={photo.data.alt[lang]}`、widths は grid が 400/800/1200・full が 1200/1800/2500、`loading` は `eager` が真のとき `eager` + `fetchpriority="high"`、それ以外は `lazy`。この時点ではまだページから呼ばないので、3.3 のビルドで検証する
+- [ ] 3.3 `src/pages/[lang]/photos/index.astro`（ギャラリー）を作る。`toLocale` を使い、`getPhotos()` の順に `PhotoPicture` の `grid` を並べ、各写真を個別ページへリンクする。CSS Grid（`repeat(auto-fill, minmax(280px, 1fr))`）で縦横比は保つ。`pnpm build` 後に `dist/ja/photos/index.html` と `dist/en/photos/index.html` が存在し、`<img` に `width` と `height` と `loading="lazy"` があり、`<source type="image/avif">` と `image/webp` が出ており、画像の参照先に `github.com` が含まれないことを grep で示す
+- [ ] 3.4 `src/pages/[lang]/photos/[slug].astro`（個別ページ）を作る。`getStaticPaths` は言語 × 写真。`PhotoPicture` の `full`、タイトル・撮影地、`formatTakenAt`、`formatExif` の 1 行、`neighbors` による前後リンク（端では出さない）、ギャラリーへ戻るリンク。`pnpm build` 後に、先頭の写真の HTML に「前」のリンクが無く「次」があること、末尾はその逆、中間は両方あることを grep で示し、`<html lang>` と hreflang 3 本が出ていることも確認する
+- [ ] 3.5 `src/pages/[lang]/index.astro` に代表写真（`featured`）を最上部に追加する。`PhotoPicture` の `full` + `eager`。代表写真が見つからないときは例外でビルドを止める。`pnpm build` 後に `dist/ja/index.html` に `fetchpriority="high"` と `loading="eager"` があること、`featured` を一時的に全部 `false` にするとビルドが失敗すること（確認後に戻す）を示す
+
+## 4. 仕上げ
+
+- [ ] 4.1 設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` に 2026-09-20 の PO 決定を反映する（§4 に前後リンクは端では出さない、§5.1 か §5.3 に `photo:add` が長辺 2500px へ縮小することと `TODO:` 印、§6 にギャラリーは縦横比を保ちトリミングしない）。差分を Issue にコメントする
+- [ ] 4.2 `pnpm lint && pnpm typecheck && pnpm test && pnpm build` がすべて終了コード 0、`git status --short` が空、`openspec validate photo-pipeline --strict` が valid であることを実行出力で示し、本ファイルの完了項目を `[x]` にしてコミットする
+- [ ] 4.3 `pnpm build && pnpm preview` で `http://127.0.0.1:4321/` を配信し、`reviewer`（Opus）でブランチ全体を「仕様準拠（`photo-pipeline` と `content-schema` の delta）→ コード品質 → ponytail」の順にレビューする。reviewer 自身が Playwright MCP で `/ja/photos/`、個別ページ（先頭・中間・末尾）、`/ja/` を実操作し、測った値を報告に書く。結果（Approved / 指摘数 / 切り替えの有無）を Issue にコメントする
+- [ ] 4.4 `gh api user --jq .login` が `joe-yama` であることを確認し、PO の許可を得て push、`Closes #<Issue 番号>` を本文に含む PR を作成する
