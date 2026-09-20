@@ -1,27 +1,36 @@
 ---
+import PhotoPicture from '../../components/PhotoPicture.astro';
 import PixelArt from '../../components/pixel/PixelArt.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCareer, getProfile } from '../../lib/content';
-import { type Locale, locales } from '../../lib/i18n';
+import { getCareer, getPhotos, getProfile } from '../../lib/content';
+import { locales, toLocale } from '../../lib/i18n';
 import { camera } from '../../lib/pixel';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
 }
 
-const lang = Astro.params.lang as Locale;
+const lang = toLocale(Astro.params.lang);
 const profile = await getProfile(lang);
 // 日英件数の検証をビルドに乗せるため呼ぶ。表示は Change 4 で行う（Issue #1 の申し送り。消さない）
 await getCareer(lang);
+// 代表写真。validatePhotos が「ちょうど 1 枚」を保証しているので、見つからない = 写真が 0 枚
+const featured = (await getPhotos()).find((p) => p.data.featured);
+if (!featured) throw new Error('featured: true の写真が 1 枚も無い');
 ---
 
 <BaseLayout>
+  <div class="hero"><PhotoPicture photo={featured} lang={lang} variant="full" eager /></div>
   <div class="art"><PixelArt rows={camera} /></div>
   <h1>{profile.name}</h1>
   <p class="muted">{profile.tagline}</p>
 </BaseLayout>
 
 <style>
+  .hero {
+    margin-bottom: 2rem;
+  }
+
   .art {
     margin-bottom: 1rem;
   }

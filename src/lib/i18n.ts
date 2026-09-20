@@ -26,3 +26,12 @@ export function alternatePath(path: string, target: Locale): string {
   }
   return `/${segments.join('/')}/`;
 }
+
+/**
+ * ページの `Astro.params.lang` をロケールに絞る。getStaticPaths が locales しか返さないので
+ * 実行時に外れることは無いが、無検査キャスト（`as Locale`）を各ページに複製しないために置く
+ */
+export function toLocale(value: string | undefined): Locale {
+  if (value !== undefined && isLocale(value)) return value;
+  throw new Error(`ロケールではない値がページに渡された: ${String(value)}`);
+}

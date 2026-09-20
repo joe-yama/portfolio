@@ -1,0 +1,43 @@
+---
+// 写真の一覧。元の縦横比のまま格子に並べる（PO 決定 2026-09-20）。キャプションは出さない
+import PhotoPicture from '../../../components/PhotoPicture.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getPhotos } from '../../../lib/content';
+import { locales, toLocale } from '../../../lib/i18n';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const lang = toLocale(Astro.params.lang);
+const photos = await getPhotos();
+---
+
+<BaseLayout title="Photos">
+  <ul class="grid">
+    {
+      photos.map((photo) => (
+        <li>
+          <a href={`/${lang}/photos/${photo.id}/`}>
+            <PhotoPicture photo={photo} lang={lang} variant="grid" />
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</BaseLayout>
+
+<style>
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  a {
+    display: block;
+    text-decoration: none;
+  }
+</style>

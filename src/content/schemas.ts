@@ -22,6 +22,7 @@ export const exifSchema = z.object({
   shutterSpeed: nonEmpty,
   iso: z.number().int().positive(),
 });
+export type Exif = z.infer<typeof exifSchema>;
 
 export const photoSchema = z.object({
   image: z.url(),

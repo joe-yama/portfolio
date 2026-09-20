@@ -54,6 +54,8 @@ PO 本人の名刺となる Web サイト。役割の優先順位は次のとお
 - フッターは「© 年 名前」の 1 行のみ。年はビルド時の年
 - `/404.html` にはナビと言語切り替えを置かない（どの言語のページか決められないため）。フッターは共通
 
+写真の個別ページの前後リンク（PO 決定 2026-09-20）: 並び順の先頭の写真には「前」のリンクを、末尾の写真には「次」のリンクを出さない。中間の写真は両方出す。
+
 ## 5. 内容データの構造
 
 Astro のコンテンツコレクション（Zod スキーマ）で定義し、ビルド時に検証する。
@@ -106,7 +108,7 @@ exif:                    # 5 項目すべて必須
 
 - 写真は JPEG、長辺 2,500px 程度、sRGB、品質 90 前後で入稿。RAW や高解像度の元データは Release にも置かない（ビルド時間と取得量を抑えるため）
 - 1 枚 1〜2 MB、数十枚で合計 100 MB 程度を想定。Release asset の上限（1 ファイル 2 GB）には遠く、合計の制限はない
-- `pnpm photo:add <画像ファイル>` が次を一度に行う: (1) EXIF を読み取る、(2) `gh release upload photos <slug>.jpg` で Release に上げる（同名があれば `--clobber` で差し替え）、(3) `src/content/photos/<slug>.yaml` の雛形（image の URL、takenAt、exif の 5 項目）を生成する。title / location / alt は手で書く。EXIF 読み取りとアップロードは開発時だけで、公開サイトには影響しない（依存: exifr。アップロードは `gh` CLI を使い、追加の依存は入れない）
+- `pnpm photo:add <画像ファイル>` が次を一度に行う: (1) EXIF を読み取る、(2) 長辺 2500px・sRGB・JPEG 品質 90 への縮小を行う（元画像がこれより小さい場合は拡大しない）、(3) `gh release upload photos <slug>.jpg` で Release に上げる（同名があれば `--clobber` で差し替え）、(4) `src/content/photos/<slug>.yaml` の雛形（image の URL、takenAt、exif の 5 項目）を生成する。入稿側（カメラ本体や現像ソフト）で事前に縮小しておく必要はなくなった（PO 決定 2026-09-20）。title / location / alt は手で書く欄として `TODO:` で始まる印が入り、印が残ったままではビルドが `validatePhotos` で止まる（PO 決定 2026-09-20）。EXIF 読み取り・縮小・アップロードは開発時だけで、公開サイトには影響しない（依存: exifr、sharp。アップロードは `gh` CLI を使う）
 - `photo:add` の実行には `gh` が joe-yama で認証されていることが必要。スクリプトは冒頭で `gh api user` を確認し、違うアカウントなら中断する
 - 写真の削除は YAML を消して push し、asset は `gh release delete-asset photos <slug>.jpg` で消す。asset だけ残っても公開サイトには影響しない
 
@@ -114,17 +116,23 @@ exif:                    # 5 項目すべて必須
 
 Astro 本体の `astro:assets`（sharp）でビルド時に最適化する。実行時処理はなし。独自の画像処理コードは書かない。
 
-写真はリモート画像として扱う。`astro.config` の `image.domains` に `github.com` を登録し、`<Picture>` に `inferSize` を付ける。Astro がビルド時に Release から元画像を取得し、最適化した派生画像を `dist/_astro/` に出力するので、公開サイトの画像はすべて同一オリジンから配信される（§7「外部通信ゼロ」は維持）。ローカル開発も同じ経路で取得するため、ネットワークが必要。
+写真はリモート画像として扱う。`astro.config` の `image.remotePatterns` に `{ protocol: 'https', hostname: '**.githubusercontent.com' }` を、`image.domains` に `github.com` を登録し、`<Picture>` に `inferSize` を付ける。Astro がビルド時に Release から元画像を取得し、最適化した派生画像を `dist/_astro/` に出力するので、公開サイトの画像はすべて同一オリジンから配信される（§7「外部通信ゼロ」は維持）。ローカル開発も同じ経路で取得するため、ネットワークが必要。
 
-| 用途 | 出力 | 補足 |
+GitHub Release のダウンロード URL（`github.com/.../releases/download/...`）は `release-assets.githubusercontent.com` へ 302 リダイレクトする。`image.domains` はリダイレクト先のホストを許可しないため、リダイレクト先を許可する `image.remotePatterns` が別途必要（実測 2026-09-20）。`domains: ['github.com']` も引き続き必要で、`remotePatterns` の `**.githubusercontent.com` は `github.com` に一致しないため、`domains` を外すと最初の取得（`github.com` の URL）自体が許可されなくなる（実測 2026-09-20。両方を設定すること）。
+
+| 用途 | 目標幅 | 補足 |
 |---|---|---|
-| ギャラリーのグリッド | 幅 400 / 800 / 1200px、AVIF + WebP + JPEG フォールバック | `loading="lazy"`、幅高さ指定で CLS を防ぐ |
-| 個別ページ | 幅 1200 / 1800 / 2500px、同じ形式 | 入稿上限 2,500px を超える拡大はしない |
+| ギャラリーのグリッド | 400 / 800 / 1200px、AVIF + WebP + JPEG フォールバック | `loading="lazy"`、幅高さ指定で CLS を防ぐ。元の縦横比を保ち、トリミングしない |
+| 個別ページ | 1200 / 1800 / 2500px、同じ形式 | 入稿上限 2,500px を超える拡大はしない |
 | トップの代表写真 | 個別ページと同じセット | `loading="eager"` と `fetchpriority="high"` |
 
-- `<Picture>` コンポーネントを使い、`formats={['avif','webp']}`、`widths`、`inferSize` を指定する
+上の幅は「目標幅」であり、常にその幅で出力されるとは限らない。sharp は拡大しない（`withoutEnlargement: true`）ため、元画像の幅が目標幅より小さい場合は元画像の幅で打ち切られる（例: 元画像が 1667×2500px の縦位置写真なら、個別ページの出力は 1200w と 1667w になり、2500w は生成されない）。これは入稿上限 2,500px を超える拡大をしないという方針と整合する正しい挙動（実測 2026-09-20）。
+
+- `<Picture>` コンポーネントを使い、`formats={['avif','webp']}`、`widths`、`inferSize`、`fallbackFormat="jpeg"`（既定は PNG のため明示が必要）を指定する
 - 公開画像から EXIF は sharp の既定で除去される。撮影情報は YAML から表示するので、位置情報などが漏れることはない
 - ドット絵は Agent が描く仮の絵を Astro コンポーネント内のインライン SVG（`shape-rendering="crispEdges"`、`fill="currentColor"`）で表現する。文字色に追従するのでダーク/ライトで描き分けず、PNG も最適化パイプラインも使わない。PO が自作の絵に差し替えるときは別 change で行う（PO 決定 2026-09-18）
+
+**運用上の注意（キャッシュの落とし穴、2026-09-20 判明。Astro 側のバグで設定では直せない）**: 温かいローカルキャッシュ（`node_modules/.astro/assets`）での再ビルド時、リモート画像の再検証が必ず失敗し `Proceeding with stale cache` の警告が出る。原因は `node_modules/astro/dist/assets/build/remote.js` の `revalidateRemoteImage` が許可リストを第 4 引数に取るのに、呼び出し側の `build/generate.js:121` が引数を 2 つしか渡しておらず、既定の空の許可リストが使われるため。実害は、`pnpm photo:add` で同じ slug の写真を `gh release upload --clobber` で差し替えても、ローカルの温かいキャッシュでは古い画像がビルド出力に残ること。回避策は `node_modules/.astro/assets` を消してからビルドする。CI は毎回冷えているので影響しない。
 
 ## 7. デザインの土台
 
@@ -166,7 +174,7 @@ Astro 本体の `astro:assets`（sharp）でビルド時に最適化する。実
 | `main` へマージ | `withastro/action@v6` でビルド（lockfile から pnpm を自動判別）、`actions/deploy-pages@v5` で GitHub Pages へ公開。ビルド中に Release `photos` から写真を取得する（公開リポジトリなので認証不要） |
 | 独自ドメイン | `public/CNAME` にドメイン名、`astro.config` の `site` に `https://<ドメイン>`、`base` は設定しない。DNS 登録は PO の作業。HTTPS は GitHub Pages が自動発行 |
 | Node / pnpm | Node は `.node-version` で固定（CI と同じ）。パッケージマネージャは pnpm。`package.json` の `packageManager` フィールドでバージョンを固定し、`pnpm-lock.yaml` をコミットする。npm / npx は使わない |
-| 依存 | astro、@astrojs/check + typescript、@biomejs/biome、vitest、@playwright/test（+ axe-core）、exifr。これ以外は追加のたびに PO へ提示 |
+| 依存 | astro、@astrojs/check + typescript、@biomejs/biome、vitest、@playwright/test（+ axe-core）、exifr、@types/node（devDependencies。`scripts/photo-add.ts` を Node で直接実行する CLI の型検査に使う。ライセンス MIT（DefinitelyTyped）。公開サイトのビルド出力には含まれない。PO 承認 2026-09-20）、sharp（devDependencies。`pnpm photo:add` が入稿時に元画像を長辺 2500px・sRGB・品質 90 の JPEG へ縮小するために使う。ライセンス Apache-2.0。Astro が `astro:assets` の画像最適化に使っている依存でもあり、既に node_modules に入っていた（バージョンは Astro と同じ 0.35.x）。明示的に追加したのは、pnpm の厳格な `node_modules` では自前スクリプトから `import sharp` が解決できないため（実測 `MODULE_NOT_FOUND`）。新たなバイナリのダウンロードは発生しない。公開サイトのビルド出力には含まれない。PO 承認 2026-09-20）。これ以外は追加のたびに PO へ提示 |
 
 ## 10. リポジトリの現状と前提
 

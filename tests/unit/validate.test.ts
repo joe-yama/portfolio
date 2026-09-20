@@ -73,6 +73,33 @@ describe('validatePhotos', () => {
       ),
     ).toBe(true);
   });
+
+  it('title が TODO: のままなら slug と項目名を挙げて報告する', () => {
+    const errors = validatePhotos([
+      photo('kyoto', { featured: true, order: 1, title: { ja: 'TODO: 日本語タイトル', en: 'x' } }),
+    ]);
+    expect(errors.some((e) => e.includes('kyoto') && e.includes('title.ja'))).toBe(true);
+  });
+
+  it('location と alt も同じように見る', () => {
+    const errors = validatePhotos([
+      photo('kyoto', {
+        featured: true,
+        order: 1,
+        location: { ja: 'x', en: 'TODO: Location' },
+        alt: { ja: 'TODO: 代替テキスト', en: 'x' },
+      }),
+    ]);
+    expect(errors.some((e) => e.includes('location.en'))).toBe(true);
+    expect(errors.some((e) => e.includes('alt.ja'))).toBe(true);
+  });
+
+  it('TODO で始まっても印（TODO:）でなければ通す', () => {
+    const errors = validatePhotos([
+      photo('kyoto', { featured: true, order: 1, title: { ja: 'TODO リストの写真', en: 'x' } }),
+    ]);
+    expect(errors).toEqual([]);
+  });
 });
 
 describe('validateCareerParity', () => {

@@ -1,6 +1,11 @@
-import { type Career, PHOTO_BASE_URL, type Photo } from '../content/schemas';
+// Task 5 の photo-meta.ts がこのファイルから PLACEHOLDER を読み、そちらは node が直接実行する
+// 経路に乗る。Node の ESM 解決は拡張子を補わないので、ここだけ .ts を明示する（計画の落とし穴 5）
+import { type Career, PHOTO_BASE_URL, type Photo } from '../content/schemas.ts';
 
 export type PhotoEntry = { id: string; data: Photo };
+
+/** 入稿コマンドが title / location / alt に入れる未記入の印 */
+export const PLACEHOLDER = 'TODO:';
 
 /** Zod で表せない写真コレクション全体の制約。問題点を文字列で返す（空 = OK） */
 export function validatePhotos(entries: PhotoEntry[]): string[] {
@@ -27,6 +32,18 @@ export function validatePhotos(entries: PhotoEntry[]): string[] {
     const expected = `${PHOTO_BASE_URL}${e.id}.jpg`;
     if (e.data.image !== expected) {
       errors.push(`${e.id}: image は ${expected} にする（現在 ${e.data.image}）`);
+    }
+  }
+
+  // 入稿コマンドが入れる未記入の印。`TODO` だけを見ると `TODO リストの写真` のような
+  // 正当なタイトルを弾くので、コロンまで含めて一致させる
+  for (const e of entries) {
+    for (const field of ['title', 'location', 'alt'] as const) {
+      for (const lang of ['ja', 'en'] as const) {
+        if (e.data[field][lang].startsWith(PLACEHOLDER)) {
+          errors.push(`${e.id}: ${field}.${lang} が未記入（${PLACEHOLDER} のまま）`);
+        }
+      }
     }
   }
 
