@@ -76,3 +76,17 @@ describe('formatDate', () => {
     expect(formatDate('2024-01-01', 'en')).toBe('January 1, 2024');
   });
 });
+
+describe('負のオフセットの環境でのタイムゾーン退行の検出', () => {
+  it('負のオフセットの環境でも 1 月が前年 12 月にならない', () => {
+    const saved = process.env.TZ;
+    process.env.TZ = 'America/Los_Angeles';
+    try {
+      expect(formatPeriod('2020-01', '2020-01', 'en')).toBe('Jan 2020 – Jan 2020');
+      expect(formatDate('2024-01-01', 'en')).toBe('January 1, 2024');
+    } finally {
+      if (saved === undefined) delete process.env.TZ;
+      else process.env.TZ = saved;
+    }
+  });
+});
