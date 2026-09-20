@@ -73,3 +73,20 @@ h1 {
 .muted {
   color: var(--fg-muted);
 }
+
+/*
+  視覚的には隠すがスクリーンリーダーには読ませる。axe の page-has-heading-one 対応
+  （見出しでページ全体の見出し構造を示す。gallery と 404 はキャプション無しの構成なので
+  可視の h1 を置かない設計を保ったまま、支援技術向けの見出しだけを足す）
+*/
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

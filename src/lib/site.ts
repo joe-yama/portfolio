@@ -11,6 +11,8 @@ type UiStrings = {
   backToGallery: string;
   prevPhoto: string;
   nextPhoto: string;
+  siteNav: string;
+  photoNav: string;
   careerSections: {
     experience: string;
     skills: string;
@@ -29,6 +31,8 @@ export const ui: Record<Locale, UiStrings> = {
     backToGallery: '写真一覧へ',
     prevPhoto: '前の写真',
     nextPhoto: '次の写真',
+    siteNav: 'サイト内の案内',
+    photoNav: '前後の写真',
     careerSections: {
       experience: '職歴',
       skills: 'スキル',
@@ -44,6 +48,8 @@ export const ui: Record<Locale, UiStrings> = {
     backToGallery: 'Back to photos',
     prevPhoto: 'Previous photo',
     nextPhoto: 'Next photo',
+    siteNav: 'Site navigation',
+    photoNav: 'Photo navigation',
     careerSections: {
       experience: 'Experience',
       skills: 'Skills',

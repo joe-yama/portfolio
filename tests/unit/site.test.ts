@@ -127,6 +127,14 @@ describe('ui の写真まわりの文言', () => {
       expect(ui.ja[key]).not.toBe(ui.en[key]);
     }
   });
+
+  it('ナビの aria-label（siteNav / photoNav）が両ロケールで空でない', () => {
+    for (const key of ['siteNav', 'photoNav'] as const) {
+      expect(ui.ja[key].length).toBeGreaterThan(0);
+      expect(ui.en[key].length).toBeGreaterThan(0);
+      expect(ui.ja[key]).not.toBe(ui.en[key]);
+    }
+  });
 });
 
 describe('ui の経歴ページの文字列', () => {

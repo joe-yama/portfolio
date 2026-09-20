@@ -16,6 +16,7 @@ const photos = await getPhotos();
 ---
 
 <BaseLayout title="Photos">
+  <h1 class="sr-only">Photos</h1>
   <ul class="grid">
     {
       photos.map((photo) => (

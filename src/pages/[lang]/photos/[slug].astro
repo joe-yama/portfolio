@@ -34,7 +34,7 @@ const t = ui[lang];
     </figcaption>
   </figure>
 
-  <nav class="around">
+  <nav class="around" aria-label={t.photoNav}>
     {prev && <a rel="prev" href={photoPath(prev.id, lang, base)}>← {t.prevPhoto}</a>}
     <a class="gallery" href={photoPath(null, lang, base)}>{t.backToGallery}</a>
     {next && <a rel="next" href={photoPath(next.id, lang, base)}>{t.nextPhoto} →</a>}

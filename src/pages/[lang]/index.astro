@@ -5,7 +5,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getPhotos, getProfile } from '../../lib/content';
 import { locales, toLocale } from '../../lib/i18n';
 import { camera } from '../../lib/pixel';
-import { languageSwitch, navLinks } from '../../lib/site';
+import { languageSwitch, navLinks, ui } from '../../lib/site';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
@@ -26,11 +26,15 @@ if (!featured) throw new Error('featured: true の写真が 1 枚も無い');
   <h1>{profile.name}</h1>
   <p class="muted">{profile.tagline}</p>
 
-  <nav class="links">
-    {profile.links.map((link) => <a href={link.url}>{link.label}</a>)}
-  </nav>
+  <ul class="links">
+    {profile.links.map((link) => (
+      <li>
+        <a href={link.url}>{link.label}</a>
+      </li>
+    ))}
+  </ul>
 
-  <nav class="links">
+  <nav class="links" aria-label={ui[lang].siteNav}>
     {navLinks(lang, base).map((link) => <a href={link.href}>{link.label}</a>)}
     <a href={sw.href} hreflang={sw.hreflang} lang={sw.hreflang}>
       {sw.label}
@@ -52,5 +56,7 @@ if (!featured) throw new Error('featured: true の写真が 1 枚も無い');
     flex-wrap: wrap;
     gap: 0.5rem 1.25rem;
     margin-top: 1rem;
+    list-style: none;
+    padding: 0;
   }
 </style>
