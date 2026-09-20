@@ -31,7 +31,7 @@ Change 2 `layout-shell` の成果（`BaseLayout` / `Header` / `Footer` / `PixelA
 
 ### D2. 見た目の Minor（PO 判断、各項目独立）
 
-1. 罫線 `--line`: ライト `#d4d4d4` → `#9a9a9a`（3.0:1）など 3:1 以上の値にするか、装飾として現状維持
+1. 罫線 `--line`: ライト `#d4d4d4` を 3:1 以上の値にするか、装飾として現状維持（当初の候補 `#9a9a9a` は実測 2.70 で不足。採用値は Open Questions の 2 を参照）
 2. フッター文字: `<small>` を外して `font-size: 0.875rem` だけにする（14px）か、現状の 11px
 3. ヘッダーリンク: 静止時も下線を出す（`global.css` の既定に従い Header のスコープ CSS から `text-decoration: none` を消す）か、現状維持
 4. 404 の文言とリンク: リンクにも `.dot` を付けるか、文言とリンクを別行にするか、現状維持
@@ -41,18 +41,21 @@ Change 2 `layout-shell` の成果（`BaseLayout` / `Header` / `Footer` / `PixelA
 
 現状: `Props.lang` をページが渡し、`hreflang` の出し分けは `localeFromPath(Astro.url.pathname)` で判定。案: `const lang = localeFromPath(path) ?? defaultLocale` で導出し、`Props.lang` と全ページの `lang={lang}` を消す。404 は接頭辞が無いので `defaultLocale`（ja）になり現状と同じ。利点: 同じ事実の出どころが 1 つになり、ページが path と食い違う `lang` を渡す事故が消える。欠点: ページ側で `lang` を使うときは `Astro.params.lang` を別に読む（現状も読んでいる）。推奨: 採る。
 
+補足（2026-09-20）: 設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` には `BaseLayout` の props に触れた記述が無く（`lang` の言及は `<html lang>` と hreflang の振る舞いの話だけで、これは変更後も事実）、更新すべき箇所は無かった。アーカイブ済みの `openspec/changes/archive/2026-09-20-layout-shell/design.md` の D1 は「props は `lang`、`title`、`showNav`」と書いているが、これは当時の決定の記録なので書き換えない。本 change 以降の props は `title` と `showNav` のみ。
+
 ### D4. favicon はインライン SVG と同じデータから静的に出す
 
 - `src/lib/pixel.ts` の `camera`（または専用の 16×16）を使い、`src/pages/favicon.svg.ts` の静的エンドポイントで `<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect …/></svg>` を出力する。色は `currentColor` が効かないので固定色（`#111`）。ダーク対応が要るなら `<style>@media (prefers-color-scheme: dark){rect{fill:#e8e8e8}}</style>` を SVG 内に入れる（SVG 内 CSS は許容、JavaScript ではない）
 - 代替: `public/favicon.svg` を手で置く → 絵のデータが 2 箇所になる。不採用
 - `BaseLayout` の `<head>` に `<link rel="icon" href="/favicon.svg" type="image/svg+xml">`
+- 実装では SVG 文字列の組み立てを `src/lib/pixel.ts` の `faviconSvg(rows)` という純関数に出し、`src/pages/favicon.svg.ts` はそれを呼んで返すだけにした（`.astro` とエンドポイントを薄く保ち、単体テストで守るため）
 
 ### D5. 決定不要の整理は挙動を変えない
 
 - `PixelArt` の幅算出: `export function gridSize(rows): { width, height }` を `pixel.ts` に置き、`PixelArt.astro` はそれを呼ぶ。テスト: 空配列 → 0×0、行長不揃い → 最長行
 - `Header` の表示条件: `{showNav && (<nav>…{sw && <a …>}</nav>)}`。`sw` は `showNav ? languageSwitch(path, lang) : undefined` のまま
-- `PixelArt` の `margin-bottom` を消し、トップと 404 の呼び出し側で `class` かラッパー要素で余白を付ける（Astro は `class` を子コンポーネントに渡すだけでスコープ hash は付かないので、`:global` を使わず親のスコープ CSS でラッパーに当てる）
-- `tsconfig.json` の `noUnusedLocals`: `astro check` が `.astro` の frontmatter の未使用 import を報告するか試す。報告するなら有効化して `pnpm typecheck` を穴埋めにする。報告しなければ入れない（効かない設定を残さない）
+- `PixelArt` の `margin-bottom` を消し、トップと 404 の呼び出し側で `class` かラッパー要素で余白を付ける（Astro は `class` を子コンポーネントに渡すだけでスコープ hash は付かないので、`:global` を使わず親のスコープ CSS でラッパーに当てる）（この「`:global` を使わない」は `.art` の余白の話。404 の縦横中央寄せは `main` 自身を触る必要があり `:global(main)` を使う。`main` は `BaseLayout` が描くのでページのスコープ CSS では当たらず、Astro がページ単位で CSS をインライン化するため他ページには漏れない。ビルド出力の grep と CSSOM 走査で実測済み）
+- `tsconfig.json` の `noUnusedLocals`: `astro check` が `.astro` の frontmatter の未使用 import を報告するか試す。報告するなら有効化して `pnpm typecheck` を穴埋めにする。報告しなければ入れない（効かない設定を残さない）→ 採用。結果と実測は tasks 2.6
 
 ## Risks / Trade-offs
 
@@ -63,8 +66,13 @@ Change 2 `layout-shell` の成果（`BaseLayout` / `Header` / `Footer` / `PixelA
 
 ## Open Questions
 
-別セッションの冒頭で PO が決める（決まるまで D1〜D3 のタスクは着手しない）:
+PO が決定済み（2026-09-20、GitHub Issue #5 のコメント）:
 
-1. D1: フォント CSS の配信形は A（現状維持）か B（外部 CSS）か
-2. D2: 見た目の Minor 5 件のそれぞれを直すか、現状維持か
-3. D3: `BaseLayout` の `lang` を URL から導出する案を採るか
+1. D1: フォント CSS の配信形 → **A（現状維持）**。`<Font>` のインライン出力のまま。tasks 3.1 は対象外
+2. D2: 見た目の Minor 5 件 → **5 件すべて直す**。罫線は実測で 3:1 以上になる値を使う（ライト `#8f8f8f` = 3.10、ダーク `#606060` = 3.11）
+3. D3: `BaseLayout` の `lang` を URL から導出 → **採る**
+
+実装後のスクリーンショット確認で、PO が追加で 2 件を決定（2026-09-20）:
+
+4. 404 のドット絵は**中央に揃える**（`main` に `justify-items: center`）。文言の左端に揃えたままだと、まとまりの中で絵だけが左に寄って重心がずれて見えるため。副作用として日本語行と英語行の左端が 12px ずれる（各行が個別に中央寄せされるため）
+5. 404 の文言とリンクの**間隔を広げる**（`p a { margin-left: 0.5em }`、実測 4.19px → 12.19px）。D2-4 で両方を同じドット文字に揃えた結果、字体の違いによる切れ目が失われ「Page not found」と「Go to the English top」が 1 語に読めたため

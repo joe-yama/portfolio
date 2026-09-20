@@ -19,12 +19,14 @@ const sw = showNav ? languageSwitch(path, lang) : undefined;
 <header class="dot">
   <a class="logo" href={`/${lang}/`}>{name}</a>
   {
-    sw && (
+    showNav && (
       <nav>
         {navLinks(lang).map((link) => <a href={link.href}>{link.label}</a>)}
-        <a href={sw.href} hreflang={sw.hreflang} lang={sw.hreflang}>
-          {sw.label}
-        </a>
+        {sw && (
+          <a href={sw.href} hreflang={sw.hreflang} lang={sw.hreflang}>
+            {sw.label}
+          </a>
+        )}
       </nav>
     )
   }
@@ -39,12 +41,6 @@ const sw = showNav ? languageSwitch(path, lang) : undefined;
     gap: 0.5rem 1.5rem;
     padding: 1rem;
     border-bottom: 1px solid var(--line);
-  }
-  a {
-    text-decoration: none;
-  }
-  a:hover {
-    text-decoration: underline;
   }
   .logo {
     font-size: 1.25rem;

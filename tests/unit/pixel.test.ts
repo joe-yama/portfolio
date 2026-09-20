@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { camera, cells, lost } from '../../src/lib/pixel';
+import { camera, cells, faviconSvg, gridSize, lost } from '../../src/lib/pixel';
 
 describe('cells', () => {
   it('# のセル座標を行優先で返す', () => {
@@ -18,6 +18,47 @@ describe('cells', () => {
   });
 });
 
+describe('gridSize', () => {
+  it('空配列なら 0 × 0', () => {
+    expect(gridSize([])).toEqual({ width: 0, height: 0 });
+  });
+
+  it('行長が不揃いなら最長行を幅にする', () => {
+    expect(gridSize(['#', '##'])).toEqual({ width: 2, height: 2 });
+  });
+
+  it('縦長の格子でも幅と高さを取り違えない', () => {
+    expect(gridSize(['#', '##', '#'])).toEqual({ width: 2, height: 3 });
+  });
+
+  it('16 × 16 の絵は 16 × 16', () => {
+    expect(gridSize(camera)).toEqual({ width: 16, height: 16 });
+  });
+});
+
+describe('faviconSvg', () => {
+  it('絵の大きさの viewBox と、ぼかさない指定を持つ', () => {
+    const svg = faviconSvg(camera);
+    expect(svg).toContain('viewBox="0 0 16 16"');
+    expect(svg).toContain('shape-rendering="crispEdges"');
+  });
+
+  it('塗られたセルの数だけ rect を出す', () => {
+    expect(faviconSvg(camera).match(/<rect /g)).toHaveLength(cells(camera).length);
+  });
+
+  it('ライトは暗色、ダークは明色', () => {
+    const svg = faviconSvg(camera);
+    expect(svg).toContain('fill="#111111"');
+    expect(svg).toContain('prefers-color-scheme: dark');
+    expect(svg).toContain('rect{fill:#e8e8e8}');
+  });
+
+  it('名前空間以外に外部への参照を持たない', () => {
+    expect(faviconSvg(camera).replace(/xmlns="[^"]*"/g, '')).not.toContain('//');
+  });
+});
+
 describe.each([
   ['camera', camera],
   ['lost', lost],
@@ -32,5 +73,9 @@ describe.each([
 
   it('少なくとも 1 セルは塗られている', () => {
     expect(cells(rows).length).toBeGreaterThan(0);
+  });
+
+  it('全面塗りではない', () => {
+    expect(cells(rows).length).toBeLessThan(256);
   });
 });

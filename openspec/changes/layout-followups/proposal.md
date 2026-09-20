@@ -15,7 +15,7 @@ Change 2 `layout-shell`（PR #4）の独立レビューと PO のモック確認
 ### 決定不要の整理
 
 - `tests/unit/site.test.ts` に接頭辞なしパス（`/`）の `alternateLinks` ケースを足す
-- `tests/unit/pixel.test.ts` に反転データ（`.` と `#` の取り違え）を検知する `cells(rows).length < 256` の assert を足す
+- `tests/unit/pixel.test.ts` に、絵が空でも全面塗りでもないことを守る `cells(rows).length < 256` の assert を足す
 - `PixelArt.astro` の幅算出（最長行）を `src/lib/pixel.ts` の関数に出して単体テストする
 - `PixelArt.astro` の `margin-bottom` を呼び出し側（トップ / 404）へ移す
 - `Header.astro` の `<nav>` の表示条件を `sw &&` から `showNav &&` に戻し、`sw` の有無は `<nav>` の内側で扱う

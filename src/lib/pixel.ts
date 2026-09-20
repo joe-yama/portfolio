@@ -5,6 +5,23 @@ export function cells(rows: readonly string[]): Cell[] {
   return rows.flatMap((row, y) => [...row].flatMap((ch, x) => (ch === '#' ? [{ x, y }] : [])));
 }
 
+/** 格子の大きさ。幅は最長行の文字数、高さは行数 */
+export function gridSize(rows: readonly string[]): { width: number; height: number } {
+  return { width: Math.max(0, ...rows.map((row) => row.length)), height: rows.length };
+}
+
+/**
+ * favicon 用の単体 SVG 文書。文書外で表示されるので currentColor も CSS 変数も効かず、
+ * 色は global.css の --fg と同じ値を直接書き、ダークは SVG 内の <style> で切り替える
+ */
+export function faviconSvg(rows: readonly string[]): string {
+  const { width, height } = gridSize(rows);
+  const rects = cells(rows)
+    .map(({ x, y }) => `<rect x="${x}" y="${y}" width="1" height="1"/>`)
+    .join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" shape-rendering="crispEdges" fill="#111111"><style>@media (prefers-color-scheme: dark){rect{fill:#e8e8e8}}</style>${rects}</svg>`;
+}
+
 /** トップのアイコン: カメラ */
 export const camera: readonly string[] = [
   '................',

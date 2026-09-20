@@ -5,22 +5,24 @@ import { Font } from 'astro:assets';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { getProfile } from '../lib/content';
-import { type Locale, localeFromPath } from '../lib/i18n';
+import { defaultLocale, localeFromPath } from '../lib/i18n';
 import { alternateLinks } from '../lib/site';
 import '../styles/global.css';
 
 interface Props {
-  lang: Locale;
   /** ページ名。省略時はトップ扱いで名前のみ */
   title?: string;
   showNav?: boolean;
 }
 
-const { lang, title, showNav } = Astro.props;
-const profile = await getProfile(lang);
+const { title, showNav } = Astro.props;
 const path = Astro.url.pathname;
+// lang は URL から導く。接頭辞の無いページ（404）は既定ロケール
+const pathLocale = localeFromPath(path);
+const lang = pathLocale ?? defaultLocale;
+const profile = await getProfile(lang);
 if (!Astro.site) throw new Error('astro.config の site が必要（hreflang の絶対 URL に使う）');
-const alternates = localeFromPath(path) ? alternateLinks(path, Astro.site) : [];
+const alternates = pathLocale ? alternateLinks(path, Astro.site) : [];
 ---
 
 <!doctype html>
@@ -29,6 +31,7 @@ const alternates = localeFromPath(path) ? alternateLinks(path, Astro.site) : [];
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title ? `${title} · ${profile.name}` : profile.name}</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     {alternates.map((link) => <link rel="alternate" hreflang={link.hreflang} href={link.href} />)}
     <Font cssVariable="--font-dot" />
   </head>

@@ -1,7 +1,7 @@
 ---
 // ドット絵をインライン SVG で描く。1 セル = 1×1 の rect、crispEdges でぼかさない、
 // currentColor で文字色に追従（設計書 §6、design D5）。装飾なので支援技術からは隠す
-import { cells } from '../../lib/pixel';
+import { cells, gridSize } from '../../lib/pixel';
 
 interface Props {
   rows: readonly string[];
@@ -10,8 +10,7 @@ interface Props {
 }
 
 const { rows, scale = 4 } = Astro.props;
-const width = Math.max(0, ...rows.map((row) => row.length));
-const height = rows.length;
+const { width, height } = gridSize(rows);
 ---
 
 <svg
@@ -28,6 +27,5 @@ const height = rows.length;
 <style>
   svg {
     display: block;
-    margin-bottom: 1rem;
   }
 </style>
