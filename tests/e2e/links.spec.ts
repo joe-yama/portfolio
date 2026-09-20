@@ -33,6 +33,7 @@ test('ビルド出力の内部参照がすべて解決する', () => {
       ...[...html.matchAll(/srcset="([^"]+)"/g)].flatMap((m) =>
         (m[1] ?? '').split(',').map((part) => part.trim().split(/\s+/)[0] ?? ''),
       ),
+      ...[...html.matchAll(/url\((['"]?)([^)'"]+)\1\)/g)].map((m) => m[2] ?? ''),
     ];
     for (const ref of refs) {
       if (!ref.startsWith('/')) continue;
