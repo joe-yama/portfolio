@@ -32,7 +32,7 @@
 
 - [x] 4.1 設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` に 2026-09-20 の PO 決定を反映する（§4 に前後リンクは端では出さない、§5.1 か §5.3 に `photo:add` が長辺 2500px へ縮小することと `TODO:` 印、§6 にギャラリーは縦横比を保ちトリミングしない）。差分を Issue にコメントする
 - [x] 4.2 `pnpm lint && pnpm typecheck && pnpm test && pnpm build` がすべて終了コード 0、`git status --short` が空、`openspec validate photo-pipeline --strict` が valid であることを実行出力で示し、本ファイルの完了項目を `[x]` にしてコミットする
-- [ ] 4.3 `pnpm build && pnpm preview` で `http://127.0.0.1:4321/` を配信し、`reviewer`（Opus）でブランチ全体を「仕様準拠（`photo-pipeline` と `content-schema` の delta）→ コード品質 → ponytail」の順にレビューする。reviewer 自身が Playwright MCP で `/ja/photos/`、個別ページ（先頭・中間・末尾）、`/ja/` を実操作し、測った値を報告に書く。結果（Approved / 指摘数 / 切り替えの有無）を Issue にコメントする
+- [x] 4.3 `pnpm build && pnpm preview` で `http://127.0.0.1:4321/` を配信し、`reviewer`（Opus）でブランチ全体を「仕様準拠（`photo-pipeline` と `content-schema` の delta）→ コード品質 → ponytail」の順にレビューする。reviewer 自身が Playwright MCP で `/ja/photos/`、個別ページ（先頭・中間・末尾）、`/ja/` を実操作し、測った値を報告に書く。結果（Approved / 指摘数 / 切り替えの有無）を Issue にコメントする
 - [ ] 4.4 `gh api user --jq .login` が `joe-yama` であることを確認し、PO の許可を得て push、`Closes #<Issue 番号>` を本文に含む PR を作成する
 
 ## 提案（この change では実装しない。後続の change 用）
@@ -85,3 +85,23 @@ Task 8〜11（Workflow 実行）から:
 - `src/pages/[lang]/photos/[slug].astro:18-21` の throw は到達しない（`getStaticPaths` が存在する slug しか生成しないため）。防御としては妥当だが、テストで守られていない
 - Task 10 と Task 11 のコミットにテストが無い（`.astro` は単体テストで描画できないため。検証はビルド後の dist の grep に依存）
 - ponytail: `src/components/PhotoPicture.astro:36` の `[...new Set(...)]` のラップは不要。`filter((w) => w < width)` が既に width と等しい値を除いている（net: -0 lines、実質ゼロ）
+
+ブランチ全体のレビューから（Approved。Critical 0 / Important 0）:
+
+- 【優先度高】scripts/photo-add.ts が既存の YAML を無条件に上書きする。同じ slug を再入稿する運用（--clobber で写真を差し替える。design.md が想定している経路）を通ると、人が日英で書いた title / location / alt が TODO: に戻り、order は末尾へ動き、featured は false になる。この change 自身の TODO: 検証が次のビルドで必ず落とし、git checkout -- src/content/photos/<slug>.yaml の 1 コマンドで復旧できるため Minor に留めたが、直し方は if (existsSync(yamlPath)) のとき上書きせず「画像だけ差し替えた。YAML は既にある」と出して終える 2 行
+- src/components/PhotoPicture.astro の寸法計算（元画像より大きい幅を生成しない、縦横比の丸め）が、テストできない .astro の中にしかない。設計 D4 の「テストできる形は .astro の外に出す」と整合しない。pictureSizing(original, targetWidths) => {width, height, widths} を src/lib/photo.ts に出せば 3 ケースで固定できる
+- src/pages/[lang]/photos/index.astro に h1 が無い。サイトで唯一見出しの無いページ。spec に要求は無いが、Change 5 で axe を入れると page-has-heading-one に当たる
+- src/pages/[lang]/photos/[slug].astro の nav class="around" に aria-label が無い。同ページに Header の nav と合わせて nav が 2 つあり、支援技術で区別できない
+- scripts/photo-add.ts のアカウント確認が引数解析より前にある。spec の順序としては正しいが、引数なし実行が使い方を出す前に gh のネットワーク往復と認証を要求する。gh 未インストールや別アカウントだと使い方が一生出ない
+- scripts/photo-add.ts の中断メッセージが EXIF タグ名（LensModel, FNumber, ExposureTime）。spec の「項目名」（レンズ、絞り、シャッター速度）と語彙が違う
+- ponytail: src/lib/photo-meta.ts の PhotoMeta.slug は誰も読まない。フィールド・exifToPhotoMeta の第 2 引数・戻り値・テストの期待値をまとめて消せる
+- ponytail: 上に伴い exifToPhotoMeta(raw) の 1 引数にできる
+- ponytail: src/pages/[lang]/photos/[slug].astro が同じ配列を find と findIndex で 2 回引き、到達しない throw を 2 つ置いている。neighbors が { current, prev, next } を返せば 4 行が 1 行になる
+- ponytail: src/components/PhotoPicture.astro の eager prop は Picture の priority の別名でしかない。prop 名を priority にすれば JSDoc 1 行が要らなくなる
+- ponytail 合計: net -8 lines possible
+
+未確認のまま残すもの（ブランチ全体レビューの ⚠️）:
+
+- 写真 3 枚目が入った時点の「中間ケース」（前後とも出る個別ページ）の描画確認
+- pnpm photo:add の異常系（別アカウントでの中断、Release 新規作成）の実行確認。この change では joe-yama での正常系しか通していない
+- 「元画像が取得できない場合ビルドが失敗する」シナリオの実験
