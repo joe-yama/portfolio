@@ -60,5 +60,3 @@ Astro（TypeScript）+ GitHub Pages + GitHub Actions、パッケージマネー�
 | `gh skill list --agent claude-code --scope project` | 導入済みスキルの出所とピン留めの確認 |
 | `gh api user --jq .login` | `gh` の書き込み前にアカウントが `joe-yama` か確認 |
 | `gh issue list` / `gh issue view <n>` | 進行中の change の Issue と経過を確認 |
-| `pnpm test` / `pnpm lint` / `pnpm typecheck` / `pnpm build` | 単体テスト / lint / 型チェック / ビルド。詳細は `.claude/rules/testing.md` |
-| `pnpm dev` / `pnpm preview` | 開発サーバー / ビルド結果の HTTP 配信（Playwright MCP はこの URL を使う） |
