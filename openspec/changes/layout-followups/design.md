@@ -31,7 +31,7 @@ Change 2 `layout-shell` の成果（`BaseLayout` / `Header` / `Footer` / `PixelA
 
 ### D2. 見た目の Minor（PO 判断、各項目独立）
 
-1. 罫線 `--line`: ライト `#d4d4d4` → `#9a9a9a`（実測 2.70 で 3:1 に届かない）など 3:1 以上の値にするか、装飾として現状維持
+1. 罫線 `--line`: ライト `#d4d4d4` を 3:1 以上の値にするか、装飾として現状維持（当初の候補 `#9a9a9a` は実測 2.70 で不足。採用値は Open Questions の 2 を参照）
 2. フッター文字: `<small>` を外して `font-size: 0.875rem` だけにする（14px）か、現状の 11px
 3. ヘッダーリンク: 静止時も下線を出す（`global.css` の既定に従い Header のスコープ CSS から `text-decoration: none` を消す）か、現状維持
 4. 404 の文言とリンク: リンクにも `.dot` を付けるか、文言とリンクを別行にするか、現状維持
@@ -55,7 +55,7 @@ Change 2 `layout-shell` の成果（`BaseLayout` / `Header` / `Footer` / `PixelA
 - `PixelArt` の幅算出: `export function gridSize(rows): { width, height }` を `pixel.ts` に置き、`PixelArt.astro` はそれを呼ぶ。テスト: 空配列 → 0×0、行長不揃い → 最長行
 - `Header` の表示条件: `{showNav && (<nav>…{sw && <a …>}</nav>)}`。`sw` は `showNav ? languageSwitch(path, lang) : undefined` のまま
 - `PixelArt` の `margin-bottom` を消し、トップと 404 の呼び出し側で `class` かラッパー要素で余白を付ける（Astro は `class` を子コンポーネントに渡すだけでスコープ hash は付かないので、`:global` を使わず親のスコープ CSS でラッパーに当てる）（この「`:global` を使わない」は `.art` の余白の話。404 の縦横中央寄せは `main` 自身を触る必要があり `:global(main)` を使う。`main` は `BaseLayout` が描くのでページのスコープ CSS では当たらず、Astro がページ単位で CSS をインライン化するため他ページには漏れない。ビルド出力の grep と CSSOM 走査で実測済み）
-- `tsconfig.json` の `noUnusedLocals`: `astro check` が `.astro` の frontmatter の未使用 import を報告するか試す。報告するなら有効化して `pnpm typecheck` を穴埋めにする。報告しなければ入れない（効かない設定を残さない）
+- `tsconfig.json` の `noUnusedLocals`: `astro check` が `.astro` の frontmatter の未使用 import を報告するか試す。報告するなら有効化して `pnpm typecheck` を穴埋めにする。報告しなければ入れない（効かない設定を残さない）→ 採用。結果と実測は tasks 2.6
 
 ## Risks / Trade-offs
 
@@ -69,7 +69,7 @@ Change 2 `layout-shell` の成果（`BaseLayout` / `Header` / `Footer` / `PixelA
 PO が決定済み（2026-09-20、GitHub Issue #5 のコメント）:
 
 1. D1: フォント CSS の配信形 → **A（現状維持）**。`<Font>` のインライン出力のまま。tasks 3.1 は対象外
-2. D2: 見た目の Minor 5 件 → **5 件すべて直す**。罫線は実測で 3:1 以上になる値を使う（ライト `#8f8f8f` = 3.10、ダーク `#606060` = 3.11）。D2 本文の候補 `#9a9a9a` は実測 2.70 で不足のため不採用
+2. D2: 見た目の Minor 5 件 → **5 件すべて直す**。罫線は実測で 3:1 以上になる値を使う（ライト `#8f8f8f` = 3.10、ダーク `#606060` = 3.11）
 3. D3: `BaseLayout` の `lang` を URL から導出 → **採る**
 
 実装後のスクリーンショット確認で、PO が追加で 2 件を決定（2026-09-20）:

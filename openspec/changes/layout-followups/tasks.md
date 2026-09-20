@@ -48,4 +48,5 @@
 - `404.astro` の `p a { margin-left: 0.5em }` はセレクタが `p a` なので、将来このページの `<p>` にインラインリンクを入れると文中のリンクにも 8px が付く
 - 罫線のライトの実測 3.098 は閾値 3.0 に対して余裕が 3% しかない。`--bg` を変えると簡単に割る
 - `src/pages/favicon.svg.ts` の `Content-Type` ヘッダは静的ビルドでは使われない（配信側が拡張子から MIME を決める）。効くのは `astro dev` のときだけなので、消さずに残す
-- `404.astro` の `:global(main)` はビルド後に素の `main{…}` として出る。他ページに効かないのは Astro がページ単位で CSS をインライン化しているおかげで、セレクタが限定されているからではない
+- `404.astro` の `:global(main)` がなぜページをまたがないかは `404.astro` の `<style>` 内コメントと design D5 を参照。この `<style>` を共有コンポーネントやレイアウトへ移すと全ページの `main` に効く
+- 設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` の「`hreflang` を全ページに出す」は `/404.html` には当てはまらない（接頭辞の無いパスでは出さない）。この change 以前からの緩さで、振る舞いの正本 `openspec/specs/layout-shell/spec.md` は `/ja/` `/en/` 配下に限定しているため実害は無い。設計書を触る change で直す

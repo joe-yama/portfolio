@@ -784,6 +784,8 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 **Files:**
 - Modify: `openspec/changes/layout-followups/tasks.md`
 - Modify: `openspec/changes/layout-followups/design.md`
+- Modify: `openspec/changes/layout-followups/proposal.md`
+- Modify: `docs/superpowers/plans/2026-09-20-layout-followups.md`（本ファイル。レビューで見つかった記録の食い違いを直す際に自身も変更した）
 
 **Interfaces:**
 - Consumes: Task 1〜7 の結果
@@ -799,7 +801,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 PO が決定済み（2026-09-20、GitHub Issue #5 のコメント）:
 
 1. D1: フォント CSS の配信形 → **A（現状維持）**。`<Font>` のインライン出力のまま。tasks 3.1 は対象外
-2. D2: 見た目の Minor 5 件 → **5 件すべて直す**。罫線は実測で 3:1 以上になる値を使う（ライト `#8f8f8f` = 3.10、ダーク `#606060` = 3.11）。D2 本文の候補 `#9a9a9a` は実測 2.70 で不足のため不採用
+2. D2: 見た目の Minor 5 件 → **5 件すべて直す**。罫線は実測で 3:1 以上になる値を使う（ライト `#8f8f8f` = 3.10、ダーク `#606060` = 3.11）
 3. D3: `BaseLayout` の `lang` を URL から導出 → **採る**
 
 実装後のスクリーンショット確認で、PO が追加で 2 件を決定（2026-09-20）:
@@ -809,6 +811,13 @@ PO が決定済み（2026-09-20、GitHub Issue #5 のコメント）:
 ```
 
 D4（favicon）は実装で SVG 文字列の組み立てを `src/lib/pixel.ts` の `faviconSvg(rows)` という純関数に出し、`favicon.svg.ts` はそれを呼ぶだけにしたため、D4 の末尾にその 1 文を足す（既存の記述は消さない）。
+
+独立レビューで見つかった記録の食い違いへの対応として、以下も行った:
+
+- `proposal.md` の「反転データを検知する」という記述を「空でも全面塗りでもないことを守る」に直した（テストが持たない保証を主張していたため）
+- `design.md` D2 の罫線候補 `#9a9a9a` の数値を実測値（2.70。当初「3.0:1」と誤記していた）に直した。さらに「`#9a9a9a`（3:1 に届かない）など 3:1 以上の値」という自己矛盾を解き、Open Questions 側の重複した一文を削除した
+- `design.md` D5 に、`:global` を使わない方針は `.art` の余白の話であり 404 の縦横中央寄せ（`:global(main)`）とは別の関心事である旨の補足を足した
+- `design.md` D3 に、設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` には `BaseLayout` の props に触れた記述が無く更新箇所が無かったこと、アーカイブ済み change の design D1 の記述は履歴として残すことの補足を足した
 
 - [ ] **Step 2: `tasks.md` の完了印を付ける**
 
@@ -820,7 +829,7 @@ D4（favicon）は実装で SVG 文字列の組み立てを `src/lib/pixel.ts` �
 
 2.6 の行末に、`noUnusedLocals` を採用した実測結果を足す（`astro check` は設定が無くても `ts(6133)` を hint として出すが、設定を足すと error になり終了コードが 0 → 1 に変わる。`biome.json` は `.astro` で `noUnusedVariables` / `noUnusedImports` を off にしているため重複はない）。
 
-3.3 の行末に、設計書には `BaseLayout` の props に触れた記述が無く更新箇所が無かったこと、アーカイブ済み change の design D1 の記述は履歴として残すことを足す（design D3 の補足を参照）。
+3.3 の行末に、設計書には `BaseLayout` の props に触れた記述が無く更新箇所が無かったこと、アーカイブ済み change の design D1 の記述は履歴として残すことを足す（design D3 の補足を参照）。この参照先である `design.md` D3 自体にも、上記の確認結果を 1 段落で追記する。
 
 末尾に「後続の change 用の提案」と「申し送り（リスク）」の 2 節を分けて足す。前者はコードを変えれば消せる改善、後者は実装済みの挙動に対する注意。
 
@@ -845,8 +854,7 @@ Expected: `Change 'layout-followups' is valid`
 
 - [ ] **Step 4: コミット**
 
-対象: `openspec/changes/layout-followups/`
-メッセージ:
+実際には独立レビューの指摘（記録が事実と食い違う箇所）への対応が複数ラウンド発生し、Task 8 は複数のコミットに分かれた。最終的な一覧は `git log e718839..HEAD` で見る。最初の 1 本のメッセージは:
 
 ```
 docs: layout-followups の PO 決定を design に反映し、tasks の完了印を付ける
