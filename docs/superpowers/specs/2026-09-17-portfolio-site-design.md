@@ -174,7 +174,7 @@ GitHub Release のダウンロード URL（`github.com/.../releases/download/...
 | `main` へマージ | `withastro/action@v6` でビルド（lockfile から pnpm を自動判別）、`actions/deploy-pages@v5` で GitHub Pages へ公開。ビルド中に Release `photos` から写真を取得する（公開リポジトリなので認証不要） |
 | 独自ドメイン | `public/CNAME` にドメイン名、`astro.config` の `site` に `https://<ドメイン>`、`base` は設定しない。DNS 登録は PO の作業。HTTPS は GitHub Pages が自動発行 |
 | Node / pnpm | Node は `.node-version` で固定（CI と同じ）。パッケージマネージャは pnpm。`package.json` の `packageManager` フィールドでバージョンを固定し、`pnpm-lock.yaml` をコミットする。npm / npx は使わない |
-| 依存 | astro、@astrojs/check + typescript、@biomejs/biome、vitest、@playwright/test（+ axe-core）、exifr、@types/node（devDependencies。`scripts/photo-add.ts` を Node で直接実行する CLI の型検査に使う。ライセンス MIT（DefinitelyTyped）。公開サイトのビルド出力には含まれない。PO 承認 2026-09-20）。これ以外は追加のたびに PO へ提示 |
+| 依存 | astro、@astrojs/check + typescript、@biomejs/biome、vitest、@playwright/test（+ axe-core）、exifr、@types/node（devDependencies。`scripts/photo-add.ts` を Node で直接実行する CLI の型検査に使う。ライセンス MIT（DefinitelyTyped）。公開サイトのビルド出力には含まれない。PO 承認 2026-09-20）、sharp（devDependencies。`pnpm photo:add` が入稿時に元画像を長辺 2500px・sRGB・品質 90 の JPEG へ縮小するために使う。ライセンス Apache-2.0。Astro が `astro:assets` の画像最適化に使っている依存でもあり、既に node_modules に入っていた（バージョンは Astro と同じ 0.35.x）。明示的に追加したのは、pnpm の厳格な `node_modules` では自前スクリプトから `import sharp` が解決できないため（実測 `MODULE_NOT_FOUND`）。新たなバイナリのダウンロードは発生しない。公開サイトのビルド出力には含まれない。PO 承認 2026-09-20）。これ以外は追加のたびに PO へ提示 |
 
 ## 10. リポジトリの現状と前提
 
