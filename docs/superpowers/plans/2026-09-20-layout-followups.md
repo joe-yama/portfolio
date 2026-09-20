@@ -91,7 +91,7 @@ openspec/changes/layout-followups/  # tasks.md の完了印、design.md に PO �
   });
 ```
 
-- [ ] **Step 2: `pixel.test.ts` に全面塗り（反転データ）の検知を足す**
+- [ ] **Step 2: `pixel.test.ts` に全面塗りの検知を足す**
 
 `describe.each([...])('%s', (_name, rows) => { … })` の中、`'少なくとも 1 セルは塗られている'` の後に足す。既存の「1 セル以上」と対で「空でも全面でもない」を挟む番人:
 
@@ -104,7 +104,7 @@ openspec/changes/layout-followups/  # tasks.md の完了印、design.md に PO �
 - [ ] **Step 3: テストを実行する**
 
 Run: `pnpm test`
-Expected: PASS（実装は変えていないので緑のまま。テスト件数が 2 件増える）
+Expected: PASS（実装は変えていないので緑のまま。テスト件数が 3 件増える）
 
 - [ ] **Step 4: lint と型検査**
 
@@ -791,7 +791,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 
 - [ ] **Step 1: `design.md` の Open Questions に PO 決定を書く**
 
-`## Open Questions` セクションの本文を、決定済みであることが分かる形に書き換える（質問の文は残し、決定を追記する）:
+`## Open Questions` セクションの本文を、決定済みであることが分かる形に書き換える。D1〜D3 の決定に加え、実装後のスクリーンショット確認で PO が追加決定した 2 件（404 のドット絵の中央寄せ、文言とリンクの間隔）も書く:
 
 ```markdown
 ## Open Questions
@@ -799,9 +799,16 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 PO が決定済み（2026-09-20、GitHub Issue #5 のコメント）:
 
 1. D1: フォント CSS の配信形 → **A（現状維持）**。`<Font>` のインライン出力のまま。tasks 3.1 は対象外
-2. D2: 見た目の Minor 5 件 → **5 件すべて直す**。罫線は実測で 3:1 以上になる値（ライト `#8f8f8f` = 3.10、ダーク `#606060` = 3.11）を使う。D2 本文の候補 `#9a9a9a` は実測 2.70 で不足のため不採用
+2. D2: 見た目の Minor 5 件 → **5 件すべて直す**。罫線は実測で 3:1 以上になる値を使う（ライト `#8f8f8f` = 3.10、ダーク `#606060` = 3.11）。D2 本文の候補 `#9a9a9a` は実測 2.70 で不足のため不採用
 3. D3: `BaseLayout` の `lang` を URL から導出 → **採る**
+
+実装後のスクリーンショット確認で、PO が追加で 2 件を決定（2026-09-20）:
+
+4. 404 のドット絵は**中央に揃える**（`main` に `justify-items: center`）。文言の左端に揃えたままだと、まとまりの中で絵だけが左に寄って重心がずれて見えるため。副作用として日本語行と英語行の左端が 12px ずれる（各行が個別に中央寄せされるため）
+5. 404 の文言とリンクの**間隔を広げる**（`p a { margin-left: 0.5em }`、実測 4.19px → 12.19px）。D2-4 で両方を同じドット文字に揃えた結果、字体の違いによる切れ目が失われ「Page not found」と「Go to the English top」が 1 語に読めたため
 ```
+
+D4（favicon）は実装で SVG 文字列の組み立てを `src/lib/pixel.ts` の `faviconSvg(rows)` という純関数に出し、`favicon.svg.ts` はそれを呼ぶだけにしたため、D4 の末尾にその 1 文を足す（既存の記述は消さない）。
 
 - [ ] **Step 2: `tasks.md` の完了印を付ける**
 
@@ -811,7 +818,11 @@ PO が決定済み（2026-09-20、GitHub Issue #5 のコメント）:
 - [x] 3.1 D1 は PO 決定により A（現状維持）。**対象外**（`<Font>` のインライン出力を変えない）
 ```
 
-Task 7 で `noUnusedLocals` を入れなかった場合、2.6 の行末に `→ astro check は .astro の未使用 import を報告しないため設定を入れない（実測 2026-09-20）` を足す。
+2.6 の行末に、`noUnusedLocals` を採用した実測結果を足す（`astro check` は設定が無くても `ts(6133)` を hint として出すが、設定を足すと error になり終了コードが 0 → 1 に変わる。`biome.json` は `.astro` で `noUnusedVariables` / `noUnusedImports` を off にしているため重複はない）。
+
+3.3 の行末に、設計書には `BaseLayout` の props に触れた記述が無く更新箇所が無かったこと、アーカイブ済み change の design D1 の記述は履歴として残すことを足す（design D3 の補足を参照）。
+
+末尾に「後続の change 用の提案」と「申し送り（リスク）」の 2 節を分けて足す。前者はコードを変えれば消せる改善、後者は実装済みの挙動に対する注意。
 
 4.2（レビュー）と 4.3（PR）はコントローラーが後で行うので `- [ ]` のまま残す。
 

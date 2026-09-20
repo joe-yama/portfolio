@@ -31,7 +31,7 @@ Change 2 `layout-shell` の成果（`BaseLayout` / `Header` / `Footer` / `PixelA
 
 ### D2. 見た目の Minor（PO 判断、各項目独立）
 
-1. 罫線 `--line`: ライト `#d4d4d4` → `#9a9a9a`（3.0:1）など 3:1 以上の値にするか、装飾として現状維持
+1. 罫線 `--line`: ライト `#d4d4d4` → `#9a9a9a`（実測 2.70 で 3:1 に届かない）など 3:1 以上の値にするか、装飾として現状維持
 2. フッター文字: `<small>` を外して `font-size: 0.875rem` だけにする（14px）か、現状の 11px
 3. ヘッダーリンク: 静止時も下線を出す（`global.css` の既定に従い Header のスコープ CSS から `text-decoration: none` を消す）か、現状維持
 4. 404 の文言とリンク: リンクにも `.dot` を付けるか、文言とリンクを別行にするか、現状維持
@@ -40,6 +40,8 @@ Change 2 `layout-shell` の成果（`BaseLayout` / `Header` / `Footer` / `PixelA
 ### D3. `BaseLayout` の `lang`（PO 判断）
 
 現状: `Props.lang` をページが渡し、`hreflang` の出し分けは `localeFromPath(Astro.url.pathname)` で判定。案: `const lang = localeFromPath(path) ?? defaultLocale` で導出し、`Props.lang` と全ページの `lang={lang}` を消す。404 は接頭辞が無いので `defaultLocale`（ja）になり現状と同じ。利点: 同じ事実の出どころが 1 つになり、ページが path と食い違う `lang` を渡す事故が消える。欠点: ページ側で `lang` を使うときは `Astro.params.lang` を別に読む（現状も読んでいる）。推奨: 採る。
+
+補足（2026-09-20）: 設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` には `BaseLayout` の props に触れた記述が無く（`lang` の言及は `<html lang>` と hreflang の振る舞いの話だけで、これは変更後も事実）、更新すべき箇所は無かった。アーカイブ済みの `openspec/changes/archive/2026-09-20-layout-shell/design.md` の D1 は「props は `lang`、`title`、`showNav`」と書いているが、これは当時の決定の記録なので書き換えない。本 change 以降の props は `title` と `showNav` のみ。
 
 ### D4. favicon はインライン SVG と同じデータから静的に出す
 
@@ -52,7 +54,7 @@ Change 2 `layout-shell` の成果（`BaseLayout` / `Header` / `Footer` / `PixelA
 
 - `PixelArt` の幅算出: `export function gridSize(rows): { width, height }` を `pixel.ts` に置き、`PixelArt.astro` はそれを呼ぶ。テスト: 空配列 → 0×0、行長不揃い → 最長行
 - `Header` の表示条件: `{showNav && (<nav>…{sw && <a …>}</nav>)}`。`sw` は `showNav ? languageSwitch(path, lang) : undefined` のまま
-- `PixelArt` の `margin-bottom` を消し、トップと 404 の呼び出し側で `class` かラッパー要素で余白を付ける（Astro は `class` を子コンポーネントに渡すだけでスコープ hash は付かないので、`:global` を使わず親のスコープ CSS でラッパーに当てる）
+- `PixelArt` の `margin-bottom` を消し、トップと 404 の呼び出し側で `class` かラッパー要素で余白を付ける（Astro は `class` を子コンポーネントに渡すだけでスコープ hash は付かないので、`:global` を使わず親のスコープ CSS でラッパーに当てる）（この「`:global` を使わない」は `.art` の余白の話。404 の縦横中央寄せは `main` 自身を触る必要があり `:global(main)` を使う。`main` は `BaseLayout` が描くのでページのスコープ CSS では当たらず、Astro がページ単位で CSS をインライン化するため他ページには漏れない。ビルド出力の grep と CSSOM 走査で実測済み）
 - `tsconfig.json` の `noUnusedLocals`: `astro check` が `.astro` の frontmatter の未使用 import を報告するか試す。報告するなら有効化して `pnpm typecheck` を穴埋めにする。報告しなければ入れない（効かない設定を残さない）
 
 ## Risks / Trade-offs
