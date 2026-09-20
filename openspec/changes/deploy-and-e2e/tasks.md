@@ -31,8 +31,8 @@
 
 ## 6. 仕上げ
 
-- [ ] 6.1 `pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm e2e` がすべて緑、`openspec validate deploy-and-e2e --strict` が valid、`git status --short` が空であることを確認し、本ファイルの完了項目を `[x]` にしてコミットする
-- [ ] 6.2 `reviewer`（Opus）でブランチ全体をレビューし、結果を Issue にコメントする
+- [x] 6.1 `pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm e2e` がすべて緑、`openspec validate deploy-and-e2e --strict` が valid、`git status --short` が空であることを確認し、本ファイルの完了項目を `[x]` にしてコミットする
+- [x] 6.2 `reviewer`（Opus）でブランチ全体をレビューし、結果を Issue にコメントする
 - [ ] 6.3 push して `Closes #<Issue>` を含む PR を作り、CI 緑と Approved を確認してマージする。マージ後に `gh run list --workflow deploy.yml` → `gh run watch <id>` でデプロイの成功を確認する
 
 ## 提案（この change では実装しない。後続の change 用）
@@ -44,3 +44,20 @@
 - `stripBase` の `path === prefix.slice(0, -1)` の分岐は `trailingSlash: 'always'` では到達しない。削除しても 68 passed
 - `withBase` の入力前提（先頭 `/` の絶対パス）が暗黙。`withBase('/portfolio', '/portfolio/')` → `/portfolio/portfolio`、`assetPath('favicon.svg', ...)` → `/portfoliofavicon.svg`。呼び出し側はすべて絶対パスを渡すので現状は無害
 - ponytail（-8 行）: `assetPath` は `withBase` の 1:1 の別名なので削れる。`stripBase` の到達しない分岐と `normalizeBase` の両端トリムも、テストを足すか削るかのどちらかに寄せる
+
+ブランチ全体のレビュー（単位 B・C）で挙がった Minor。すべて reviewer が変異または実測で確かめている。
+
+- `tests/e2e/pages.spec.ts` の hreflang 検査は「3 本」と「`https://joe-yama.github.io/portfolio/` 始まり」しか見ない。`dist/ja/index.html` の `hreflang="ja"` の href を `…/portfolio/en/` に書き換えても 12 passed のまま。ja / en / x-default の対応づけは `tests/unit/site.test.ts` が押さえているので実害は小さい
+- `tests/e2e/network.spec.ts` の対象が 5 パスだけで、`en/photos/`・`en/photos/<slug>/`・`en/career/`・404 が抜けている（spec の Scenario は「各ページ」）。`a11y.spec.ts` の 9 パス配列を共有すれば揃う
+- `tests/e2e/global-setup.ts` の `astro preview --port 4399` は、**別のプレビューが既に動いているとポート指定を無視して exit 0 で戻る**（実測: `--port 4401` を指定しても `Preview server already running at http://localhost:4399` で成功扱い）。別ディレクトリのプレビューが残っていると、その `dist` に対して e2e が走る。`global-teardown.ts` の `astro preview stop` は自分が起動していないサーバも止める。CI では起きないが、ローカルの偽の緑と他セッションのプレビュー停止の経路になる。`--ignore-lock` か起動前の `status` 確認で塞げる
+- `.github/workflows/ci.yml` の `check` job に `timeout-minutes` が無い。`astro preview` が将来前景実行になった場合、ジョブが既定上限（6h）まで回る。`timeout-minutes: 20` 程度が安い保険
+- `.github/workflows/deploy.yml` の `withastro/action@v6` の内部 install は `pnpm install`（`--frozen-lockfile` なし）。lockfile がずれていても本番ビルドは通る（CI 側は `--frozen-lockfile` なので検知はできる）
+- `.github/workflows/deploy.yml` の `permissions` はトップレベル 1 箇所で、`build` job にも `pages: write` / `id-token: write` が流れている。spec には適合だが、job 単位に下ろせば最小になる
+- `src/components/Header.astro` の 404 のロゴを `<span>` にした根拠は spec ではなく `pages.spec.ts` の `toHaveCount(1)` という実装者が選んだ期待値。spec 上どちらでもよい範囲（404 要求はロゴに言及しない）で a11y 上も問題ないが、「テストに合わせて製品を変えた」1 件として記録する。代替は `main a[href$="/portfolio/ja/"]` に絞った assert だった
+- `tests/e2e/links.spec.ts` の `const dist = 'dist'` は cwd 依存。リポジトリルート以外から `playwright test` を起動すると `readdirSync` で落ちる
+
+## 申し送り（後続への注意）
+
+- **`astro preview` はこのリポジトリでは既定でデーモンとして起動する**（コマンドは即 exit 0 で戻る）。Playwright の `webServer` は使えないので `globalSetup` / `globalTeardown` で起動・停止している。ポートは 4321 の占有を避けて **4399** に固定した
+- 既に別のプレビューが動いていると `--port` が無視される（上の Minor）。e2e が想定外の `dist` を見ていないか疑うときは `pnpm exec astro preview status` を見る
+- **独自ドメインへ移すとき**（`base` を外すとき）は、`src/lib/i18n.ts` の `stripBase` / `withBase` と `src/lib/site.ts` の `homePath` / `photoPath` / `assetPath` に base を渡している `.astro` 側を `import.meta.env.BASE_URL` のまま触らずに済む（`astro.config.ts` の `base` を消すだけで `BASE_URL` が `/` になる）。`tests/unit/{i18n,site}.test.ts` には base が `/` のケースが全関数分ある
