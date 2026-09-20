@@ -4,12 +4,33 @@ export type AlternateLink = { hreflang: Locale | 'x-default'; href: string };
 export type NavLink = { label: string; href: string };
 export type LanguageSwitch = { label: string; href: string; hreflang: Locale };
 
-type UiStrings = { languageName: string; notFound: string; backToTop: string };
+type UiStrings = {
+  languageName: string;
+  notFound: string;
+  backToTop: string;
+  backToGallery: string;
+  prevPhoto: string;
+  nextPhoto: string;
+};
 
 /** 画面に出す文字列。ナビの「Photos」「Career」は両言語とも英字なので navLinks に直接書く */
 export const ui: Record<Locale, UiStrings> = {
-  ja: { languageName: '日本語', notFound: 'ページが見つかりません', backToTop: '日本語のトップへ' },
-  en: { languageName: 'English', notFound: 'Page not found', backToTop: 'Go to the English top' },
+  ja: {
+    languageName: '日本語',
+    notFound: 'ページが見つかりません',
+    backToTop: '日本語のトップへ',
+    backToGallery: '写真一覧へ',
+    prevPhoto: '前の写真',
+    nextPhoto: '次の写真',
+  },
+  en: {
+    languageName: 'English',
+    notFound: 'Page not found',
+    backToTop: 'Go to the English top',
+    backToGallery: 'Back to photos',
+    prevPhoto: 'Previous photo',
+    nextPhoto: 'Next photo',
+  },
 };
 
 /** hreflang の 3 本。x-default は既定ロケール（ja）と同じ */

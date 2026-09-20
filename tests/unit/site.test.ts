@@ -66,3 +66,13 @@ describe('ui', () => {
     expect(ui.en.backToTop).toBe('Go to the English top');
   });
 });
+
+describe('ui の写真まわりの文言', () => {
+  it('日英とも同じキーを持つ', () => {
+    for (const key of ['backToGallery', 'prevPhoto', 'nextPhoto'] as const) {
+      expect(ui.ja[key].length).toBeGreaterThan(0);
+      expect(ui.en[key].length).toBeGreaterThan(0);
+      expect(ui.ja[key]).not.toBe(ui.en[key]);
+    }
+  });
+});
