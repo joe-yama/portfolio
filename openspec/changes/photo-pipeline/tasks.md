@@ -74,3 +74,14 @@ Task 8〜11（Workflow 実行）から:
 - 写真が 2 枚しか無いため、個別ページの「中間（前後とも出る）」ケースが未検証。3 枚以上になった時点で確認する
 - getPhotos に単体テストが無い（astro:content に依存するため。既存の getProfile / getCareer も同じ）。検証はビルドに頼っている
 - astro.config.ts の image.domains: ['github.com'] は remotePatterns を足した今も残っているが、実際に効いているのは remotePatterns だけの可能性がある。domains を外しても通るか確かめて、不要なら消す
+
+訂正: 上の「astro.config.ts の domains を外しても通るか確かめて、不要なら消す」という提案は**誤り**。単位 C+D のレビューで指摘され、コントローラーが実測で確認した。`**.githubusercontent.com` は `github.com` に一致しないため、domains を消すと最初の取得（github.com の URL）が許可されなくなる。実測: domains を空にすると github.com の URL の判定が false。**domains: ['github.com'] は必要。消さないこと。**
+
+単位 C+D（Task 8〜11）のレビューから:
+
+- 個別ページの主画像が `loading="lazy"` になっている。そのページの主題なので eager のほうが妥当かもしれない。spec は「ギャラリーは遅延、トップの代表写真は遅延にしない」としか定めておらず個別ページに要求が無いため、現状は仕様準拠。要求を足すかは PO 判断
+- `PhotoPicture.astro` の `inferRemoteSize` がレンダーごとに呼ばれる。ギャラリーと個別ページで同じ写真の寸法を何度も取りに行く。ビルド時間に効く可能性がある
+- `tests/unit/site.test.ts:64-72` の assert が弱い（キーの存在と日英が異なることしか見ていない）
+- `src/pages/[lang]/photos/[slug].astro:18-21` の throw は到達しない（`getStaticPaths` が存在する slug しか生成しないため）。防御としては妥当だが、テストで守られていない
+- Task 10 と Task 11 のコミットにテストが無い（`.astro` は単体テストで描画できないため。検証はビルド後の dist の grep に依存）
+- ponytail: `src/components/PhotoPicture.astro:36` の `[...new Set(...)]` のラップは不要。`filter((w) => w < width)` が既に width と等しい値を除いている（net: -0 lines、実質ゼロ）
