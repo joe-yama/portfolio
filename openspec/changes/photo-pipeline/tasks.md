@@ -15,8 +15,8 @@
 
 ## 2. 入稿コマンド `pnpm photo:add`
 
-- [ ] 2.1 `pnpm add -D exifr sharp` で依存を追加し、`package.json` の scripts に `"photo:add": "node scripts/photo-add.ts"` を足す。`node -e "require.resolve('sharp'); require.resolve('exifr')"` が成功することと、`sharp` のバージョンが Astro の依存と同じ 0.35.x であることを実行出力で示す
-- [ ] 2.2 `scripts/photo-add.ts` を実装する。順序は (1) `gh api user --jq .login` が `joe-yama` でなければ何も変更せず終了コード非 0 で中断、(2) `exifr` で元画像から EXIF を読む、(3) `exifToPhotoData` が欠損を返したら項目名を示して中断、(4) `sharp` で長辺 2500px 以下（拡大しない）・sRGB・JPEG 品質 90 に変換して一時ファイルへ、(5) Release `photos` が無ければ `gh release create photos --latest=false` で作り `gh release upload photos <slug>.jpg --clobber`、(6) `src/content/photos/<slug>.yaml` を書き、最後に「title / location / alt を記入してからビルドすること」を出力する。ロジックは 1.6 の関数を呼ぶだけにする。`pnpm lint && pnpm typecheck` が緑であることを実行出力で示し、`--help` 相当の引数なし実行が使い方を出して非 0 で終わることを確認する
+- [x] 2.1 `pnpm add -D exifr sharp` で依存を追加し、`package.json` の scripts に `"photo:add": "node scripts/photo-add.ts"` を足す。`node -e "require.resolve('sharp'); require.resolve('exifr')"` が成功することと、`sharp` のバージョンが Astro の依存と同じ 0.35.x であることを実行出力で示す
+- [x] 2.2 `scripts/photo-add.ts` を実装する。順序は (1) `gh api user --jq .login` が `joe-yama` でなければ何も変更せず終了コード非 0 で中断、(2) `exifr` で元画像から EXIF を読む、(3) `exifToPhotoData` が欠損を返したら項目名を示して中断、(4) `sharp` で長辺 2500px 以下（拡大しない）・sRGB・JPEG 品質 90 に変換して一時ファイルへ、(5) Release `photos` が無ければ `gh release create photos --latest=false` で作り `gh release upload photos <slug>.jpg --clobber`、(6) `src/content/photos/<slug>.yaml` を書き、最後に「title / location / alt を記入してからビルドすること」を出力する。ロジックは 1.6 の関数を呼ぶだけにする。`pnpm lint && pnpm typecheck` が緑であることを実行出力で示し、`--help` 相当の引数なし実行が使い方を出して非 0 で終わることを確認する
 - [ ] 2.3 PO から受け取った JPEG（2〜3 枚）を `pnpm photo:add` で入稿する。`gh release view photos --json assets` で asset が登録されていること、`src/content/photos/*.yaml` が生成され `image` の URL が `https://github.com/joe-yama/portfolio/releases/download/photos/<slug>.jpg` であること、登録された画像の長辺が 2500px 以下であることを実行出力で示す。**PO の写真が未着ならここで止まり、Issue にコメントして PO に依頼する**
 - [ ] 2.4 生成された YAML の `title` / `location` / `alt` を日英で記入する。Agent が写真を見て下書きし、PO に提示して確定させる。`order` と `featured`（代表写真 1 枚）も PO に確認する。記入後に `pnpm test` が緑（`TODO:` 検証を含む）であることを示す
 
