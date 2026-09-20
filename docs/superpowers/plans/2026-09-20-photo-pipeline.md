@@ -447,17 +447,36 @@ Expected: FAIL。最初の 2 件が「報告されるはずが報告されない
 export const PLACEHOLDER = 'TODO:';
 ```
 
+さらに、**このファイルの先頭の import に `.ts` を足す**（Ruling 1。理由をコメントで残す）:
+
+```diff
+-import { type Career, PHOTO_BASE_URL, type Photo } from '../content/schemas';
++// Task 5 の photo-meta.ts がこのファイルから PLACEHOLDER を読み、そちらは node が直接実行する
++// 経路に乗る。Node の ESM 解決は拡張子を補わないので、ここだけ .ts を明示する（計画の落とし穴 5）
++import { type Career, PHOTO_BASE_URL, type Photo } from '../content/schemas.ts';
+```
+
+この変更が無いと `pnpm photo:add` が実行時に `ERR_MODULE_NOT_FOUND: Cannot find module '.../src/content/schemas'` で落ちる（2026-09-20 に実物で確認済み。`pnpm test` / `typecheck` / `build` はすべて通ってしまうので、単体テストでは検出できない）。
+
 - [ ] **Step 4: 通ることを確認する**
 
 Run: `pnpm test`
 Expected: PASS。
 
-- [ ] **Step 5: lint と typecheck**
+- [ ] **Step 5: `validate.ts` を node から読めることを確認する（Ruling 1 の検証）**
 
-Run: `pnpm lint && pnpm typecheck`
-Expected: 終了コード 0。
+```bash
+node --input-type=module -e "const m = await import('file://' + process.cwd() + '/src/lib/validate.ts'); console.log('OK', m.PLACEHOLDER)"
+```
 
-- [ ] **Step 6: Commit**
+Expected: `OK TODO:`。`ERR_MODULE_NOT_FOUND` が出たら Step 4 の `.ts` 追加が漏れている。
+
+- [ ] **Step 6: lint と typecheck と build**
+
+Run: `pnpm lint && pnpm typecheck && pnpm build`
+Expected: すべて終了コード 0。`.ts` 付き import が Vite でも Astro でも解決されることの確認。
+
+- [ ] **Step 7: Commit**
 
 ```bash
 git add src/lib/validate.ts tests/unit/validate.test.ts
