@@ -25,8 +25,8 @@
 ## 4. 仕上げ
 
 - [x] 4.1 `pnpm lint && pnpm typecheck && pnpm test && pnpm build` がすべて 0 で `git status --short` が空、`openspec validate layout-followups --strict` が valid であることを確認し、本ファイルの完了項目を `[x]` にしてコミットする
-- [ ] 4.2 `reviewer`（Opus）でブランチ全体を「仕様準拠（`layout-shell` の delta）→ コード品質 → ponytail」の順にレビューし、Approved になったら Issue にコメントする
-- [ ] 4.3 `gh api user --jq .login` が `joe-yama` であることを確認してから push（PO に確認）し、`Closes #5` を本文に含む PR を作り、CI 緑を確認して Issue にコメントする
+- [x] 4.2 `reviewer`（Opus）でブランチ全体を「仕様準拠（`layout-shell` の delta）→ コード品質 → ponytail」の順にレビューし、**Approved**。結果は Issue #5 にコメント済み（タスク単位のレビュー 8 件と、ブランチ全体のレビュー `2450950..8a7cda0`）
+- [x] 4.3 `gh api user --jq .login` が `joe-yama` であることを確認して push（PO の許可を得て実行）、`Closes #5` を本文に含む PR #9 を作成
 
 ## 提案（この change では実装しない。後続の change 用）
 
