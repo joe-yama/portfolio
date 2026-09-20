@@ -9,27 +9,24 @@ import { ui } from '../lib/site';
 ---
 
 <BaseLayout title="404" showNav={false}>
-  <div class="center">
-    <div class="art"><PixelArt rows={lost} scale={6} /></div>
-    {
-      locales.map((lang) => (
-        <p lang={lang}>
-          <span class="dot">{ui[lang].notFound}</span>
-          {' '}
-          <a class="dot" href={`/${lang}/`} hreflang={lang}>
-            {ui[lang].backToTop}
-          </a>
-        </p>
-      ))
-    }
-  </div>
+  <div class="art"><PixelArt rows={lost} scale={6} /></div>
+  {
+    locales.map((lang) => (
+      <p lang={lang}>
+        <span class="dot">{ui[lang].notFound}</span>
+        {' '}
+        <a class="dot" href={`/${lang}/`} hreflang={lang}>
+          {ui[lang].backToTop}
+        </a>
+      </p>
+    ))
+  }
 </BaseLayout>
 
 <style>
-  .center {
+  :global(main) {
     display: grid;
     place-content: center;
-    height: 100%;
   }
   .art {
     margin-bottom: 1rem;

@@ -617,31 +617,28 @@ Expected: `#fafafa #8f8f8f 3.10` と `#0c0c0c #606060 3.11`。3.0 未満なら�
 
 - [ ] **Step 5: 404 の文言とリンクのフォントを揃え、縦にも中央寄せにする（D2-4 / D2-5）**
 
-`src/pages/404.astro` のテンプレート全体を次にする。`<div class="center">` で囲んで縦横中央に置き、リンクにも `.dot` を付ける。`main` を直接触る（`:global(main)`）とページをまたいで漏れる恐れがあるので、このページの中のラッパーで閉じる:
+`src/pages/404.astro` のテンプレート全体を次にする。リンクにも `.dot` を付ける。`main` を直接 grid 化する（`:global(main)`）。Astro はページごとに CSS をインラインで持つので、`:global()` を書いてもこのページの `<style>` にしか入らない（実測で確認済み。`dist/ja/index.html` に `center` や `place-content` の文字列は含まれない）:
 
 ```astro
 <BaseLayout title="404" showNav={false}>
-  <div class="center">
-    <div class="art"><PixelArt rows={lost} scale={6} /></div>
-    {
-      locales.map((lang) => (
-        <p lang={lang}>
-          <span class="dot">{ui[lang].notFound}</span>
-          {' '}
-          <a class="dot" href={`/${lang}/`} hreflang={lang}>
-            {ui[lang].backToTop}
-          </a>
-        </p>
-      ))
-    }
-  </div>
+  <div class="art"><PixelArt rows={lost} scale={6} /></div>
+  {
+    locales.map((lang) => (
+      <p lang={lang}>
+        <span class="dot">{ui[lang].notFound}</span>
+        {' '}
+        <a class="dot" href={`/${lang}/`} hreflang={lang}>
+          {ui[lang].backToTop}
+        </a>
+      </p>
+    ))
+  }
 </BaseLayout>
 
 <style>
-  .center {
+  :global(main) {
     display: grid;
     place-content: center;
-    height: 100%;
   }
   .art {
     margin-bottom: 1rem;
@@ -649,7 +646,7 @@ Expected: `#fafafa #8f8f8f 3.10` と `#0c0c0c #606060 3.11`。3.0 未満なら�
 </style>
 ```
 
-（`main` は `body` の flex 列の中で `flex: 1` なので高さが確定し、子の `height: 100%` が解決する）
+（当初 `<div class="center">` ラッパー + `height: 100%` 案を採用したが、`body` は `min-height` のみで `height` を持たず `main` の高さが indefinite なため `height: 100%` が `auto` に解決し、縦中央寄せが効かなかった。レビュー Round 1 で発覚し `main` を直接 grid 化する方式に変更した）
 
 - [ ] **Step 6: ビルド出力を確認する**
 
@@ -668,8 +665,17 @@ Expected: `0`
 Run: `grep -o 'place-content:center' dist/404.html | wc -l`
 Expected: `1`
 
+Run: `grep -o 'display:grid' dist/404.html | wc -l`
+Expected: `1` 以上
+
 Run: `grep -o 'place-content' dist/ja/index.html dist/en/index.html | wc -l`
 Expected: `0`（404 のスタイルが他のページに漏れていない。1 以上なら報告して止まる）
+
+Run: `grep -o 'class="center"' dist/404.html | wc -l`
+Expected: `0`（ラッパー `<div class="center">` は使わない）
+
+Run: `grep -o 'margin-bottom:1rem' dist/404.html | wc -l`
+Expected: `1`（`.art` の余白は残す）
 
 - [ ] **Step 7: lint / 型検査 / テスト**
 
