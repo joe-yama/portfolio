@@ -414,31 +414,57 @@ pnpm exec playwright install chromium
 
 - [ ] **Step 2: `playwright.config.ts` を書く**
 
+**コントローラーの裁定（2026-09-21。実測に基づく。実装者はこの方針に従う）**:
+
+1. `astro preview` は **既定でバックグラウンドのデーモンとして起動し、コマンド自体はすぐ終了する**（`astro preview --help` に `stop` / `status` / `logs` サブコマンドと `--background` フラグがあり、実測で `pnpm preview` が pid を表示して exit 0 で戻る）。Playwright の `webServer` はプロセスが生き続けることを前提にするので、**`webServer` は使わない**
+2. `astro preview` の既定ポート 4321 は**このマシンでは別プロセスが占有している**（実測でポートが 4322 に自動変更された）。ポートが実行ごとに変わると `baseURL` を固定できないので、**`--port 4399` を明示する**
+3. よって `playwright.config.ts` では `globalSetup` / `globalTeardown` を使う
+
 ```ts
+// playwright.config.ts
 import { defineConfig, devices } from '@playwright/test';
 
-/** Task 2 の Step 4 で実測した preview の URL に合わせる */
-const baseURL = 'http://127.0.0.1:4321/portfolio/';
+export const PORT = 4399;
+export const baseURL = `http://127.0.0.1:${PORT}/portfolio/`;
 
 export default defineConfig({
   testDir: 'tests/e2e',
   reporter: 'list',
+  globalSetup: './tests/e2e/global-setup.ts',
+  globalTeardown: './tests/e2e/global-teardown.ts',
   use: { baseURL },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-  webServer: {
-    command: 'pnpm build && pnpm preview',
-    url: baseURL,
-    reuseExistingServer: false,
-    timeout: 180_000,
-  },
 });
 ```
 
-**`pnpm preview` はこのリポジトリではデーモンとして起動し、すぐプロセスが終了する**（`astro preview` の挙動。Task 2 Step 4 で実測済み）。Playwright の `webServer` はプロセスが生きていることを期待するので、ここで問題が出たら次のどちらかにする:
-- `command` を `pnpm exec astro preview --no-daemon`（そういうフラグがあるか `pnpm exec astro preview --help` で確認する）
-- `webServer` を使わず、`globalSetup` で `pnpm build && pnpm preview` を実行し、`globalTeardown` で `pnpm exec astro preview stop` する
+```ts
+// tests/e2e/global-setup.ts
+import { execSync } from 'node:child_process';
+import { PORT } from '../../playwright.config';
 
-**どちらを採ったか、なぜかを報告に書く。**
+export default function globalSetup(): void {
+  execSync('pnpm build', { stdio: 'inherit' });
+  // astro preview はデーモンとして起動し、すぐ戻る
+  execSync(`pnpm exec astro preview --port ${PORT}`, { stdio: 'inherit' });
+}
+```
+
+```ts
+// tests/e2e/global-teardown.ts
+import { execSync } from 'node:child_process';
+
+export default function globalTeardown(): void {
+  execSync('pnpm exec astro preview stop', { stdio: 'inherit' });
+}
+```
+
+**この形で動かなかったら**（デーモンの起動完了を待たずにテストが始まる、`stop` が別のポートのサーバーを止める、など）、実測した事実を報告に書いたうえで次の順に試す:
+
+1. `global-setup.ts` で起動後に `fetch` を 200 が返るまで（最大 60 秒）ポーリングする
+2. `--ignore-lock` を足す
+3. それでも駄目なら `execSync` をやめ、`spawn` で `astro preview --port <PORT>` を前景実行して `globalTeardown` で `kill` する
+
+**どれを採ったか、なぜかを報告に書く。**
 
 - [ ] **Step 3: `package.json` に `e2e` を足す**
 
