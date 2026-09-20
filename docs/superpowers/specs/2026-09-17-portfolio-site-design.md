@@ -56,6 +56,12 @@ PO 本人の名刺となる Web サイト。役割の優先順位は次のとお
 
 写真の個別ページの前後リンク（PO 決定 2026-09-20）: 並び順の先頭の写真には「前」のリンクを、末尾の写真には「次」のリンクを出さない。中間の写真は両方出す。
 
+トップと `/career/` の表示（Agent 裁定 2026-09-21。PO 不在の無人リリースで決め、PO が後から覆せる）:
+
+- トップの「連絡先リンク」は `profile.links` を YAML の順に並べ、`label` を表示する（`kind` は表示にも装飾にも使わない）。`mailto:` はそのまま使い、外部リンクに `target` / `rel` は付けない
+- トップの「3 ページへの導線」は本文に Photos / Career / 他言語版トップの 3 リンク（ヘッダーと重複してよい。本文が名刺の主導線）
+- `/career/` の `<title>` とページの `h1` は両言語とも `Career`（ナビの英字表記に揃える）。本文の節見出し（職歴・スキル・資格・実績）はロケール別の文字列で、置き場は `src/lib/site.ts` の `ui`
+
 ## 5. 内容データの構造
 
 Astro のコンテンツコレクション（Zod スキーマ）で定義し、ビルド時に検証する。
@@ -103,6 +109,8 @@ exif:                    # 5 項目すべて必須
 - `career`: `experience[]`（期間 from/to、組織、役割、要点 bullets 最大 5）、`skills`（カテゴリ名 → 名前の配列）、`certifications[]`（日付、名前、リンク任意）、`achievements[]`（日付、名前、リンク任意、種別: talk / article / award / other）
 - `profile`: `name`、`tagline`、`links[]`（label、url、種別: github / email / x / linkedin / other）
 - 日英は別ファイル。`experience`、`certifications`、`achievements` の件数が両言語で一致することを単体テストで確認する
+- 表示規則（Agent 裁定 2026-09-21）: `experience` は `from` の降順、`certifications` と `achievements` は `date` の降順。`to` が無い職歴の期間は ja `現在` / en `Present`。期間は `Intl.DateTimeFormat`（ja: `2020年4月 – 現在`、en: `Apr 2020 – Present`）、資格・実績の日付も `Intl.DateTimeFormat`（ja: `2023年6月1日`、en: `June 1, 2023`）。`skills` はカテゴリ名 + 名前のカンマ区切り 1 行を YAML のキー順に並べる（表やタグ UI は作らない）。`achievements` の `kind` のラベルは ja 登壇 / 執筆 / 受賞 / その他、en Talk / Article / Award / Other。`url` がある項目だけリンクにする
+- 整形・並び替えは `.astro` の外の純関数（`src/lib/career.ts`）に置き、Vitest で固定する
 
 ### 5.3 入稿ルール
 
