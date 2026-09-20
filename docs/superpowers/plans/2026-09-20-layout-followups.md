@@ -636,15 +636,30 @@ Expected: `#fafafa #8f8f8f 3.10` と `#0c0c0c #606060 3.11`。3.0 未満なら�
 </BaseLayout>
 
 <style>
+  /*
+    このページ専用のスタイル。:global(main) はビルド後に素の main{…} として出るので、
+    他のページに効かないのは Astro がページ単位で CSS をインライン化しているおかげであって、
+    セレクタが限定されているからではない。この <style> を共有コンポーネントや
+    レイアウトへ移すと全ページの main に効く
+  */
   :global(main) {
     display: grid;
     place-content: center;
+    justify-items: center;
   }
   .art {
     margin-bottom: 1rem;
   }
+  /* 文言とリンクが同じドット文字なので、空白 1 つでは切れ目が読み取れない（PO 判断 2026-09-20） */
+  p a {
+    margin-left: 0.5em;
+  }
 </style>
 ```
+
+PO 判断で 2 件追加（レビュー Round 2、スクリーンショットを見て決定。2026-09-20）:
+- ドット絵が 2 行の左端に寄って重心が左にずれて見えたため、`justify-items: center` を足して横方向も中央に揃えた
+- 文言とリンクが同じドット文字になったことで空白 1 つでは切れ目が読み取れなくなったため、`p a { margin-left: 0.5em; }` で間隔を広げた
 
 （当初 `<div class="center">` ラッパー + `height: 100%` 案を採用したが、`body` は `min-height` のみで `height` を持たず `main` の高さが indefinite なため `height: 100%` が `auto` に解決し、縦中央寄せが効かなかった。レビュー Round 1 で発覚し `main` を直接 grid 化する方式に変更した）
 

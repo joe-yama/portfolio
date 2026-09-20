@@ -24,11 +24,22 @@ import { ui } from '../lib/site';
 </BaseLayout>
 
 <style>
+  /*
+    このページ専用のスタイル。:global(main) はビルド後に素の main{…} として出るので、
+    他のページに効かないのは Astro がページ単位で CSS をインライン化しているおかげであって、
+    セレクタが限定されているからではない。この <style> を共有コンポーネントや
+    レイアウトへ移すと全ページの main に効く
+  */
   :global(main) {
     display: grid;
     place-content: center;
+    justify-items: center;
   }
   .art {
     margin-bottom: 1rem;
+  }
+  /* 文言とリンクが同じドット文字なので、空白 1 つでは切れ目が読み取れない（PO 判断 2026-09-20） */
+  p a {
+    margin-left: 0.5em;
   }
 </style>
