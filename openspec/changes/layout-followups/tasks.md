@@ -41,12 +41,16 @@
 - `tests/unit/site.test.ts` の接頭辞なしパスのケースは `tests/unit/i18n.test.ts` と分岐が一部重複する。合成レイヤを見ているので据え置いた
 - 404 の上下を厳密に対称にするなら `main > p:last-child { margin-bottom: 0 }` の 1 行（現状はグリッドのトラックは完全対称で、外接矩形では最後の `<p>` のマージン分 8px だけ下寄り）
 - `.astro` の描画を守るテストが無い（`tests/unit` は `.astro` を描画せず、CI も `dist` をアサートしない）。Change 5 の e2e で「`/ja/` のヘッダー 4 リンク」「`/404.html` に `<nav>` なし」「`.art` の `margin-bottom` 16px」「各ページの `documentElement.lang` と hreflang 3 本」を拾う
+- `tests/unit/pixel.test.ts` の「16 × 16 の絵は 16 × 16」は同語反復で、`camera` の定義を読み直しているだけ。変異解析でも単独で殺す変異体が無かった（-3 行）
+- `lang` の出どころがまだ 2 つある。`BaseLayout` は D3 で URL 由来になったが、`src/pages/[lang]/index.astro` は `Astro.params.lang as Locale` の無検査キャストを握ったまま。Change 3 / 4 でページが増えるたび `getStaticPaths` + キャスト + `getProfile` の 3 行が複製される。「`isLocale` でガードする」ではなく「ページ側の `lang` 取得を共通化する（ついでにガードも入る）」として扱うのが正確
 
 ## 申し送り（リスク。実装済みの挙動に対する注意）
 
-- 将来 `astro.config.ts` に `base` を設定すると `Astro.url.pathname` が `/<base>/ja/` になり、`localeFromPath` が `null` を返して全ページの `<html lang>` と `hreflang` が落ちる。Change 5 のドメイン決定時に確認する
+- **【Change 5 の最初のタスクにする】** 将来 `astro.config.ts` に `base` を設定すると `Astro.url.pathname` が `/<base>/ja/` になり、`localeFromPath` が `null` を返す。結果として `/en/` の `<html lang>` が `ja` に化け、`hreflang` が全ページから消える。**ビルドも lint も型検査も単体テストもすべて通ったまま静かに壊れる**（`dist` を検査するテストが無いため）。この change の D3 で `<html lang>` の出どころが props から URL に移ったことで生じた新しい弱点で、変更前は `<html lang>` だけは `base` の影響を受けなかった。`site` は Change 5 で差し替える前提の暫定値なので、独自ドメインを取らない選択をした瞬間に踏む
 - `404.astro` の `p a { margin-left: 0.5em }` はセレクタが `p a` なので、将来このページの `<p>` にインラインリンクを入れると文中のリンクにも 8px が付く
 - 罫線のライトの実測 3.098 は閾値 3.0 に対して余裕が 3% しかない。`--bg` を変えると簡単に割る
 - `src/pages/favicon.svg.ts` の `Content-Type` ヘッダは静的ビルドでは使われない（配信側が拡張子から MIME を決める）。効くのは `astro dev` のときだけなので、消さずに残す
 - `404.astro` の `:global(main)` がなぜページをまたがないかは `404.astro` の `<style>` 内コメントと design D5 を参照。この `<style>` を共有コンポーネントやレイアウトへ移すと全ページの `main` に効く
 - 設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` の「`hreflang` を全ページに出す」は `/404.html` には当てはまらない（接頭辞の無いパスでは出さない）。この change 以前からの緩さで、振る舞いの正本 `openspec/specs/layout-shell/spec.md` は `/ja/` `/en/` 配下に限定しているため実害は無い。設計書を触る change で直す
+- `src/lib/pixel.ts` の `faviconSvg` が `#111111` / `#e8e8e8` を直書きしており、`src/styles/global.css` の `--fg` と二重管理になっている。`--fg` だけ変えると favicon の色が静かにずれる（単体テストも同じリテラルを assert しているので落ちない）。`global.css` の色を触る change では `src/lib/pixel.ts` も直す
+- `tsconfig.json` の `noUnusedLocals: true` は「先に import だけ置いて後で使う」書き方を `pnpm typecheck` で弾く。後続 change の implementer に伝えること
