@@ -76,3 +76,30 @@ describe('ui の写真まわりの文言', () => {
     }
   });
 });
+
+describe('ui の経歴ページの文字列', () => {
+  it('区画の見出しが両ロケールにある', () => {
+    expect(ui.ja.careerSections).toEqual({
+      experience: '職歴',
+      skills: 'スキル',
+      certifications: '資格',
+      achievements: '実績',
+    });
+    expect(ui.en.careerSections).toEqual({
+      experience: 'Experience',
+      skills: 'Skills',
+      certifications: 'Certifications',
+      achievements: 'Achievements',
+    });
+  });
+
+  it('実績の種別 4 つすべてにラベルがある', () => {
+    for (const lang of ['ja', 'en'] as const) {
+      for (const kind of ['talk', 'article', 'award', 'other'] as const) {
+        expect(ui[lang].achievementKind[kind]).toBeTruthy();
+      }
+    }
+    expect(ui.ja.achievementKind.talk).toBe('登壇');
+    expect(ui.en.achievementKind.talk).toBe('Talk');
+  });
+});
