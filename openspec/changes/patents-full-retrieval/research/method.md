@@ -84,14 +84,11 @@ Google Patents の公報ページに abstract 専用の欄は無い。発明の�
 3. `Country Status` も `Family Applications` も持たないページ（今回は TW の 2 件）は、`Also Published As`（`docdbFamily`）と出願番号の一致だけで突き合わせる。発明者情報 (`inventor`) 自体を持たないこともあるため、D2 の発明者照合は「同族の中に 1 件でも一致すればよい」で救う
 4. 117 件の起点公報は 66 の同族に分かれ、うち 65 を採用・1（2 公報）を除外した
 
-## 5. 代表公報・`countries` の並び・`filedAt`・名称の決め方（design.md D3〜D6 の要約）
+## 5. 代表公報・`countries` の並び・`filedAt`・名称の決め方
 
-- **代表公報（`number`）**: `Country Status` の行のうち `countryCode` が `JP` の `representativePublication`。JP が無ければ `filingDate` が最も早い国の代表公報（D3）
-- **`countries`**: 先頭は代表公報の国（`number.slice(0,2)`）。残りは各国の出願日の昇順（同日はコードの辞書順）で安定させる。**この出願日は `Priority Applications` 表から取る**（`Family Applications` は自分の 1 行しか無く、個別ページを持たない国の出願日が取れないため。落とし穴 1 を参照）（D4）
-- **`filedAt`**: 同族のメンバーから読めた `priorityDate` の最小値の `YYYY-MM`（`filingDate` の最小値ではない。優先権の基礎出願日は同族のどのメンバーのページでも同じ値が出るため、1 ページから同族全体の最早出願年月が決まる）（D5）
-- **`titleJa`**: 同族の **JP の代表公報を `/ja` で取得**し、そのページの発明の名称。JP の代表が無い同族は、機械的に取れないため暫定扱いになる
-- **`titleEn`**: 同族の **US → EP → WO の代表公報を `/en` で取得**し、そのページの発明の名称。どれも無ければ起点公報の `/en` の英訳を使う（D6）
-- 掲載する `title`（見出し）は、上記の `titleJa`/`titleEn` の代わりに**請求項 1 から起こした短い見出し**に置き換える（D12）。正式名称は `officialTitleJa`/`officialTitleEn` として調査結果側にだけ残し、`career/*.yaml` には持たせない（D13）。詳細と 65 件全件の照合表は `research/publications.md` を参照
+決定の中身は `openspec/changes/patents-full-retrieval/design.md` の D3〜D6・D12・D13 を参照（同じ内容をここに重複させない）。
+
+実際に取得して分かったこと（design.md には無い実測）: **英語の見出しの根拠は件ごとに違う**。design.md D6 の「US → EP → WO の優先順位で代表公報の請求項から起こす」は機械的にはそのとおりだが、実際には英語の請求項が発明の内容を的確に表していない、あるいは日本語版のほうが適切と判断した同族が一定数あった。65 件の内訳は、US 代表の請求項 1 を根拠にしたもの **47 件**、JP 代表の請求項 1（日本語版と同じ請求項）を根拠にしたもの **17 件**、WO 代表の請求項 1 を根拠にしたもの **1 件**（EP 代表を根拠にした件は 0 件）。どの公報のどの言語を根拠にしたかは `patents.json` の `titleEnSource` に残しており、全 65 件の内訳は `research/publications.md` の「見出しの根拠言語について」と各ブロックに明記している。
 
 ## 6. 遮断を避ける条件
 
