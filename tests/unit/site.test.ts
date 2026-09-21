@@ -117,20 +117,20 @@ describe('ui', () => {
 });
 
 describe('ui の写真まわりの文言', () => {
-  it('日英とも同じキーを持つ', () => {
-    for (const key of ['backToGallery', 'prevPhoto', 'nextPhoto'] as const) {
-      expect(ui.ja[key].length).toBeGreaterThan(0);
-      expect(ui.en[key].length).toBeGreaterThan(0);
-      expect(ui.ja[key]).not.toBe(ui.en[key]);
-    }
+  it('日英とも実際の文言になっている', () => {
+    expect(ui.ja.backToGallery).toBe('写真一覧へ');
+    expect(ui.en.backToGallery).toBe('Back to photos');
+    expect(ui.ja.prevPhoto).toBe('前の写真');
+    expect(ui.en.prevPhoto).toBe('Previous photo');
+    expect(ui.ja.nextPhoto).toBe('次の写真');
+    expect(ui.en.nextPhoto).toBe('Next photo');
   });
 
-  it('ナビの aria-label（siteNav / photoNav）が両ロケールで空でない', () => {
-    for (const key of ['siteNav', 'photoNav'] as const) {
-      expect(ui.ja[key].length).toBeGreaterThan(0);
-      expect(ui.en[key].length).toBeGreaterThan(0);
-      expect(ui.ja[key]).not.toBe(ui.en[key]);
-    }
+  it('ナビの aria-label（siteNav / photoNav）が両ロケールで実際の文言になっている', () => {
+    expect(ui.ja.siteNav).toBe('サイト内の案内');
+    expect(ui.en.siteNav).toBe('Site navigation');
+    expect(ui.ja.photoNav).toBe('前後の写真');
+    expect(ui.en.photoNav).toBe('Photo navigation');
   });
 });
 
@@ -187,13 +187,18 @@ describe('ui の経歴ページの文字列', () => {
   });
 
   it('実績の種別 4 つすべてにラベルがある', () => {
-    for (const lang of ['ja', 'en'] as const) {
-      for (const kind of ['talk', 'article', 'award', 'other'] as const) {
-        expect(ui[lang].achievementKind[kind]).toBeTruthy();
-      }
-    }
-    expect(ui.ja.achievementKind.talk).toBe('登壇');
-    expect(ui.en.achievementKind.talk).toBe('Talk');
+    expect(ui.ja.achievementKind).toEqual({
+      talk: '登壇',
+      article: '執筆',
+      award: '受賞',
+      other: 'その他',
+    });
+    expect(ui.en.achievementKind).toEqual({
+      talk: 'Talk',
+      article: 'Article',
+      award: 'Award',
+      other: 'Other',
+    });
   });
 
   it('特許の区画見出しが両ロケールにある', () => {

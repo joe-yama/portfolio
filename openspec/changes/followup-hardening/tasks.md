@@ -56,7 +56,7 @@
 - [x] 5.3 `src/lib/site.ts` の `assetPath` を削除して `withBase` に一本化し、呼び出し元（`BaseLayout.astro`）を差し替える。`tests/unit/site.test.ts` の該当テストを移すか削り、`pnpm build` 後の `dist/ja/index.html` の `<link rel="icon">` の href が変わっていないことを確認する
 - [x] 5.4 `src/lib/site.ts` の `canonicalUrl` から `lang` 引数を落として内部で `localeFromPath` する形にし、`site` にパスがある場合（`https://example.com/sub/`）にそれを捨てない形に直す。`tests/unit/site.test.ts` に `site` にパスがあるケースを足し、標準挙動の確認にしかなっていない「URL オブジェクトの site も受ける」を含む 4 本を畳む。`pnpm test` / `pnpm build` 緑と `dist` の canonical が変わっていないことを確認する
 - [x] 5.5 `tests/unit/photo.test.ts` の `toContain('f/2')` を全文固定に変え（`f/2.8` でも通ってしまう）、`src/lib/photo.ts` の `dateLocale` マップを削除して `Intl` に `lang` をそのまま渡す（出力が同一であることを測って示す）。`neighbors` の範囲判定のコメントと 4 行の JSDoc を、実際に守っているものだけ書いた 1 行にする。`src/lib/photo.ts` の JSDoc のレンズ表記を spec と同じ `XF 23mm F1.4 R LM WR` に直す。`pnpm test` / `pnpm build` 緑を確認する
-- [ ] 5.6 `tests/unit/site.test.ts` の弱い assert を締める（`achievementKind` の `article` / `award` / `other` を `toEqual` で 4 件まとめて固定、photos 関連のキーの存在だけを見ている assert を値まで固定）。締めたあと、ラベルを取り違える変異で落ちることを隔離実行で示す
+- [x] 5.6 `tests/unit/site.test.ts` の弱い assert を締める（`achievementKind` の `article` / `award` / `other` を `toEqual` で 4 件まとめて固定、photos 関連のキーの存在だけを見ている assert を値まで固定）。締めたあと、ラベルを取り違える変異で落ちることを隔離実行で示す
 
 ## 6. 仕上げの細部（単位 D に含める）
 
