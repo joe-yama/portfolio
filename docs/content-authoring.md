@@ -8,7 +8,7 @@
 - `certifications` と `achievements` は日英で同じ順番に並べる。表示は日付の安定ソートなので、同じ日付の項目は記述順で対応づく
 - 資格と実績の `date` は**分かっている粒度で書く**（`YYYY-MM` か `YYYY-MM-DD`）。日を `-01` に丸めない。年月までの日付は並び順ではその月の 1 日として扱われ、同じ位置になる項目は記述順を保つ
 
-検証は `validateCareerParity`（`skills` / `patents` を含む）。
+検証は `validateCareerParity`（`skills` / `patents` を含む）。**`certifications` / `achievements` / `patents` は、同じ位置（記述順）の項目どうしで比較キー（`date` / `filedAt` / `countries` の件数など）が日英で食い違っているとビルドが落ちる**（`followup-hardening` で追加）。
 
 ## 特許
 
@@ -19,5 +19,7 @@
 ## 写真を差し替えるとき
 
 同じ slug で `pnpm photo:add` を再実行すると、既存の YAML データファイルは書き換えずに画像の登録だけを行って終了する（`title` / `location` / `alt` は手で書いた内容のまま残る）。その経路でだけ `node_modules/.astro/assets` も消すので、古い画像がビルド出力に残る問題も自動で避けられる（新規入稿の経路では消さない）。
+
+写真 YAML の **`takenAt` はクォートが必須**（`takenAt: "2025-12-06"`）。クォート無しの `takenAt: 2025-12-06` は js-yaml が文字列ではなく `Date` として読み、`photoSchema` は文字列だけを受け付けるためビルドが落ちる（`followup-hardening` で `z.date()` の枝を落とし、暦の検査を必ず通す経路にした）。
 
 写真ファイルは git に入れず GitHub Releases（タグ `photos`）に置く。詳細は設計書 §5。

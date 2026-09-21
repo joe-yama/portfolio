@@ -10,6 +10,9 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+# トップレベルの permissions は無く、job ごとに必要最小限を明示している（下記）。
+# 新しい job を足すときは permissions を明示すること。無いとリポジトリ既定の
+# permissions を継承してしまう。
 jobs:
   build:
     permissions:

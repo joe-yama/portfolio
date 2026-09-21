@@ -1,10 +1,10 @@
 # 現在の状態
 
-最終更新: 2026-09-21（v1 リリース時点）。`CLAUDE.md` の索引から参照される。
+最終更新: 2026-09-22（Change 10 `followup-hardening` 実装中）。`CLAUDE.md` の索引から参照される。
 
 ## フェーズ
 
-**v1 公開済み**（2026-09-21）。未着手の change は無い。次にやることは PO の指示待ち（下記「次の作業の候補」）。
+**v1 公開済み**（2026-09-21）。**Change 10 `followup-hardening`（Issue #29）が実装中**（まだマージされていない。詳細は `docs/changes.md` と `openspec/changes/followup-hardening/`）。それ以外に未着手の change は無い。マージ後にやることは PO の指示待ち（下記「次の作業の候補」）。
 
 ## 公開先（PO 決定 2026-09-21）
 
