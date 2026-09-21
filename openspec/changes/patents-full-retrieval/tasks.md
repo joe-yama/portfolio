@@ -30,8 +30,8 @@
 
 ## 3. 表示の手直し
 
-- [ ] 3.1 `src/components/PatentItem.astro` を新設し、`career.astro` の特許の `<li>` 2 か所をこのコンポーネントの呼び出しに置き換える。`pnpm build` と既存の `pnpm e2e` が緑のまま（表示は変わらない）
-- [ ] 3.2 `career.astro` 先頭のコメントを実際の 5 区画に直す。`pnpm lint` が緑
+- [x] 3.1 `src/components/PatentItem.astro` を新設し、`career.astro` の特許の `<li>` 2 か所をこのコンポーネントの呼び出しに置き換える。`pnpm build` と既存の `pnpm e2e` が緑のまま（表示は変わらない）
+- [x] 3.2 `career.astro` 先頭のコメントを実際の 5 区画に直す。`pnpm lint` が緑
 
 ## 4. データの差し替え
 

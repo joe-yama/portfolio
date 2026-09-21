@@ -1,0 +1,24 @@
+---
+// 特許 1 件分の <li>。career.astro には先頭 5 件用と <details> の中用の 2 か所で
+// 同じマークアップが必要になるため、ここに切り出して片方だけ直す事故を防ぐ（design D9）
+import type { Career } from '../content/schemas';
+import { formatMonth } from '../lib/career';
+import type { Locale } from '../lib/i18n';
+
+interface Props {
+  patent: Career['patents'][number];
+  lang: Locale;
+}
+
+const { patent, lang } = Astro.props;
+---
+
+<li>
+  <span class="muted">{formatMonth(patent.filedAt, lang)}</span>
+  {' · '}
+  <span class="muted">{patent.number}</span>
+  {' · '}
+  {patent.url ? <a href={patent.url}>{patent.title}</a> : patent.title}
+  {' · '}
+  <span class="muted">{patent.countries.join(', ')}</span>
+</li>
