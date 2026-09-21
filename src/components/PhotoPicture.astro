@@ -46,6 +46,7 @@ const widths = [...new Set([...preset.widths.filter((w) => w < width), width])];
   formats={['avif', 'webp']}
   fallbackFormat="jpeg"
   priority={eager}
+  class={variant}
 />
 
 <style>
@@ -53,5 +54,12 @@ const widths = [...new Set([...preset.widths.filter((w) => w < width), width])];
     display: block;
     width: 100%;
     height: auto;
+  }
+
+  picture :global(img.full) {
+    width: auto;
+    max-width: 100%;
+    max-height: var(--photo-max-height, none);
+    margin-inline: auto;
   }
 </style>
