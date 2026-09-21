@@ -36,6 +36,25 @@ for (const path of pagePaths) {
     await expect(canonical).toHaveCount(1);
     await expect(canonical).toHaveAttribute('href', `https://joe-yama.github.io/portfolio/${path}`);
     await expect(page.locator('meta[name="description"]')).toHaveCount(1);
+
+    await expect(page.locator('meta[property^="og:"]')).toHaveCount(10);
+    await expect(page.locator('meta[name^="twitter:"]')).toHaveCount(1);
+    await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute(
+      'content',
+      lang === 'ja' ? 'ja_JP' : 'en_US',
+    );
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+      'content',
+      'summary_large_image',
+    );
+    await expect(page.locator('meta[property="og:image:width"]')).toHaveAttribute(
+      'content',
+      '1200',
+    );
+    await expect(page.locator('meta[property="og:image:height"]')).toHaveAttribute(
+      'content',
+      '630',
+    );
   });
 }
 
@@ -47,7 +66,7 @@ test('404 ページが両言語への戻りリンクを持つ', async ({ page })
   await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
   await expect(page.locator('meta[name="description"]')).toHaveCount(0);
   await expect(page.locator('meta[property^="og:"]')).toHaveCount(0);
-  await expect(page.locator('meta[name="twitter:card"]')).toHaveCount(0);
+  await expect(page.locator('meta[name^="twitter:"]')).toHaveCount(0);
 });
 
 test.describe('SNS 共有カード', () => {
@@ -77,6 +96,8 @@ test.describe('SNS 共有カード', () => {
       await page.goto(`./${path}`);
       const ogImage = await page.locator('meta[property="og:image"]').getAttribute('content');
       expect(ogImage).toBeTruthy();
+      // 外部ホストの画像を直接参照してはならない（MUST NOT）ので、オリジンを固定する
+      expect(new URL(ogImage ?? '').origin).toBe('https://joe-yama.github.io');
       // og:image は本番オリジンの絶対 URL。e2e は 127.0.0.1 のプレビューを見ているので、
       // パス部分だけを取り出して相対で取得する
       const imagePath = new URL(ogImage ?? '').pathname;
