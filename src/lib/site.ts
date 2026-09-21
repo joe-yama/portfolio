@@ -80,9 +80,19 @@ export const ui: Record<Locale, UiStrings> = {
   },
 };
 
+/**
+ * 絶対パスを site の絶対 URL にする。site にパスがあっても（例: `https://example.com/sub/`）
+ * 捨てずに残す（design D6 系。canonical / hreflang / sitemap / og:image で共有する）
+ */
+export function absoluteUrl(path: string, site: string | URL): string {
+  const siteUrl = new URL(site);
+  const sitePath = siteUrl.pathname.endsWith('/') ? siteUrl.pathname : `${siteUrl.pathname}/`;
+  return new URL(`.${path}`, `${siteUrl.origin}${sitePath}`).href;
+}
+
 /** hreflang の 3 本。x-default は既定ロケール（ja）と同じ */
 export function alternateLinks(path: string, site: string | URL, base: string): AlternateLink[] {
-  const href = (lang: Locale) => new URL(alternatePath(path, lang, base), site).href;
+  const href = (lang: Locale) => absoluteUrl(alternatePath(path, lang, base), site);
   return [
     ...locales.map((lang) => ({ hreflang: lang, href: href(lang) })),
     { hreflang: 'x-default', href: href(defaultLocale) },
@@ -104,16 +114,10 @@ export function careerPath(lang: Locale, base: string): string {
   return withBase(`/${lang}/career/`, base);
 }
 
-/**
- * そのページ自身の絶対 URL（design D6）。alternatePath でパスを正規化し、
- * site にパスがあっても（例: `https://example.com/sub/`）捨てずに残す
- */
+/** そのページ自身の絶対 URL（design D6）。lang はパスから判定する */
 export function canonicalUrl(path: string, site: string | URL, base: string): string {
   const lang = localeFromPath(path, base) ?? defaultLocale;
-  const normalized = alternatePath(path, lang, base);
-  const siteUrl = new URL(site);
-  const sitePath = siteUrl.pathname.endsWith('/') ? siteUrl.pathname : `${siteUrl.pathname}/`;
-  return new URL(`.${normalized}`, `${siteUrl.origin}${sitePath}`).href;
+  return absoluteUrl(alternatePath(path, lang, base), site);
 }
 
 /** 共有カードの og:locale（design D3）。地域付きの表記に対応づける */

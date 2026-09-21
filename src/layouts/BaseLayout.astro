@@ -6,7 +6,7 @@ import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { getPhotos, getProfile } from '../lib/content';
 import { defaultLocale, localeFromPath, withBase } from '../lib/i18n';
-import { alternateLinks, canonicalUrl, ogLocale } from '../lib/site';
+import { absoluteUrl, alternateLinks, canonicalUrl, ogLocale } from '../lib/site';
 import '../styles/global.css';
 
 interface Props {
@@ -45,7 +45,7 @@ if (pathLocale) {
     fit: 'cover',
     format: 'jpeg',
   });
-  ogImage = { src: new URL(img.src, Astro.site).href, alt: featured.data.alt[lang] };
+  ogImage = { src: absoluteUrl(img.src, Astro.site), alt: featured.data.alt[lang] };
 }
 ---
 

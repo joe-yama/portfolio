@@ -1,6 +1,13 @@
 import type { Locale } from './i18n';
 import { locales } from './i18n';
-import { type AlternateLink, alternateLinks, careerPath, homePath, photoPath } from './site';
+import {
+  type AlternateLink,
+  absoluteUrl,
+  alternateLinks,
+  careerPath,
+  homePath,
+  photoPath,
+} from './site';
 
 export type SitemapEntry = { loc: string; alternates: AlternateLink[] };
 
@@ -21,7 +28,7 @@ function localePaths(lang: Locale, slugs: string[], base: string): string[] {
 export function sitemapEntries(slugs: string[], site: string | URL, base: string): SitemapEntry[] {
   return locales.flatMap((lang) =>
     localePaths(lang, slugs, base).map((path) => ({
-      loc: new URL(path, site).href,
+      loc: absoluteUrl(path, site),
       alternates: alternateLinks(path, site, base),
     })),
   );
