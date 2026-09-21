@@ -64,7 +64,7 @@ achievements:
     name: Hypernym-Hyponym Relation Estimation Considering Bidirectionality and Nonlinearity (ANLP 2018)
     kind: talk
   - date: "2017-08-31"
-    name: "Patent: Topic Estimation Learning Device and Method (JP 2017-151838A)"
+    name: "Patent application: Topic Estimation Learning Device and Method (JP 2017-151838A)"
     kind: other
   - date: "2016-12-01"
     name: Distributional Hypernym Generation by Jointly Learning Clusters and Projections (COLING 2016, oral)

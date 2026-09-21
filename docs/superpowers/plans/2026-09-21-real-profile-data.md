@@ -264,7 +264,7 @@ achievements:
     name: 双方向性と非線形性を考慮した上位語・下位語関係の推定（言語処理学会 第24回年次大会）
     kind: talk
   - date: "2017-08-31"
-    name: "特許: 話題推定学習装置及び話題推定学習方法（特開2017-151838）"
+    name: "特許出願: 話題推定学習装置及び話題推定学習方法（特開2017-151838）"
     kind: other
   - date: "2016-12-01"
     name: Distributional Hypernym Generation by Jointly Learning Clusters and Projections（COLING 2016 口頭発表）
@@ -347,7 +347,7 @@ achievements:
     name: Hypernym-Hyponym Relation Estimation Considering Bidirectionality and Nonlinearity (ANLP 2018)
     kind: talk
   - date: "2017-08-31"
-    name: "Patent: Topic Estimation Learning Device and Method (JP 2017-151838A)"
+    name: "Patent application: Topic Estimation Learning Device and Method (JP 2017-151838A)"
     kind: other
   - date: "2016-12-01"
     name: Distributional Hypernym Generation by Jointly Learning Clusters and Projections (COLING 2016, oral)
