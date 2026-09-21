@@ -5,6 +5,15 @@ export const PHOTO_BASE_URL = 'https://github.com/joe-yama/portfolio/releases/do
 
 const nonEmpty = z.string().trim().min(1);
 
+/**
+ * skills のカテゴリ名。数字だけの文字列は禁止する（JavaScript のオブジェクトは
+ * 整数に見えるキーを先頭に繰り上げるため、Object.entries の順が記述順にならない）
+ */
+const skillCategoryName = nonEmpty.refine(
+  (s) => !/^\d+$/.test(s),
+  'カテゴリ名が数字だけになっている',
+);
+
 export const localizedSchema = z.object({ ja: nonEmpty, en: nonEmpty });
 export type Localized = z.infer<typeof localizedSchema>;
 
@@ -83,7 +92,7 @@ export type Patent = z.infer<typeof patentSchema>;
 
 export const careerSchema = z.object({
   experience: z.array(experienceSchema),
-  skills: z.record(nonEmpty, z.array(nonEmpty)),
+  skills: z.record(skillCategoryName, z.array(nonEmpty)),
   certifications: z.array(datedItemSchema),
   achievements: z.array(
     datedItemSchema.extend({ kind: z.enum(['talk', 'article', 'award', 'other']) }),

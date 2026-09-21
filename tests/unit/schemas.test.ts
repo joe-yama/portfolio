@@ -150,6 +150,16 @@ describe('careerSchema', () => {
     const bad = { ...validCareer.achievements[0], kind: 'blog' };
     expect(careerSchema.safeParse({ ...validCareer, achievements: [bad] }).success).toBe(false);
   });
+
+  it('skills のカテゴリ名が数字だけだと失敗する', () => {
+    const skills = { ...validCareer.skills, '2024': ['TypeScript'] };
+    expect(careerSchema.safeParse({ ...validCareer, skills }).success).toBe(false);
+  });
+
+  it('skills のカテゴリ名は数字を含んでいても文字が混じれば受け付ける', () => {
+    const skills = { ...validCareer.skills, '2024年度の実績': ['TypeScript'] };
+    expect(careerSchema.safeParse({ ...validCareer, skills }).success).toBe(true);
+  });
 });
 
 describe('profileSchema', () => {
