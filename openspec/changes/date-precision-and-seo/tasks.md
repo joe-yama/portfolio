@@ -10,7 +10,7 @@
 ## 2. ページのメタデータ
 
 - [x] 2.1 `src/lib/site.ts` に、そのページ自身の絶対 URL を返す関数を足し、`tests/unit/site.test.ts` に base 付き（`/portfolio`）と base 無しの 2 件を足して緑になることを確認する
-- [ ] 2.2 `src/layouts/BaseLayout.astro` に `<link rel="canonical">` と `<meta name="description">`（内容はプロフィールの `tagline`）を、`hreflang` と同じ条件（ロケール配下のページだけ。design D6）で出し、`pnpm build` 後に `dist/ja/career/index.html` と `dist/en/photos/index.html` に 1 本ずつあること、`dist/404.html` にどちらも無いことを確認する
+- [x] 2.2 `src/layouts/BaseLayout.astro` に `<link rel="canonical">` と `<meta name="description">`（内容はプロフィールの `tagline`）を、`hreflang` と同じ条件（ロケール配下のページだけ。design D6）で出し、`pnpm build` 後に `dist/ja/career/index.html` と `dist/en/photos/index.html` に 1 本ずつあること、`dist/404.html` にどちらも無いことを確認する
 
 ## 3. サイトマップ
 
