@@ -1,0 +1,40 @@
+# Spec Delta
+
+## MODIFIED Requirements
+
+### Requirement: 特許のデータ構造
+特許は 1 つの発明につき 1 件とし、同じ発明の各国出願（同族）をまとめて 1 件として扱う。各特許は `filedAt`（`YYYY-MM` 形式の出願年月。同族のうち最も早い出願の年月）、`title`（その言語での発明の名称）、`number`（代表となる公報番号）、`countries`（出願国・地域のコードの配列。1 件以上）を持たなければならない（MUST）。`url`（URL 形式）は任意とする。`countries` の先頭は `number` が属する国・地域とする（MUST）。
+
+`countries` の先頭が `number` の先頭 2 文字の国・地域コードと一致しない場合、ビルドを失敗させなければならず（MUST）、エラーには該当する `number` と `countries` の先頭の値を含めなければならない（MUST）。この検証は日本語・英語の両方のデータに対して行う（MUST）。
+
+#### Scenario: 必須項目が揃った特許
+- **WHEN** `filedAt`、`title`、`number`、`countries` を持つ特許をビルドする
+- **THEN** ビルドは成功する
+
+#### Scenario: 出願年月の形式が違う
+- **WHEN** `filedAt` が `2021-3` または `2021-03-15` の特許をビルドする
+- **THEN** ビルドは失敗し、`YYYY-MM` 形式を求めるエラーを出す
+
+#### Scenario: 出願国が空
+- **WHEN** `countries` が空の配列の特許をビルドする
+- **THEN** ビルドは失敗する
+
+#### Scenario: 公報番号が欠けている
+- **WHEN** `number` を持たない特許をビルドする
+- **THEN** ビルドは失敗する
+
+#### Scenario: url は任意
+- **WHEN** `url` を持たない特許をビルドする
+- **THEN** ビルドは成功する
+
+#### Scenario: 出願国の先頭が代表公報の国と一致する
+- **WHEN** `number` が `JP6549500B2`、`countries` が `[JP, CN, US]` の特許をビルドする
+- **THEN** ビルドは成功する
+
+#### Scenario: 出願国の先頭が代表公報の国と違う
+- **WHEN** `number` が `JP6549500B2`、`countries` が `[CN, JP]` の特許をビルドする
+- **THEN** ビルドは失敗し、エラーに `JP6549500B2` と `CN` が含まれる
+
+#### Scenario: 英語のデータだけが食い違う
+- **WHEN** 日本語のデータは整合しているが、英語のデータで同じ特許の `countries` の先頭が代表公報の国と違う
+- **THEN** ビルドは失敗する
