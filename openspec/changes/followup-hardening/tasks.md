@@ -12,7 +12,7 @@
 - [x] 1.2 `tests/unit/photo-meta.test.ts` に `parseOrder(text)` と `hasFeaturedFlag(text)` の失敗するテストを足し（`order: 30` を読む / `order:` が無ければ 0 / 先頭が `-` の値 / `featured: true` の有無）、RED を確認してから `src/lib/photo-meta.ts` に実装し、`scripts/photo-add.ts` の正規表現 2 本をこの関数に置き換える。`pnpm test` 緑を確認する
 - [x] 1.3 `src/lib/photo-meta.ts` の ponytail をまとめて行う（`PhotoMeta.slug` フィールドを消し `exifToPhotoMeta(raw)` の 1 引数にする、`RawExif` 型の別名を消して `Record<string, unknown>` を直接書く、`isPositiveFinite` をモジュールスコープへ出す）。既存テストの期待値を合わせ、`pnpm test` / `pnpm typecheck` 緑を確認する
 - [x] 1.4 `scripts/photo-add.ts` の手書き引数解析を `node:util` の `parseArgs` に置き換え、GitHub のアカウント確認を引数解析の**後ろ**に移す。引数なしで実行して、`gh` を一度も呼ばずに使い方が出ることを実行して確認する
-- [ ] 1.5 `scripts/photo-add.ts` に「既存の写真データファイルがあれば書かない」分岐を入れる（画像の登録は済ませたうえで、変更していない旨を出して終了コード 0 で終わる）。同じ経路で `node_modules/.astro/assets` を削除する。新規入稿の経路では削除しないことをコードで確認できる形にする
+- [x] 1.5 `scripts/photo-add.ts` に「既存の写真データファイルがあれば書かない」分岐を入れる（画像の登録は済ませたうえで、変更していない旨を出して終了コード 0 で終わる）。同じ経路で `node_modules/.astro/assets` を削除する。新規入稿の経路では削除しないことをコードで確認できる形にする
 - [ ] 1.6 `scripts/photo-add.ts` の `gh` 呼び出しの失敗を `die` の 1 行に整形し、`gh release view` の catch が「Release が無い」以外の失敗を飲み込まないようにする（終了コードか stderr で判別する）。`gh` が使えない状態を模して、スタックトレースではなく 1 行が出ることを実行して確認する
 - [ ] 1.7 `scripts/photo-add.ts` の中断メッセージを spec の語彙（撮影日 / カメラ / レンズ / 絞り / シャッター速度 / ISO 感度）に直し、EXIF タグ名（`LensModel` など）を出さないことを grep で確認する。あわせて同じファイルを `readFileSync` で 2 回読んでいる箇所を 1 回にする
 - [ ] 1.8 既存の写真 1 枚に対して同じ slug で `pnpm photo:add` を実行し（design D11。PO 承認済み）、(a) `git status --short` が空、(b) データファイルを変更していない旨が出力される、(c) 直後の `pnpm build` の出力画像が新しい画像から生成されている、の 3 点を出力で示す

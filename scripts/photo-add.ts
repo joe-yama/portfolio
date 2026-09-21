@@ -8,6 +8,7 @@ import {
   mkdtempSync,
   readdirSync,
   readFileSync,
+  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { readFile } from 'node:fs/promises';
@@ -109,20 +110,25 @@ try {
 gh(['release', 'upload', RELEASE_TAG, jpeg, '--clobber']);
 console.log(`登録: ${RELEASE_TAG}/${slug}.jpg`);
 
-// (6) YAML を書く。asset が上がった後に書くので、途中で失敗しても再実行で回復できる
+// (6) 写真データファイルが既にあれば書き換えない（差し替え）。無ければ新規に生成する
 mkdirSync(PHOTOS_DIR, { recursive: true });
-const existing = readdirSync(PHOTOS_DIR).filter((f) => f.endsWith('.yaml'));
-const orders = existing.map((f) => parseOrder(readFileSync(join(PHOTOS_DIR, f), 'utf8')));
-const hasFeatured = existing.some((f) =>
-  hasFeaturedFlag(readFileSync(join(PHOTOS_DIR, f), 'utf8')),
-);
 const yamlPath = join(PHOTOS_DIR, `${slug}.yaml`);
-writeFileSync(
-  yamlPath,
-  renderPhotoYaml(result.meta, `${PHOTO_BASE_URL}${slug}.jpg`, nextOrder(orders), !hasFeatured),
-);
-
-console.log(`生成: ${yamlPath}`);
-console.log(
-  '次: title / location / alt を日英で記入してから pnpm build する（未記入だとビルドが止まる）',
-);
+if (existsSync(yamlPath)) {
+  // 差し替え経路でだけキャッシュを消す。古い画像の版がビルド出力に残るのを防ぐ（新規入稿では呼ばない）
+  rmSync(join('node_modules', '.astro', 'assets'), { recursive: true, force: true });
+  console.log(`差し替え: ${yamlPath} は変更していない（画像の登録のみ実施）`);
+} else {
+  const existing = readdirSync(PHOTOS_DIR).filter((f) => f.endsWith('.yaml'));
+  const orders = existing.map((f) => parseOrder(readFileSync(join(PHOTOS_DIR, f), 'utf8')));
+  const hasFeatured = existing.some((f) =>
+    hasFeaturedFlag(readFileSync(join(PHOTOS_DIR, f), 'utf8')),
+  );
+  writeFileSync(
+    yamlPath,
+    renderPhotoYaml(result.meta, `${PHOTO_BASE_URL}${slug}.jpg`, nextOrder(orders), !hasFeatured),
+  );
+  console.log(`生成: ${yamlPath}`);
+  console.log(
+    '次: title / location / alt を日英で記入してから pnpm build する（未記入だとビルドが止まる）',
+  );
+}
