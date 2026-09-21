@@ -21,8 +21,8 @@
 ## 2. SNS 共有カード（単位 B）
 
 - [x] 2.1 `tests/unit/site.test.ts` に `ogLocale(lang)` の失敗するテストを足す（`ja` → `ja_JP`、`en` → `en_US`）。RED を確認してから `src/lib/site.ts` に実装し、`pnpm test` 緑を確認する
-- [ ] 2.2 `src/layouts/BaseLayout.astro` に共有カードのメタデータを追加する。`getPhotos()` の代表写真から `getImage({ width: 1200, height: 630, fit: 'cover', format: 'jpeg' })` で派生画像を作り、`new URL(img.src, Astro.site)` を `og:image` にする。出力するのは `og:type` / `og:url` / `og:title` / `og:description` / `og:site_name` / `og:locale` / `og:image` / `og:image:width` / `og:image:height` / `og:image:alt` / `twitter:card`。出す条件は `canonical` と同じ（`pathLocale` があるときだけ）。`pnpm build` 後に `dist/ja/index.html` と `dist/en/career/index.html` に 11 本、`dist/404.html` に 0 本あることを grep で確認する
-- [ ] 2.3 `getImage` がリモート画像に `width` と `height` の両方を与える形で動くことを 2.2 のビルドで確認する。動かなければ `inferSize: true` に切り替え、切り替えたことと理由を本ファイルの末尾に書く
+- [x] 2.2 `src/layouts/BaseLayout.astro` に共有カードのメタデータを追加する。`getPhotos()` の代表写真から `getImage({ width: 1200, height: 630, fit: 'cover', format: 'jpeg' })` で派生画像を作り、`new URL(img.src, Astro.site)` を `og:image` にする。出力するのは `og:type` / `og:url` / `og:title` / `og:description` / `og:site_name` / `og:locale` / `og:image` / `og:image:width` / `og:image:height` / `og:image:alt` / `twitter:card`。出す条件は `canonical` と同じ（`pathLocale` があるときだけ）。`pnpm build` 後に `dist/ja/index.html` と `dist/en/career/index.html` に 11 本、`dist/404.html` に 0 本あることを grep で確認する
+- [x] 2.3 `getImage` がリモート画像に `width` と `height` の両方を与える形で動くことを 2.2 のビルドで確認する。動かなければ `inferSize: true` に切り替え、切り替えたことと理由を本ファイルの末尾に書く
 - [ ] 2.4 `tests/e2e/pages.spec.ts` に共有カードの検査を足す（`/ja/` と `/en/career/` で `og:url` が `canonical` と一致、`og:title` が `<title>` と一致、`og:description` が `meta[name=description]` と一致、`og:image` を `fetch` して 200、`/404.html` に `og:` も `twitter:` も無い）。`pnpm e2e` 緑を確認する
 
 ## 3. 色・スキーマ・検証（単位 C）

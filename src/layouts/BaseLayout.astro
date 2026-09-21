@@ -1,12 +1,12 @@
 ---
 // 全ページ共通の殻（design D1）。<head> のメタデータ、Header、<main><slot/>、Footer。
 // ページは本文だけを書く。hreflang は /ja/ /en/ 配下のページだけに出す（404 は対象外）
-import { Font } from 'astro:assets';
+import { Font, getImage } from 'astro:assets';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
-import { getProfile } from '../lib/content';
+import { getPhotos, getProfile } from '../lib/content';
 import { defaultLocale, localeFromPath } from '../lib/i18n';
-import { alternateLinks, assetPath, canonicalUrl } from '../lib/site';
+import { alternateLinks, assetPath, canonicalUrl, ogLocale } from '../lib/site';
 import '../styles/global.css';
 
 interface Props {
@@ -27,6 +27,22 @@ const alternates = pathLocale ? alternateLinks(path, Astro.site, base) : [];
 // canonical と description は hreflang と同じ条件で出す（404 には出さない。design D6）
 const canonical = pathLocale ? canonicalUrl(path, pathLocale, Astro.site, base) : null;
 const description = pathLocale ? profile.tagline : null;
+const pageTitle = title ? `${title} · ${profile.name}` : profile.name;
+
+// 共有カード（design D3）。canonical / description と同じ条件でだけ出す
+let ogImage: { src: string; alt: string } | null = null;
+if (pathLocale) {
+  const featured = (await getPhotos()).find((p) => p.data.featured);
+  if (!featured) throw new Error('featured: true の写真が 1 枚も無い');
+  const img = await getImage({
+    src: featured.data.image,
+    width: 1200,
+    height: 630,
+    fit: 'cover',
+    format: 'jpeg',
+  });
+  ogImage = { src: new URL(img.src, Astro.site).href, alt: featured.data.alt[lang] };
+}
 ---
 
 <!doctype html>
@@ -34,11 +50,26 @@ const description = pathLocale ? profile.tagline : null;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title ? `${title} · ${profile.name}` : profile.name}</title>
+    <title>{pageTitle}</title>
     {canonical && <link rel="canonical" href={canonical} />}
     {description && <meta name="description" content={description} />}
     <link rel="icon" href={assetPath('/favicon.svg', base)} type="image/svg+xml" />
     {alternates.map((link) => <link rel="alternate" hreflang={link.hreflang} href={link.href} />)}
+    {canonical && description && ogImage && (
+      <>
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={description} />
+        <meta property="og:site_name" content={profile.name} />
+        <meta property="og:locale" content={ogLocale(lang)} />
+        <meta property="og:image" content={ogImage.src} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={ogImage.alt} />
+        <meta name="twitter:card" content="summary_large_image" />
+      </>
+    )}
     <Font cssVariable="--font-dot" />
   </head>
   <body>
