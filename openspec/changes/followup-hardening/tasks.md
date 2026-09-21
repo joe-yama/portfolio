@@ -97,3 +97,55 @@
 - `deploy.yml` の `withastro/action@v6` の内部 install に `--frozen-lockfile` が無い件。action の input から変えられず、自前ビルドへの置き換えは割に合わない
 - `tests/unit/site.test.ts` の接頭辞なしパスのケースと `tests/unit/i18n.test.ts` の分岐の重複。合成レイヤを見ているので据え置き
 - `src/pages/favicon.svg.ts` の `Content-Type` ヘッダ（`astro dev` でだけ効く。消さずに残す）
+
+### レビューが後続へ回した Minor（単位 A〜E、2026-09-22）
+
+**写真の入稿（単位 A）**
+
+- 実装者の報告に貼った出力の精度（偽 `gh` の stderr 行が落ちていた、テスト件数が 204 / 205 で食い違う）
+- `src/content/photos` と `node_modules/.astro/assets` が cwd 相対。cwd が違うとキャッシュ削除が黙って何もしない
+- `parseArgs` の例外を握りつぶすため `--sulg` のようなタイプミスで理由が出ない
+- `toSlug` の拒否が未捕捉例外のままで、`--slug ../../pwned` は `photo:add:` の 1 行ではなく Node のスタックトレースで終わる
+- `exifr` が解析できないファイル（拡張子だけ `.jpg` のテキスト等）で約 75 KB のバンドルが端末に出る（この change 以前からの挙動）
+- `toSlug` の拒否条件は末尾ドット（`kamo-river-v1.2.`）を通す（非対称）
+- ponytail（`net: -35 lines possible.`）: `MISSING_FIELD_LABELS` + `translateMissingFields` の中間表現を消して `exifToPhotoMeta` が直接 spec の語彙を返す / `toSlug` の 6 行 JSDoc を 1 行に / `scripts/photo-add.ts` の手順番号コメント
+
+**SNS 共有カード（単位 B）**
+
+- 共通レイアウトが写真コレクションに依存するようになった。写真が 0 枚になると経歴ページまでビルドが落ちる（いまは `validatePhotos` が `featured` 1 枚を強制しているので現実には起きない）
+- `ogLocale` は `site.ts` より `i18n.ts` の `otherLocale` の隣のほうが収まりが良い
+- `tests/e2e/pages.spec.ts` の `pagePaths` はロケール配下 10 ページのうち 8 ページ（写真の個別ページは `kariya-ferris-wheel` のみ）で、`sunset-dinghies` の 2 ページは未検査
+- ponytail（`net: -6 lines possible.`）: `BaseLayout` の到達不能な `if (!featured) throw`（`content.ts` に `getFeaturedPhoto()` を置けば `[lang]/index.astro` と共有できる）/ e2e の `canonical ?? ''` の到達不能なフォールバック / カードの 3 条件を `pathLocale` 1 つに畳む
+
+**色・スキーマ・検証（単位 C）**
+
+- `src/lib/theme.ts` の抽出正規表現は `#[0-9a-fA-F]{3,8}` を許すが `relativeLuminance` は 6 桁しか受けない（`--fg: #111;` で無関係に見える例外が飛ぶ。失敗はするので安全側）
+- `src/content/schemas.ts` の `isCalendarDate` は `new Date(y, m-1, d)` を使うため、年 0001〜0099 が常に「暦に存在しない日」になる
+- `src/lib/validate.ts` の比較は文字列の完全一致なので、ja `2025-10` / en `2025-10-01` は並び替えキーとしては同値なのにビルドが落ちる（安全側）
+- `tests/unit/schemas.test.ts` のクォート検査が `startsWith('"')` なので、YAML として正当な単一引用符 `'2025-12-06'` だとテストだけが落ちる
+- 3.13（0 件の区画を出さない）に自動の番人が無い。`/ja/career/` の `<section>` 数を e2e で固定するのが最小の手当て
+- ponytail（`net: -25 lines possible.`）: `validate.ts` の比較 3 重複を `[key, keyOf]` の表 1 本に / `theme.ts` の `TOKEN_NAMES` の恒等写像 / `export type Tokens` は誰も import していない / `isoDate` と `datePrecision` の refine 本体の重複 / `theme.test.ts` の `cases` の `name` 列
+
+**base・弱い assert・表示の細部（単位 D の一部）**
+
+- 6.2 の期待値「`dist/404.html` が 1 リンク」は実測 0（`showNav={false}` で `<nav>` ごと出ない）。計画の値が誤り
+- `tests/unit/i18n.test.ts` の `describe('normalizeBase（stripBase 経由で観測する両端トリム）')` の中身が `withBase` しか呼んでいない
+- `src/lib/site.ts` の `canonicalUrl` は、ロケール接頭辞の無いパスを渡すと黙って `/ja/` を前置する（いまは `BaseLayout` のガードで到達しない）
+- `src/lib/site.ts` の `absoluteUrl` は「先頭 `/` の絶対パス」を暗黙の前提にしており、絶対 URL や相対パスを渡すと黙って壊れる（現在の呼び出し元はすべて前提を満たす）。JSDoc に 1 行書くか assert を置くと安い
+- `src/pages/[lang]/career.astro` で `ui[lang].present` だけループ内でインライン参照、`patents` だけ派生変数ではなく `career.patents.length` を見ている
+- ponytail（`net: -17 lines possible.`）: `career.ts` の降順比較 3 か所を `desc()` 1 つに / `site.ts` の末尾スラッシュ補完 / `tests/unit/schemas.test.ts` の enum の言い換えテスト / `i18n.test.ts` の describe を既存に畳む / `career.test.ts` の `hasDay` の重複
+
+**e2e と CI（単位 D の残り）**
+
+- `a11y.spec.ts` / `network.spec.ts` が応答ステータスを見ていない（`paths.ts` の slug が将来消えると 404 を検査して黙って緑になる）
+- `pages.spec.ts` の hreflang はロケール接頭辞しか固定していない（全ページがトップを指す出力でも通る。単体テストが押さえているので Minor）
+- 4.4 は `links.spec.ts` しか直っておらず、`global-setup.ts` の `pnpm build` / `astro preview` は cwd 依存のまま
+- `tests/e2e/global-teardown.ts` の `rmSync(STARTED_MARKER)` が pid 照合より前にあるため、同じ worktree で 2 つ目の `pnpm e2e` が占有検出で落ちたとき、実行中の 1 本目のマーカーを消してしまう（破壊はなく、次回実行が明示的に知らせる）
+- `docs/status.md` の「最終更新: 2026-09-21（v1 リリース時点）」「未着手の change は無い」が `docs/changes.md` の「Change 10 は実装中」と矛盾する
+- `docs/changes.md` の Change 10 の要点行が、tasks §3（スキーマ・暦検査・日英パリティ）と §5（base・assert 整理）に触れていない
+- `deploy.yml` のトップレベル `permissions` を消したので、今後 job を足す人が明示を忘れるとリポジトリ既定を継承する（1 行コメントで足りる）
+- ponytail（`net: -18 lines possible.`）: `isPreviewAlreadyRunning` の補助チェックを消す / マーカーのパス定数を `tests/e2e/preview-marker.ts` に括り出す / `links.spec.ts` と `deploy.yml` のコメントを 1 行に
+
+### PO へ上げる件
+
+- **タスク 1.8 の実測は公開 Release への再アップロードではなく、`PATH` 上の偽 `gh` で行った**（コントローラーの裁定）。Release の公開アセットは sharp が EXIF を落としており、それを入稿に渡すと EXIF 不足で中断して差し替え経路に到達しないため。PO 本人の元画像で 1 回実測すると、spec の Scenario「差し替え後のビルドで古い版が残らない」まで確かめられる
