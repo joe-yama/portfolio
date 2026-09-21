@@ -1,4 +1,5 @@
 import { execSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,12 +12,18 @@ const PORT_CHECK_TIMEOUT_MS = 1_000;
 // setup が実際に起動した preview の pid を global-teardown.ts に伝えるマーカー。
 // globalSetup と globalTeardown は別のモジュール評価になりうるため、
 // モジュールスコープの変数ではなくファイル（.astro/ 配下。git 管理外）で受け渡す。
-// pid まで記録するのは、teardown が「今動いている preview の pid」と一致するとき
-// だけ止める形にするため（レビュー C2。古いマーカーや他人の preview を誤って
-// 止めない）。
 const STARTED_MARKER = fileURLToPath(
   new URL('../../.astro/e2e-preview-started-by-setup', import.meta.url),
 );
+
+// このプロセス（1 回の `pnpm e2e` 実行）の識別子を渡す環境変数。globalSetup と
+// globalTeardown は別モジュール評価だが同じプロセス内で呼ばれるため、
+// process.env は共有される。マーカーファイル自体はプロセスをまたいで残り続ける
+// （同じ worktree で 2 本目の `pnpm e2e` を回したときなど）ため、pid の一致だけ
+// では「今回自分が起動した preview か」を区別できない（レビュー I1）。
+// teardown は、この環境変数（＝自分の実行の runId）とマーカーの runId の両方が
+// 一致したときだけ、マーカーの削除と `astro preview stop` を行う。
+export const RUN_ID_ENV = 'E2E_PREVIEW_RUN_ID';
 
 /** astro preview の status/start の --json 出力から動作中の message を取り出す。動いていなければ null。 */
 function parsePreviewMessage(output: string): string | null {
@@ -123,11 +130,14 @@ export default async function globalSetup(): Promise<void> {
     stdio: 'inherit',
   });
 
-  // 起動した preview 自身の pid を記録する（teardown が「今動いている preview の
-  // pid」と照合するため。レビュー C2）。
+  // 起動した preview 自身の pid と、この実行の runId を記録する（teardown が
+  // 「今動いている preview の pid」かつ「自分がこの実行で書いたマーカーか」の
+  // 両方を照合するため。レビュー C2 / I1）。
   const statusOutput = execSync('pnpm exec astro preview status --json', { encoding: 'utf-8' });
   const pid = parsePreviewPid(statusOutput);
+  const runId = randomUUID();
+  process.env[RUN_ID_ENV] = runId;
   mkdirSync(dirname(STARTED_MARKER), { recursive: true });
-  writeFileSync(STARTED_MARKER, JSON.stringify({ pid }));
+  writeFileSync(STARTED_MARKER, JSON.stringify({ pid, runId }));
   await waitForServerReady();
 }
