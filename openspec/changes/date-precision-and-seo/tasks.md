@@ -14,7 +14,7 @@
 
 ## 3. サイトマップ
 
-- [ ] 3.1 `src/lib/sitemap.ts` に、写真の slug の配列・サイトの起点・パス接頭辞から `<url>` の材料（`loc` と言語代替 3 本）を返す純関数を書き（design D4）、`tests/unit/sitemap.test.ts` で写真 2 枚のときの 10 本の `loc` を全部固定し、英語の経歴ページの代替 3 本まで確認する
+- [x] 3.1 `src/lib/sitemap.ts` に、写真の slug の配列・サイトの起点・パス接頭辞から `<url>` の材料（`loc` と言語代替 3 本）を返す純関数を書き（design D4）、`tests/unit/sitemap.test.ts` で写真 2 枚のときの 10 本の `loc` を全部固定し、英語の経歴ページの代替 3 本まで確認する
 - [ ] 3.2 `src/pages/sitemap.xml.ts` を `src/pages/favicon.svg.ts` と同じ形で書き、`pnpm build` 後に `dist/sitemap.xml` が存在し、最上位要素が `urlset`、`xhtml` 名前空間が宣言され、`<loc>` が 10 件であることを確認する
 - [ ] 3.3 `tests/e2e/` に、サイトマップのすべての `<loc>` が 200 を返すことと、`<loc>` の集合がビルド出力のロケール接頭辞付きページの集合と一致すること（design D5）を検査する spec を足し、`pnpm e2e` が緑になることを確認する
 
