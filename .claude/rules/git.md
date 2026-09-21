@@ -28,5 +28,6 @@
 ## push と破壊的操作
 
 - `feature/*` / `fix/*` への push は自動。`main` への push、リモートブランチの削除、`--all` / `--mirror`、`git worktree remove --force` は hook が確認に回すので、**PO の確認を待つ**（回避しようとしない）。
-- force push、`git reset --hard`、`git clean -f`、`git checkout -- .`、履歴の書き換え（push 済みコミットの `rebase -i` / `--amend`）は hook と permissions がブロックする。未コミット変更を捨てる必要が出たら PO に確認する。
+- force push、`git reset --hard`、`git clean -f`、`git checkout -- .`、`git branch -D` は hook と permissions がブロックする。未コミット変更を捨てる必要が出たら PO に確認する。
+- **履歴の書き換え（push 済みコミットの `rebase -i` / `commit --amend`）は禁止。hook は止めないので自分で避ける**（`git commit` は allow なので `--amend` は無確認で通る）。やり直しが要るなら PO に確認する。
 - push が SSH エージェントの都合で失敗したら再試行せず、PO に `! git push ...` での実行を依頼する。
