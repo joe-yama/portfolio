@@ -27,7 +27,7 @@
 
 ## 3. 色・スキーマ・検証（単位 C）
 
-- [ ] 3.1 `tests/unit/theme.test.ts` に `contrast(a, b)` の失敗するテストを足す（`#000000` と `#ffffff` で 21、同じ色で 1、`#8f8f8f` と `#fafafa` で 3.0〜3.2 の範囲）。RED を確認してから `src/lib/theme.ts` に WCAG 2.x の相対輝度による実装を書き、`pnpm test` 緑を確認する
+- [x] 3.1 `tests/unit/theme.test.ts` に `contrast(a, b)` の失敗するテストを足す（`#000000` と `#ffffff` で 21、同じ色で 1、`#8f8f8f` と `#fafafa` で 3.0〜3.2 の範囲）。RED を確認してから `src/lib/theme.ts` に WCAG 2.x の相対輝度による実装を書き、`pnpm test` 緑を確認する
 - [ ] 3.2 `tests/unit/theme.test.ts` に `readTokens(css)` の失敗するテストを足す（`:root` とダークのブロックから `--bg` / `--fg` / `--fg-muted` / `--line` を抜く、トークンが欠けていれば例外）。RED を確認してから実装し、`pnpm test` 緑を確認する
 - [ ] 3.3 `tests/unit/theme.test.ts` に `src/styles/global.css` を読んだ検算を足す（`--fg`/`--bg` と `--fg-muted`/`--bg` が 4.5 以上、`--line`/`--bg` が 3.0 以上、ライト・ダークとも。`faviconSvg(camera)` にライトの `--fg` とダークの `--fg` が含まれる）。隔離実行で `--line` を薄くしたときと `src/lib/pixel.ts` の色リテラルを 1 文字変えたときに落ちることを出力で示す
 - [ ] 3.4 `tests/unit/pixel.test.ts` に `faviconSvg(['#', '##'])` の `viewBox` が `0 0 2 2` になるテストを足し（幅と高さの取り違えを検知する）、`cells` と `gridSize` の文字数の数え方を `[...row]` に揃える。同語反復の「16 × 16 の絵は 16 × 16」のテストを削除し、`pnpm test` 緑を確認する
