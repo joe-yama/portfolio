@@ -7,7 +7,7 @@
 
 ## 2. 実データへの差し替え
 
-- [ ] 2.1 `src/content/profile/{ja,en}.yaml` を実データにする（`name` は日英とも `Josuke Yamane`、`tagline` は現職の役割、`links` は GitHub と LinkedIn の 2 本。メールは載せない）。`pnpm build` が成功することを確認する
+- [x] 2.1 `src/content/profile/{ja,en}.yaml` を実データにする（`name` は日英とも `Josuke Yamane`、`tagline` は現職の役割、`links` は GitHub と LinkedIn の 2 本。メールは載せない）。`pnpm build` が成功することを確認する
 - [ ] 2.2 `src/content/career/{ja,en}.yaml` の `experience`（4 件）と `skills`（5 カテゴリ）を実データにする。`pnpm build` が成功し、1.2 の検証を通ることを確認する
 - [ ] 2.3 `src/content/career/{ja,en}.yaml` の `certifications`（14 件）と `achievements`（6 件）を実データにする。`pnpm build` が成功することを確認する
 
