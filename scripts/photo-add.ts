@@ -13,6 +13,7 @@ import {
 import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
+import { parseArgs } from 'node:util';
 import exifr from 'exifr';
 import sharp from 'sharp';
 import { PHOTO_BASE_URL } from '../src/content/schemas.ts';
@@ -28,6 +29,7 @@ import {
 const PHOTOS_DIR = 'src/content/photos';
 const RELEASE_TAG = 'photos';
 const MAX_EDGE = 2500;
+const USAGE = '使い方: pnpm photo:add <画像ファイル> [--slug <名前>]';
 
 function die(message: string): never {
   console.error(`photo:add: ${message}`);
@@ -38,31 +40,36 @@ function gh(args: string[]): string {
   return execFileSync('gh', args, { encoding: 'utf8' }).trim();
 }
 
-function parseArgs(argv: string[]): { file: string; slug?: string } {
-  const rest = [...argv];
-  let slug: string | undefined;
-  const i = rest.indexOf('--slug');
-  if (i >= 0) {
-    slug = rest[i + 1];
-    if (slug === undefined) die('--slug に値がない');
-    rest.splice(i, 2);
+// gh を一度も呼ばずに判定できるよう、引数解析はアカウント確認より前に行う（spec の手順 1→2）
+function parseCliArgs(argv: string[]): { file: string; slug?: string } {
+  let parsed: { values: { slug?: string }; positionals: string[] };
+  try {
+    parsed = parseArgs({
+      args: argv,
+      options: { slug: { type: 'string' } },
+      allowPositionals: true,
+    });
+  } catch {
+    die(USAGE);
   }
-  const file = rest[0];
-  if (file === undefined) die('使い方: pnpm photo:add <画像ファイル> [--slug <名前>]');
-  return { file, slug };
+  const file = parsed.positionals[0];
+  if (file === undefined) die(USAGE);
+  return { file, slug: parsed.values.slug };
 }
 
-// (1) gh のアカウント確認。違うアカウントなら何も変更せずに止まる（設計書 §5.3）
+// (1) 引数を解釈する。必要な引数が無ければ、GitHub に問い合わせる前に使い方を示して中断する
+const { file, slug: slugArg } = parseCliArgs(process.argv.slice(2));
+
+// (2) gh のアカウント確認。違うアカウントなら何も変更せずに止まる（設計書 §5.3）
 const login = gh(['api', 'user', '--jq', '.login']);
 if (login !== 'joe-yama') {
   die(`gh のアカウントが joe-yama ではない（${login}）。gh auth switch で切り替える`);
 }
 
-const { file, slug: slugArg } = parseArgs(process.argv.slice(2));
 if (!existsSync(file)) die(`ファイルが無い: ${file}`);
 const slug = toSlug(basename(file), slugArg);
 
-// (2) EXIF を読む。縮小前の元画像から読む。
+// (3) EXIF を読む。縮小前の元画像から読む。
 // exifr@7.1.3 のファイルパス経路は fstat を旧 API 形で呼んでおり Node 26 で
 // ERR_INVALID_ARG_TYPE になるため、Buffer に読んでから渡す
 const raw = await exifr.parse(await readFile(file), { translateValues: false });
