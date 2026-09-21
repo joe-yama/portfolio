@@ -1,4 +1,7 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { camera, faviconSvg } from '../../src/lib/pixel';
 import { contrast, readTokens } from '../../src/lib/theme';
 
 describe('contrast', () => {
@@ -46,5 +49,33 @@ describe('readTokens', () => {
   it('トークンが欠けていれば例外', () => {
     const missing = css.replace('--line: #8f8f8f;', '');
     expect(() => readTokens(missing)).toThrow();
+  });
+});
+
+describe('src/styles/global.css の検算', () => {
+  const globalCssPath = fileURLToPath(new URL('../../src/styles/global.css', import.meta.url));
+  const tokens = readTokens(readFileSync(globalCssPath, 'utf-8'));
+
+  const cases = [
+    { name: 'ライト --fg/--bg', theme: 'light' as const, key: 'fg' as const, min: 4.5 },
+    { name: 'ライト --fg-muted/--bg', theme: 'light' as const, key: 'fgMuted' as const, min: 4.5 },
+    { name: 'ライト --line/--bg', theme: 'light' as const, key: 'line' as const, min: 3.0 },
+    { name: 'ダーク --fg/--bg', theme: 'dark' as const, key: 'fg' as const, min: 4.5 },
+    { name: 'ダーク --fg-muted/--bg', theme: 'dark' as const, key: 'fgMuted' as const, min: 4.5 },
+    { name: 'ダーク --line/--bg', theme: 'dark' as const, key: 'line' as const, min: 3.0 },
+  ];
+
+  it.each(cases)('$name は $min 以上', ({ theme, key, min }) => {
+    const c = contrast(tokens[theme][key], tokens[theme].bg);
+    expect(
+      c,
+      `${theme} の --${key} と --bg のコントラスト比は ${c.toFixed(3)} で、下限 ${min} を割った`,
+    ).toBeGreaterThanOrEqual(min);
+  });
+
+  it('faviconSvg(camera) にライトの --fg とダークの --fg が含まれる', () => {
+    const svg = faviconSvg(camera);
+    expect(svg).toContain(`fill="${tokens.light.fg}"`);
+    expect(svg).toContain(`fill:${tokens.dark.fg}`);
   });
 });
