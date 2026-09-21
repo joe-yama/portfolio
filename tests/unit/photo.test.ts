@@ -16,7 +16,9 @@ describe('formatExif', () => {
   });
 
   it('絞りが整数のときは小数点を付けない', () => {
-    expect(formatExif({ ...exif, aperture: 2 })).toContain('f/2');
+    expect(formatExif({ ...exif, aperture: 2 })).toBe(
+      'Fujifilm X-T5 · XF 23mm F1.4 R LM WR · f/2 · 1/250 · ISO 800',
+    );
   });
 });
 
