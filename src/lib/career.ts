@@ -6,9 +6,14 @@ export function sortExperience(experience: Career['experience']): Career['experi
   return [...experience].sort((a, b) => b.from.localeCompare(a.from));
 }
 
+/** date が日まで含むか（`YYYY-MM-DD`）。`YYYY-MM` なら false（design D9） */
+export function hasDay(date: string): boolean {
+  return date.split('-').length === 3;
+}
+
 /** 並べ替えの比較キー。年月までの日付はその月の 1 日として扱う（design D2） */
 function dateSortKey(date: string): string {
-  return date.length === 7 ? `${date}-01` : date;
+  return hasDay(date) ? date : `${date}-01`;
 }
 
 /** 日付を持つ項目を date の新しい順に並べた新しい配列を返す（資格と実績で共用） */
@@ -67,10 +72,9 @@ export function formatPeriod(from: string, to: string | null | undefined, lang: 
  * ja: `2023年6月1日` / `2025年10月`、en: `June 1, 2023` / `October 2025`
  */
 export function formatDate(date: string, lang: Locale): string {
-  const hasDay = date.split('-').length === 3;
   return new Intl.DateTimeFormat(lang, {
     year: 'numeric',
     month: 'long',
-    ...(hasDay ? { day: 'numeric' } : {}),
+    ...(hasDay(date) ? { day: 'numeric' } : {}),
   }).format(toLocalDate(date));
 }

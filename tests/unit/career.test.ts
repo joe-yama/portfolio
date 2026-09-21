@@ -3,6 +3,7 @@ import {
   formatDate,
   formatMonth,
   formatPeriod,
+  hasDay,
   sortByDateDesc,
   sortExperience,
   sortPatents,
@@ -170,6 +171,15 @@ describe('formatPeriod', () => {
 
   it('1 月を前年 12 月に丸めない（ローカル時刻で組み立てる）', () => {
     expect(formatPeriod('2020-01', '2020-01', 'en')).toBe('Jan 2020 – Jan 2020');
+  });
+});
+
+describe('hasDay', () => {
+  it('YYYY-MM-DD と YYYY-MM の両方で判定と表示が一致する', () => {
+    expect(hasDay('2024-10-12')).toBe(true);
+    expect(formatDate('2024-10-12', 'ja')).toBe('2024年10月12日');
+    expect(hasDay('2024-10')).toBe(false);
+    expect(formatDate('2024-10', 'ja')).toBe('2024年10月');
   });
 });
 
