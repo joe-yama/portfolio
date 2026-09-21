@@ -11,6 +11,7 @@ import {
   parseOrder,
   renderPhotoYaml,
   toSlug,
+  translateMissingFields,
 } from '../../src/lib/photo-meta';
 
 describe('toSlug', () => {
@@ -217,5 +218,21 @@ describe('ghFailureMessage', () => {
 
   it('stderr が無ければ message を使う', () => {
     expect(ghFailureMessage({ message: 'boom' })).toBe('boom');
+  });
+});
+
+describe('translateMissingFields', () => {
+  it('EXIF タグ名を spec の語彙に変換する', () => {
+    expect(translateMissingFields(['LensModel'])).toEqual(['レンズ']);
+    expect(translateMissingFields(['DateTimeOriginal', 'FNumber', 'ExposureTime', 'ISO'])).toEqual([
+      '撮影日',
+      '絞り',
+      'シャッター速度',
+      'ISO 感度',
+    ]);
+  });
+
+  it('Make と Model がどちらも欠けていてもカメラは 1 回だけ出す', () => {
+    expect(translateMissingFields(['Make', 'Model'])).toEqual(['カメラ']);
   });
 });

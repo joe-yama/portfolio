@@ -139,6 +139,21 @@ export function ghFailureMessage(error: unknown): string {
   return typeof message === 'string' ? message : String(error);
 }
 
+/** exifToPhotoMeta が返す missing（EXIF タグ名）→ spec の語彙。Make / Model はどちらもカメラなので重複を除く */
+const MISSING_FIELD_LABELS: Record<string, string> = {
+  DateTimeOriginal: '撮影日',
+  Make: 'カメラ',
+  Model: 'カメラ',
+  LensModel: 'レンズ',
+  FNumber: '絞り',
+  ExposureTime: 'シャッター速度',
+  ISO: 'ISO 感度',
+};
+
+export function translateMissingFields(missing: string[]): string[] {
+  return [...new Set(missing.map((tag) => MISSING_FIELD_LABELS[tag] ?? tag))];
+}
+
 /** YAML の二重引用符スカラーは JSON の文字列と同じ規則なので、JSON.stringify で正しく囲める */
 const q = (s: string) => JSON.stringify(s);
 

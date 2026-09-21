@@ -27,6 +27,7 @@ import {
   parseOrder,
   renderPhotoYaml,
   toSlug,
+  translateMissingFields,
 } from '../src/lib/photo-meta.ts';
 
 const PHOTOS_DIR = 'src/content/photos';
@@ -83,11 +84,12 @@ const slug = toSlug(basename(file), slugArg);
 const raw = await exifr.parse(await readFile(file), { translateValues: false });
 if (!raw) die(`EXIF を読めない: ${file}`);
 
-// (3) 足りない項目があれば名前を挙げて中断する
+// (4) 足りない項目があれば名前を挙げて中断する
 const result = exifToPhotoMeta(raw);
-if (!result.ok) die(`EXIF に必要な項目が無い: ${result.missing.join(', ')}`);
+if (!result.ok)
+  die(`撮影情報を読み取れない項目がある: ${translateMissingFields(result.missing).join('、')}`);
 
-// (4) 長辺 2500px 以下・sRGB・品質 90 に変換する。withoutEnlargement で拡大はしない
+// (5) 長辺 2500px 以下・sRGB・品質 90 に変換する。withoutEnlargement で拡大はしない
 const work = mkdtempSync(join(tmpdir(), 'photo-add-'));
 const jpeg = join(work, `${slug}.jpg`);
 const info = await sharp(file)
@@ -98,7 +100,7 @@ const info = await sharp(file)
   .toFile(jpeg);
 console.log(`縮小: ${info.width} x ${info.height}`);
 
-// (5) Release が無ければ作り、asset を上げる（同名は --clobber で差し替え）。
+// (6) Release が無ければ作り、asset を上げる（同名は --clobber で差し替え）。
 // 「Release が無い」以外の失敗（未ログインなど）は release create に進まず die で止める
 try {
   execFileSync('gh', ['release', 'view', RELEASE_TAG], { encoding: 'utf8' });
@@ -119,7 +121,7 @@ try {
 gh(['release', 'upload', RELEASE_TAG, jpeg, '--clobber']);
 console.log(`登録: ${RELEASE_TAG}/${slug}.jpg`);
 
-// (6) 写真データファイルが既にあれば書き換えない（差し替え）。無ければ新規に生成する
+// (7) 写真データファイルが既にあれば書き換えない（差し替え）。無ければ新規に生成する
 mkdirSync(PHOTOS_DIR, { recursive: true });
 const yamlPath = join(PHOTOS_DIR, `${slug}.yaml`);
 if (existsSync(yamlPath)) {
@@ -128,10 +130,9 @@ if (existsSync(yamlPath)) {
   console.log(`差し替え: ${yamlPath} は変更していない（画像の登録のみ実施）`);
 } else {
   const existing = readdirSync(PHOTOS_DIR).filter((f) => f.endsWith('.yaml'));
-  const orders = existing.map((f) => parseOrder(readFileSync(join(PHOTOS_DIR, f), 'utf8')));
-  const hasFeatured = existing.some((f) =>
-    hasFeaturedFlag(readFileSync(join(PHOTOS_DIR, f), 'utf8')),
-  );
+  const yamlTexts = existing.map((f) => readFileSync(join(PHOTOS_DIR, f), 'utf8'));
+  const orders = yamlTexts.map(parseOrder);
+  const hasFeatured = yamlTexts.some(hasFeaturedFlag);
   writeFileSync(
     yamlPath,
     renderPhotoYaml(result.meta, `${PHOTO_BASE_URL}${slug}.jpg`, nextOrder(orders), !hasFeatured),
