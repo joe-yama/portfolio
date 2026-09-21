@@ -2,7 +2,7 @@
 
 「人間 = PO、Claude Code = Agent」の開発ハーネス上で進める。経緯と未決事項は `docs/HANDOFF.md`、導入したハーネス部品と動作確認の記録は `docs/harness/README.md`（hooks の理由は `docs/harness/hooks.md`）。testing / git / security / scope / review の詳細ルールは `.claude/rules/` にあり、毎セッション自動ロードされる。
 
-現在のフェーズ: **v1 公開済み（2026-09-21）**。公開 URL は `https://joe-yama.github.io/portfolio/`（`astro.config.ts` の `site: 'https://joe-yama.github.io'` + `base: '/portfolio'`。独自ドメインは使わず `public/CNAME` も作らない。PO 決定 2026-09-21）。**プロフィール・経歴・写真はサンプルデータのまま公開している**（実データへの差し替えは PO 待ち。写真は 2 枚）。`main` への push で `.github/workflows/deploy.yml` が GitHub Pages へ公開する（Pages は `build_type=workflow` で有効化済み）。`main` には ruleset（PR 必須 + CI 必須、required status check は CI の job 名 `check`）があるので、**`main` への直接 push はできない。変更は必ず PR で行う**（CI の job 名 `check` を変えると以後どの PR もマージできなくなる）。
+現在のフェーズ: **v1 公開済み（2026-09-21）**。公開 URL は `https://joe-yama.github.io/portfolio/`（`astro.config.ts` の `site: 'https://joe-yama.github.io'` + `base: '/portfolio'`。独自ドメインは使わず `public/CNAME` も作らない。PO 決定 2026-09-21）。**プロフィールと経歴は PO 本人の実データ**（2026-09-21、Change 6 で差し替え。出典は本人の公開 LinkedIn で、掲載範囲は PO が項目ごとに決定済み。実名・勤務先・職歴・資格・論文が公開 URL に載っている）。**写真はサンプルのまま 2 枚**（差し替えは PO 待ち）。`main` への push で `.github/workflows/deploy.yml` が GitHub Pages へ公開する（Pages は `build_type=workflow` で有効化済み）。`main` には ruleset（PR 必須 + CI 必須、required status check は CI の job 名 `check`）があるので、**`main` への直接 push はできない。変更は必ず PR で行う**（CI の job 名 `check` を変えると以後どの PR もマージできなくなる）。
 
 ハーネス構築完了（2026-09-17）、設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` を PO 承認・レビュー反映済み（2026-09-17、Change 2 の決定を 2026-09-18 に反映、公開先の決定を 2026-09-21 に反映）。`docs/HANDOFF.md` §3 のセットアップ手順は再実行しない。**Change 1〜5 はすべてマージ・アーカイブ済み**（`openspec/changes/archive/`、main spec は `openspec/specs/{content-schema,deployment,i18n-routing,layout-shell,photo-pipeline,profile-and-career,quality-gates}` の 7 つ）:
 
@@ -11,6 +11,7 @@
 - Change 3 `photo-pipeline`（Issue #10）= PR #12。**経緯・レビュー結果・裁定 8 件は Issue #10 のコメント**、後続への提案 40 件超は `openspec/changes/archive/2026-09-21-photo-pipeline/tasks.md` の末尾
 - Change 4 `profile-and-career`（Issue #13）= PR #14（2026-09-21。トップの連絡先リンクと導線、`/career/`。main spec `profile-and-career` を新規作成）
 - Change 5 `deploy-and-e2e`（Issue #15）= PR #16（2026-09-21。`base` 対応、Playwright e2e 27 件、`deploy.yml`。main spec `deployment` を新規作成し、`i18n-routing` / `layout-shell` / `quality-gates` に delta を統合）
+- Change 6 `real-profile-data`（Issue #18）= PR #19（2026-09-21。プロフィールと経歴を実データに。`validateCareerParity` に `skills` の日英検証を足し、main spec `content-schema` の「経歴の日英の件数一致」を更新）
 
 **v1 リリースの計画・裁定 17 件・実測は `docs/runs/2026-09-21-v1-release.md` と `docs/runs/2026-09-21-v1-release-ledger.md` にある。** Change 4・5 の後続への提案と申し送りは各 `openspec/changes/archive/2026-09-21-*/tasks.md` の末尾。
 
@@ -20,7 +21,9 @@
 
 2026-09-20 に承認プロンプトとターン数を減らすハーネス調整を反映した（ブランチ `fix/harness-autonomy`。実測と設定の一覧は `docs/harness/README.md` §4・§6、hook は `docs/harness/hooks.md` §4）。bypass permissions での無人実行の実測は `docs/harness/README.md` §4（**bypass では `gh pr merge` も `gh api -X POST` もプロンプトなしで通るので、歯止めは権限設定ではなく計画側の条件になる**）。Task 8〜11 を Workflow で実行した結果、従来 12〜16 ターンの範囲を 3 ターンで通せた（`docs/harness/README.md` に追記する候補）。
 
-未着手の change は無い。次にやることは PO の指示待ち（候補: サンプルデータの実データ差し替え、写真の追加、独自ドメインへの移行 = 設計書 §9 の手順で `base` の削除が必要）。残る未決事項（HANDOFF §6、harness README §5）は影響する時点で PO に確認する。
+未着手の change は無い。次にやることは PO の指示待ち（候補: **資格の日付を年月表示にする**（PO 決定 2026-09-21。`YYYY-MM-DD` 必須のスキーマに対し月までしか分からない資格を `-01` に丸めているため、14 件中 10 件が `2025年10月1日` と同一表示になる。表示形式は spec `profile-and-career` にあるので delta が要る）、写真の追加・差し替え、sitemap と robots.txt の追加、独自ドメインへの移行 = 設計書 §9 の手順で `base` の削除が必要）。残る未決事項（HANDOFF §6、harness README §5）は影響する時点で PO に確認する。
+
+**実データを触るときの注意**: 経歴の `skills` は日英でカテゴリ数と各カテゴリの項目数が一致しないとビルドが落ちる（対応づけは `Object.entries` の並び順。カテゴリ名は訳語でよい）。`certifications` と `achievements` は日英で同じ順番に並べる（表示は日付の安定ソートなので、同じ日付の項目は記述順で対応づく）。
 
 ## プロジェクト概要
 
