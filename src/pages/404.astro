@@ -45,8 +45,9 @@ const base = import.meta.env.BASE_URL;
     margin-left: 0.5em;
   }
   /* main は grid で中央寄せなので、最後の p の下マージンが残ると見た目の中心が下にずれる。
-     上（.art の margin-bottom）との対称を取るため打ち消す */
-  main > p:last-child {
+     上（.art の margin-bottom）との対称を取るため打ち消す。
+     main は BaseLayout 側の要素でこのページのスコープ ID が付かないので :global で書く */
+  :global(main) > p:last-child {
     margin-bottom: 0;
   }
 </style>
