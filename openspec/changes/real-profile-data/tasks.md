@@ -2,8 +2,8 @@
 
 ## 1. skills の日英検証
 
-- [ ] 1.1 `tests/unit/validate.test.ts` に `validateCareerParity` の失敗テストを 4 件足す（カテゴリ数の不一致 / 対応するカテゴリの項目数の不一致 / カテゴリ名が訳語で違っても通ること / 既存の 3 配列の検証が壊れていないこと）。`pnpm exec vitest run tests/unit/validate.test.ts` が RED になることを確認する
-- [ ] 1.2 `src/lib/validate.ts` の `validateCareerParity` に `skills` の検証を足す（`Object.entries` の並び順で i 番目どうしを対応づけ、カテゴリ数と各カテゴリの項目数を比べる。エラーには `skills`、何番目のカテゴリか、両方の数を含める）。`pnpm test` が GREEN になることを確認する
+- [x] 1.1 `tests/unit/validate.test.ts` に `validateCareerParity` の失敗テストを 4 件足す（カテゴリ数の不一致 / 対応するカテゴリの項目数の不一致 / カテゴリ名が訳語で違っても通ること / 既存の 3 配列の検証が壊れていないこと）。`pnpm exec vitest run tests/unit/validate.test.ts` が RED になることを確認する
+- [x] 1.2 `src/lib/validate.ts` の `validateCareerParity` に `skills` の検証を足す（`Object.entries` の並び順で i 番目どうしを対応づけ、カテゴリ数と各カテゴリの項目数を比べる。エラーには `skills`、何番目のカテゴリか、両方の数を含める）。`pnpm test` が GREEN になることを確認する
 
 ## 2. 実データへの差し替え
 

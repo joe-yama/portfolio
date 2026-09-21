@@ -58,6 +58,26 @@ export function validateCareerParity(ja: Career, en: Career): string[] {
       errors.push(`${key} の件数が日英で違う（ja: ${ja[key].length}, en: ${en[key].length}）`);
     }
   }
+
+  // skills は配列ではなくカテゴリ名から項目への対応。カテゴリ名は訳語になるので
+  // キーでは対応づけられず、表示側（career.astro）と同じ Object.entries の順で対応づける
+  const jaSkills = Object.entries(ja.skills);
+  const enSkills = Object.entries(en.skills);
+  if (jaSkills.length !== enSkills.length) {
+    errors.push(
+      `skills のカテゴリ数が日英で違う（ja: ${jaSkills.length}, en: ${enSkills.length}）`,
+    );
+    return errors;
+  }
+  for (const [index, [jaName, jaItems]] of jaSkills.entries()) {
+    const [enName, enItems] = enSkills[index];
+    if (jaItems.length !== enItems.length) {
+      errors.push(
+        `skills の ${index + 1} 番目のカテゴリの項目数が日英で違う（${jaName}: ${jaItems.length}, ${enName}: ${enItems.length}）`,
+      );
+    }
+  }
+
   return errors;
 }
 

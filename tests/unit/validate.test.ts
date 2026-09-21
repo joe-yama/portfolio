@@ -127,6 +127,37 @@ describe('validateCareerParity', () => {
     ).toBe(true);
     expect(errors.some((e) => e.includes('achievements'))).toBe(true);
   });
+
+  it('skills のカテゴリ数が日英で違えば報告する', () => {
+    const en: Career = { ...base, skills: { lang: ['ts'], cloud: ['aws'] } };
+    const errors = validateCareerParity(base, en);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('skills');
+    expect(errors[0]).toContain('1');
+    expect(errors[0]).toContain('2');
+  });
+
+  it('対応するカテゴリの項目数が日英で違えば、何番目かを添えて報告する', () => {
+    const ja: Career = { ...base, skills: { 言語: ['ts', 'py'], クラウド: ['aws'] } };
+    const en: Career = { ...base, skills: { Languages: ['ts'], Cloud: ['aws'] } };
+    const errors = validateCareerParity(ja, en);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('skills');
+    expect(errors[0]).toContain('1');
+    expect(errors[0]).toContain('言語');
+    expect(errors[0]).toContain('Languages');
+  });
+
+  it('カテゴリ名が訳語で違っても、数が合っていれば問題なし', () => {
+    const ja: Career = { ...base, skills: { 言語: ['ts'] } };
+    const en: Career = { ...base, skills: { Languages: ['ts'] } };
+    expect(validateCareerParity(ja, en)).toEqual([]);
+  });
+
+  it('カテゴリ数が違うときは、各カテゴリの項目数の比較まで進まない', () => {
+    const en: Career = { ...base, skills: {} };
+    expect(validateCareerParity(base, en)).toHaveLength(1);
+  });
 });
 
 describe('assertValid', () => {
