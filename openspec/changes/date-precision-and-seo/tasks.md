@@ -20,7 +20,7 @@
 
 ## 4. 仕上げ
 
-- [ ] 4.1 `CLAUDE.md` に、サイトマップを Google Search Console へ登録するのは PO の手作業であること（`robots.txt` が効かない理由つき）と、資格・実績の日付は分かっている粒度で書くことを追記し、`git diff` で 2 か所入っていることを確認する
+- [x] 4.1 `CLAUDE.md` に、サイトマップを Google Search Console へ登録するのは PO の手作業であること（`robots.txt` が効かない理由つき）と、資格・実績の日付は分かっている粒度で書くことを追記し、`git diff` で 2 か所入っていることを確認する
 - [ ] 4.2 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をこの順に実行し、すべて緑であることを出力付きで示す
 
 ## 提案（後続へ）

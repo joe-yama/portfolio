@@ -21,9 +21,9 @@
 
 2026-09-20 に承認プロンプトとターン数を減らすハーネス調整を反映した（ブランチ `fix/harness-autonomy`。実測と設定の一覧は `docs/harness/README.md` §4・§6、hook は `docs/harness/hooks.md` §4）。bypass permissions での無人実行の実測は `docs/harness/README.md` §4（**bypass では `gh pr merge` も `gh api -X POST` もプロンプトなしで通るので、歯止めは権限設定ではなく計画側の条件になる**）。Task 8〜11 を Workflow で実行した結果、従来 12〜16 ターンの範囲を 3 ターンで通せた（`docs/harness/README.md` に追記する候補）。
 
-未着手の change は無い。次にやることは PO の指示待ち（候補: **資格の日付を年月表示にする**（PO 決定 2026-09-21。`YYYY-MM-DD` 必須のスキーマに対し月までしか分からない資格を `-01` に丸めているため、14 件中 10 件が `2025年10月1日` と同一表示になる。表示形式は spec `profile-and-career` にあるので delta が要る）、写真の追加・差し替え、sitemap と robots.txt の追加、独自ドメインへの移行 = 設計書 §9 の手順で `base` の削除が必要）。残る未決事項（HANDOFF §6、harness README §5）は影響する時点で PO に確認する。
+未着手の change は無い。**サイトマップは PO の手作業で登録が要る**（2026-09-21、Change 7）。`/portfolio/sitemap.xml` は出力しているが、GitHub Pages のプロジェクトサイトではクローラが読む `robots.txt` はドメイン直下（`https://joe-yama.github.io/robots.txt`）だけで `/portfolio/robots.txt` は無視されるため、`robots.txt` からは知らせられない。Google Search Console にサイトマップの URL を直接登録するまで、サイトマップは実質的に効かない。次にやることは PO の指示待ち（候補: **資格の日付を年月表示にする**（PO 決定 2026-09-21。`YYYY-MM-DD` 必須のスキーマに対し月までしか分からない資格を `-01` に丸めているため、14 件中 10 件が `2025年10月1日` と同一表示になる。表示形式は spec `profile-and-career` にあるので delta が要る）、写真の追加・差し替え、sitemap と robots.txt の追加、独自ドメインへの移行 = 設計書 §9 の手順で `base` の削除が必要）。残る未決事項（HANDOFF §6、harness README §5）は影響する時点で PO に確認する。
 
-**実データを触るときの注意**: 経歴の `skills` は日英でカテゴリ数と各カテゴリの項目数が一致しないとビルドが落ちる（対応づけは `Object.entries` の並び順。カテゴリ名は訳語でよい）。`certifications` と `achievements` は日英で同じ順番に並べる（表示は日付の安定ソートなので、同じ日付の項目は記述順で対応づく）。
+**実データを触るときの注意**: 経歴の `skills` は日英でカテゴリ数と各カテゴリの項目数が一致しないとビルドが落ちる（対応づけは `Object.entries` の並び順。カテゴリ名は訳語でよい）。`certifications` と `achievements` は日英で同じ順番に並べる（表示は日付の安定ソートなので、同じ日付の項目は記述順で対応づく）。資格と実績の `date` は分かっている粒度で書く（`YYYY-MM` か `YYYY-MM-DD`。日を `-01` に丸めない）。年月までの日付は並び順ではその月の 1 日として扱われ、同じ位置になる項目は記述順を保つ。
 
 ## プロジェクト概要
 
