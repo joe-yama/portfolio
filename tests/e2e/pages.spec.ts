@@ -26,11 +26,14 @@ for (const path of pagePaths) {
 
     const alternates = page.locator('link[rel="alternate"][hreflang]');
     await expect(alternates).toHaveCount(3);
-    for (const href of await alternates.evaluateAll((ls) =>
-      ls.map((l) => l.getAttribute('href') ?? ''),
-    )) {
-      expect(href.startsWith('https://joe-yama.github.io/portfolio/')).toBe(true);
-    }
+    const hreflangHrefs = Object.fromEntries(
+      await alternates.evaluateAll((ls) =>
+        ls.map((l) => [l.getAttribute('hreflang') ?? '', l.getAttribute('href') ?? '']),
+      ),
+    );
+    expect(hreflangHrefs.ja).toMatch(/^https:\/\/joe-yama\.github\.io\/portfolio\/ja\//);
+    expect(hreflangHrefs.en).toMatch(/^https:\/\/joe-yama\.github\.io\/portfolio\/en\//);
+    expect(hreflangHrefs['x-default']).toBe(hreflangHrefs.ja);
 
     const canonical = page.locator('link[rel="canonical"]');
     await expect(canonical).toHaveCount(1);
