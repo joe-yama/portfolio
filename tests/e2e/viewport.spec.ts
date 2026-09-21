@@ -127,13 +127,22 @@ test('回帰: 写真の表示比は元画像の縦横比と一致する（トッ
   await assertDisplayRatioMatchesNatural(figureImg, '個別ページの写真');
 });
 
-test('回帰: ギャラリーのサムネイルの表示幅はグリッドの列幅と一致する', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
+/**
+ * ギャラリー一覧を開き、各サムネイルの表示幅がグリッドの列幅と一致することを確認する。
+ *
+ * 幅 1440px では `sizes`（`grid` 変種は `(min-width: 80rem) 20rem, ...`）が示す推定幅（320px）が
+ * 実際の列幅（`minmax(280px, 1fr)` により約294px）を上回るため、`max-width: 100%` だけでも
+ * ちょうど列幅に丸め込まれてしまい、`width: 100%` を外す変異（例: grid 変種にも `img.full` の
+ * ルールを当てる）が検出できない（3.1(c) で実測して判明）。640〜1280px の中間幅では `sizes` が
+ * `33vw` になり列幅（約320〜420px）を下回るため、`width: auto` の場合は明確に列幅より小さく
+ * 表示され、この変異を確実に落とす。両方の幅で検査することで、番人の抜け穴を塞ぐ。
+ */
+async function assertThumbnailsFillColumns(page: Page, label: string) {
   await page.goto('./ja/photos/');
 
   const items = page.locator('ul.grid > li');
   const count = await items.count();
-  expect(count, 'ギャラリーに写真が無い').toBeGreaterThan(0);
+  expect(count, `${label}: ギャラリーに写真が無い`).toBeGreaterThan(0);
 
   for (let i = 0; i < count; i++) {
     const li = items.nth(i);
@@ -149,9 +158,21 @@ test('回帰: ギャラリーのサムネイルの表示幅はグリッドの列
       Math.abs(measured.imageWidth - measured.columnWidth) / measured.columnWidth;
     expect(
       relativeError,
-      `サムネイル[${i}]: 表示幅 ${measured.imageWidth.toFixed(1)} が列幅 ${measured.columnWidth.toFixed(1)} と一致しない`,
+      `${label} サムネイル[${i}]: 表示幅 ${measured.imageWidth.toFixed(1)} が列幅 ${measured.columnWidth.toFixed(1)} と一致しない`,
     ).toBeLessThanOrEqual(tolerance);
   }
+}
+
+test('回帰: ギャラリーのサムネイルの表示幅はグリッドの列幅と一致する', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await assertThumbnailsFillColumns(page, '1440x900');
+});
+
+test('回帰: ギャラリーのサムネイルの表示幅はグリッドの列幅と一致する（列幅が広がる中間幅でも）', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 800, height: 600 });
+  await assertThumbnailsFillColumns(page, '800x600');
 });
 
 test('回帰: 390×844 で横スクロールが発生しない（トップと個別ページ）', async ({ page }) => {
