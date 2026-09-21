@@ -61,3 +61,49 @@ test('写真は picture として出力される', async ({ page }) => {
   const sources = page.locator('picture source');
   expect(await sources.count()).toBeGreaterThan(0);
 });
+
+test.describe('特許の区画', () => {
+  const heading = { ja: '特許', en: 'Patents' } as const;
+
+  for (const lang of locales) {
+    test(`/${lang}/career/ に特許の見出しがある`, async ({ page }) => {
+      await page.goto(`./${lang}/career/`);
+      await expect(page.locator('h2', { hasText: heading[lang] })).toHaveCount(1);
+    });
+  }
+
+  test('折りたたみを開く前は先頭 5 件だけ見えている', async ({ page }) => {
+    await page.goto('./ja/career/');
+    const section = page.locator('section', { has: page.locator('h2', { hasText: '特許' }) });
+    const headItems = section.locator('> ul > li');
+    await expect(headItems).toHaveCount(5);
+    for (const li of await headItems.all()) {
+      await expect(li).toBeVisible();
+    }
+  });
+
+  test('summary をクリックすると残りが見え、総数が 51 件になる', async ({ page }) => {
+    await page.goto('./ja/career/');
+    const section = page.locator('section', { has: page.locator('h2', { hasText: '特許' }) });
+    const summary = section.locator('summary');
+    await expect(summary).toContainText('46');
+
+    await summary.click();
+    const allItems = section.locator('li');
+    await expect(allItems).toHaveCount(51);
+    for (const li of await allItems.all()) {
+      await expect(li).toBeVisible();
+    }
+  });
+
+  test('url を持つ項目の名称だけが Google Patents へのリンクになる', async ({ page }) => {
+    await page.goto('./ja/career/');
+    const section = page.locator('section', { has: page.locator('h2', { hasText: '特許' }) });
+    await section.locator('summary').click();
+    const links = section.locator('li a');
+    expect(await links.count()).toBeGreaterThan(0);
+    for (const href of await links.evaluateAll((ls) => ls.map((l) => l.getAttribute('href')))) {
+      expect(href).toMatch(/^https:\/\/patents\.google\.com\/patent\//);
+    }
+  });
+});

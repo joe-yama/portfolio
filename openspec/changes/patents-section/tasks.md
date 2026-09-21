@@ -35,7 +35,7 @@
 - [x] 4.1 `tests/unit/site.test.ts` に、`ui` の特許の見出し（`特許` / `Patents`）と折りたたみの文言（件数を埋めたもの）の失敗するテストを足す。RED を確認する
 - [x] 4.2 `src/lib/site.ts` に `careerSections.patents` と折りたたみの文言を追加し、4.1 が GREEN になることを確認する
 - [x] 4.3 `src/pages/[lang]/career.astro` に特許の区画を実績の後ろに追加する。先頭 5 件を `<details>` の外、6 件目以降を `<details>` の中に置き、5 件以下なら `<details>` を出さない。各項目に出願年月・公報番号・名称（`url` があればリンク）・出願国を出す
-- [ ] 4.4 `tests/e2e/pages.spec.ts` に特許区画の e2e を足す（`/ja/career/` と `/en/career/` に見出しがある、先頭 5 件が展開なしで見える、`<details>` を開くと残りが見える、`url` のある項目だけがリンク）。`pnpm e2e` が通ることを確認する
+- [x] 4.4 `tests/e2e/pages.spec.ts` に特許区画の e2e を足す（`/ja/career/` と `/en/career/` に見出しがある、先頭 5 件が展開なしで見える、`<details>` を開くと残りが見える、`url` のある項目だけがリンク）。`pnpm e2e` が通ることを確認する
 - [ ] 4.5 `pnpm build` 後の `dist/ja/career/index.html` に全件の名称が含まれることを確認する（JavaScript なしで到達できること）
 
 ## 5. 実データの投入
