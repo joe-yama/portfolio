@@ -22,6 +22,10 @@ export function toSlug(fileName: string, slugArg?: string): string {
   if (slugArg !== undefined) {
     if (!/[a-zA-Z0-9]/.test(slugArg))
       throw new Error(`指定された slug に英数字が無く使えない: ${slugArg}`);
+    // パス区切り・空白・先頭の . を含む値は、ファイルの書き込み先や asset 名を
+    // ずらすのに使われ得るため、加工はせず拒否する（--slug の値はそのまま使うため）
+    if (/[/\\\s]/.test(slugArg) || slugArg.startsWith('.'))
+      throw new Error(`指定された slug に使えない文字がある: ${slugArg}`);
     return slugArg;
   }
   const base = fileName.replace(/\.[^.]+$/, '');

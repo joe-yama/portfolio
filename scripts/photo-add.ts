@@ -43,7 +43,10 @@ function die(message: string): never {
 // gh の失敗（未ログイン、ネットワーク断、gh が無いなど）はスタックトレースではなく die の 1 行にする
 function gh(args: string[]): string {
   try {
-    return execFileSync('gh', args, { encoding: 'utf8' }).trim();
+    return execFileSync('gh', args, {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim();
   } catch (error) {
     die(ghFailureMessage(error));
   }
@@ -80,9 +83,10 @@ const slug = toSlug(basename(file), slugArg);
 
 // (3) EXIF を読む。縮小前の元画像から読む。
 // exifr@7.1.3 のファイルパス経路は fstat を旧 API 形で呼んでおり Node 26 で
-// ERR_INVALID_ARG_TYPE になるため、Buffer に読んでから渡す
-const raw = await exifr.parse(await readFile(file), { translateValues: false });
-if (!raw) die(`EXIF を読めない: ${file}`);
+// ERR_INVALID_ARG_TYPE になるため、Buffer に読んでから渡す。
+// EXIF を 1 つも持たない画像では exifr.parse が undefined を返すが、その場合も
+// 「項目名を挙げて中断」の経路に合流させるため空オブジェクトとして扱う
+const raw = (await exifr.parse(await readFile(file), { translateValues: false })) ?? {};
 
 // (4) 足りない項目があれば名前を挙げて中断する
 const result = exifToPhotoMeta(raw);
@@ -103,7 +107,10 @@ console.log(`縮小: ${info.width} x ${info.height}`);
 // (6) Release が無ければ作り、asset を上げる（同名は --clobber で差し替え）。
 // 「Release が無い」以外の失敗（未ログインなど）は release create に進まず die で止める
 try {
-  execFileSync('gh', ['release', 'view', RELEASE_TAG], { encoding: 'utf8' });
+  execFileSync('gh', ['release', 'view', RELEASE_TAG], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
 } catch (error) {
   if (!isReleaseNotFound(error)) die(ghFailureMessage(error));
   console.log(`Release ${RELEASE_TAG} を作る`);

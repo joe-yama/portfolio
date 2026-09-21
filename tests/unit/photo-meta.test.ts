@@ -39,6 +39,21 @@ describe('toSlug', () => {
     expect(message).toContain('鴨川');
     expect(message).not.toContain('--slug');
   });
+
+  it('--slug にパス区切りを含む値は例外にする（加工せず拒否する）', () => {
+    expect(() => toSlug('x.jpg', '../a')).toThrow();
+    expect(() => toSlug('x.jpg', '../../pwned')).toThrow();
+    expect(() => toSlug('x.jpg', 'a/b')).toThrow();
+    expect(() => toSlug('x.jpg', 'a\\b')).toThrow();
+  });
+
+  it('--slug に空白を含む値は例外にする（加工せず拒否する）', () => {
+    expect(() => toSlug('x.jpg', 'kamo river')).toThrow();
+  });
+
+  it('--slug が . から始まる値は例外にする', () => {
+    expect(() => toSlug('x.jpg', '.hidden')).toThrow();
+  });
 });
 
 describe('formatShutterSpeed', () => {
@@ -87,6 +102,10 @@ describe('parseOrder', () => {
   it('先頭が - の値も読む', () => {
     expect(parseOrder('order: -5\n')).toBe(-5);
   });
+
+  it('order: が行頭でなければ無視する（引用符の中などの文字列に惑わされない）', () => {
+    expect(parseOrder('title: "sortorder: 5"\n')).toBe(0);
+  });
 });
 
 describe('hasFeaturedFlag', () => {
@@ -96,6 +115,14 @@ describe('hasFeaturedFlag', () => {
 
   it('featured: true が無ければ偽', () => {
     expect(hasFeaturedFlag('order: 10\nfeatured: false\n')).toBe(false);
+  });
+
+  it('featured: true が行頭でなければ（引用符の中の文字列など）真にしない', () => {
+    expect(hasFeaturedFlag('alt: "not featured: true really"\n')).toBe(false);
+  });
+
+  it('featured: true の後ろに他の文字が続く行は真にしない', () => {
+    expect(hasFeaturedFlag('featured: true-ish\n')).toBe(false);
   });
 });
 
