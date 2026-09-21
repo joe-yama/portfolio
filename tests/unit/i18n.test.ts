@@ -78,7 +78,8 @@ describe('toLocale', () => {
 
   it('ロケールでない値は例外にする', () => {
     expect(() => toLocale('fr')).toThrow('fr');
-    expect(() => toLocale(undefined)).toThrow();
+    expect(() => toLocale(undefined)).toThrow('undefined');
+    expect(() => toLocale('')).toThrow('""');
   });
 });
 
