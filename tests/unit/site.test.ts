@@ -215,4 +215,9 @@ describe('ui の経歴ページの文字列', () => {
     expect(ui.ja.morePatents(46)).toBe('さらに 46 件を表示');
     expect(ui.en.morePatents(46)).toBe('Show 46 more');
   });
+
+  it('在職中の表記（present）が両ロケールにある（design D10）', () => {
+    expect(ui.ja.present).toBe('現在');
+    expect(ui.en.present).toBe('Present');
+  });
 });

@@ -34,7 +34,7 @@ const { head: patentsHead, rest: patentsRest } = splitPatents(sortPatents(career
     {
       sortExperience(career.experience).map((job) => (
         <article>
-          <p class="muted">{formatPeriod(job.from, job.to, lang)}</p>
+          <p class="muted">{formatPeriod(job.from, job.to, lang, ui[lang].present)}</p>
           <p class="org">{job.organization}</p>
           <p class="muted">{job.role}</p>
           <ul>

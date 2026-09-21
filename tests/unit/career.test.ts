@@ -153,24 +153,24 @@ describe('formatMonth', () => {
 
 describe('formatPeriod', () => {
   it('ja は 年月 – 年月', () => {
-    expect(formatPeriod('2017-04', '2020-03', 'ja')).toBe('2017年4月 – 2020年3月');
+    expect(formatPeriod('2017-04', '2020-03', 'ja', '現在')).toBe('2017年4月 – 2020年3月');
   });
 
   it('en は 短縮月 年 – 短縮月 年', () => {
-    expect(formatPeriod('2017-04', '2020-03', 'en')).toBe('Apr 2017 – Mar 2020');
+    expect(formatPeriod('2017-04', '2020-03', 'en', 'Present')).toBe('Apr 2017 – Mar 2020');
   });
 
-  it('to が undefined なら在職中の表記になる', () => {
-    expect(formatPeriod('2020-04', undefined, 'ja')).toBe('2020年4月 – 現在');
-    expect(formatPeriod('2020-04', undefined, 'en')).toBe('Apr 2020 – Present');
+  it('to が undefined なら present に渡した在職中の表記になる', () => {
+    expect(formatPeriod('2020-04', undefined, 'ja', '現在')).toBe('2020年4月 – 現在');
+    expect(formatPeriod('2020-04', undefined, 'en', 'Present')).toBe('Apr 2020 – Present');
   });
 
-  it('to が null でも在職中の表記になる', () => {
-    expect(formatPeriod('2020-04', null, 'ja')).toBe('2020年4月 – 現在');
+  it('to が null でも present に渡した在職中の表記になる', () => {
+    expect(formatPeriod('2020-04', null, 'ja', '現在')).toBe('2020年4月 – 現在');
   });
 
   it('1 月を前年 12 月に丸めない（ローカル時刻で組み立てる）', () => {
-    expect(formatPeriod('2020-01', '2020-01', 'en')).toBe('Jan 2020 – Jan 2020');
+    expect(formatPeriod('2020-01', '2020-01', 'en', 'Present')).toBe('Jan 2020 – Jan 2020');
   });
 });
 
@@ -215,7 +215,7 @@ describe('負のオフセットの環境でのタイムゾーン退行の検出'
     const saved = process.env.TZ;
     process.env.TZ = 'America/Los_Angeles';
     try {
-      expect(formatPeriod('2020-01', '2020-01', 'en')).toBe('Jan 2020 – Jan 2020');
+      expect(formatPeriod('2020-01', '2020-01', 'en', 'Present')).toBe('Jan 2020 – Jan 2020');
       expect(formatDate('2024-01-01', 'en')).toBe('January 1, 2024');
       expect(formatDate('2025-01', 'en')).toBe('January 2025');
     } finally {

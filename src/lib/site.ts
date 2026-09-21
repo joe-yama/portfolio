@@ -23,6 +23,8 @@ type UiStrings = {
   achievementKind: Record<'talk' | 'article' | 'award' | 'other', string>;
   /** 特許の折りたたみの見出し。n は折りたたまれている件数 */
   morePatents: (n: number) => string;
+  /** 在職中（to が無い）の終わりの表記（design D10） */
+  present: string;
 };
 
 /** 画面に出す文字列。ナビの「Photos」「Career」は両言語とも英字なので navLinks に直接書く */
@@ -45,6 +47,7 @@ export const ui: Record<Locale, UiStrings> = {
     },
     achievementKind: { talk: '登壇', article: '執筆', award: '受賞', other: 'その他' },
     morePatents: (n) => `さらに ${n} 件を表示`,
+    present: '現在',
   },
   en: {
     languageName: 'English',
@@ -64,6 +67,7 @@ export const ui: Record<Locale, UiStrings> = {
     },
     achievementKind: { talk: 'Talk', article: 'Article', award: 'Award', other: 'Other' },
     morePatents: (n) => `Show ${n} more`,
+    present: 'Present',
   },
 };
 

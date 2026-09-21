@@ -41,9 +41,6 @@ export function splitPatents<T>(patents: T[]): { head: T[]; rest: T[] } {
   return { head: patents.slice(0, PATENTS_HEAD_COUNT), rest: patents.slice(PATENTS_HEAD_COUNT) };
 }
 
-/** 在職中（to が無い）の終わりの表記 */
-const present: Record<Locale, string> = { ja: '現在', en: 'Present' };
-
 /**
  * `YYYY-MM` / `YYYY-MM-DD` をローカル時刻の Date にする。
  * `new Date('2020-04')` は UTC 基準で解釈され、負のオフセットの環境で前月になる
@@ -62,9 +59,17 @@ export function formatMonth(value: string, lang: Locale): string {
   }).format(toLocalDate(value));
 }
 
-/** 職歴の期間。ja: `2020年4月 – 現在`、en: `Apr 2020 – Present` */
-export function formatPeriod(from: string, to: string | null | undefined, lang: Locale): string {
-  return `${formatMonth(from, lang)} – ${to ? formatMonth(to, lang) : present[lang]}`;
+/**
+ * 職歴の期間。ja: `2020年4月 – 現在`、en: `Apr 2020 – Present`。
+ * 在職中（to が無い）の終わりの表記は呼び出し側が渡す（design D10、`ui[lang].present`）
+ */
+export function formatPeriod(
+  from: string,
+  to: string | null | undefined,
+  lang: Locale,
+  present: string,
+): string {
+  return `${formatMonth(from, lang)} – ${to ? formatMonth(to, lang) : present}`;
 }
 
 /**
