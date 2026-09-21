@@ -3,7 +3,7 @@ import type { Locale } from './i18n';
 
 /** 職歴を from の新しい順に並べた新しい配列を返す */
 export function sortExperience(experience: Career['experience']): Career['experience'] {
-  return [...experience].sort((a, b) => b.from.localeCompare(a.from));
+  return experience.toSorted((a, b) => (b.from > a.from ? 1 : b.from < a.from ? -1 : 0));
 }
 
 /** date が日まで含むか（`YYYY-MM-DD`）。`YYYY-MM` なら false（design D9） */
@@ -18,7 +18,11 @@ function dateSortKey(date: string): string {
 
 /** 日付を持つ項目を date の新しい順に並べた新しい配列を返す（資格と実績で共用） */
 export function sortByDateDesc<T extends { date: string }>(items: T[]): T[] {
-  return [...items].sort((a, b) => dateSortKey(b.date).localeCompare(dateSortKey(a.date)));
+  return items.toSorted((a, b) => {
+    const bKey = dateSortKey(b.date);
+    const aKey = dateSortKey(a.date);
+    return bKey > aKey ? 1 : bKey < aKey ? -1 : 0;
+  });
 }
 
 /**
@@ -26,10 +30,10 @@ export function sortByDateDesc<T extends { date: string }>(items: T[]): T[] {
  * どちらも同じ項目は記述順を保つ（design D2）
  */
 export function sortPatents(patents: Career['patents']): Career['patents'] {
-  return [...patents].sort((a, b) => {
+  return patents.toSorted((a, b) => {
     const byCountryCount = b.countries.length - a.countries.length;
     if (byCountryCount !== 0) return byCountryCount;
-    return b.filedAt.localeCompare(a.filedAt);
+    return b.filedAt > a.filedAt ? 1 : b.filedAt < a.filedAt ? -1 : 0;
   });
 }
 
@@ -55,7 +59,8 @@ function toLocalDate(value: string): Date {
 export function formatMonth(value: string, lang: Locale): string {
   return new Intl.DateTimeFormat(lang, {
     year: 'numeric',
-    month: lang === 'ja' ? 'long' : 'short',
+    // ja は 'long' と 'short' で表記が同じ（どちらも `3月`）ため死んだ分岐だった
+    month: 'short',
   }).format(toLocalDate(value));
 }
 
