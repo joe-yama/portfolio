@@ -69,8 +69,9 @@
 
 ## 7. 仕上げ
 
-- [ ] 7.1 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` の 5 コマンドをすべて実行し、コマンドと出力を報告に添える。`openspec validate followup-hardening --strict` が valid で `git status --short` が空であることを確認する
-- [ ] 7.2 実装の開始時と PR 作成の直前に `git diff --name-only main...feature/photo-height-cap` を確認し、禁止リスト以外のファイルに広がっていないことを確かめる。広がっていれば `main` を取り込んで解消する
+- [x] 7.1 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` の 5 コマンドをすべて実行し、コマンドと出力を報告に添える。`openspec validate followup-hardening --strict` が valid で `git status --short` が空であることを確認する
+- [x] 7.2 実装の開始時と PR 作成の直前に `git diff --name-only main...feature/photo-height-cap` を確認し、禁止リスト以外のファイルに広がっていないことを確かめる。広がっていれば `main` を取り込んで解消する
+  - コントローラーの読み替え: `photo-height-cap` は Change 9 としてマージ済みで比較対象が存在しない。代わりに `origin/main` へのリベースを 2 回行った（実装開始時 = 7555559、PO 指示により実装後 = 7ac3875）。禁止リスト 4 ファイルは、`src/components/PhotoPicture.astro` の `PhotoEntry` の import 1 行（コントローラーの裁定）を除いて 1 行も変えていない
 - [ ] 7.3 `reviewer`（Opus）でブランチ全体を「仕様準拠（5 つの delta）→ コード品質 → ponytail」の順にレビューする。Critical / Important を反映し、Minor は本ファイル末尾の「提案」に転記する。結果を change の GitHub Issue にまとめて 1 回コメントする
 - [ ] 7.4 `gh api user --jq .login` が `joe-yama` であることを確認してから push し、`Closes #<Issue 番号>` を本文に含む PR を作る。CI が緑であることを確認して Issue にコメントする
 
