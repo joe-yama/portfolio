@@ -6,17 +6,42 @@ import { baseURL, PORT } from '../../playwright.config';
 
 const POLL_INTERVAL_MS = 500;
 const POLL_TIMEOUT_MS = 60_000;
+const PORT_CHECK_TIMEOUT_MS = 1_000;
 
-// setup が実際に配信サーバーを起動したことを global-teardown.ts に伝えるマーカー。
+// setup が実際に起動した preview の pid を global-teardown.ts に伝えるマーカー。
 // globalSetup と globalTeardown は別のモジュール評価になりうるため、
 // モジュールスコープの変数ではなくファイル（.astro/ 配下。git 管理外）で受け渡す。
+// pid まで記録するのは、teardown が「今動いている preview の pid」と一致するとき
+// だけ止める形にするため（レビュー C2。古いマーカーや他人の preview を誤って
+// 止めない）。
 const STARTED_MARKER = fileURLToPath(
   new URL('../../.astro/e2e-preview-started-by-setup', import.meta.url),
 );
 
+/** astro preview の status/start の --json 出力から動作中の message を取り出す。動いていなければ null。 */
+function parsePreviewMessage(output: string): string | null {
+  try {
+    const { message } = JSON.parse(output.trim()) as { message?: unknown };
+    if (typeof message !== 'string' || message.includes('No preview server is running')) {
+      return null;
+    }
+    return message;
+  } catch {
+    return null;
+  }
+}
+
+function parsePreviewPid(output: string): number | null {
+  const match = parsePreviewMessage(output)?.match(/pid (\d+)/);
+  return match?.[1] ? Number(match[1]) : null;
+}
+
 // astro preview status は起動有無にかかわらず終了コード 0 で返る（実測。バージョンで
-// 変わりうるため頼らない）。--json で固定した出力の message を見て判定し、判定できない
-// （コマンド自体が失敗するなど）ときは「動いていない」側に倒し、起動を試みる。
+// 変わりうるため頼らない）。--json で固定した出力の message を見て判定する。
+// これは「同じプロジェクト root で別ポートに preview が動いている」場合
+// （--port が無視されて 60 秒タイムアウトになる）を早く落とすための補助チェックで、
+// 別 root・別プロセスがポートを占有しているケースは検出できない
+// （isPortOccupied で見る。レビュー C1）。
 function isPreviewAlreadyRunning(): boolean {
   let output: string;
   try {
@@ -24,9 +49,17 @@ function isPreviewAlreadyRunning(): boolean {
   } catch {
     return false;
   }
+  return parsePreviewMessage(output) !== null;
+}
+
+// baseURL（このリポジトリの preview が使うポート）に何か応答するプロセスがいれば、
+// astro 以外の別プロセス・別ディレクトリの配信サーバーであっても占有とみなす。
+// astro preview status はプロジェクト root ごとのロックしか見ないため、これが無いと
+// 別プロセスの静的サーバーをすり抜けて検査してしまう（レビュー C1 の実測）。
+async function isPortOccupied(): Promise<boolean> {
   try {
-    const { message } = JSON.parse(output.trim()) as { message?: unknown };
-    return typeof message === 'string' && !message.includes('No preview server is running');
+    await fetch(baseURL, { signal: AbortSignal.timeout(PORT_CHECK_TIMEOUT_MS) });
+    return true;
   } catch {
     return false;
   }
@@ -71,9 +104,9 @@ async function waitForServerReady(): Promise<void> {
 }
 
 export default async function globalSetup(): Promise<void> {
-  if (isPreviewAlreadyRunning()) {
+  if (isPreviewAlreadyRunning() || (await isPortOccupied())) {
     throw new Error(
-      '既に別の astro preview サーバーが動いている。このリポジトリの dist とは限らないため、' +
+      '既に別の配信サーバーが動いている。このリポジトリの dist とは限らないため、' +
         '検査を開始せずに終了する。`pnpm exec astro preview stop` で停止してから再実行すること。',
     );
   }
@@ -89,7 +122,12 @@ export default async function globalSetup(): Promise<void> {
   execSync(`pnpm exec astro preview --port ${PORT} --host 127.0.0.1 --background`, {
     stdio: 'inherit',
   });
+
+  // 起動した preview 自身の pid を記録する（teardown が「今動いている preview の
+  // pid」と照合するため。レビュー C2）。
+  const statusOutput = execSync('pnpm exec astro preview status --json', { encoding: 'utf-8' });
+  const pid = parsePreviewPid(statusOutput);
   mkdirSync(dirname(STARTED_MARKER), { recursive: true });
-  writeFileSync(STARTED_MARKER, '');
+  writeFileSync(STARTED_MARKER, JSON.stringify({ pid }));
   await waitForServerReady();
 }
