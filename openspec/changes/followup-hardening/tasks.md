@@ -46,7 +46,7 @@
 - [x] 4.1 `tests/e2e/paths.ts` に検査対象の 9 パスを 1 つ置き、`a11y.spec.ts` と `network.spec.ts` の両方がそれを読む形にする。`pnpm e2e` で `network.spec.ts` の件数が 5 から 9 に増え、すべて緑であることを出力で確認する
 - [x] 4.2 `tests/e2e/global-setup.ts` を、起動前に `pnpm exec astro preview status` を確認して既に動いていれば起動せず例外を投げる形にする（メッセージに `pnpm exec astro preview stop` を含める）。`tests/e2e/global-teardown.ts` は自分が起動したときだけ停止する。別ポートで先にプレビューを起動した状態で `pnpm e2e` が非 0 で終わり、そのプレビューが生き残っていることを実行して確認する
 - [x] 4.3 `tests/e2e/pages.spec.ts` の hreflang の検査に対応づけの固定を足す（`hreflang="ja"` の href が `/ja/…`、`en` が `/en/…`、`x-default` が `ja` と同じ）。`dist` の href を 1 本書き換えると落ちることを隔離実行で示す
-- [ ] 4.4 `tests/e2e/links.spec.ts` の `const dist = 'dist'` の cwd 依存をリポジトリルート基準に直し、別ディレクトリから `pnpm exec playwright test` を起動しても落ちないことを実行して確認する
+- [x] 4.4 `tests/e2e/links.spec.ts` の `const dist = 'dist'` の cwd 依存をリポジトリルート基準に直し、別ディレクトリから `pnpm exec playwright test` を起動しても落ちないことを実行して確認する
 - [ ] 4.5 `.github/workflows/deploy.yml` の `permissions` を job 単位に下ろす（`build` は `contents: read`、`deploy` は `pages: write` と `id-token: write`）。PR 作成後に deploy が動かないことを確認し、マージ後の deploy 実行の成否を PR にコメントする
 
 ## 5. base と弱い assert（単位 D に含める）
