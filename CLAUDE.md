@@ -4,7 +4,7 @@
 
 現在のフェーズ: **v1 公開済み（2026-09-21）**。公開 URL は `https://joe-yama.github.io/portfolio/`（`astro.config.ts` の `site: 'https://joe-yama.github.io'` + `base: '/portfolio'`。独自ドメインは使わず `public/CNAME` も作らない。PO 決定 2026-09-21）。**プロフィールと経歴は PO 本人の実データ**（2026-09-21、Change 6 で差し替え。出典は本人の公開 LinkedIn で、掲載範囲は PO が項目ごとに決定済み。実名・勤務先・職歴・資格・論文が公開 URL に載っている）。**写真はサンプルのまま 2 枚**（差し替えは PO 待ち）。`main` への push で `.github/workflows/deploy.yml` が GitHub Pages へ公開する（Pages は `build_type=workflow` で有効化済み）。`main` には ruleset（PR 必須 + CI 必須、required status check は CI の job 名 `check`）があるので、**`main` への直接 push はできない。変更は必ず PR で行う**（CI の job 名 `check` を変えると以後どの PR もマージできなくなる）。
 
-ハーネス構築完了（2026-09-17）、設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` を PO 承認・レビュー反映済み（2026-09-17、Change 2 の決定を 2026-09-18 に反映、公開先の決定を 2026-09-21 に反映）。`docs/HANDOFF.md` §3 のセットアップ手順は再実行しない。**Change 1〜5 はすべてマージ・アーカイブ済み**（`openspec/changes/archive/`、main spec は `openspec/specs/{content-schema,deployment,i18n-routing,layout-shell,photo-pipeline,profile-and-career,quality-gates}` の 7 つ）:
+ハーネス構築完了（2026-09-17）、設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` を PO 承認・レビュー反映済み（2026-09-17、Change 2 の決定を 2026-09-18 に反映、公開先の決定を 2026-09-21 に反映）。`docs/HANDOFF.md` §3 のセットアップ手順は再実行しない。**Change 1〜7 はすべてマージ・アーカイブ済み**（`openspec/changes/archive/`、main spec は `openspec/specs/{content-schema,deployment,i18n-routing,layout-shell,photo-pipeline,profile-and-career,quality-gates,sitemap}` の 8 つ）:
 
 - Change 1 `project-foundation` = PR #2、Change 2 `layout-shell` = PR #4（経緯・裁定・申し送りは Issue #3）
 - Change 2 派生の `harness-ui-review`（Issue #6）= PR #7（reviewer の `tools` に Playwright MCP 11 個。UI は reviewer 自身が実操作する）、`layout-followups`（Issue #5）= PR #9（後続への提案 10 件は `openspec/changes/archive/2026-09-20-layout-followups/tasks.md` の末尾）
@@ -12,6 +12,7 @@
 - Change 4 `profile-and-career`（Issue #13）= PR #14（2026-09-21。トップの連絡先リンクと導線、`/career/`。main spec `profile-and-career` を新規作成）
 - Change 5 `deploy-and-e2e`（Issue #15）= PR #16（2026-09-21。`base` 対応、Playwright e2e 27 件、`deploy.yml`。main spec `deployment` を新規作成し、`i18n-routing` / `layout-shell` / `quality-gates` に delta を統合）
 - Change 6 `real-profile-data`（Issue #18）= PR #19（2026-09-21。プロフィールと経歴を実データに。`validateCareerParity` に `skills` の日英検証を足し、main spec `content-schema` の「経歴の日英の件数一致」を更新）
+- Change 7 `date-precision-and-seo`（Issue #22）= PR #24（2026-09-21。資格・実績の日付に `YYYY-MM` を許して書かれた粒度のまま表示し、`sitemap.xml` と `canonical` と `description` を追加。main spec `sitemap` を新規作成し、`content-schema` / `profile-and-career` / `layout-shell` に delta を統合。後続への提案 14 件は `openspec/changes/archive/2026-09-21-date-precision-and-seo/tasks.md` の末尾）
 
 **v1 リリースの計画・裁定 17 件・実測は `docs/runs/2026-09-21-v1-release.md` と `docs/runs/2026-09-21-v1-release-ledger.md` にある。** Change 4・5 の後続への提案と申し送りは各 `openspec/changes/archive/2026-09-21-*/tasks.md` の末尾。
 
