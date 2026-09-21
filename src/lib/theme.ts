@@ -23,3 +23,33 @@ export function contrast(a: string, b: string): number {
   const darker = Math.min(la, lb);
   return (lighter + 0.05) / (darker + 0.05);
 }
+
+export type Tokens = { bg: string; fg: string; fgMuted: string; line: string };
+
+const TOKEN_NAMES = { bg: 'bg', fg: 'fg', fgMuted: 'fg-muted', line: 'line' } as const;
+
+function parseTokens(block: string, label: string): Tokens {
+  const out = {} as Tokens;
+  for (const [key, cssName] of Object.entries(TOKEN_NAMES) as [keyof Tokens, string][]) {
+    const m = new RegExp(`--${cssName}:\\s*(#[0-9a-fA-F]{3,8})`).exec(block);
+    if (!m) throw new Error(`${label} のブロックに --${cssName} が無い`);
+    out[key] = m[1];
+  }
+  return out;
+}
+
+/** global.css のテキストから :root とダークのブロックのトークンを抜く。読めなければ例外 */
+export function readTokens(css: string): { light: Tokens; dark: Tokens } {
+  const darkBlock = /@media\s*\(prefers-color-scheme:\s*dark\)\s*{\s*:root\s*{([^}]*)}\s*}/.exec(
+    css,
+  );
+  if (!darkBlock) throw new Error('ダークの :root ブロックが見つからない');
+  const withoutDark =
+    css.slice(0, darkBlock.index) + css.slice(darkBlock.index + darkBlock[0].length);
+  const lightBlock = /:root\s*{([^}]*)}/.exec(withoutDark);
+  if (!lightBlock) throw new Error('ライトの :root ブロックが見つからない');
+  return {
+    light: parseTokens(lightBlock[1], 'ライト'),
+    dark: parseTokens(darkBlock[1], 'ダーク'),
+  };
+}
