@@ -60,12 +60,15 @@ achievements:
   - date: "2026-05-01"
     name: AWS All Certifications Engineers
     kind: award
+    url: https://aws.amazon.com/jp/blogs/psa/2026-japan-all-aws-certifications-engineers/
   - date: "2018-03-01"
     name: Hypernym-Hyponym Relation Estimation Considering Bidirectionality and Nonlinearity (ANLP 2018)
     kind: talk
+    url: https://www.anlp.jp/proceedings/annual_meeting/2018/pdf_dir/D4-4.pdf
   - date: "2017-08-31"
     name: "Patent application: Topic Estimation Learning Device and Method (JP 2017-151838A)"
     kind: other
+    url: https://patents.google.com/patent/JP2017151838A/ja
   - date: "2016-12-01"
     name: Distributional Hypernym Generation by Jointly Learning Clusters and Projections (COLING 2016, oral)
     kind: talk
@@ -73,6 +76,8 @@ achievements:
   - date: "2016-03-01"
     name: ANLP Young Researcher Award
     kind: award
+    url: https://www.anlp.jp/award/nenji.html
   - date: "2016-03-01"
     name: Joint Learning of Projections and Clusters for Hypernym-Hyponym Relations (ANLP 2016)
     kind: talk
+    url: https://www.anlp.jp/proceedings/annual_meeting/2016/pdf_dir/B3-4.pdf
