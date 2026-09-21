@@ -3,7 +3,7 @@
 // 言語切り替え（相手の言語名 → 同じページの他言語版）。狭い画面では折り返すだけで
 // 開閉メニューは作らない（JavaScript ゼロ。設計書 §4）
 import type { Locale } from '../lib/i18n';
-import { languageSwitch, navLinks } from '../lib/site';
+import { homePath, languageSwitch, navLinks } from '../lib/site';
 
 interface Props {
   lang: Locale;
@@ -13,15 +13,24 @@ interface Props {
 }
 
 const { lang, name, path, showNav = true } = Astro.props;
-const sw = showNav ? languageSwitch(path, lang) : undefined;
+const base = import.meta.env.BASE_URL;
+const sw = showNav ? languageSwitch(path, lang, base) : undefined;
 ---
 
 <header class="dot">
-  <a class="logo" href={`/${lang}/`}>{name}</a>
+  {
+    showNav ? (
+      <a class="logo" href={homePath(lang, base)}>
+        {name}
+      </a>
+    ) : (
+      <span class="logo">{name}</span>
+    )
+  }
   {
     showNav && (
       <nav>
-        {navLinks(lang).map((link) => <a href={link.href}>{link.label}</a>)}
+        {navLinks(lang, base).map((link) => <a href={link.href}>{link.label}</a>)}
         {sw && (
           <a href={sw.href} hreflang={sw.hreflang} lang={sw.hreflang}>
             {sw.label}

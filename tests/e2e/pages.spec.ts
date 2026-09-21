@@ -1,0 +1,56 @@
+import { expect, test } from '@playwright/test';
+
+const locales = ['ja', 'en'] as const;
+const slug = 'kariya-ferris-wheel';
+
+/** 5 種類 × 2 言語。パスは baseURL からの相対（先頭スラッシュなし） */
+const pagePaths = locales.flatMap((lang) => [
+  `${lang}/`,
+  `${lang}/photos/`,
+  `${lang}/photos/${slug}/`,
+  `${lang}/career/`,
+]);
+
+test('ルートは既定ロケールのトップへ遷移する', async ({ page }) => {
+  await page.goto('./');
+  await expect(page).toHaveURL(/\/portfolio\/ja\/$/);
+});
+
+for (const path of pagePaths) {
+  const lang = path.slice(0, 2);
+
+  test(`${path} が表示され lang と hreflang が正しい`, async ({ page }) => {
+    const response = await page.goto(`./${path}`);
+    expect(response?.status()).toBe(200);
+    await expect(page.locator('html')).toHaveAttribute('lang', lang);
+
+    const alternates = page.locator('link[rel="alternate"][hreflang]');
+    await expect(alternates).toHaveCount(3);
+    for (const href of await alternates.evaluateAll((ls) =>
+      ls.map((l) => l.getAttribute('href') ?? ''),
+    )) {
+      expect(href.startsWith('https://joe-yama.github.io/portfolio/')).toBe(true);
+    }
+  });
+}
+
+test('404 ページが両言語への戻りリンクを持つ', async ({ page }) => {
+  const response = await page.goto('./does-not-exist/');
+  expect(response?.status()).toBe(404);
+  await expect(page.locator('a[href$="/portfolio/ja/"]')).toHaveCount(1);
+  await expect(page.locator('a[href$="/portfolio/en/"]')).toHaveCount(1);
+});
+
+test('言語切り替えは同じページの他言語版へ飛ぶ', async ({ page }) => {
+  await page.goto('./ja/career/');
+  await page.locator('header a[hreflang="en"]').click();
+  await expect(page).toHaveURL(/\/portfolio\/en\/career\/$/);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+});
+
+test('写真は picture として出力される', async ({ page }) => {
+  await page.goto('./ja/photos/');
+  await expect(page.locator('picture').first()).toBeVisible();
+  const sources = page.locator('picture source');
+  expect(await sources.count()).toBeGreaterThan(0);
+});

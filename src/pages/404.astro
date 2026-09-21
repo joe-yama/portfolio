@@ -5,17 +5,20 @@ import PixelArt from '../components/pixel/PixelArt.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { locales } from '../lib/i18n';
 import { lost } from '../lib/pixel';
-import { ui } from '../lib/site';
+import { homePath, ui } from '../lib/site';
+
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title="404" showNav={false}>
+  <h1 class="sr-only">404</h1>
   <div class="art"><PixelArt rows={lost} scale={6} /></div>
   {
     locales.map((lang) => (
       <p lang={lang}>
         <span class="dot">{ui[lang].notFound}</span>
         {' '}
-        <a class="dot" href={`/${lang}/`} hreflang={lang}>
+        <a class="dot" href={homePath(lang, base)} hreflang={lang}>
           {ui[lang].backToTop}
         </a>
       </p>

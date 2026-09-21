@@ -1,4 +1,4 @@
-import { alternatePath, defaultLocale, type Locale, locales, otherLocale } from './i18n';
+import { alternatePath, defaultLocale, type Locale, locales, otherLocale, withBase } from './i18n';
 
 export type AlternateLink = { hreflang: Locale | 'x-default'; href: string };
 export type NavLink = { label: string; href: string };
@@ -11,6 +11,8 @@ type UiStrings = {
   backToGallery: string;
   prevPhoto: string;
   nextPhoto: string;
+  siteNav: string;
+  photoNav: string;
   careerSections: {
     experience: string;
     skills: string;
@@ -29,6 +31,8 @@ export const ui: Record<Locale, UiStrings> = {
     backToGallery: '写真一覧へ',
     prevPhoto: '前の写真',
     nextPhoto: '次の写真',
+    siteNav: 'サイト内の案内',
+    photoNav: '前後の写真',
     careerSections: {
       experience: '職歴',
       skills: 'スキル',
@@ -44,6 +48,8 @@ export const ui: Record<Locale, UiStrings> = {
     backToGallery: 'Back to photos',
     prevPhoto: 'Previous photo',
     nextPhoto: 'Next photo',
+    siteNav: 'Site navigation',
+    photoNav: 'Photo navigation',
     careerSections: {
       experience: 'Experience',
       skills: 'Skills',
@@ -55,23 +61,42 @@ export const ui: Record<Locale, UiStrings> = {
 };
 
 /** hreflang の 3 本。x-default は既定ロケール（ja）と同じ */
-export function alternateLinks(path: string, site: string | URL): AlternateLink[] {
-  const href = (lang: Locale) => new URL(alternatePath(path, lang), site).href;
+export function alternateLinks(path: string, site: string | URL, base: string): AlternateLink[] {
+  const href = (lang: Locale) => new URL(alternatePath(path, lang, base), site).href;
   return [
     ...locales.map((lang) => ({ hreflang: lang, href: href(lang) })),
     { hreflang: 'x-default', href: href(defaultLocale) },
   ];
 }
 
-export function navLinks(lang: Locale): NavLink[] {
+/** そのロケールのトップ */
+export function homePath(lang: Locale, base: string): string {
+  return withBase(`/${lang}/`, base);
+}
+
+/** 写真のギャラリー（slug が null）または個別ページ */
+export function photoPath(slug: string | null, lang: Locale, base: string): string {
+  return withBase(slug === null ? `/${lang}/photos/` : `/${lang}/photos/${slug}/`, base);
+}
+
+/** favicon などの静的アセット */
+export function assetPath(path: string, base: string): string {
+  return withBase(path, base);
+}
+
+export function navLinks(lang: Locale, base: string): NavLink[] {
   return [
-    { label: 'Photos', href: `/${lang}/photos/` },
-    { label: 'Career', href: `/${lang}/career/` },
+    { label: 'Photos', href: photoPath(null, lang, base) },
+    { label: 'Career', href: withBase(`/${lang}/career/`, base) },
   ];
 }
 
 /** 相手の言語名を表示し、同じページの他言語版へ飛ぶリンク */
-export function languageSwitch(path: string, lang: Locale): LanguageSwitch {
+export function languageSwitch(path: string, lang: Locale, base: string): LanguageSwitch {
   const target = otherLocale(lang);
-  return { label: ui[target].languageName, href: alternatePath(path, target), hreflang: target };
+  return {
+    label: ui[target].languageName,
+    href: alternatePath(path, target, base),
+    hreflang: target,
+  };
 }
