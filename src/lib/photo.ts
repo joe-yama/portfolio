@@ -1,6 +1,5 @@
-import type { Exif } from '../content/schemas';
+import type { Exif, PhotoEntry } from '../content/schemas';
 import type { Locale } from './i18n';
-import type { PhotoEntry } from './validate';
 
 /** 撮影情報の 1 行。`Fujifilm X-T5 · XF 23mm F1.4 · f/1.4 · 1/250 · ISO 800`（設計書 §5.1） */
 export function formatExif(exif: Exif): string {

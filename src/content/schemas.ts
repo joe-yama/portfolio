@@ -69,6 +69,7 @@ export const photoSchema = z.object({
   exif: exifSchema,
 });
 export type Photo = z.infer<typeof photoSchema>;
+export type PhotoEntry = { id: string; data: Photo };
 
 export const experienceSchema = z.object({
   from: yearMonth,

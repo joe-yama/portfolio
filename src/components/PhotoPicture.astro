@@ -2,8 +2,8 @@
 // <Picture> を呼ぶ唯一の場所（設計 D2）。用途ごとの幅・形式・読み込み方をここに集め、
 // alt はコンポーネントの中で必ず埋めるので、呼び出し側が書き忘れる経路が無い
 import { inferRemoteSize, Picture } from 'astro:assets';
+import type { PhotoEntry } from '../content/schemas';
 import type { Locale } from '../lib/i18n';
-import type { PhotoEntry } from '../lib/validate';
 
 interface Props {
   photo: PhotoEntry;

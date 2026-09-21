@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { type Exif, PHOTO_BASE_URL } from '../../src/content/schemas';
+import { type Exif, PHOTO_BASE_URL, type PhotoEntry } from '../../src/content/schemas';
 import { formatExif, formatTakenAt, neighbors } from '../../src/lib/photo';
-import type { PhotoEntry } from '../../src/lib/validate';
 
 const exif: Exif = {
   camera: 'Fujifilm X-T5',

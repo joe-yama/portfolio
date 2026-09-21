@@ -1,8 +1,6 @@
 // Task 5 の photo-meta.ts がこのファイルから PLACEHOLDER を読み、そちらは node が直接実行する
 // 経路に乗る。Node の ESM 解決は拡張子を補わないので、ここだけ .ts を明示する（計画の落とし穴 5）
-import { type Career, PHOTO_BASE_URL, type Photo } from '../content/schemas.ts';
-
-export type PhotoEntry = { id: string; data: Photo };
+import { type Career, PHOTO_BASE_URL, type PhotoEntry } from '../content/schemas.ts';
 
 /** 入稿コマンドが title / location / alt に入れる未記入の印 */
 export const PLACEHOLDER = 'TODO:';

@@ -1,7 +1,7 @@
 import { getCollection, getEntry } from 'astro:content';
-import type { Career, Profile } from '../content/schemas';
+import type { Career, PhotoEntry, Profile } from '../content/schemas';
 import type { Locale } from './i18n';
-import { assertValid, type PhotoEntry, validateCareerParity, validatePhotos } from './validate';
+import { assertValid, validateCareerParity, validatePhotos } from './validate';
 
 export async function getProfile(lang: Locale): Promise<Profile> {
   const entry = await getEntry('profile', lang);
