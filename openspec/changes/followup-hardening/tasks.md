@@ -141,10 +141,10 @@
 - `a11y.spec.ts` / `network.spec.ts` が応答ステータスを見ていない（`paths.ts` の slug が将来消えると 404 を検査して黙って緑になる）
 - `pages.spec.ts` の hreflang はロケール接頭辞しか固定していない（全ページがトップを指す出力でも通る。単体テストが押さえているので Minor）
 - 4.4 は `links.spec.ts` しか直っておらず、`global-setup.ts` の `pnpm build` / `astro preview` は cwd 依存のまま
-- `tests/e2e/global-teardown.ts` の `rmSync(STARTED_MARKER)` が pid 照合より前にあるため、同じ worktree で 2 つ目の `pnpm e2e` が占有検出で落ちたとき、実行中の 1 本目のマーカーを消してしまう（破壊はなく、次回実行が明示的に知らせる）
-- `docs/status.md` の「最終更新: 2026-09-21（v1 リリース時点）」「未着手の change は無い」が `docs/changes.md` の「Change 10 は実装中」と矛盾する
-- `docs/changes.md` の Change 10 の要点行が、tasks §3（スキーマ・暦検査・日英パリティ）と §5（base・assert 整理）に触れていない
-- `deploy.yml` のトップレベル `permissions` を消したので、今後 job を足す人が明示を忘れるとリポジトリ既定を継承する（1 行コメントで足りる）
+- ~~`tests/e2e/global-teardown.ts` の `rmSync(STARTED_MARKER)` が pid 照合より前~~ → ブランチ全体レビューで Important に格上げして本 PR で修正済み（`8590ec7`）
+- ~~`docs/status.md` と `docs/changes.md` の矛盾~~ → 本 PR で修正済み（`3955746`）
+- ~~`docs/changes.md` の Change 10 の要点行~~ → 本 PR で修正済み（`3955746`）
+- ~~`deploy.yml` のトップレベル `permissions` 削除の注意~~ → 本 PR でコメントを追加済み（`3955746`）
 - ponytail（`net: -18 lines possible.`）: `isPreviewAlreadyRunning` の補助チェックを消す / マーカーのパス定数を `tests/e2e/preview-marker.ts` に括り出す / `links.spec.ts` と `deploy.yml` のコメントを 1 行に
 
 **ブランチ全体レビュー（単位 E。Critical 0 / Important 2 は本体を修正、以下は Minor）**
