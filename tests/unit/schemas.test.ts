@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   careerSchema,
   PHOTO_BASE_URL,
+  patentSchema,
   photoSchema,
   profileSchema,
 } from '../../src/content/schemas';
@@ -99,11 +100,24 @@ const validCareer = {
   achievements: [
     { date: '2024-10-12', name: '社外勉強会で登壇', kind: 'talk', url: 'https://example.com/talk' },
   ],
+  patents: [
+    {
+      filedAt: '2021-03',
+      title: '発明の名称',
+      number: 'JP2021-123456A',
+      countries: ['JP'],
+    },
+  ],
 };
 
 describe('careerSchema', () => {
   it('正しい経歴データを受け付ける', () => {
     expect(careerSchema.safeParse(validCareer).success).toBe(true);
+  });
+
+  it('patents を持たないと失敗する', () => {
+    const { patents: _omit, ...rest } = validCareer;
+    expect(careerSchema.safeParse(rest).success).toBe(false);
   });
 
   it('experience の bullets は最大 5', () => {
@@ -159,5 +173,45 @@ describe('profileSchema', () => {
   it('tagline を欠くと失敗する', () => {
     const { tagline: _omit, ...rest } = validProfile;
     expect(profileSchema.safeParse(rest).success).toBe(false);
+  });
+});
+
+const validPatent = {
+  filedAt: '2021-03',
+  title: '発明の名称',
+  number: 'JP2021-123456A',
+  countries: ['JP', 'CN'],
+};
+
+describe('patentSchema', () => {
+  it('必須項目が揃えば成功する', () => {
+    expect(patentSchema.safeParse(validPatent).success).toBe(true);
+  });
+
+  it('filedAt が YYYY-MM でなければ失敗する（月なし・日まで）', () => {
+    expect(patentSchema.safeParse({ ...validPatent, filedAt: '2021-3' }).success).toBe(false);
+    expect(patentSchema.safeParse({ ...validPatent, filedAt: '2021-03-15' }).success).toBe(false);
+  });
+
+  it('countries が空配列なら失敗する', () => {
+    expect(patentSchema.safeParse({ ...validPatent, countries: [] }).success).toBe(false);
+  });
+
+  it('number が無ければ失敗する', () => {
+    const { number: _omit, ...rest } = validPatent;
+    expect(patentSchema.safeParse(rest).success).toBe(false);
+  });
+
+  it('title が無ければ失敗する', () => {
+    const { title: _omit, ...rest } = validPatent;
+    expect(patentSchema.safeParse(rest).success).toBe(false);
+  });
+
+  it('url は任意', () => {
+    expect(patentSchema.safeParse(validPatent).success).toBe(true);
+    expect(
+      patentSchema.safeParse({ ...validPatent, url: 'https://patents.google.com/patent/x' })
+        .success,
+    ).toBe(true);
   });
 });

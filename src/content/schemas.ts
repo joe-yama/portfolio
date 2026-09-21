@@ -47,6 +47,15 @@ export const experienceSchema = z.object({
 /** 日付付きの項目（資格・実績の共通部分） */
 const datedItemSchema = z.object({ date: isoDate, name: nonEmpty, url: z.url().optional() });
 
+export const patentSchema = z.object({
+  filedAt: yearMonth,
+  title: nonEmpty,
+  number: nonEmpty,
+  countries: z.array(nonEmpty).min(1),
+  url: z.url().optional(),
+});
+export type Patent = z.infer<typeof patentSchema>;
+
 export const careerSchema = z.object({
   experience: z.array(experienceSchema),
   skills: z.record(nonEmpty, z.array(nonEmpty)),
@@ -54,6 +63,7 @@ export const careerSchema = z.object({
   achievements: z.array(
     datedItemSchema.extend({ kind: z.enum(['talk', 'article', 'award', 'other']) }),
   ),
+  patents: z.array(patentSchema),
 });
 export type Career = z.infer<typeof careerSchema>;
 
