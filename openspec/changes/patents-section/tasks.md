@@ -62,3 +62,12 @@
   - `tests/unit/schemas.test.ts` の「`url` は任意」の 1 つ目の `expect` が「必須項目が揃えば成功する」と同一アサーションで重複
   - ponytail: `sortPatents` の 4 行 JSDoc は 1 行で足りる。`career.test.ts` のフィクスチャの `title: 't'` 6 箇所は並び替えに使わないので削れる（`net: -6 lines possible.`）
 - spec `content-schema` の MUST「`countries` の先頭は `number` が属する国・地域とする」を、ビルド時に検証していない（裁定 R5 で今回は見送り）。`validateCareerParity` とは別の純関数で `countries[0] === number.slice(0, 2)` を検査する案。ただし同族を解決して代表を JP に差し替える後続の change で条件が変わる可能性があるので、そちらと合わせて判断する
+- レビュー（単位 4+5 = 表示と実データ）で出た Minor。いずれも修正ラウンドを起こさず後続へ:
+  - `src/pages/[lang]/career.astro` の特許の `<li>` のマークアップが、先頭 5 件用と `<details>` の中用で**完全に重複**している。片方だけ直すと表示が食い違うが、それを検出するテストは無い。`src/components/PatentItem.astro` に切り出して両方から呼ぶ
+  - `tests/e2e/pages.spec.ts` の「先頭 5 件」の根拠が `> ul > li` の構造依存の件数で、「残り 46 が見えていないこと」を assert していない。`<details open>` を付ける回帰を素通りさせる。`expect(section.locator('li:visible')).toHaveCount(5)` を足す
+  - `sortPatents` → `splitPatents` の**適用順を検証するテストが無い**。逆に書いても件数・summary・リンクの e2e はすべて通る（最古の 5 件が先頭に出ても緑）。先頭の項目の年月を期待する 1 行を足す
+  - `validateCareerParity` は件数しか見ないので、日英で `filedAt` / `countries` が食い違うと並び順が言語間でずれてもビルドは通る（今回のデータは全項目一致を確認済み）
+  - **英語ページのリンク先が Google Patents の日本語 UI（`/ja`）**になっている。英語利用者には `/en` が自然。データ（`patents.json`）由来で日英同値にした結果。PO の判断で後続の change で分ける
+  - e2e のリンク検査が「`li a` の href がすべて Google Patents」だけで、**リンクが名称であること**（年月や番号でないこと）は検査していない
+  - `url` を持たない特許と、`countries` が 2 件以上の特許が実データに 1 件も無いため、「url が無ければリンクにしない」「国数の降順」「`countries` の複数表示」は画面では未検証（ロジックは単体テストで担保）
+  - ponytail: `splitPatents<T>` のジェネリックは呼び出しが 1 箇所なので `Career['patents']` 固定でよい。`career.test.ts` の 6 件と 12 件のテストは同じ経路を 2 回通る（`net: -14 lines possible.`）
