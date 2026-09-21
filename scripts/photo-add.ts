@@ -20,7 +20,9 @@ import sharp from 'sharp';
 import { PHOTO_BASE_URL } from '../src/content/schemas.ts';
 import {
   exifToPhotoMeta,
+  ghFailureMessage,
   hasFeaturedFlag,
+  isReleaseNotFound,
   nextOrder,
   parseOrder,
   renderPhotoYaml,
@@ -37,8 +39,13 @@ function die(message: string): never {
   process.exit(1);
 }
 
+// gh の失敗（未ログイン、ネットワーク断、gh が無いなど）はスタックトレースではなく die の 1 行にする
 function gh(args: string[]): string {
-  return execFileSync('gh', args, { encoding: 'utf8' }).trim();
+  try {
+    return execFileSync('gh', args, { encoding: 'utf8' }).trim();
+  } catch (error) {
+    die(ghFailureMessage(error));
+  }
 }
 
 // gh を一度も呼ばずに判定できるよう、引数解析はアカウント確認より前に行う（spec の手順 1→2）
@@ -91,10 +98,12 @@ const info = await sharp(file)
   .toFile(jpeg);
 console.log(`縮小: ${info.width} x ${info.height}`);
 
-// (5) Release が無ければ作り、asset を上げる（同名は --clobber で差し替え）
+// (5) Release が無ければ作り、asset を上げる（同名は --clobber で差し替え）。
+// 「Release が無い」以外の失敗（未ログインなど）は release create に進まず die で止める
 try {
-  gh(['release', 'view', RELEASE_TAG]);
-} catch {
+  execFileSync('gh', ['release', 'view', RELEASE_TAG], { encoding: 'utf8' });
+} catch (error) {
+  if (!isReleaseNotFound(error)) die(ghFailureMessage(error));
   console.log(`Release ${RELEASE_TAG} を作る`);
   gh([
     'release',

@@ -3,7 +3,9 @@ import {
   exifToPhotoMeta,
   formatShutterSpeed,
   formatTakenAtYmd,
+  ghFailureMessage,
   hasFeaturedFlag,
+  isReleaseNotFound,
   nextOrder,
   type PhotoMeta,
   parseOrder,
@@ -180,5 +182,40 @@ describe('renderPhotoYaml', () => {
   it('引用符を含む値を壊さない', () => {
     const odd = renderPhotoYaml({ ...meta, lens: 'a "b": c' }, 'https://e/x.jpg', 10, true);
     expect(odd).toContain('lens: "a \\"b\\": c"');
+  });
+});
+
+describe('isReleaseNotFound', () => {
+  it('終了コード 1 かつ stderr に release not found を含めば真', () => {
+    expect(isReleaseNotFound({ status: 1, stderr: 'release not found' })).toBe(true);
+  });
+
+  it('終了コードが 1 でも別の理由なら偽', () => {
+    expect(isReleaseNotFound({ status: 1, stderr: 'authentication required' })).toBe(false);
+  });
+
+  it('終了コードが 1 以外なら偽', () => {
+    expect(isReleaseNotFound({ status: 2, stderr: 'release not found' })).toBe(false);
+  });
+
+  it('ENOENT のようなオブジェクトでは偽', () => {
+    expect(isReleaseNotFound({ code: 'ENOENT' })).toBe(false);
+  });
+});
+
+describe('ghFailureMessage', () => {
+  it('ENOENT は gh が無いことを示す 1 行にする', () => {
+    expect(ghFailureMessage({ code: 'ENOENT' })).not.toMatch(/\n/);
+    expect(ghFailureMessage({ code: 'ENOENT' })).toContain('gh');
+  });
+
+  it('stderr があれば先頭行だけを使う', () => {
+    expect(ghFailureMessage({ stderr: 'error: authentication required\nmore detail\n' })).toBe(
+      'error: authentication required',
+    );
+  });
+
+  it('stderr が無ければ message を使う', () => {
+    expect(ghFailureMessage({ message: 'boom' })).toBe('boom');
   });
 });

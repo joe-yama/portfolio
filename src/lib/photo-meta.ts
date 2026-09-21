@@ -115,6 +115,30 @@ export function hasFeaturedFlag(text: string): boolean {
   return /^featured:\s*true\s*$/m.test(text);
 }
 
+/**
+ * gh release view が「Release が無い」ために失敗したものかどうかを判別する。
+ * gh はこの場合、終了コード 1・stderr に release not found を含めて返す。
+ * それ以外の失敗（未ログイン、ネットワーク断など）と区別するために使う
+ */
+export function isReleaseNotFound(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) return false;
+  const { status, stderr } = error as { status?: unknown; stderr?: unknown };
+  return status === 1 && typeof stderr === 'string' && stderr.includes('release not found');
+}
+
+/** execFileSync が投げるエラーから、gh の失敗理由をスタックトレースではない 1 行に整形する */
+export function ghFailureMessage(error: unknown): string {
+  if (typeof error !== 'object' || error === null) return String(error);
+  const { code, stderr, message } = error as {
+    code?: unknown;
+    stderr?: unknown;
+    message?: unknown;
+  };
+  if (code === 'ENOENT') return 'gh コマンドが見つからない（未インストール、または PATH に無い）';
+  if (typeof stderr === 'string' && stderr.trim() !== '') return stderr.trim().split('\n')[0];
+  return typeof message === 'string' ? message : String(error);
+}
+
 /** YAML の二重引用符スカラーは JSON の文字列と同じ規則なので、JSON.stringify で正しく囲める */
 const q = (s: string) => JSON.stringify(s);
 
