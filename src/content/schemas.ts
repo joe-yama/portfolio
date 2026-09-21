@@ -5,15 +5,6 @@ export const PHOTO_BASE_URL = 'https://github.com/joe-yama/portfolio/releases/do
 
 const nonEmpty = z.string().trim().min(1);
 
-/**
- * skills のカテゴリ名。数字だけの文字列は禁止する（JavaScript のオブジェクトは
- * 整数に見えるキーを先頭に繰り上げるため、Object.entries の順が記述順にならない）
- */
-const skillCategoryName = nonEmpty.refine(
-  (s) => !/^\d+$/.test(s),
-  'カテゴリ名が数字だけになっている',
-);
-
 export const localizedSchema = z.object({ ja: nonEmpty, en: nonEmpty });
 export type Localized = z.infer<typeof localizedSchema>;
 
@@ -93,15 +84,32 @@ export const patentSchema = z.object({
 });
 export type Patent = z.infer<typeof patentSchema>;
 
-export const careerSchema = z.object({
-  experience: z.array(experienceSchema),
-  skills: z.record(skillCategoryName, z.array(nonEmpty)),
-  certifications: z.array(datedItemSchema),
-  achievements: z.array(
-    datedItemSchema.extend({ kind: z.enum(['talk', 'article', 'award', 'other']) }),
-  ),
-  patents: z.array(patentSchema),
-});
+export const careerSchema = z
+  .object({
+    experience: z.array(experienceSchema),
+    skills: z.record(nonEmpty, z.array(nonEmpty)),
+    certifications: z.array(datedItemSchema),
+    achievements: z.array(
+      datedItemSchema.extend({ kind: z.enum(['talk', 'article', 'award', 'other']) }),
+    ),
+    patents: z.array(patentSchema),
+  })
+  .superRefine((data, ctx) => {
+    // skills のキー違反は z.record のキースキーマだと invalid_key issue に入れ子で
+    // 入り、Astro は最上位 issue の message しか出さない。superRefine でトップ
+    // レベルの issue にする（レビュー I2）。数字だけのカテゴリ名を禁止する理由は
+    // JavaScript のオブジェクトが整数に見えるキーを先頭に繰り上げ、
+    // Object.entries の順が記述順にならないため
+    for (const key of Object.keys(data.skills)) {
+      if (/^\d+$/.test(key)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['skills', key],
+          message: 'カテゴリ名が数字だけになっている',
+        });
+      }
+    }
+  });
 export type Career = z.infer<typeof careerSchema>;
 
 export const profileSchema = z.object({

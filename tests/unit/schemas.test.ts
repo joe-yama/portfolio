@@ -156,9 +156,17 @@ describe('careerSchema', () => {
     expect(careerSchema.safeParse({ ...validCareer, achievements: [bad] }).success).toBe(false);
   });
 
-  it('skills のカテゴリ名が数字だけだと失敗する', () => {
+  it('skills のカテゴリ名が数字だけだと失敗し、理由をトップレベルの issue で示す', () => {
     const skills = { ...validCareer.skills, '2024': ['TypeScript'] };
-    expect(careerSchema.safeParse({ ...validCareer, skills }).success).toBe(false);
+    const result = careerSchema.safeParse({ ...validCareer, skills });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      // zod v4 の record のキー違反は invalid_key issue に入れ子でメッセージが入り、
+      // Astro は最上位 issue の message しか出さない。superRefine でトップレベルに出す（レビュー I2）
+      expect(
+        result.error.issues.some((i) => i.message === 'カテゴリ名が数字だけになっている'),
+      ).toBe(true);
+    }
   });
 
   it('skills のカテゴリ名は数字を含んでいても文字が混じれば受け付ける', () => {
