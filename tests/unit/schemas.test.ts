@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
+  achievementKindSchema,
   careerSchema,
   PHOTO_BASE_URL,
   patentSchema,
@@ -154,6 +155,10 @@ describe('careerSchema', () => {
   it('achievements の kind は talk / article / award / other のみ', () => {
     const bad = { ...validCareer.achievements[0], kind: 'blog' };
     expect(careerSchema.safeParse({ ...validCareer, achievements: [bad] }).success).toBe(false);
+  });
+
+  it('achievementKindSchema が talk / article / award / other の 4 つを持つ（site.ts と二重定義しないための正本）', () => {
+    expect(achievementKindSchema.options).toEqual(['talk', 'article', 'award', 'other']);
   });
 
   it('skills のカテゴリ名が数字だけだと失敗し、理由をトップレベルの issue で示す', () => {

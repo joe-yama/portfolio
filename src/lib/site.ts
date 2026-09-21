@@ -1,3 +1,4 @@
+import type { AchievementKind } from '../content/schemas';
 import { alternatePath, defaultLocale, type Locale, locales, otherLocale, withBase } from './i18n';
 
 export type AlternateLink = { hreflang: Locale | 'x-default'; href: string };
@@ -20,7 +21,7 @@ type UiStrings = {
     achievements: string;
     patents: string;
   };
-  achievementKind: Record<'talk' | 'article' | 'award' | 'other', string>;
+  achievementKind: Record<AchievementKind, string>;
   /** 特許の折りたたみの見出し。n は折りたたまれている件数 */
   morePatents: (n: number) => string;
   /** 在職中（to が無い）の終わりの表記（design D10） */

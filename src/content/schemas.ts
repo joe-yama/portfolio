@@ -75,6 +75,10 @@ export const experienceSchema = z.object({
 /** 日付付きの項目（資格・実績の共通部分） */
 const datedItemSchema = z.object({ date: datePrecision, name: nonEmpty, url: z.url().optional() });
 
+/** 実績の種別。site.ts の achievementKind とここでの二重定義を避け、ここを正本にする */
+export const achievementKindSchema = z.enum(['talk', 'article', 'award', 'other']);
+export type AchievementKind = z.infer<typeof achievementKindSchema>;
+
 export const patentSchema = z.object({
   filedAt: yearMonth,
   title: nonEmpty,
@@ -89,9 +93,7 @@ export const careerSchema = z
     experience: z.array(experienceSchema),
     skills: z.record(nonEmpty, z.array(nonEmpty)),
     certifications: z.array(datedItemSchema),
-    achievements: z.array(
-      datedItemSchema.extend({ kind: z.enum(['talk', 'article', 'award', 'other']) }),
-    ),
+    achievements: z.array(datedItemSchema.extend({ kind: achievementKindSchema })),
     patents: z.array(patentSchema),
   })
   .superRefine((data, ctx) => {

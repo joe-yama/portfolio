@@ -38,7 +38,7 @@
 - [x] 3.9 `src/lib/career.ts` の粒度判定を `hasDay(date)` 1 か所にまとめ（いまは `dateSortKey` が文字列長 7、`formatDate` がセグメント数 3）、`formatDate` の条件付きスプレッドを 1 行に畳む。`tests/unit/career.test.ts` に「`YYYY-MM` と `YYYY-MM-DD` の両方で `hasDay` と表示が一致する」ケースを足し、`pnpm test` 緑を確認する
 - [x] 3.10 `present`（`現在` / `Present`）を `src/lib/career.ts` から `src/lib/site.ts` の `ui` に移す（design D10）。`formatPeriod` は在職中の文字列を引数で受け取る形にし、`src/pages/[lang]/career.astro` が `ui[lang].present` を渡す。`tests/unit/{career,site}.test.ts` を合わせ、`pnpm test` / `pnpm build` 緑と `dist/ja/career/index.html` に `現在` が残っていることを確認する
 - [x] 3.11 `src/lib/career.ts` の ponytail をまとめて行う（`formatMonth` の `month: lang === 'ja' ? 'long' : 'short'` は死んだ分岐なので `'short'` 固定に、ISO 文字列の `localeCompare` を単純比較に、`[...xs].sort(f)` 3 か所を `xs.toSorted(f)` に）。`pnpm test` が既存のまま緑で、`pnpm build` 後の `dist/ja/career/index.html` と `dist/en/career/index.html` の日付表記が変わっていないことを diff で確認する
-- [ ] 3.12 実績の種別集合（`talk` / `article` / `award` / `other`）が `src/lib/site.ts` と `src/content/schemas.ts` に二重定義されているのを、zod の enum から `z.infer` で導出する形に一本化する。`pnpm typecheck` / `pnpm test` 緑を確認する
+- [x] 3.12 実績の種別集合（`talk` / `article` / `award` / `other`）が `src/lib/site.ts` と `src/content/schemas.ts` に二重定義されているのを、zod の enum から `z.infer` で導出する形に一本化する。`pnpm typecheck` / `pnpm test` 緑を確認する
 - [ ] 3.13 `src/pages/[lang]/career.astro` で、データが 0 件の区画（`experience` / `skills` / `certifications` / `achievements` / `patents`）を見出しごと出さないようにし、`bullets` が空のとき `<ul></ul>` を出さないようにする。`pnpm build` 後の `dist/ja/career/index.html` が現状と変わらないこと（実データはどれも 0 件でない）と、いずれか 1 つを一時的に空にしたビルドで区画が消えることを確認する
 
 ## 4. e2e と CI（単位 D）
