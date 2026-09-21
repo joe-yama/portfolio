@@ -6,9 +6,14 @@ export function sortExperience(experience: Career['experience']): Career['experi
   return [...experience].sort((a, b) => b.from.localeCompare(a.from));
 }
 
+/** 並べ替えの比較キー。年月までの日付はその月の 1 日として扱う（design D2） */
+function dateSortKey(date: string): string {
+  return date.length === 7 ? `${date}-01` : date;
+}
+
 /** 日付を持つ項目を date の新しい順に並べた新しい配列を返す（資格と実績で共用） */
 export function sortByDateDesc<T extends { date: string }>(items: T[]): T[] {
-  return [...items].sort((a, b) => b.date.localeCompare(a.date));
+  return [...items].sort((a, b) => dateSortKey(b.date).localeCompare(dateSortKey(a.date)));
 }
 
 /**
@@ -49,11 +54,15 @@ export function formatPeriod(from: string, to: string | null | undefined, lang: 
   return `${formatMonth(from, lang)} – ${to ? formatMonth(to, lang) : present[lang]}`;
 }
 
-/** 資格・実績の日付。ja: `2023年6月1日`、en: `June 1, 2023` */
+/**
+ * 資格・実績の日付。書かれた粒度のまま出す（design D3）。
+ * ja: `2023年6月1日` / `2025年10月`、en: `June 1, 2023` / `October 2025`
+ */
 export function formatDate(date: string, lang: Locale): string {
+  const hasDay = date.split('-').length === 3;
   return new Intl.DateTimeFormat(lang, {
     year: 'numeric',
     month: 'long',
-    day: 'numeric',
+    ...(hasDay ? { day: 'numeric' } : {}),
   }).format(toLocalDate(date));
 }

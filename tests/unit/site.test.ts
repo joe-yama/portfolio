@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   alternateLinks,
   assetPath,
+  canonicalUrl,
+  careerPath,
   homePath,
   languageSwitch,
   navLinks,
@@ -134,6 +136,37 @@ describe('ui の写真まわりの文言', () => {
       expect(ui.en[key].length).toBeGreaterThan(0);
       expect(ui.ja[key]).not.toBe(ui.en[key]);
     }
+  });
+});
+
+describe('careerPath', () => {
+  it('ロケールごとの経歴のパスを返す', () => {
+    expect(careerPath('ja', '/')).toBe('/ja/career/');
+    expect(careerPath('en', '/portfolio')).toBe('/portfolio/en/career/');
+  });
+});
+
+describe('canonicalUrl', () => {
+  it('base 付きでそのページ自身の絶対 URL を返す', () => {
+    expect(canonicalUrl('/portfolio/en/career/', 'en', 'https://example.com', '/portfolio')).toBe(
+      'https://example.com/portfolio/en/career/',
+    );
+  });
+
+  it('base が無いときはそのまま', () => {
+    expect(canonicalUrl('/ja/', 'ja', 'https://example.com', '/')).toBe('https://example.com/ja/');
+  });
+
+  it('末尾スラッシュを補う', () => {
+    expect(canonicalUrl('/ja/career', 'ja', 'https://example.com', '/')).toBe(
+      'https://example.com/ja/career/',
+    );
+  });
+
+  it('URL オブジェクトの site も受ける', () => {
+    expect(canonicalUrl('/en/photos/', 'en', new URL('https://example.com'), '/')).toBe(
+      'https://example.com/en/photos/',
+    );
   });
 });
 

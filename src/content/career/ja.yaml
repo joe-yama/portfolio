@@ -28,52 +28,52 @@ skills:
   プロダクト・プロセス: [プロダクトオーナー, スクラム, 開発標準化]
   プログラミング言語: [Python, SQL]
 certifications:
-  - date: "2026-05-01"
+  - date: "2026-05"
     name: TOEIC Listening & Reading 900点
-  - date: "2025-10-01"
+  - date: "2025-10"
     name: AWS Certified AI Practitioner
-  - date: "2025-10-01"
+  - date: "2025-10"
     name: AWS Certified CloudOps Engineer - Associate
-  - date: "2025-10-01"
+  - date: "2025-10"
     name: AWS Certified Data Engineer - Associate
-  - date: "2025-10-01"
+  - date: "2025-10"
     name: AWS Certified Developer - Associate
-  - date: "2025-10-01"
+  - date: "2025-10"
     name: AWS Certified DevOps Engineer - Professional
-  - date: "2025-10-01"
+  - date: "2025-10"
     name: AWS Certified Machine Learning Engineer - Associate
-  - date: "2025-10-01"
+  - date: "2025-10"
     name: AWS Certified Advanced Networking - Specialty
-  - date: "2025-10-01"
+  - date: "2025-10"
     name: AWS Certified Security - Specialty
-  - date: "2025-10-01"
+  - date: "2025-10"
     name: AWS Certified Machine Learning - Specialty
-  - date: "2025-09-01"
+  - date: "2025-09"
     name: AWS Certified Cloud Practitioner
-  - date: "2025-04-01"
+  - date: "2025-04"
     name: AWS Certified Solutions Architect - Professional
-  - date: "2025-04-01"
+  - date: "2025-04"
     name: AWS Certified Solutions Architect - Associate
-  - date: "2020-07-01"
+  - date: "2020-07"
     name: Licensed Scrum Master (Scrum Inc.)
 achievements:
-  - date: "2026-05-01"
+  - date: "2026-05"
     name: AWS All Certifications Engineers 認定
     kind: award
     url: https://aws.amazon.com/jp/blogs/psa/2026-japan-all-aws-certifications-engineers/
-  - date: "2018-03-01"
+  - date: "2018-03"
     name: 双方向性と非線形性を考慮した上位語・下位語関係の推定（言語処理学会 第24回年次大会）
     kind: talk
     url: https://www.anlp.jp/proceedings/annual_meeting/2018/pdf_dir/D4-4.pdf
-  - date: "2016-12-01"
+  - date: "2016-12"
     name: Distributional Hypernym Generation by Jointly Learning Clusters and Projections（COLING 2016 口頭発表）
     kind: talk
     url: https://aclanthology.org/C16-1176/
-  - date: "2016-03-01"
+  - date: "2016-03"
     name: 言語処理学会 若手奨励賞
     kind: award
     url: https://www.anlp.jp/award/nenji.html
-  - date: "2016-03-01"
+  - date: "2016-03"
     name: 上位語・下位語の射影関係とそのクラスタの同時学習（言語処理学会 第22回年次大会）
     kind: talk
     url: https://www.anlp.jp/proceedings/annual_meeting/2016/pdf_dir/B3-4.pdf

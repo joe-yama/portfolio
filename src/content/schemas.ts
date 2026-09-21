@@ -15,6 +15,14 @@ const isoDate = z
   .string()
   .regex(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/, 'YYYY-MM-DD 形式で書く');
 
+/** YYYY-MM または YYYY-MM-DD。資格・実績は分かっている粒度で書く（design D1） */
+const datePrecision = z
+  .string()
+  .regex(
+    /^\d{4}-(0[1-9]|1[0-2])(-(0[1-9]|[12]\d|3[01]))?$/,
+    'YYYY-MM または YYYY-MM-DD 形式で書く',
+  );
+
 export const exifSchema = z.object({
   camera: nonEmpty,
   lens: nonEmpty,
@@ -45,7 +53,7 @@ export const experienceSchema = z.object({
 });
 
 /** 日付付きの項目（資格・実績の共通部分） */
-const datedItemSchema = z.object({ date: isoDate, name: nonEmpty, url: z.url().optional() });
+const datedItemSchema = z.object({ date: datePrecision, name: nonEmpty, url: z.url().optional() });
 
 export const patentSchema = z.object({
   filedAt: yearMonth,

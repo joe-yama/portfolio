@@ -32,9 +32,18 @@ describe('sortExperience', () => {
 
 describe('sortByDateDesc', () => {
   it('date の新しい順に並べる', () => {
-    const items = [{ date: '2023-06-01' }, { date: '2024-10-12' }, { date: '2024-01-05' }];
+    // 同じ月の項目を「日付が早いほうを先」に並べて入力する。
+    // 月までで切り詰めるキー（'2024-10'）だと同値になり安定ソートで入力順のまま残るため、
+    // 日単位まで比較できていないと期待値と逆順になり検出できる
+    const items = [
+      { date: '2023-06-01' },
+      { date: '2024-10-02' },
+      { date: '2024-10-12' },
+      { date: '2024-01-05' },
+    ];
     expect(sortByDateDesc(items).map((i) => i.date)).toEqual([
       '2024-10-12',
+      '2024-10-02',
       '2024-01-05',
       '2023-06-01',
     ]);
@@ -44,6 +53,31 @@ describe('sortByDateDesc', () => {
     const items = [{ date: '2023-06-01' }, { date: '2024-10-12' }];
     sortByDateDesc(items);
     expect(items.map((i) => i.date)).toEqual(['2023-06-01', '2024-10-12']);
+  });
+
+  it('年月までの日付をその月の 1 日として並べる', () => {
+    const items = [{ date: '2025-09-30' }, { date: '2025-10' }, { date: '2025-11-01' }];
+    expect(sortByDateDesc(items).map((i) => i.date)).toEqual([
+      '2025-11-01',
+      '2025-10',
+      '2025-09-30',
+    ]);
+  });
+
+  it('同じ位置になる項目は記述順を保つ（年月が先）', () => {
+    const items = [
+      { date: '2016-03', name: 'A' },
+      { date: '2016-03-01', name: 'B' },
+    ];
+    expect(sortByDateDesc(items).map((i) => i.name)).toEqual(['A', 'B']);
+  });
+
+  it('同じ位置になる項目は記述順を保つ（年月日が先）', () => {
+    const items = [
+      { date: '2016-03-01', name: 'B' },
+      { date: '2016-03', name: 'A' },
+    ];
+    expect(sortByDateDesc(items).map((i) => i.name)).toEqual(['B', 'A']);
   });
 });
 
@@ -124,6 +158,19 @@ describe('formatDate', () => {
   it('月初を前月に丸めない', () => {
     expect(formatDate('2024-01-01', 'en')).toBe('January 1, 2024');
   });
+
+  it('年月までの日付は ja で 年月（日を補わない）', () => {
+    expect(formatDate('2025-10', 'ja')).toBe('2025年10月');
+  });
+
+  it('年月までの日付は en で 月 年', () => {
+    expect(formatDate('2025-10', 'en')).toBe('October 2025');
+  });
+
+  it('年月日までの日付はこれまでどおり日まで出す', () => {
+    expect(formatDate('2017-08-31', 'ja')).toBe('2017年8月31日');
+    expect(formatDate('2017-08-31', 'en')).toBe('August 31, 2017');
+  });
 });
 
 describe('負のオフセットの環境でのタイムゾーン退行の検出', () => {
@@ -133,6 +180,7 @@ describe('負のオフセットの環境でのタイムゾーン退行の検出'
     try {
       expect(formatPeriod('2020-01', '2020-01', 'en')).toBe('Jan 2020 – Jan 2020');
       expect(formatDate('2024-01-01', 'en')).toBe('January 1, 2024');
+      expect(formatDate('2025-01', 'en')).toBe('January 2025');
     } finally {
       if (saved === undefined) delete process.env.TZ;
       else process.env.TZ = saved;
