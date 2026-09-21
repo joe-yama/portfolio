@@ -13,5 +13,5 @@
 
 ## 3. 実測
 
-- [ ] 3.1 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、出力を報告に添える
-- [ ] 3.2 `pnpm preview` で日英 4 ページ（`/ja/`、`/en/`、`/ja/career/`、`/en/career/`）を開き、サンプルデータの文字列（`サンプル`、`Sample Inc.`、`例示`、`hello@example.com`）が 1 件も残っていないこと、職歴 4 件・資格 14 件・実績 6 件・スキル 5 カテゴリが日英とも表示されることを確認する
+- [x] 3.1 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、出力を報告に添える
+- [x] 3.2 `pnpm preview` で日英 4 ページ（`/ja/`、`/en/`、`/ja/career/`、`/en/career/`）を開き、サンプルデータの文字列（`サンプル`、`Sample Inc.`、`例示`、`hello@example.com`）が 1 件も残っていないこと、職歴 4 件・資格 14 件・実績 6 件・スキル 5 カテゴリが日英とも表示されることを確認する
