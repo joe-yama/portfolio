@@ -7,7 +7,6 @@ import {
   nextOrder,
   type PhotoMeta,
   parseOrder,
-  type RawExif,
   renderPhotoYaml,
   toSlug,
 } from '../../src/lib/photo-meta';
@@ -107,7 +106,7 @@ describe('nextOrder', () => {
   });
 });
 
-const raw: RawExif = {
+const raw: Record<string, unknown> = {
   DateTimeOriginal: new Date(2025, 10, 3, 5, 30),
   Make: 'FUJIFILM',
   Model: 'X-T5',
@@ -119,11 +118,10 @@ const raw: RawExif = {
 
 describe('exifToPhotoMeta', () => {
   it('必要な項目がそろっていれば変換する', () => {
-    const result = exifToPhotoMeta(raw, 'kamo-river-dawn');
+    const result = exifToPhotoMeta(raw);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.meta).toEqual({
-      slug: 'kamo-river-dawn',
       takenAt: '2025-11-03',
       camera: 'FUJIFILM X-T5',
       lens: 'XF23mmF1.4 R LM WR',
@@ -134,19 +132,19 @@ describe('exifToPhotoMeta', () => {
   });
 
   it('Model が Make で始まるときは重ねない', () => {
-    const result = exifToPhotoMeta({ ...raw, Make: 'NIKON', Model: 'NIKON Z 6' }, 's');
+    const result = exifToPhotoMeta({ ...raw, Make: 'NIKON', Model: 'NIKON Z 6' });
     expect(result.ok && result.meta.camera).toBe('NIKON Z 6');
   });
 
   it('欠けている項目名をすべて挙げる', () => {
-    const result = exifToPhotoMeta({ ...raw, LensModel: undefined, ISO: undefined }, 's');
+    const result = exifToPhotoMeta({ ...raw, LensModel: undefined, ISO: undefined });
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.missing).toEqual(['LensModel', 'ISO']);
   });
 
   it('数値項目が 0 / 負 / NaN のときは欠損として扱う', () => {
-    const r = exifToPhotoMeta({ ...raw, ExposureTime: 0, ISO: Number.NaN, FNumber: -1 }, 's');
+    const r = exifToPhotoMeta({ ...raw, ExposureTime: 0, ISO: Number.NaN, FNumber: -1 });
     expect(r.ok).toBe(false);
     if (r.ok) return;
     expect(r.missing).toEqual(['FNumber', 'ExposureTime', 'ISO']);
@@ -155,7 +153,6 @@ describe('exifToPhotoMeta', () => {
 
 describe('renderPhotoYaml', () => {
   const meta: PhotoMeta = {
-    slug: 'kamo-river-dawn',
     takenAt: '2025-11-03',
     camera: 'FUJIFILM X-T5',
     lens: 'XF23mmF1.4 R LM WR',

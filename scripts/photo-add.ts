@@ -69,7 +69,7 @@ const raw = await exifr.parse(await readFile(file), { translateValues: false });
 if (!raw) die(`EXIF を読めない: ${file}`);
 
 // (3) 足りない項目があれば名前を挙げて中断する
-const result = exifToPhotoMeta(raw, slug);
+const result = exifToPhotoMeta(raw);
 if (!result.ok) die(`EXIF に必要な項目が無い: ${result.missing.join(', ')}`);
 
 // (4) 長辺 2500px 以下・sRGB・品質 90 に変換する。withoutEnlargement で拡大はしない

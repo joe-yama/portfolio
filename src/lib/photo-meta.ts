@@ -2,10 +2,7 @@
 // node が直接実行する経路に乗るので、相対 import には .ts を付ける（Node の ESM 解決は拡張子を補わない）
 import { PLACEHOLDER } from './validate.ts';
 
-export type RawExif = Record<string, unknown>;
-
 export type PhotoMeta = {
-  slug: string;
   /** YYYY-MM-DD */
   takenAt: string;
   camera: string;
@@ -63,10 +60,13 @@ function cameraName(make: string, model: string): string {
   return m.toLowerCase().startsWith(k.toLowerCase()) ? m : `${k} ${m}`;
 }
 
+function isPositiveFinite(v: unknown): v is number {
+  return typeof v === 'number' && Number.isFinite(v) && v > 0;
+}
+
 /** EXIF の生の値 → YAML に書く値。欠けている項目があれば名前を全部挙げて返す */
 export function exifToPhotoMeta(
-  raw: RawExif,
-  slug: string,
+  raw: Record<string, unknown>,
 ): { ok: true; meta: PhotoMeta } | { ok: false; missing: string[] } {
   const missing: string[] = [];
   const takenAt = raw.DateTimeOriginal;
@@ -76,9 +76,6 @@ export function exifToPhotoMeta(
   const aperture = raw.FNumber;
   const exposure = raw.ExposureTime;
   const iso = raw.ISO;
-
-  const isPositiveFinite = (v: unknown): v is number =>
-    typeof v === 'number' && Number.isFinite(v) && v > 0;
 
   if (!(takenAt instanceof Date)) missing.push('DateTimeOriginal');
   if (typeof make !== 'string' || make.trim() === '') missing.push('Make');
@@ -92,7 +89,6 @@ export function exifToPhotoMeta(
   return {
     ok: true,
     meta: {
-      slug,
       takenAt: formatTakenAtYmd(takenAt as Date),
       camera: cameraName(make as string, model as string),
       lens: (lens as string).trim(),
