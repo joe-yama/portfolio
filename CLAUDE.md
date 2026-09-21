@@ -4,7 +4,7 @@
 
 現在のフェーズ: **v1 公開済み（2026-09-21）**。公開 URL は `https://joe-yama.github.io/portfolio/`（`astro.config.ts` の `site: 'https://joe-yama.github.io'` + `base: '/portfolio'`。独自ドメインは使わず `public/CNAME` も作らない。PO 決定 2026-09-21）。**プロフィールと経歴は PO 本人の実データ**（2026-09-21、Change 6 で差し替え。出典は本人の公開 LinkedIn で、掲載範囲は PO が項目ごとに決定済み。実名・勤務先・職歴・資格・論文が公開 URL に載っている）。**写真はサンプルのまま 2 枚**（差し替えは PO 待ち）。`main` への push で `.github/workflows/deploy.yml` が GitHub Pages へ公開する（Pages は `build_type=workflow` で有効化済み）。`main` には ruleset（PR 必須 + CI 必須、required status check は CI の job 名 `check`）があるので、**`main` への直接 push はできない。変更は必ず PR で行う**（CI の job 名 `check` を変えると以後どの PR もマージできなくなる）。
 
-ハーネス構築完了（2026-09-17）、設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` を PO 承認・レビュー反映済み（2026-09-17、Change 2 の決定を 2026-09-18 に反映、公開先の決定を 2026-09-21 に反映）。`docs/HANDOFF.md` §3 のセットアップ手順は再実行しない。**Change 1〜7 はすべてマージ・アーカイブ済み**（`openspec/changes/archive/`、main spec は `openspec/specs/{content-schema,deployment,i18n-routing,layout-shell,photo-pipeline,profile-and-career,quality-gates,sitemap}` の 8 つ）:
+ハーネス構築完了（2026-09-17）、設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` を PO 承認・レビュー反映済み（2026-09-17、Change 2 の決定を 2026-09-18 に反映、公開先の決定を 2026-09-21 に反映）。`docs/HANDOFF.md` §3 のセットアップ手順は再実行しない。**Change 1〜8 はすべてマージ・アーカイブ済み**（`openspec/changes/archive/`、main spec は `openspec/specs/{content-schema,deployment,i18n-routing,layout-shell,photo-pipeline,profile-and-career,quality-gates,sitemap}` の 8 つ）:
 
 - Change 1 `project-foundation` = PR #2、Change 2 `layout-shell` = PR #4（経緯・裁定・申し送りは Issue #3）
 - Change 2 派生の `harness-ui-review`（Issue #6）= PR #7（reviewer の `tools` に Playwright MCP 11 個。UI は reviewer 自身が実操作する）、`layout-followups`（Issue #5）= PR #9（後続への提案 10 件は `openspec/changes/archive/2026-09-20-layout-followups/tasks.md` の末尾）
@@ -13,6 +13,7 @@
 - Change 5 `deploy-and-e2e`（Issue #15）= PR #16（2026-09-21。`base` 対応、Playwright e2e 27 件、`deploy.yml`。main spec `deployment` を新規作成し、`i18n-routing` / `layout-shell` / `quality-gates` に delta を統合）
 - Change 6 `real-profile-data`（Issue #18）= PR #19（2026-09-21。プロフィールと経歴を実データに。`validateCareerParity` に `skills` の日英検証を足し、main spec `content-schema` の「経歴の日英の件数一致」を更新）
 - Change 7 `date-precision-and-seo`（Issue #22）= PR #24（2026-09-21。資格・実績の日付に `YYYY-MM` を許して書かれた粒度のまま表示し、`sitemap.xml` と `canonical` と `description` を追加。main spec `sitemap` を新規作成し、`content-schema` / `profile-and-career` / `layout-shell` に delta を統合。後続への提案 14 件は `openspec/changes/archive/2026-09-21-date-precision-and-seo/tasks.md` の末尾）
+- Change 8 `patents-section`（Issue #21）= PR #26（2026-09-21。経歴ページに 5 つ目の区画「特許 / Patents」を追加し、**PO 本人の特許 51 件を実データで掲載**。先頭 5 件は常時表示、6 件目以降は `<details>` で展開（JavaScript は使わない）。`patentSchema` と `sortPatents` / `formatMonth` / `splitPatents` を追加し、`validateCareerParity` の対象に `patents` を足した。main spec `content-schema` / `profile-and-career` に delta を統合。**掲載内容の確認依頼と裁定は Issue #21 のコメント**、後続への提案 16 件は `openspec/changes/archive/2026-09-21-patents-section/tasks.md` の末尾）
 
 **v1 リリースの計画・裁定 17 件・実測は `docs/runs/2026-09-21-v1-release.md` と `docs/runs/2026-09-21-v1-release-ledger.md` にある。** Change 4・5 の後続への提案と申し送りは各 `openspec/changes/archive/2026-09-21-*/tasks.md` の末尾。
 
@@ -22,9 +23,9 @@
 
 2026-09-20 に承認プロンプトとターン数を減らすハーネス調整を反映した（ブランチ `fix/harness-autonomy`。実測と設定の一覧は `docs/harness/README.md` §4・§6、hook は `docs/harness/hooks.md` §4）。bypass permissions での無人実行の実測は `docs/harness/README.md` §4（**bypass では `gh pr merge` も `gh api -X POST` もプロンプトなしで通るので、歯止めは権限設定ではなく計画側の条件になる**）。Task 8〜11 を Workflow で実行した結果、従来 12〜16 ターンの範囲を 3 ターンで通せた（`docs/harness/README.md` に追記する候補）。
 
-未着手の change は無い。**サイトマップは PO の手作業で登録が要る**（2026-09-21、Change 7）。`/portfolio/sitemap.xml` は出力しているが、GitHub Pages のプロジェクトサイトではクローラが読む `robots.txt` はドメイン直下（`https://joe-yama.github.io/robots.txt`）だけで `/portfolio/robots.txt` は無視されるため、`robots.txt` からは知らせられない。Google Search Console にサイトマップの URL を直接登録するまで、サイトマップは実質的に効かない。次にやることは PO の指示待ち（候補: 写真の追加・差し替え、OGP と Twitter Card の追加、独自ドメインへの移行 = 設計書 §9 の手順で `base` の削除が必要。ほかに Change 7 が後続へ回した 14 件が `openspec/changes/archive/2026-09-21-date-precision-and-seo/tasks.md` の末尾にある）。残る未決事項（HANDOFF §6、harness README §5）は影響する時点で PO に確認する。
+未着手の change は無い。**サイトマップは PO の手作業で登録が要る**（2026-09-21、Change 7）。`/portfolio/sitemap.xml` は出力しているが、GitHub Pages のプロジェクトサイトではクローラが読む `robots.txt` はドメイン直下（`https://joe-yama.github.io/robots.txt`）だけで `/portfolio/robots.txt` は無視されるため、`robots.txt` からは知らせられない。Google Search Console にサイトマップの URL を直接登録するまで、サイトマップは実質的に効かない。次にやることは PO の指示待ち（候補: **特許の全件取得**（Change 8 が後日に回した分。ローマ字表記 `Josuke Yamane` での発明者検索で US / EP / WO を拾い、同族を解決して JP 公報番号を代表にし `countries` を埋め、日本語の名称を公報の正式名称に置き換える。詳細は `openspec/changes/archive/2026-09-21-patents-section/tasks.md` の末尾）、写真の追加・差し替え、OGP と Twitter Card の追加、独自ドメインへの移行 = 設計書 §9 の手順で `base` の削除が必要。ほかに Change 7 が後続へ回した 14 件と Change 8 の 16 件が各 `tasks.md` の末尾にある）。残る未決事項（HANDOFF §6、harness README §5）は影響する時点で PO に確認する。
 
-**実データを触るときの注意**: 経歴の `skills` は日英でカテゴリ数と各カテゴリの項目数が一致しないとビルドが落ちる（対応づけは `Object.entries` の並び順。カテゴリ名は訳語でよい）。`certifications` と `achievements` は日英で同じ順番に並べる（表示は日付の安定ソートなので、同じ日付の項目は記述順で対応づく）。資格と実績の `date` は分かっている粒度で書く（`YYYY-MM` か `YYYY-MM-DD`。日を `-01` に丸めない）。年月までの日付は並び順ではその月の 1 日として扱われ、同じ位置になる項目は記述順を保つ。
+**実データを触るときの注意**: 経歴の `skills` は日英でカテゴリ数と各カテゴリの項目数が一致しないとビルドが落ちる（対応づけは `Object.entries` の並び順。カテゴリ名は訳語でよい）。`certifications` と `achievements` は日英で同じ順番に並べる（表示は日付の安定ソートなので、同じ日付の項目は記述順で対応づく）。資格と実績の `date` は分かっている粒度で書く（`YYYY-MM` か `YYYY-MM-DD`。日を `-01` に丸めない）。年月までの日付は並び順ではその月の 1 日として扱われ、同じ位置になる項目は記述順を保つ。`patents` も日英で件数が一致しないとビルドが落ちる（`number` / `filedAt` / `countries` / `url` は日英で同じ値にし、`title` だけ言語ごとに変える）。**特許の日本語の名称は暫定**（英語の定型名称から起こしたもの。Change 8 の裁定 D7b）で、US / EP / WO の出願はまだ載っていない。
 
 ## プロジェクト概要
 
