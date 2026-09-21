@@ -38,6 +38,31 @@ describe('sortByDateDesc', () => {
     sortByDateDesc(items);
     expect(items.map((i) => i.date)).toEqual(['2023-06-01', '2024-10-12']);
   });
+
+  it('年月までの日付をその月の 1 日として並べる', () => {
+    const items = [{ date: '2025-09-30' }, { date: '2025-10' }, { date: '2025-11-01' }];
+    expect(sortByDateDesc(items).map((i) => i.date)).toEqual([
+      '2025-11-01',
+      '2025-10',
+      '2025-09-30',
+    ]);
+  });
+
+  it('同じ位置になる項目は記述順を保つ（年月が先）', () => {
+    const items = [
+      { date: '2016-03', name: 'A' },
+      { date: '2016-03-01', name: 'B' },
+    ];
+    expect(sortByDateDesc(items).map((i) => i.name)).toEqual(['A', 'B']);
+  });
+
+  it('同じ位置になる項目は記述順を保つ（年月日が先）', () => {
+    const items = [
+      { date: '2016-03-01', name: 'B' },
+      { date: '2016-03', name: 'A' },
+    ];
+    expect(sortByDateDesc(items).map((i) => i.name)).toEqual(['B', 'A']);
+  });
 });
 
 describe('formatPeriod', () => {

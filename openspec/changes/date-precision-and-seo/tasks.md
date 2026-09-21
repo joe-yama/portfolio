@@ -3,7 +3,7 @@
 ## 1. 日付の粒度
 
 - [x] 1.1 `src/content/schemas.ts` の資格・実績の `date` を `YYYY-MM` と `YYYY-MM-DD` の両方を受ける 1 本の正規表現（design D1）にし、`tests/unit/schemas.test.ts` に受理（`2025-10` / `2017-08-31`）と拒否（`2025` / `2025-10-1` / `2025-13` / `2025-10-32`）のテストを足して `pnpm test` が緑になることを確認する
-- [ ] 1.2 `src/lib/career.ts` の `sortByDateDesc` の比較キーを、`YYYY-MM` のときだけ `-01` を補う形（design D2）にし、`tests/unit/career.test.ts` に「`2025-11-01` → `2025-10` → `2025-09-30` の順に並ぶ」「`2016-03` と `2016-03-01` は記述順を保つ」の 2 件を足して緑になることを確認する
+- [x] 1.2 `src/lib/career.ts` の `sortByDateDesc` の比較キーを、`YYYY-MM` のときだけ `-01` を補う形（design D2）にし、`tests/unit/career.test.ts` に「`2025-11-01` → `2025-10` → `2025-09-30` の順に並ぶ」「`2016-03` と `2016-03-01` は記述順を保つ」の 2 件を足して緑になることを確認する
 - [ ] 1.3 `src/lib/career.ts` の `formatDate` をセグメント数で分岐させ（design D3）、`tests/unit/career.test.ts` に 4 件（`2025-10` の ja / en、`2017-08-31` の ja / en）を足して、年月の表示に `1日` / `1,` が現れないことまで確認する
 - [ ] 1.4 `src/content/career/{ja,en}.yaml` の `certifications` 14 件と `achievements` 5 件を design D8 の表どおり `YYYY-MM` に直す（特許出願の `2017-08-31` は変えない）。`pnpm build` が通り、`grep -c '\-01$'` で意図しない `-01` が残っていないことを確認する
 
