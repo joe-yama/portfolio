@@ -23,111 +23,125 @@ const lang = toLocale(Astro.params.lang);
 const career = await getCareer(lang);
 const t = ui[lang].careerSections;
 const kinds = ui[lang].achievementKind;
+const experience = sortExperience(career.experience);
+const skillEntries = Object.entries(career.skills);
+const certifications = sortByDateDesc(career.certifications);
+const achievements = sortByDateDesc(career.achievements);
 const { head: patentsHead, rest: patentsRest } = splitPatents(sortPatents(career.patents));
 ---
 
 <BaseLayout title="Career">
   <h1>Career</h1>
 
-  <section>
-    <h2>{t.experience}</h2>
-    {
-      sortExperience(career.experience).map((job) => (
-        <article>
-          <p class="muted">{formatPeriod(job.from, job.to, lang, ui[lang].present)}</p>
-          <p class="org">{job.organization}</p>
-          <p class="muted">{job.role}</p>
-          <ul>
-            {job.bullets.map((bullet) => (
-              <li>{bullet}</li>
-            ))}
-          </ul>
-        </article>
-      ))
-    }
-  </section>
+  {
+    experience.length > 0 && (
+      <section>
+        <h2>{t.experience}</h2>
+        {experience.map((job) => (
+          <article>
+            <p class="muted">{formatPeriod(job.from, job.to, lang, ui[lang].present)}</p>
+            <p class="org">{job.organization}</p>
+            <p class="muted">{job.role}</p>
+            {job.bullets.length > 0 && (
+              <ul>
+                {job.bullets.map((bullet) => (
+                  <li>{bullet}</li>
+                ))}
+              </ul>
+            )}
+          </article>
+        ))}
+      </section>
+    )
+  }
 
-  <section>
-    <h2>{t.skills}</h2>
-    {
-      Object.entries(career.skills).map(([category, names]) => (
-        <p>
-          <span class="org">{category}</span> {names.join(', ')}
-        </p>
-      ))
-    }
-  </section>
+  {
+    skillEntries.length > 0 && (
+      <section>
+        <h2>{t.skills}</h2>
+        {skillEntries.map(([category, names]) => (
+          <p>
+            <span class="org">{category}</span> {names.join(', ')}
+          </p>
+        ))}
+      </section>
+    )
+  }
 
-  <section>
-    <h2>{t.certifications}</h2>
-    <ul>
-      {
-        sortByDateDesc(career.certifications).map((item) => (
-          <li>
-            <span class="muted">{formatDate(item.date, lang)}</span>
-            {' · '}
-            {item.url ? <a href={item.url}>{item.name}</a> : item.name}
-          </li>
-        ))
-      }
-    </ul>
-  </section>
+  {
+    certifications.length > 0 && (
+      <section>
+        <h2>{t.certifications}</h2>
+        <ul>
+          {certifications.map((item) => (
+            <li>
+              <span class="muted">{formatDate(item.date, lang)}</span>
+              {' · '}
+              {item.url ? <a href={item.url}>{item.name}</a> : item.name}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
 
-  <section>
-    <h2>{t.achievements}</h2>
-    <ul>
-      {
-        sortByDateDesc(career.achievements).map((item) => (
-          <li>
-            <span class="muted">{formatDate(item.date, lang)}</span>
-            {' · '}
-            <span class="muted">{kinds[item.kind]}</span>
-            {' · '}
-            {item.url ? <a href={item.url}>{item.name}</a> : item.name}
-          </li>
-        ))
-      }
-    </ul>
-  </section>
+  {
+    achievements.length > 0 && (
+      <section>
+        <h2>{t.achievements}</h2>
+        <ul>
+          {achievements.map((item) => (
+            <li>
+              <span class="muted">{formatDate(item.date, lang)}</span>
+              {' · '}
+              <span class="muted">{kinds[item.kind]}</span>
+              {' · '}
+              {item.url ? <a href={item.url}>{item.name}</a> : item.name}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
 
-  <section>
-    <h2>{t.patents}</h2>
-    <ul>
-      {
-        patentsHead.map((p) => (
-          <li>
-            <span class="muted">{formatMonth(p.filedAt, lang)}</span>
-            {' · '}
-            <span class="muted">{p.number}</span>
-            {' · '}
-            {p.url ? <a href={p.url}>{p.title}</a> : p.title}
-            {' · '}
-            <span class="muted">{p.countries.join(', ')}</span>
-          </li>
-        ))
-      }
-    </ul>
-    {
-      patentsRest.length > 0 && (
-        <details>
-          <summary>{ui[lang].morePatents(patentsRest.length)}</summary>
-          <ul>
-            {patentsRest.map((p) => (
-              <li>
-                <span class="muted">{formatMonth(p.filedAt, lang)}</span>
-                {' · '}
-                <span class="muted">{p.number}</span>
-                {' · '}
-                {p.url ? <a href={p.url}>{p.title}</a> : p.title}
-                {' · '}
-                <span class="muted">{p.countries.join(', ')}</span>
-              </li>
-            ))}
-          </ul>
-        </details>
-      )
-    }
-  </section>
+  {
+    career.patents.length > 0 && (
+      <section>
+        <h2>{t.patents}</h2>
+        <ul>
+          {patentsHead.map((p) => (
+            <li>
+              <span class="muted">{formatMonth(p.filedAt, lang)}</span>
+              {' · '}
+              <span class="muted">{p.number}</span>
+              {' · '}
+              {p.url ? <a href={p.url}>{p.title}</a> : p.title}
+              {' · '}
+              <span class="muted">{p.countries.join(', ')}</span>
+            </li>
+          ))}
+        </ul>
+        {patentsRest.length > 0 && (
+          <details>
+            <summary>{ui[lang].morePatents(patentsRest.length)}</summary>
+            <ul>
+              {patentsRest.map((p) => (
+                <li>
+                  <span class="muted">{formatMonth(p.filedAt, lang)}</span>
+                  {' · '}
+                  <span class="muted">{p.number}</span>
+                  {' · '}
+                  {p.url ? <a href={p.url}>{p.title}</a> : p.title}
+                  {' · '}
+                  <span class="muted">{p.countries.join(', ')}</span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
+      </section>
+    )
+  }
 </BaseLayout>
 
 <style>
