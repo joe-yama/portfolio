@@ -55,3 +55,10 @@
 
 - **全件取得の後続 change**（PO 決定 2026-09-21 で後日に回した分）: (1) ローマ字表記 `Josuke Yamane` での発明者検索を通し、US / EP / WO を拾う、(2) 各公報の同族を解決して JP 公報番号を代表にし、`countries` を埋め、同じ発明の行をまとめる（`TWI923233B` と `TW202539941A` が既知の組）、(3) 日本語の発明の名称を公報の正式名称に置き換える（D7b の裁定の解消）、(4) 表 B の US 文献のうち `US12686354`（サイドエアバッグ）が別人かどうかを PO に確認する
 - 印刷用の CSS が無く、`<details>` の中は印刷すると出ない。印刷時に全件を開く CSS（`@media print { details { display: block } summary { display: none } }`）を後続で検討する
+- レビュー（単位 2+3）で出た Minor。いずれも修正ラウンドを起こさず後続へ:
+  - `src/lib/career.ts` の `formatMonth` の `month: lang === 'ja' ? 'long' : 'short'` は、ja では `long` と `short` の出力が同一（ICU）なので **ja 分岐がテストで区別できない**。`month: 'short'` 固定でも spec の両ロケールの期待値を満たす
+  - `tests/unit/validate.test.ts` の `patents` の parity テストが `errors.some(...)` だけで件数を見ておらず、余計なエラーが増えても緑。隣の既存テストは `toHaveLength(2)` で粒度が揃っていない
+  - `tests/unit/career.test.ts` の `patents` フィクスチャがモジュールスコープの共有可変配列。「元の配列を破壊しない」テストが共有状態に依存しているのでファクトリ関数にする
+  - `tests/unit/schemas.test.ts` の「`url` は任意」の 1 つ目の `expect` が「必須項目が揃えば成功する」と同一アサーションで重複
+  - ponytail: `sortPatents` の 4 行 JSDoc は 1 行で足りる。`career.test.ts` のフィクスチャの `title: 't'` 6 箇所は並び替えに使わないので削れる（`net: -6 lines possible.`）
+- spec `content-schema` の MUST「`countries` の先頭は `number` が属する国・地域とする」を、ビルド時に検証していない（裁定 R5 で今回は見送り）。`validateCareerParity` とは別の純関数で `countries[0] === number.slice(0, 2)` を検査する案。ただし同族を解決して代表を JP に差し替える後続の change で条件が変わる可能性があるので、そちらと合わせて判断する
