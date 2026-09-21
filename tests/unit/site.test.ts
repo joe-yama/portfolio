@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   alternateLinks,
-  assetPath,
   canonicalUrl,
   careerPath,
   homePath,
@@ -87,11 +86,6 @@ describe('base 付きのパス生成', () => {
     expect(photoPath(null, 'ja', base)).toBe('/portfolio/ja/photos/');
     expect(photoPath('sunset-dinghies', 'en', base)).toBe('/portfolio/en/photos/sunset-dinghies/');
     expect(photoPath(null, 'ja', '/')).toBe('/ja/photos/');
-  });
-
-  it('assetPath', () => {
-    expect(assetPath('/favicon.svg', base)).toBe('/portfolio/favicon.svg');
-    expect(assetPath('/favicon.svg', '/')).toBe('/favicon.svg');
   });
 
   it('navLinks はすべて base で始まる', () => {

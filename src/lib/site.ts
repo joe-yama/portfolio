@@ -91,11 +91,6 @@ export function photoPath(slug: string | null, lang: Locale, base: string): stri
   return withBase(slug === null ? `/${lang}/photos/` : `/${lang}/photos/${slug}/`, base);
 }
 
-/** favicon などの静的アセット */
-export function assetPath(path: string, base: string): string {
-  return withBase(path, base);
-}
-
 /** ロケールごとの経歴ページ */
 export function careerPath(lang: Locale, base: string): string {
   return withBase(`/${lang}/career/`, base);

@@ -5,8 +5,8 @@ import { Font, getImage } from 'astro:assets';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { getPhotos, getProfile } from '../lib/content';
-import { defaultLocale, localeFromPath } from '../lib/i18n';
-import { alternateLinks, assetPath, canonicalUrl, ogLocale } from '../lib/site';
+import { defaultLocale, localeFromPath, withBase } from '../lib/i18n';
+import { alternateLinks, canonicalUrl, ogLocale } from '../lib/site';
 import '../styles/global.css';
 
 interface Props {
@@ -57,7 +57,7 @@ if (pathLocale) {
     <title>{pageTitle}</title>
     {canonical && <link rel="canonical" href={canonical} />}
     {description && <meta name="description" content={description} />}
-    <link rel="icon" href={assetPath('/favicon.svg', base)} type="image/svg+xml" />
+    <link rel="icon" href={withBase('/favicon.svg', base)} type="image/svg+xml" />
     {alternates.map((link) => <link rel="alternate" hreflang={link.hreflang} href={link.href} />)}
     {canonical && description && ogImage && (
       <>
