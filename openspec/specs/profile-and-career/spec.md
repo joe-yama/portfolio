@@ -11,13 +11,13 @@
 
 #### Scenario: 日本語トップの連絡先
 
-- **WHEN** `profile/ja.yaml` の `links` が `GitHub`（`https://github.com/joe-yama`）と `Email`（`mailto:hello@example.com`）の順で書かれた状態で `/ja/` をビルドする
-- **THEN** 本文に `GitHub` と `Email` がこの順でリンクとして現れ、`href` はそれぞれ `https://github.com/joe-yama` と `mailto:hello@example.com` になる
+- **WHEN** `profile/ja.yaml` の `links` が 2 件（`label` が `A` で `url` が `https://example.com/a`、`label` が `B` で `url` が `https://example.com/b`）の順で書かれた状態で `/ja/` をビルドする
+- **THEN** 本文に `A` と `B` がこの順でリンクとして現れ、`href` はそれぞれ `https://example.com/a` と `https://example.com/b` になる
 
 #### Scenario: 種別を表示しない
 
 - **WHEN** `/en/` を表示する
-- **THEN** 連絡先リンクの文字は `label` だけで、`github` や `email` という種別の文字列は現れない
+- **THEN** 連絡先リンクの文字は `label` だけで、種別を表す文字列は現れない
 
 #### Scenario: 別タブで開かない
 
