@@ -7,6 +7,7 @@ import {
   homePath,
   languageSwitch,
   navLinks,
+  ogLocale,
   photoPath,
   ui,
 } from '../../src/lib/site';
@@ -143,6 +144,13 @@ describe('careerPath', () => {
   it('ロケールごとの経歴のパスを返す', () => {
     expect(careerPath('ja', '/')).toBe('/ja/career/');
     expect(careerPath('en', '/portfolio')).toBe('/portfolio/en/career/');
+  });
+});
+
+describe('ogLocale', () => {
+  it('ja は ja_JP、en は en_US を返す', () => {
+    expect(ogLocale('ja')).toBe('ja_JP');
+    expect(ogLocale('en')).toBe('en_US');
   });
 });
 

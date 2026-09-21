@@ -104,6 +104,11 @@ export function canonicalUrl(path: string, lang: Locale, site: string | URL, bas
   return new URL(alternatePath(path, lang, base), site).href;
 }
 
+/** 共有カードの og:locale（design D3）。地域付きの表記に対応づける */
+export function ogLocale(lang: Locale): string {
+  return lang === 'ja' ? 'ja_JP' : 'en_US';
+}
+
 export function navLinks(lang: Locale, base: string): NavLink[] {
   return [
     { label: 'Photos', href: photoPath(null, lang, base) },
