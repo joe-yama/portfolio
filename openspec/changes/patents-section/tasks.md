@@ -11,9 +11,9 @@
 
 ## 1. 入稿データの整形
 
-- [ ] 1.1 `research/publications.md` の表 A の 51 件から入稿用の中間データ `<scratchpad>/patents.json` を作る。各件に `number`（表の公報番号）、`filedAt`（出願日の年月）、`countries`（番号の先頭 2 文字。`JP` / `CN` / `TW`）、`url`（`https://patents.google.com/patent/<番号>/ja`）、英語の `title`（表の名称）を入れる。件数が 51 であることを確認する
-- [ ] 1.2 各件の日本語の `title` を、英語の定型名称に対応する日本語の定型名称として `patents.json` に足す（design D7b の裁定。`JP6549500B2` と `JP7151181B2` は公報の正式名称が分かっているのでそれを使う）。51 件すべてに日英の `title` が入っていることを確認する
-- [ ] 1.3 `patents.json` から確認用の Markdown の表（日本語名称 / 英語名称 / 番号 / 出願年月 / 国）を作り、`<scratchpad>/patents-table.md` に保存する。日本語名称が暫定であること（D7b）を表の前書きに明記する
+- [x] 1.1 `research/publications.md` の表 A の 51 件から入稿用の中間データ `<scratchpad>/patents.json` を作る。各件に `number`（表の公報番号）、`filedAt`（出願日の年月）、`countries`（番号の先頭 2 文字。`JP` / `CN` / `TW`）、`url`（`https://patents.google.com/patent/<番号>/ja`）、英語の `title`（表の名称）を入れる。件数が 51 であることを確認する
+- [x] 1.2 各件の日本語の `title` を、英語の定型名称に対応する日本語の定型名称として `patents.json` に足す（design D7b の裁定。`JP6549500B2` と `JP7151181B2` は公報の正式名称が分かっているのでそれを使う）。51 件すべてに日英の `title` が入っていることを確認する
+- [x] 1.3 `patents.json` から確認用の Markdown の表（日本語名称 / 英語名称 / 番号 / 出願年月 / 国）を作り、`<scratchpad>/patents-table.md` に保存する。日本語名称が暫定であること（D7b）を表の前書きに明記する
 
 ## 2. スキーマと日英の検証
 
