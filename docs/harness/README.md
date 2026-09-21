@@ -87,6 +87,22 @@ CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `ope
 - `.claude/settings.json` と `.claude/hooks/` への Write は auto mode の分類器が「Self-Modification」として拒否する（2026-09-20 実測。プロンプトではなく拒否）。Agent は完成版を scratchpad に置き、PO が `!` の `cp` で配置するか、manual mode に切り替えて承認する
 - 無人実行は `claude -p --permission-mode auto --permission-prompts none --max-turns N`（プロンプトになる操作は拒否して進む）。sandbox を戻す場合は上の未検証 3 点を先に確かめる
 
+### bypass permissions での無人実行の実測（2026-09-21、v1 リリース）
+
+`/goal <完了条件> or stop after 500 turns` を permission mode = bypass permissions で回し、Change 4・5 の実装から公開までを 1 セッションで通したときの記録（計画・裁定・実測値は `docs/runs/2026-09-21-v1-release.md` と同 ledger）。
+
+- **プロンプトで止まった操作は無かった。** 上の表で `ask` にしている `gh pr merge` と `gh api -X POST`（Pages の有効化）も、bypass では確認なしで通る。つまり「Agent が勝手にマージしない」担保は権限設定ではなく**計画側の条件**（CI 緑 + ブランチ全体レビュー Approved）だけになる。無人実行でこの 2 つを自動化するときは、条件を計画書に明記して ledger に実測を残す
+- **`.claude/hooks/block-destructive.sh` が拒否する操作は bypass でも拒否される**（今回は該当操作を行わなかったので未実測。設定上の性質）
+- **Opus 実装への切り替えは 0 回**（`.claude/rules/review.md` の 3 条件にどちらの change も当たらなかった）。レビューは Opus、実装は Sonnet のまま通った
+- **長い待ちは `echo .` のループではなく、`run_in_background: true` の `sleep` / `gh run watch` で待つ**（PO 指示 2026-09-21）。`until [ -f <file> ]; do sleep 20; done` のようにファイルの出現で待つ形にすると、コントローラーのターンを消費しない
+- **サブエージェントへの「報告ファイルを書いて」という指示がツール側でブロックされた**（「サブエージェントは報告ファイルではなくテキストで結果を返すべき」）。brief では報告をテキストで返させる
+- **ローカルで緑でも CI で落ちる差が 2 件出た**（どちらも e2e の配信まわり）。無人実行では「ローカルの緑」を完了の根拠にせず、CI の実行結果を最終証拠にする
+  1. `astro preview` は対話端末では自動でデーモン化するが、CI（非対話端末）では前景実行になり `execSync` がブロックする → `--background` を明示し、`fetch` で 200 を待つ
+  2. `astro preview` の既定バインド先 `localhost` は ubuntu runner では IPv6 `::1` に解決され、`127.0.0.1` 宛の接続が拒否される → `--host 127.0.0.1` を明示する
+- **CI の job に `timeout-minutes` が無いと、ハング時に既定上限（6 時間）まで回る。** 実際に 20 分で PO が手動停止した。reviewer はこれを Minor として挙げていたが、同じ CI 実行で実損化したので Important に格上げして修正した（`.claude/rules/review.md` の Minor 例外）
+- **Biome は未追跡ファイルも検査する。** scratchpad 代わりに `docs/runs/` へ置いた JSON の整形漏れでローカルの `pnpm lint` が落ちた（CI は未追跡なので緑のまま）。コミット前に気づけたが、そのまま commit していれば CI が赤になっていた
+
+
 ## 5. 未完了・PO 判断待ち
 
 `docs/HANDOFF.md` セクション 6 のうち「Agent に push 権限を与えるか」は 2026-09-20 に決定（feature / fix ブランチは自動、main は確認）。残りは未回答。加えて本セットアップで新たに生じた判断点:

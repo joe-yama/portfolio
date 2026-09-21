@@ -21,7 +21,7 @@ PO 本人の名刺となる Web サイト。役割の優先順位は次のとお
 | 写真の規模 | 厳選数十枚を固定展示。入れ替えは年に数回 |
 | 更新方法 | リポジトリの YAML を編集して push。管理画面なし |
 | 写真の保管 | 画像ファイルは git に入れず、同リポジトリの GitHub Releases（タグ `photos`）の asset として保管。YAML はその URL を参照し、ビルド時に取得する（PO レビュー 2026-09-17） |
-| 公開先 | 個人 GitHub.com の公開リポジトリ `joe-yama/portfolio`。無料枠。独自ドメイン |
+| 公開先 | 個人 GitHub.com の公開リポジトリ `joe-yama/portfolio`。無料枠。**v1 は GitHub Pages の既定 URL `https://joe-yama.github.io/portfolio/`**（`site: 'https://joe-yama.github.io'` + `base: '/portfolio'`。PO 決定 2026-09-21）。独自ドメインは後続 |
 | パッケージマネージャ | pnpm（PO レビュー 2026-09-17。npm は使わない） |
 | 進行管理 | OpenSpec の change 1 つにつき GitHub Issue を 1 つ作り、経過と方針変更を記録。PR は `Closes #N` で紐付け、マージでクローズ（PO レビュー 2026-09-17） |
 | 言語 | 日本語 + 英語の二言語。全ページを両言語で用意 |
@@ -180,7 +180,7 @@ GitHub Release のダウンロード URL（`github.com/.../releases/download/...
 | 進行管理 | change を起こす時点で Agent が GitHub Issue を作り、経過・方針変更・ブロッカーをコメントで記録する。PR 本文に `Closes #N`。運用ルールは `CLAUDE.md` と `.claude/rules/git.md` |
 | Pull Request | `astro check` → Biome → Vitest → ビルド → Playwright e2e。すべて通らないとマージ不可（`main` のブランチ保護は PO が GitHub 上で設定）。マージで Issue が閉じる |
 | `main` へマージ | `withastro/action@v6` でビルド（lockfile から pnpm を自動判別）、`actions/deploy-pages@v5` で GitHub Pages へ公開。ビルド中に Release `photos` から写真を取得する（公開リポジトリなので認証不要） |
-| 独自ドメイン | `public/CNAME` にドメイン名、`astro.config` の `site` に `https://<ドメイン>`、`base` は設定しない。DNS 登録は PO の作業。HTTPS は GitHub Pages が自動発行 |
+| 独自ドメイン | **v1 では使わない**（`public/CNAME` は作らない。PO 決定 2026-09-21）。移行するときは `public/CNAME` にドメイン名を置き、`astro.config` の `site` を `https://<ドメイン>` に変え、**`base` を削除**する（`base` を消し忘れると全リンクが `/portfolio/` 付きのまま 404 になる）。DNS 登録は PO の作業。HTTPS は GitHub Pages が自動発行 |
 | Node / pnpm | Node は `.node-version` で固定（CI と同じ）。パッケージマネージャは pnpm。`package.json` の `packageManager` フィールドでバージョンを固定し、`pnpm-lock.yaml` をコミットする。npm / npx は使わない |
 | 依存 | astro、@astrojs/check + typescript、@biomejs/biome、vitest、@playwright/test（+ axe-core）、exifr、@types/node（devDependencies。`scripts/photo-add.ts` を Node で直接実行する CLI の型検査に使う。ライセンス MIT（DefinitelyTyped）。公開サイトのビルド出力には含まれない。PO 承認 2026-09-20）、sharp（devDependencies。`pnpm photo:add` が入稿時に元画像を長辺 2500px・sRGB・品質 90 の JPEG へ縮小するために使う。ライセンス Apache-2.0。Astro が `astro:assets` の画像最適化に使っている依存でもあり、既に node_modules に入っていた（バージョンは Astro と同じ 0.35.x）。明示的に追加したのは、pnpm の厳格な `node_modules` では自前スクリプトから `import sharp` が解決できないため（実測 `MODULE_NOT_FOUND`）。新たなバイナリのダウンロードは発生しない。公開サイトのビルド出力には含まれない。PO 承認 2026-09-20）。これ以外は追加のたびに PO へ提示 |
 

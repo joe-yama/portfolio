@@ -103,11 +103,11 @@
 - **THEN** 「Photos」「Career」と言語切り替えのリンクは無い
 
 ### Requirement: favicon
-すべてのページは、同一オリジンの SVG ファビコン `/favicon.svg` を `<link rel="icon">` で参照しなければならない（MUST）。`/favicon.svg` はビルド出力に含まれ、ドット絵をベクター図形で表現し、外部の画像やフォントを参照してはならない（MUST NOT）。
+すべてのページは、同一オリジンの SVG ファビコンを `<link rel="icon">` で参照しなければならない（MUST）。参照先のパスは公開時のパス接頭辞を含んでいなければならない（MUST）。ファビコンはビルド出力に含まれ、ドット絵をベクター図形で表現し、外部の画像やフォントを参照してはならない（MUST NOT）。
 
 #### Scenario: ファビコンの出力
 - **WHEN** ビルドする
-- **THEN** `dist/favicon.svg` が存在し、`dist/ja/index.html` と `dist/404.html` に `<link rel="icon" href="/favicon.svg">` が含まれる
+- **THEN** `dist/favicon.svg` が存在し、`dist/ja/index.html` と `dist/404.html` の `<link rel="icon">` の `href` は公開時のパス接頭辞付きのファビコンのパス（接頭辞が `/portfolio` なら `/portfolio/favicon.svg`）である
 
 #### Scenario: ブラウザのコンソール
 - **WHEN** `/ja/` を表示する
