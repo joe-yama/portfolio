@@ -7,16 +7,13 @@
 - **まとめて 1 回**: 5（実データ。件数・並び順・リンクの実測）
 - **必須**: ブランチ全体のレビュー 1 回
 
-1 の調査は他のタスクと依存が無いので、2〜4 と並行して別のサブエージェントで進めてよい。
+調査（旧タスク 1）は Google 側の遮断で完了できず、PO の決定（2026-09-21）で全件取得は後日に回した。**新たな取得は行わず**、`research/publications.md` の表 A（51 件）をそのまま入稿する。経緯と裁定は `design.md` の D7 / D7b。
 
-## 1. 特許の調査
+## 1. 入稿データの整形
 
-- [ ] 1.1 Google Patents の検索 API（`https://patents.google.com/xhr/query?url=q%3Din%3A"<名前>"%26num%3D100`）を**日本語表記 `山根丈亮` とローマ字表記 `Josuke Yamane` の両方**で叩き、結果を `<scratchpad>/patents-ja-name.json` と `<scratchpad>/patents-en-name.json` に保存する。Google は連続アクセスを `503`（`Sorry...`）で弾くので、待ち時間を伸ばしながら再試行する。それぞれの件数と、どちらの表記にしか出ない公報の件数を報告する
-- [ ] 1.2 両方の結果を公報番号で和集合にして `<scratchpad>/patents-raw.json` を作る。各公報に、どちらの表記でヒットしたかの印を残す
-- [ ] 1.3 各公報のページから同族（Worldwide applications）・優先日・日英の発明の名称を取り、`patents-raw.json` に追記する。`503` は間隔を空けて再試行し、取れなかったものは `"resolved": false` を付けて残す
-- [ ] 1.4 同族でまとめ、代表 `number`（JP 優先）・`filedAt`（最も早い出願の年月）・`countries`（代表の国を先頭に）を決めて `<scratchpad>/patents.json` を作る。発明の件数と、未解決のまま残った公報の件数を報告する
-- [ ] 1.5 ローマ字表記だけでヒットし、日本語表記の同族に繋がらなかった発明を `patents.json` で `"needsConfirmation": true` に印を付ける（design D6。同姓同名の混入を避けるため、PO の確認が取れるまで掲載しない）
-- [ ] 1.6 `patents.json` から確認用の Markdown の表（名称 / 番号 / 出願年月 / 国）を作り、`<scratchpad>/patents-table.md` に保存する。`needsConfirmation` の発明は「要確認」として別の表に分ける
+- [ ] 1.1 `research/publications.md` の表 A の 51 件から入稿用の中間データ `<scratchpad>/patents.json` を作る。各件に `number`（表の公報番号）、`filedAt`（出願日の年月）、`countries`（番号の先頭 2 文字。`JP` / `CN` / `TW`）、`url`（`https://patents.google.com/patent/<番号>/ja`）、英語の `title`（表の名称）を入れる。件数が 51 であることを確認する
+- [ ] 1.2 各件の日本語の `title` を、英語の定型名称に対応する日本語の定型名称として `patents.json` に足す（design D7b の裁定。`JP6549500B2` と `JP7151181B2` は公報の正式名称が分かっているのでそれを使う）。51 件すべてに日英の `title` が入っていることを確認する
+- [ ] 1.3 `patents.json` から確認用の Markdown の表（日本語名称 / 英語名称 / 番号 / 出願年月 / 国）を作り、`<scratchpad>/patents-table.md` に保存する。日本語名称が暫定であること（D7b）を表の前書きに明記する
 
 ## 2. スキーマと日英の検証
 
@@ -43,9 +40,9 @@
 
 ## 5. 実データの投入
 
-- [ ] 5.1 `<scratchpad>/patents.json` のうち `needsConfirmation` でない発明から `career/ja.yaml` と `career/en.yaml` の `patents` を生成して置き換える。日英で件数と並び順を一致させる
+- [ ] 5.1 `<scratchpad>/patents.json` から `career/ja.yaml` と `career/en.yaml` の `patents` を生成して置き換える（51 件）。日英で件数と並び順を一致させる
 - [ ] 5.2 `pnpm build` `pnpm test` `pnpm lint` `pnpm typecheck` `pnpm e2e` をすべて実行して緑を確認する
-- [ ] 5.3 `<scratchpad>/patents-table.md` の表を change の Issue にコメントする（`gh issue comment --body-file`）。未解決のまま残った公報と「要確認」の発明があれば同じコメントに書く
+- [ ] 5.3 `<scratchpad>/patents-table.md` の表を change の Issue にコメントする（`gh issue comment --body-file`）。日本語名称が暫定であること（D7b）と、後日に回した全件取得の範囲（`research/publications.md` の「取得できなかったもの」）を同じコメントに書く
 
 ## 6. 仕上げ
 
@@ -56,4 +53,5 @@
 
 <!-- レビューで出た Minor と、実装中に気づいた change 外の改善をここに書く -->
 
+- **全件取得の後続 change**（PO 決定 2026-09-21 で後日に回した分）: (1) ローマ字表記 `Josuke Yamane` での発明者検索を通し、US / EP / WO を拾う、(2) 各公報の同族を解決して JP 公報番号を代表にし、`countries` を埋め、同じ発明の行をまとめる（`TWI923233B` と `TW202539941A` が既知の組）、(3) 日本語の発明の名称を公報の正式名称に置き換える（D7b の裁定の解消）、(4) 表 B の US 文献のうち `US12686354`（サイドエアバッグ）が別人かどうかを PO に確認する
 - 印刷用の CSS が無く、`<details>` の中は印刷すると出ない。印刷時に全件を開く CSS（`@media print { details { display: block } summary { display: none } }`）を後続で検討する
