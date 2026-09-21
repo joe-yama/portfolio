@@ -21,7 +21,7 @@
 - [x] 2.2 `src/content/schemas.ts` に `patentSchema` を追加し、`careerSchema` に `patents` を足す。2.1 が GREEN になることを `pnpm test` で確認する
 - [x] 2.3 `tests/unit/validate.test.ts` に `patents` の件数が日英で違うときにエラー文字列が返る失敗するテストを足す。RED を確認する
 - [x] 2.4 `src/lib/validate.ts` の `validateCareerParity` のキー配列に `patents` を足し、2.3 が GREEN になることを確認する
-- [ ] 2.5 `career/{ja,en}.yaml` の `achievements` から「特許出願: 話題推定学習装置…」を削除し、`patents` に `JP6549500B2`（`filedAt: "2016-02"`、`countries: [JP]`、`url` は Google Patents）を 1 件だけ書く。`pnpm build` が通ることを確認する
+- [x] 2.5 `career/{ja,en}.yaml` の `achievements` から「特許出願: 話題推定学習装置…」を削除し、`patents` に `JP6549500B2`（`filedAt: "2016-02"`、`countries: [JP]`、`url` は Google Patents）を 1 件だけ書く。`pnpm build` が通ることを確認する
 
 ## 3. 並び替えと年月の整形
 
