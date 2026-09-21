@@ -53,7 +53,7 @@ if (login !== 'joe-yama') {
 
 const { file, slug: slugArg } = parseArgs(process.argv.slice(2));
 if (!existsSync(file)) die(`ファイルが無い: ${file}`);
-const slug = toSlug(slugArg ?? basename(file));
+const slug = toSlug(basename(file), slugArg);
 
 // (2) EXIF を読む。縮小前の元画像から読む。
 // exifr@7.1.3 のファイルパス経路は fstat を旧 API 形で呼んでおり Node 26 で

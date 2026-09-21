@@ -18,7 +18,22 @@ describe('toSlug', () => {
   });
 
   it('英数字が残らないファイル名は例外にする（--slug を使わせる）', () => {
-    expect(() => toSlug('鴨川.jpg')).toThrow();
+    expect(() => toSlug('鴨川.jpg')).toThrow('--slug');
+  });
+
+  it('--slug が指定されていれば拡張子に見える部分を切り詰めずそのまま使う', () => {
+    expect(toSlug('x.jpg', 'kamo-river-v1.2')).toBe('kamo-river-v1.2');
+  });
+
+  it('--slug の値に英数字が無ければ例外にする（ファイル名由来とは異なる文言で、--slug の案内はしない）', () => {
+    let message = '';
+    try {
+      toSlug('x.jpg', '鴨川');
+    } catch (e) {
+      message = (e as Error).message;
+    }
+    expect(message).toContain('鴨川');
+    expect(message).not.toContain('--slug');
   });
 });
 

@@ -15,8 +15,18 @@ export type PhotoMeta = {
   iso: number;
 };
 
-/** ファイル名 → slug。英数字が残らない場合は --slug を使わせる */
-export function toSlug(fileName: string): string {
+/**
+ * ファイル名または --slug の値 → slug。
+ * --slug が指定されていればその値をそのまま使う（拡張子に見える部分も切り詰めない）。
+ * 指定が無ければファイル名の拡張子を除いて作る。どちらの由来でも英数字が残らない場合は
+ * 例外にする（由来がわかるように文言を変える）
+ */
+export function toSlug(fileName: string, slugArg?: string): string {
+  if (slugArg !== undefined) {
+    if (!/[a-zA-Z0-9]/.test(slugArg))
+      throw new Error(`指定された slug に英数字が無く使えない: ${slugArg}`);
+    return slugArg;
+  }
   const base = fileName.replace(/\.[^.]+$/, '');
   const slug = base
     .toLowerCase()

@@ -8,7 +8,7 @@
 
 ## 1. 写真の入稿（単位 A）
 
-- [ ] 1.1 `tests/unit/photo-meta.test.ts` に `toSlug` の失敗するテストを足す（`--slug` の値は拡張子に見える部分を切り詰めない: `toSlug('x.jpg', 'kamo-river-v1.2')` → `kamo-river-v1.2`。ファイル名由来のときだけ拡張子を除く: `toSlug('DSCF1234.JPG')` → `dscf1234`。英数字が残らないときのエラー文言が由来で変わる）。RED を確認してから `src/lib/photo-meta.ts` を直し、`pnpm test` が緑になることを確認する
+- [x] 1.1 `tests/unit/photo-meta.test.ts` に `toSlug` の失敗するテストを足す（`--slug` の値は拡張子に見える部分を切り詰めない: `toSlug('x.jpg', 'kamo-river-v1.2')` → `kamo-river-v1.2`。ファイル名由来のときだけ拡張子を除く: `toSlug('DSCF1234.JPG')` → `dscf1234`。英数字が残らないときのエラー文言が由来で変わる）。RED を確認してから `src/lib/photo-meta.ts` を直し、`pnpm test` が緑になることを確認する
 - [ ] 1.2 `tests/unit/photo-meta.test.ts` に `parseOrder(text)` と `hasFeaturedFlag(text)` の失敗するテストを足し（`order: 30` を読む / `order:` が無ければ 0 / 先頭が `-` の値 / `featured: true` の有無）、RED を確認してから `src/lib/photo-meta.ts` に実装し、`scripts/photo-add.ts` の正規表現 2 本をこの関数に置き換える。`pnpm test` 緑を確認する
 - [ ] 1.3 `src/lib/photo-meta.ts` の ponytail をまとめて行う（`PhotoMeta.slug` フィールドを消し `exifToPhotoMeta(raw)` の 1 引数にする、`RawExif` 型の別名を消して `Record<string, unknown>` を直接書く、`isPositiveFinite` をモジュールスコープへ出す）。既存テストの期待値を合わせ、`pnpm test` / `pnpm typecheck` 緑を確認する
 - [ ] 1.4 `scripts/photo-add.ts` の手書き引数解析を `node:util` の `parseArgs` に置き換え、GitHub のアカウント確認を引数解析の**後ろ**に移す。引数なしで実行して、`gh` を一度も呼ばずに使い方が出ることを実行して確認する
