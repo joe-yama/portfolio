@@ -36,12 +36,12 @@
 - [x] 4.2 `src/lib/site.ts` に `careerSections.patents` と折りたたみの文言を追加し、4.1 が GREEN になることを確認する
 - [x] 4.3 `src/pages/[lang]/career.astro` に特許の区画を実績の後ろに追加する。先頭 5 件を `<details>` の外、6 件目以降を `<details>` の中に置き、5 件以下なら `<details>` を出さない。各項目に出願年月・公報番号・名称（`url` があればリンク）・出願国を出す
 - [x] 4.4 `tests/e2e/pages.spec.ts` に特許区画の e2e を足す（`/ja/career/` と `/en/career/` に見出しがある、先頭 5 件が展開なしで見える、`<details>` を開くと残りが見える、`url` のある項目だけがリンク）。`pnpm e2e` が通ることを確認する
-- [ ] 4.5 `pnpm build` 後の `dist/ja/career/index.html` に全件の名称が含まれることを確認する（JavaScript なしで到達できること）
+- [x] 4.5 `pnpm build` 後の `dist/ja/career/index.html` に全件の名称が含まれることを確認する（JavaScript なしで到達できること）
 
 ## 5. 実データの投入
 
 - [x] 5.1 `<scratchpad>/patents.json` から `career/ja.yaml` と `career/en.yaml` の `patents` を生成して置き換える（51 件）。日英で件数と並び順を一致させる
-- [ ] 5.2 `pnpm build` `pnpm test` `pnpm lint` `pnpm typecheck` `pnpm e2e` をすべて実行して緑を確認する
+- [x] 5.2 `pnpm build` `pnpm test` `pnpm lint` `pnpm typecheck` `pnpm e2e` をすべて実行して緑を確認する
 - [ ] 5.3 `<scratchpad>/patents-table.md` の表を change の Issue にコメントする（`gh issue comment --body-file`）。日本語名称が暫定であること（D7b）と、後日に回した全件取得の範囲（`research/publications.md` の「取得できなかったもの」）を同じコメントに書く
 
 ## 6. 仕上げ
