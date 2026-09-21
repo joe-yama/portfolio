@@ -50,6 +50,16 @@ describe('readTokens', () => {
     const missing = css.replace('--line: #8f8f8f;', '');
     expect(() => readTokens(missing)).toThrow();
   });
+
+  it('コメントアウトされたトークンは無いものとして例外にする', () => {
+    const commented = css.replace('--line: #8f8f8f;', '/* --line: #8f8f8f; */');
+    expect(() => readTokens(commented)).toThrow();
+  });
+
+  it('再宣言があれば CSS と同じ後勝ちの値を読む', () => {
+    const redeclared = css.replace('--line: #8f8f8f;', '--line: #8f8f8f;\n  --line: #f5f5f5;');
+    expect(readTokens(redeclared).light.line).toBe('#f5f5f5');
+  });
 });
 
 describe('src/styles/global.css の検算', () => {

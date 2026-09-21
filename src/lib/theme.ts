@@ -29,11 +29,15 @@ export type Tokens = { bg: string; fg: string; fgMuted: string; line: string };
 const TOKEN_NAMES = { bg: 'bg', fg: 'fg', fgMuted: 'fg-muted', line: 'line' } as const;
 
 function parseTokens(block: string, label: string): Tokens {
+  const withoutComments = block.replace(/\/\*[\s\S]*?\*\//g, '');
   const out = {} as Tokens;
   for (const [key, cssName] of Object.entries(TOKEN_NAMES) as [keyof Tokens, string][]) {
-    const m = new RegExp(`--${cssName}:\\s*(#[0-9a-fA-F]{3,8})`).exec(block);
-    if (!m) throw new Error(`${label} のブロックに --${cssName} が無い`);
-    out[key] = m[1];
+    const matches = [
+      ...withoutComments.matchAll(new RegExp(`--${cssName}:\\s*(#[0-9a-fA-F]{3,8})`, 'g')),
+    ];
+    const last = matches.at(-1);
+    if (!last) throw new Error(`${label} のブロックに --${cssName} が無い`);
+    out[key] = last[1];
   }
   return out;
 }
