@@ -18,9 +18,6 @@
 
 ## 写真を差し替えるとき
 
-同じ slug で `pnpm photo:add` を再実行するときは 2 点に注意する:
-
-1. **温かいキャッシュでは古い画像がビルド出力に残る**（Astro のバグ）。`node_modules/.astro/assets` を消してからビルドする
-2. **既存の YAML が無条件に上書きされ**、手で書いた `title` / `location` / `alt` が `TODO:` に戻る。ビルドは止まるので気づける。`git checkout -- <yaml>` で復旧する
+同じ slug で `pnpm photo:add` を再実行すると、既存の YAML データファイルは書き換えずに画像の登録だけを行って終了する（`title` / `location` / `alt` は手で書いた内容のまま残る）。その経路でだけ `node_modules/.astro/assets` も消すので、古い画像がビルド出力に残る問題も自動で避けられる（新規入稿の経路では消さない）。
 
 写真ファイルは git に入れず GitHub Releases（タグ `photos`）に置く。詳細は設計書 §5。

@@ -1,6 +1,6 @@
 # change の履歴
 
-Change 1〜9 はすべてマージ・アーカイブ済み。**正本は `openspec/changes/archive/<name>/` と GitHub の Issue / PR** で、この表はその索引。経緯・裁定・後続への提案を追うときは、まず下の「経緯の在り処」を見る。
+Change 1〜9 はすべてマージ・アーカイブ済み。Change 10 `followup-hardening` は実装中（Issue #29。まだマージされていない）。**正本は `openspec/changes/archive/<name>/`（Change 10 は `openspec/changes/followup-hardening/`）と GitHub の Issue / PR** で、この表はその索引。経緯・裁定・後続への提案を追うときは、まず下の「経緯の在り処」を見る。
 
 | # | change | Issue | PR | 日付 | 要点 |
 |---|---|---|---|---|---|
@@ -15,6 +15,7 @@ Change 1〜9 はすべてマージ・アーカイブ済み。**正本は `opensp
 | 7 | `date-precision-and-seo` | #22 | #24 | 2026-09-21 | 資格・実績の日付に `YYYY-MM` を許す。`sitemap.xml` / `canonical` / `description`。main spec `sitemap` を新規作成 |
 | 8 | `patents-section` | #21 | #26 | 2026-09-21 | 経歴ページに「特許 / Patents」区画。実データ 51 件。先頭 5 件は常時表示、6 件目以降は `<details>`（JavaScript は使わない） |
 | 9 | `photo-height-cap` | #23 | #28 | 2026-09-21 | 写真の表示高さの上限を CSS だけで設け、第一画面に名前・肩書・連絡先・導線を収めた。e2e 27 → 45 件 |
+| 10 | `followup-hardening` | #29 | — | 2026-09-22 | 写真入稿の冪等化と引数解析、OGP/Twitter カード、色コントラストの検算、e2e の拡充と CI（deploy.yml）の permissions を job 単位に、404/ヘッダーの細部修正 |
 
 ## 経緯の在り処
 
@@ -27,6 +28,7 @@ Change 1〜9 はすべてマージ・アーカイブ済み。**正本は `opensp
 | 7 | — | `openspec/changes/archive/2026-09-21-date-precision-and-seo/tasks.md` 末尾（14 件） |
 | 8 | Issue #21 のコメント（掲載内容の確認依頼と裁定） | `openspec/changes/archive/2026-09-21-patents-section/tasks.md` 末尾（16 件） |
 | 9 | Issue #23 のコメント（レビュー結果と裁定） | `openspec/changes/archive/2026-09-21-photo-height-cap/tasks.md` 末尾（8 件） |
+| 10 | Issue #29 のコメント | `openspec/changes/followup-hardening/tasks.md` 末尾 |
 
 ## v1 リリース
 
