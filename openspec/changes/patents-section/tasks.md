@@ -11,10 +11,12 @@
 
 ## 1. 特許の調査
 
-- [ ] 1.1 Google Patents の検索 API（`https://patents.google.com/xhr/query?url=q%3Din%3A"山根丈亮"%26num%3D100`）で公報の一覧を取り、`<scratchpad>/patents-raw.json` に公報番号・出願日・名称を保存する。件数が 52 件前後であることを確認する
-- [ ] 1.2 各公報のページから同族（Worldwide applications）・優先日・日英の発明の名称を取り、`patents-raw.json` に追記する。`503` は間隔を空けて再試行し、取れなかったものは `"resolved": false` を付けて残す
-- [ ] 1.3 同族でまとめ、代表 `number`（JP 優先）・`filedAt`（最も早い出願の年月）・`countries`（代表の国を先頭に）を決めて `<scratchpad>/patents.json` を作る。発明の件数と、未解決のまま残った公報の件数を報告する
-- [ ] 1.4 `patents.json` から確認用の Markdown の表（名称 / 番号 / 出願年月 / 国）を作り、`<scratchpad>/patents-table.md` に保存する
+- [ ] 1.1 Google Patents の検索 API（`https://patents.google.com/xhr/query?url=q%3Din%3A"<名前>"%26num%3D100`）を**日本語表記 `山根丈亮` とローマ字表記 `Josuke Yamane` の両方**で叩き、結果を `<scratchpad>/patents-ja-name.json` と `<scratchpad>/patents-en-name.json` に保存する。Google は連続アクセスを `503`（`Sorry...`）で弾くので、待ち時間を伸ばしながら再試行する。それぞれの件数と、どちらの表記にしか出ない公報の件数を報告する
+- [ ] 1.2 両方の結果を公報番号で和集合にして `<scratchpad>/patents-raw.json` を作る。各公報に、どちらの表記でヒットしたかの印を残す
+- [ ] 1.3 各公報のページから同族（Worldwide applications）・優先日・日英の発明の名称を取り、`patents-raw.json` に追記する。`503` は間隔を空けて再試行し、取れなかったものは `"resolved": false` を付けて残す
+- [ ] 1.4 同族でまとめ、代表 `number`（JP 優先）・`filedAt`（最も早い出願の年月）・`countries`（代表の国を先頭に）を決めて `<scratchpad>/patents.json` を作る。発明の件数と、未解決のまま残った公報の件数を報告する
+- [ ] 1.5 ローマ字表記だけでヒットし、日本語表記の同族に繋がらなかった発明を `patents.json` で `"needsConfirmation": true` に印を付ける（design D6。同姓同名の混入を避けるため、PO の確認が取れるまで掲載しない）
+- [ ] 1.6 `patents.json` から確認用の Markdown の表（名称 / 番号 / 出願年月 / 国）を作り、`<scratchpad>/patents-table.md` に保存する。`needsConfirmation` の発明は「要確認」として別の表に分ける
 
 ## 2. スキーマと日英の検証
 
@@ -41,9 +43,9 @@
 
 ## 5. 実データの投入
 
-- [ ] 5.1 `<scratchpad>/patents.json` から `career/ja.yaml` と `career/en.yaml` の `patents` を生成して置き換える。日英で件数と並び順を一致させる
+- [ ] 5.1 `<scratchpad>/patents.json` のうち `needsConfirmation` でない発明から `career/ja.yaml` と `career/en.yaml` の `patents` を生成して置き換える。日英で件数と並び順を一致させる
 - [ ] 5.2 `pnpm build` `pnpm test` `pnpm lint` `pnpm typecheck` `pnpm e2e` をすべて実行して緑を確認する
-- [ ] 5.3 `<scratchpad>/patents-table.md` の表を change の Issue にコメントする（`gh issue comment --body-file`）。未解決のまま残った公報があれば同じコメントに書く
+- [ ] 5.3 `<scratchpad>/patents-table.md` の表を change の Issue にコメントする（`gh issue comment --body-file`）。未解決のまま残った公報と「要確認」の発明があれば同じコメントに書く
 
 ## 6. 仕上げ
 
