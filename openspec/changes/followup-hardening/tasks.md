@@ -124,7 +124,7 @@
 - `src/content/schemas.ts` の `isCalendarDate` は `new Date(y, m-1, d)` を使うため、年 0001〜0099 が常に「暦に存在しない日」になる
 - `src/lib/validate.ts` の比較は文字列の完全一致なので、ja `2025-10` / en `2025-10-01` は並び替えキーとしては同値なのにビルドが落ちる（安全側）
 - `tests/unit/schemas.test.ts` のクォート検査が `startsWith('"')` なので、YAML として正当な単一引用符 `'2025-12-06'` だとテストだけが落ちる
-- 3.13（0 件の区画を出さない）に自動の番人が無い。`/ja/career/` の `<section>` 数を e2e で固定するのが最小の手当て
+- ~~3.13（0 件の区画を出さない）に自動の番人が無い~~ → ブランチ全体レビューで Important に格上げして本 PR で修正済み（`f5700c0`。`/ja/career/` と `/en/career/` の `<section>` 数と `h2` を e2e で固定）
 - ponytail（`net: -25 lines possible.`）: `validate.ts` の比較 3 重複を `[key, keyOf]` の表 1 本に / `theme.ts` の `TOKEN_NAMES` の恒等写像 / `export type Tokens` は誰も import していない / `isoDate` と `datePrecision` の refine 本体の重複 / `theme.test.ts` の `cases` の `name` 列
 
 **base・弱い assert・表示の細部（単位 D の一部）**
@@ -160,3 +160,9 @@
 - **タスク 1.8 の実測は公開 Release への再アップロードではなく、`PATH` 上の偽 `gh` で行った**（コントローラーの裁定）。Release の公開アセットは sharp が EXIF を落としており、それを入稿に渡すと EXIF 不足で中断して差し替え経路に到達しないため。PO 本人の元画像で 1 回実測すると、spec の Scenario「差し替え後のビルドで古い版が残らない」まで確かめられる
 - **`deploy.yml` の job 単位 permissions はマージ後の deploy 実行でしか確かめられない。** 失敗すると公開が止まるので、マージ直後に Actions を見る必要がある（GitHub 公式の starter workflow と同じ分割なので確度は高い）
 - **新しい占有検出（ポートへの fetch）は macOS でのみ実測。** CI（ubuntu）での初回通過は PR の CI が最終証拠
+
+### ブランチ全体レビューの再レビューで出た Minor（後続へ）
+
+- `tests/e2e/global-teardown.ts` の停止条件が環境変数の実行 ID に依存するので、将来 globalSetup と globalTeardown が別プロセスで走る構成（シャーディングなど）にすると preview が止まらず残る。残っても次回実行が占有検出で明示的に落とすので安全側
+- `tests/e2e/pages.spec.ts` の区画の検査は `ui` を実装から import しているため、見出しを改名すると page とテストが同時に変わる（見出し文言の変異は検知しない）。狙いの「区画が消える」は `toHaveCount(5)` が独立に守っている
+- 実装者の報告の精度（`.superpowers/sdd/tasks/task-D1-report.md` の「直さなかったもの」に、実際には直した 3 件が残っている）
