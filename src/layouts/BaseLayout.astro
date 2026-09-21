@@ -6,7 +6,7 @@ import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { getProfile } from '../lib/content';
 import { defaultLocale, localeFromPath } from '../lib/i18n';
-import { alternateLinks, assetPath } from '../lib/site';
+import { alternateLinks, assetPath, canonicalUrl } from '../lib/site';
 import '../styles/global.css';
 
 interface Props {
@@ -24,6 +24,9 @@ const lang = pathLocale ?? defaultLocale;
 const profile = await getProfile(lang);
 if (!Astro.site) throw new Error('astro.config の site が必要（hreflang の絶対 URL に使う）');
 const alternates = pathLocale ? alternateLinks(path, Astro.site, base) : [];
+// canonical と description は hreflang と同じ条件で出す（404 には出さない。design D6）
+const canonical = pathLocale ? canonicalUrl(path, pathLocale, Astro.site, base) : null;
+const description = pathLocale ? profile.tagline : null;
 ---
 
 <!doctype html>
@@ -32,6 +35,8 @@ const alternates = pathLocale ? alternateLinks(path, Astro.site, base) : [];
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title ? `${title} · ${profile.name}` : profile.name}</title>
+    {canonical && <link rel="canonical" href={canonical} />}
+    {description && <meta name="description" content={description} />}
     <link rel="icon" href={assetPath('/favicon.svg', base)} type="image/svg+xml" />
     {alternates.map((link) => <link rel="alternate" hreflang={link.hreflang} href={link.href} />)}
     <Font cssVariable="--font-dot" />

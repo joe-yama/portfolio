@@ -161,3 +161,46 @@ describe('profileSchema', () => {
     expect(profileSchema.safeParse(rest).success).toBe(false);
   });
 });
+
+describe('資格と実績の日付の粒度', () => {
+  const certWith = (date: string) =>
+    careerSchema.safeParse({ ...validCareer, certifications: [{ date, name: '応用情報技術者' }] });
+
+  it('年月まで（YYYY-MM）を受け付ける', () => {
+    expect(certWith('2025-10').success).toBe(true);
+  });
+
+  it('年月日まで（YYYY-MM-DD）を受け付ける', () => {
+    expect(certWith('2017-08-31').success).toBe(true);
+  });
+
+  it.each(['2025', '2025-10-1', '2025-1-01', '2025-13', '2025-00', '2025-10-32', '2025/10', ''])(
+    '%s は受け付けない',
+    (date) => {
+      expect(certWith(date).success).toBe(false);
+    },
+  );
+
+  it('落ちたときのメッセージは 2 つの形式を両方示す', () => {
+    const result = certWith('2025-10-1');
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toBe('YYYY-MM または YYYY-MM-DD 形式で書く');
+    }
+  });
+
+  it('実績の日付も同じ形式を受け付ける', () => {
+    const achievement = { date: '2016-03', name: '登壇', kind: 'talk' as const };
+    expect(careerSchema.safeParse({ ...validCareer, achievements: [achievement] }).success).toBe(
+      true,
+    );
+  });
+
+  it('同じ配列の中で 2 つの形式が混ざってよい', () => {
+    const achievements = [
+      { date: '2026-05', name: 'A', kind: 'award' as const },
+      { date: '2017-08-31', name: 'B', kind: 'other' as const },
+    ];
+    expect(careerSchema.safeParse({ ...validCareer, achievements }).success).toBe(true);
+  });
+});
