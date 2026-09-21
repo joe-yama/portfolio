@@ -11,7 +11,7 @@
 ## 2. 上限を実装する（GREEN）
 
 - [x] 2.1 `src/components/PhotoPicture.astro` の `<Picture>` に変種名のクラスを付け、`picture :global(img.full)` に `width: auto` / `max-width: 100%` / `max-height: var(--photo-max-height, none)` / `margin-inline: auto` を追加する（`grid` 変種の `width: 100%` は変えない）。`pnpm lint` と `pnpm typecheck` が通ることを確認する
-- [ ] 2.2 `src/pages/[lang]/index.astro` の `.hero` に `--photo-max-height: max(12rem, 100svh - 27rem)` を追加する。`pnpm e2e` でタスク 1.1 の検査が緑になることを確認する
+- [x] 2.2 `src/pages/[lang]/index.astro` の `.hero` に `--photo-max-height: max(12rem, 100svh - 27rem)` を追加する。`pnpm e2e` でタスク 1.1 の検査が緑になることを確認する
 - [ ] 2.3 `src/pages/[lang]/photos/[slug].astro` の `figure` に `--photo-max-height: max(12rem, 100svh - 18rem)` を追加する。`pnpm e2e` でタスク 1.2 の検査が緑になることを確認する
 
 ## 3. 番人が本当に番人か確かめる
