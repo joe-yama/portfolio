@@ -6,6 +6,7 @@ import {
   sortByDateDesc,
   sortExperience,
   sortPatents,
+  splitPatents,
 } from '../../src/lib/career';
 
 const experience = [
@@ -110,6 +111,32 @@ describe('sortPatents', () => {
     const before = patents.map((p) => p.number);
     sortPatents(patents);
     expect(patents.map((p) => p.number)).toEqual(before);
+  });
+});
+
+describe('splitPatents', () => {
+  const items = (n: number) => Array.from({ length: n }, (_, i) => i);
+
+  it('4 件なら head に 4 件、rest は空', () => {
+    expect(splitPatents(items(4))).toEqual({ head: items(4), rest: [] });
+  });
+
+  it('5 件なら head に 5 件、rest は空', () => {
+    expect(splitPatents(items(5))).toEqual({ head: items(5), rest: [] });
+  });
+
+  it('6 件なら head に 5 件、rest に 1 件', () => {
+    const result = splitPatents(items(6));
+    expect(result.head).toHaveLength(5);
+    expect(result.rest).toHaveLength(1);
+  });
+
+  it('12 件なら head に 5 件、rest に 7 件', () => {
+    const result = splitPatents(items(12));
+    expect(result.head).toHaveLength(5);
+    expect(result.rest).toHaveLength(7);
+    expect(result.head).toEqual(items(5));
+    expect(result.rest).toEqual(items(12).slice(5));
   });
 });
 

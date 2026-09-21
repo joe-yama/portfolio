@@ -28,6 +28,14 @@ export function sortPatents(patents: Career['patents']): Career['patents'] {
   });
 }
 
+/** 特許の一覧で、操作なしに見せる先頭の件数（spec） */
+const PATENTS_HEAD_COUNT = 5;
+
+/** 先頭 5 件（head）とそれ以降（rest）に分ける。並び替えは呼び出し側の責務 */
+export function splitPatents<T>(patents: T[]): { head: T[]; rest: T[] } {
+  return { head: patents.slice(0, PATENTS_HEAD_COUNT), rest: patents.slice(PATENTS_HEAD_COUNT) };
+}
+
 /** 在職中（to が無い）の終わりの表記 */
 const present: Record<Locale, string> = { ja: '現在', en: 'Present' };
 

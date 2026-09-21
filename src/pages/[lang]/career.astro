@@ -2,7 +2,15 @@
 // 経歴。職歴・スキル・資格・実績の 4 区画。並び替えと整形は career.ts の純関数、
 // 画面の文字列は site.ts の ui に置く（design D1・D2）
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { formatDate, formatPeriod, sortByDateDesc, sortExperience } from '../../lib/career';
+import {
+  formatDate,
+  formatMonth,
+  formatPeriod,
+  sortByDateDesc,
+  sortExperience,
+  sortPatents,
+  splitPatents,
+} from '../../lib/career';
 import { getCareer } from '../../lib/content';
 import { locales, toLocale } from '../../lib/i18n';
 import { ui } from '../../lib/site';
@@ -15,6 +23,7 @@ const lang = toLocale(Astro.params.lang);
 const career = await getCareer(lang);
 const t = ui[lang].careerSections;
 const kinds = ui[lang].achievementKind;
+const { head: patentsHead, rest: patentsRest } = splitPatents(sortPatents(career.patents));
 ---
 
 <BaseLayout title="Career">
@@ -80,6 +89,45 @@ const kinds = ui[lang].achievementKind;
       }
     </ul>
   </section>
+
+  <section>
+    <h2>{t.patents}</h2>
+    <ul>
+      {
+        patentsHead.map((p) => (
+          <li>
+            <span class="muted">{formatMonth(p.filedAt, lang)}</span>
+            {' · '}
+            <span class="muted">{p.number}</span>
+            {' · '}
+            {p.url ? <a href={p.url}>{p.title}</a> : p.title}
+            {' · '}
+            <span class="muted">{p.countries.join(', ')}</span>
+          </li>
+        ))
+      }
+    </ul>
+    {
+      patentsRest.length > 0 && (
+        <details>
+          <summary>{ui[lang].morePatents(patentsRest.length)}</summary>
+          <ul>
+            {patentsRest.map((p) => (
+              <li>
+                <span class="muted">{formatMonth(p.filedAt, lang)}</span>
+                {' · '}
+                <span class="muted">{p.number}</span>
+                {' · '}
+                {p.url ? <a href={p.url}>{p.title}</a> : p.title}
+                {' · '}
+                <span class="muted">{p.countries.join(', ')}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )
+    }
+  </section>
 </BaseLayout>
 
 <style>
@@ -98,5 +146,8 @@ const kinds = ui[lang].achievementKind;
   ul {
     margin: 0.25rem 0 0;
     padding-left: 1.25rem;
+  }
+  details {
+    margin-top: 0.5rem;
   }
 </style>
