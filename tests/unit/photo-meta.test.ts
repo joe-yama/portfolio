@@ -196,7 +196,7 @@ describe('renderPhotoYaml', () => {
     expect(yaml).toContain('image: "https://example.com/kamo-river-dawn.jpg"');
     expect(yaml).toContain('order: 20');
     expect(yaml).toContain('featured: false');
-    expect(yaml).toContain('takenAt: 2025-11-03');
+    expect(yaml).toContain('takenAt: "2025-11-03"');
     expect(yaml).toContain('shutterSpeed: "1/250"');
     expect(yaml).toContain('iso: 800');
   });

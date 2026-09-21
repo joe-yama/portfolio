@@ -62,7 +62,9 @@ export const photoSchema = z.object({
   image: z.url(),
   order: z.number().int(),
   featured: z.boolean().default(false),
-  takenAt: z.union([z.date(), isoDate.transform((s) => new Date(s))]),
+  // 文字列のみ受ける（Date は受けない）。js-yaml はクォート無しの日付を Date に
+  // してしまい、暦の refine を素通りするため、YAML 側でクォートを強制する（レビュー I1）
+  takenAt: isoDate.transform((s) => new Date(s)),
   title: localizedSchema,
   location: localizedSchema,
   alt: localizedSchema,

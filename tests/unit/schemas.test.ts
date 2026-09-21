@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   careerSchema,
@@ -36,13 +38,16 @@ describe('photoSchema', () => {
     expect(photoSchema.parse(rest).featured).toBe(false);
   });
 
-  it('takenAt は Date か YYYY-MM-DD 文字列のみ受け付ける（null / 数値 / 真偽値は拒否）', () => {
+  it('takenAt は YYYY-MM-DD 文字列のみ受け付ける（Date オブジェクト・null / 数値 / 真偽値は拒否）', () => {
     expect(photoSchema.safeParse({ ...validPhoto, takenAt: null }).success).toBe(false);
     expect(photoSchema.safeParse({ ...validPhoto, takenAt: 0 }).success).toBe(false);
     expect(photoSchema.safeParse({ ...validPhoto, takenAt: true }).success).toBe(false);
 
-    const parsedFromDate = photoSchema.parse({ ...validPhoto, takenAt: new Date('2025-11-03') });
-    expect(parsedFromDate.takenAt).toBeInstanceOf(Date);
+    // js-yaml はクォート無しの日付（takenAt: 2025-12-06）を Date にしてしまう。
+    // Date オブジェクトを拒否することで、実データ側にクォートを強制する（I1）
+    expect(photoSchema.safeParse({ ...validPhoto, takenAt: new Date('2025-11-03') }).success).toBe(
+      false,
+    );
 
     const parsedFromString = photoSchema.parse({ ...validPhoto, takenAt: '2025-11-03' });
     expect(parsedFromString.takenAt).toBeInstanceOf(Date);
@@ -274,5 +279,25 @@ describe('資格と実績の日付の粒度', () => {
 
   it('2024-02-29（閏年）は受け付ける', () => {
     expect(certWith('2024-02-29').success).toBe(true);
+  });
+});
+
+describe('実データの takenAt', () => {
+  // js-yaml はクォート無しの日付をパース時に Date へ変えてしまい、photoSchema の
+  // z.date() 経由の暦検査の抜け穴になっていた（レビュー I1）。上流（YAML 側）で
+  // クォートすることでスキーマの文字列専用の検証に必ず通す
+  it('src/content/photos/*.yaml の takenAt はクォートされた文字列で書かれている', () => {
+    const dir = join(process.cwd(), 'src/content/photos');
+    const files = readdirSync(dir).filter((f) => f.endsWith('.yaml'));
+    expect(files.length).toBeGreaterThan(0);
+    for (const file of files) {
+      const text = readFileSync(join(dir, file), 'utf-8');
+      const match = text.match(/^takenAt:\s*(.+)$/m);
+      expect(match, `${file} に takenAt が無い`).not.toBeNull();
+      expect(
+        match?.[1].trim().startsWith('"'),
+        `${file} の takenAt がクォートされていない: ${match?.[1]}`,
+      ).toBe(true);
+    }
   });
 });

@@ -172,7 +172,7 @@ export function renderPhotoYaml(
   return `image: ${q(imageUrl)}
 order: ${order}
 featured: ${featured}
-takenAt: ${meta.takenAt}
+takenAt: ${q(meta.takenAt)}
 title: ${todo('日本語のタイトル', 'English title')}
 location: ${todo('撮影地', 'Location')}
 alt: ${todo('日本語の代替テキスト', 'English alt text')}
