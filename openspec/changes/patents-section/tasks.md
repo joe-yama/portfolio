@@ -25,10 +25,10 @@
 
 ## 3. 並び替えと年月の整形
 
-- [ ] 3.1 `tests/unit/career.test.ts` に `sortPatents` の失敗するテストを足す（国数の降順、同数なら `filedAt` の降順、どちらも同じなら記述順を保つ、元の配列を変更しない）。RED を確認する
-- [ ] 3.2 `src/lib/career.ts` に `sortPatents` を実装し、3.1 が GREEN になることを確認する
-- [ ] 3.3 `tests/unit/career.test.ts` に `formatMonth` の失敗するテストを足す（`2021-03` が ja で `2021年3月`、en で `Mar 2021`）。RED を確認する
-- [ ] 3.4 `src/lib/career.ts` に `formatMonth` を実装し、`formatPeriod` をこの関数を使う形に書き換える。`pnpm test` で既存の `formatPeriod` のテストが緑のままであることを確認する
+- [x] 3.1 `tests/unit/career.test.ts` に `sortPatents` の失敗するテストを足す（国数の降順、同数なら `filedAt` の降順、どちらも同じなら記述順を保つ、元の配列を変更しない）。RED を確認する
+- [x] 3.2 `src/lib/career.ts` に `sortPatents` を実装し、3.1 が GREEN になることを確認する
+- [x] 3.3 `tests/unit/career.test.ts` に `formatMonth` の失敗するテストを足す（`2021-03` が ja で `2021年3月`、en で `Mar 2021`）。RED を確認する
+- [x] 3.4 `src/lib/career.ts` に `formatMonth` を実装し、`formatPeriod` をこの関数を使う形に書き換える。`pnpm test` で既存の `formatPeriod` のテストが緑のままであることを確認する
 
 ## 4. 経歴ページの特許区画
 

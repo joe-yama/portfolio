@@ -11,6 +11,18 @@ export function sortByDateDesc<T extends { date: string }>(items: T[]): T[] {
   return [...items].sort((a, b) => b.date.localeCompare(a.date));
 }
 
+/**
+ * 特許を出願国の数の降順、同数なら filedAt の新しい順に並べた新しい配列を返す。
+ * どちらも同じ項目は記述順を保つ（design D2）
+ */
+export function sortPatents(patents: Career['patents']): Career['patents'] {
+  return [...patents].sort((a, b) => {
+    const byCountryCount = b.countries.length - a.countries.length;
+    if (byCountryCount !== 0) return byCountryCount;
+    return b.filedAt.localeCompare(a.filedAt);
+  });
+}
+
 /** 在職中（to が無い）の終わりの表記 */
 const present: Record<Locale, string> = { ja: '現在', en: 'Present' };
 
@@ -24,14 +36,17 @@ function toLocalDate(value: string): Date {
   return new Date(year, month - 1, day ?? 1);
 }
 
+/** 年月（`YYYY-MM`）の表記。ja: `2021年3月`、en: `Mar 2021` */
+export function formatMonth(value: string, lang: Locale): string {
+  return new Intl.DateTimeFormat(lang, {
+    year: 'numeric',
+    month: lang === 'ja' ? 'long' : 'short',
+  }).format(toLocalDate(value));
+}
+
 /** 職歴の期間。ja: `2020年4月 – 現在`、en: `Apr 2020 – Present` */
 export function formatPeriod(from: string, to: string | null | undefined, lang: Locale): string {
-  const format = (value: string) =>
-    new Intl.DateTimeFormat(lang, {
-      year: 'numeric',
-      month: lang === 'ja' ? 'long' : 'short',
-    }).format(toLocalDate(value));
-  return `${format(from)} – ${to ? format(to) : present[lang]}`;
+  return `${formatMonth(from, lang)} – ${to ? formatMonth(to, lang) : present[lang]}`;
 }
 
 /** 資格・実績の日付。ja: `2023年6月1日`、en: `June 1, 2023` */

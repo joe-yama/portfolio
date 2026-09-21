@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { formatDate, formatPeriod, sortByDateDesc, sortExperience } from '../../src/lib/career';
+import {
+  formatDate,
+  formatMonth,
+  formatPeriod,
+  sortByDateDesc,
+  sortExperience,
+  sortPatents,
+} from '../../src/lib/career';
 
 const experience = [
   {
@@ -37,6 +44,48 @@ describe('sortByDateDesc', () => {
     const items = [{ date: '2023-06-01' }, { date: '2024-10-12' }];
     sortByDateDesc(items);
     expect(items.map((i) => i.date)).toEqual(['2023-06-01', '2024-10-12']);
+  });
+});
+
+const patents = [
+  { number: 'A', filedAt: '2019-10', title: 't', countries: ['JP'] },
+  { number: 'B', filedAt: '2021-03', title: 't', countries: ['JP', 'CN', 'TW'] },
+  { number: 'C', filedAt: '2020-01', title: 't', countries: ['JP', 'CN'] },
+  { number: 'D', filedAt: '2021-03', title: 't', countries: ['JP', 'CN'] },
+  { number: 'E', filedAt: '2021-03', title: 't', countries: ['JP', 'CN'] },
+  { number: 'F', filedAt: '2021-03', title: 't', countries: ['JP', 'CN'] },
+];
+
+describe('sortPatents', () => {
+  it('countries の件数の降順に並べる', () => {
+    const twoOnly = [patents[0], patents[1]];
+    expect(sortPatents(twoOnly).map((p) => p.number)).toEqual(['B', 'A']);
+  });
+
+  it('countries の件数が同じなら filedAt の降順に並べる', () => {
+    const sameCount = [patents[2], patents[3]];
+    expect(sortPatents(sameCount).map((p) => p.number)).toEqual(['D', 'C']);
+  });
+
+  it('countries と filedAt が同じなら記述順を保つ（安定ソート）', () => {
+    const tied = [patents[3], patents[4], patents[5]];
+    expect(sortPatents(tied).map((p) => p.number)).toEqual(['D', 'E', 'F']);
+  });
+
+  it('元の配列を破壊しない', () => {
+    const before = patents.map((p) => p.number);
+    sortPatents(patents);
+    expect(patents.map((p) => p.number)).toEqual(before);
+  });
+});
+
+describe('formatMonth', () => {
+  it('ja は YYYY年M月', () => {
+    expect(formatMonth('2021-03', 'ja')).toBe('2021年3月');
+  });
+
+  it('en は 短縮月 年', () => {
+    expect(formatMonth('2021-03', 'en')).toBe('Mar 2021');
   });
 });
 
