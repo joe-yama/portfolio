@@ -53,7 +53,7 @@ export function validatePhotos(entries: PhotoEntry[]): string[] {
 /** 日英の経歴で、並べて表示する配列の件数が一致すること */
 export function validateCareerParity(ja: Career, en: Career): string[] {
   const errors: string[] = [];
-  for (const key of ['experience', 'certifications', 'achievements'] as const) {
+  for (const key of ['experience', 'certifications', 'achievements', 'patents'] as const) {
     if (ja[key].length !== en[key].length) {
       errors.push(`${key} の件数が日英で違う（ja: ${ja[key].length}, en: ${en[key].length}）`);
     }
