@@ -84,10 +84,23 @@ export function assetPath(path: string, base: string): string {
   return withBase(path, base);
 }
 
+/** ロケールごとの経歴ページ */
+export function careerPath(lang: Locale, base: string): string {
+  return withBase(`/${lang}/career/`, base);
+}
+
+/**
+ * そのページ自身の絶対 URL（design D6）。自分のロケールを alternatePath に渡すと、
+ * 末尾スラッシュと接頭辞が正規化された同じページのパスが返る
+ */
+export function canonicalUrl(path: string, lang: Locale, site: string | URL, base: string): string {
+  return new URL(alternatePath(path, lang, base), site).href;
+}
+
 export function navLinks(lang: Locale, base: string): NavLink[] {
   return [
     { label: 'Photos', href: photoPath(null, lang, base) },
-    { label: 'Career', href: withBase(`/${lang}/career/`, base) },
+    { label: 'Career', href: careerPath(lang, base) },
   ];
 }
 

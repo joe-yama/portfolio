@@ -31,6 +31,11 @@ for (const path of pagePaths) {
     )) {
       expect(href.startsWith('https://joe-yama.github.io/portfolio/')).toBe(true);
     }
+
+    const canonical = page.locator('link[rel="canonical"]');
+    await expect(canonical).toHaveCount(1);
+    await expect(canonical).toHaveAttribute('href', `https://joe-yama.github.io/portfolio/${path}`);
+    await expect(page.locator('meta[name="description"]')).toHaveCount(1);
   });
 }
 
@@ -39,6 +44,8 @@ test('404 ページが両言語への戻りリンクを持つ', async ({ page })
   expect(response?.status()).toBe(404);
   await expect(page.locator('a[href$="/portfolio/ja/"]')).toHaveCount(1);
   await expect(page.locator('a[href$="/portfolio/en/"]')).toHaveCount(1);
+  await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
+  await expect(page.locator('meta[name="description"]')).toHaveCount(0);
 });
 
 test('言語切り替えは同じページの他言語版へ飛ぶ', async ({ page }) => {
