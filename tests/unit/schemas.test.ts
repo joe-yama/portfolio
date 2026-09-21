@@ -48,6 +48,10 @@ describe('photoSchema', () => {
     expect(parsedFromString.takenAt).toBeInstanceOf(Date);
   });
 
+  it('takenAt は暦に存在しない日（2025-02-30）を拒否する', () => {
+    expect(photoSchema.safeParse({ ...validPhoto, takenAt: '2025-02-30' }).success).toBe(false);
+  });
+
   it('image が URL でなければ拒否する', () => {
     expect(photoSchema.safeParse({ ...validPhoto, image: '../../assets/x.jpg' }).success).toBe(
       false,
@@ -224,10 +228,6 @@ describe('資格と実績の日付の粒度', () => {
     expect(certWith('2025-10').success).toBe(true);
   });
 
-  it('年月日まで（YYYY-MM-DD）を受け付ける', () => {
-    expect(certWith('2017-08-31').success).toBe(true);
-  });
-
   it.each(['2025', '2025-10-1', '2025-1-01', '2025-13', '2025-00', '2025-10-32', '2025/10', ''])(
     '%s は受け付けない',
     (date) => {
@@ -256,5 +256,13 @@ describe('資格と実績の日付の粒度', () => {
       { date: '2017-08-31', name: 'B', kind: 'other' as const },
     ];
     expect(careerSchema.safeParse({ ...validCareer, achievements }).success).toBe(true);
+  });
+
+  it.each(['2025-02-30', '2025-11-31'])('%s は暦に存在しないので受け付けない', (date) => {
+    expect(certWith(date).success).toBe(false);
+  });
+
+  it('2024-02-29（閏年）は受け付ける', () => {
+    expect(certWith('2024-02-29').success).toBe(true);
   });
 });

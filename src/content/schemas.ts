@@ -8,20 +8,37 @@ const nonEmpty = z.string().trim().min(1);
 export const localizedSchema = z.object({ ja: nonEmpty, en: nonEmpty });
 export type Localized = z.infer<typeof localizedSchema>;
 
+/** 暦として実在する日か（`2025-02-30` のように形式は合っていても存在しない日を弾く） */
+function isCalendarDate(y: number, m: number, d: number): boolean {
+  const date = new Date(y, m - 1, d);
+  return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+}
+
 /** YYYY-MM */
 const yearMonth = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'YYYY-MM 形式で書く');
-/** YYYY-MM-DD */
+/** YYYY-MM-DD。暦に存在しない日（2025-02-30 など）は refine で弾く */
 const isoDate = z
   .string()
-  .regex(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/, 'YYYY-MM-DD 形式で書く');
+  .regex(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/, 'YYYY-MM-DD 形式で書く')
+  .refine((s) => {
+    const [y, m, d] = s.split('-').map(Number);
+    return isCalendarDate(y, m, d);
+  }, '暦に存在しない日');
 
-/** YYYY-MM または YYYY-MM-DD。資格・実績は分かっている粒度で書く（design D1） */
+/**
+ * YYYY-MM または YYYY-MM-DD。資格・実績は分かっている粒度で書く（design D1）。
+ * YYYY-MM-DD のときだけ、暦に存在しない日（2025-02-30 など）を refine で弾く
+ * （YYYY-MM は月の範囲を正規表現が保証済みなので追加の検査は要らない）
+ */
 const datePrecision = z
   .string()
-  .regex(
-    /^\d{4}-(0[1-9]|1[0-2])(-(0[1-9]|[12]\d|3[01]))?$/,
-    'YYYY-MM または YYYY-MM-DD 形式で書く',
-  );
+  .regex(/^\d{4}-(0[1-9]|1[0-2])(-(0[1-9]|[12]\d|3[01]))?$/, 'YYYY-MM または YYYY-MM-DD 形式で書く')
+  .refine((s) => {
+    const parts = s.split('-').map(Number);
+    if (parts.length === 2) return true;
+    const [y, m, d] = parts;
+    return isCalendarDate(y, m, d);
+  }, '暦に存在しない日');
 
 export const exifSchema = z.object({
   camera: nonEmpty,
