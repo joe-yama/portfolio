@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { ui } from '../../src/lib/site';
 
 const locales = ['ja', 'en'] as const;
 const slug = 'kariya-ferris-wheel';
@@ -168,4 +169,18 @@ test.describe('特許の区画', () => {
       expect(href).toMatch(/^https:\/\/patents\.google\.com\/patent\//);
     }
   });
+});
+
+test.describe('経歴ページの区画', () => {
+  for (const lang of locales) {
+    test(`/${lang}/career/ の main section が 5 本で、見出しが careerSections と一致する`, async ({
+      page,
+    }) => {
+      await page.goto(`./${lang}/career/`);
+      const sections = page.locator('main section');
+      await expect(sections).toHaveCount(5);
+      const headings = await page.locator('main section h2').allTextContents();
+      expect(headings).toEqual(Object.values(ui[lang].careerSections));
+    });
+  }
 });
