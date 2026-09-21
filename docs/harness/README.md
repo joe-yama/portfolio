@@ -63,6 +63,10 @@ CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `ope
 - **Playwright MCP の保存先**: `browser_run_code_unsafe` で（Change 2 の実測。`browser_take_screenshot` も同じ挙動と見られる）相対パスを指定すると、worktree で作業していてもファイルは**メインリポジトリの root** に落ちる。保存先は絶対パスで指定する
 - **worktree セッションの Bash ガード**: `EnterWorktree` で worktree に分離されたセッションでは、**git を含むコマンドのうち「worktree の中に留まると検証できない形」が拒否される**。2026-09-20 の実測: `for f in a b; do echo $f; done; git log --oneline -1 | sed -n '1p'` は `This session is isolated in the worktree ..., but this command names git in a form too complex to verify that it stays inside the worktree. Refusing to run it` で拒否。一方 `git status --short && echo ok`、`git log --oneline -1 | cat`、git を含まない `for` ループ、`sed ... && grep ...` は通った。Change 2 では `sed ... && git ...` と git という語を含む heredoc が拒否されている。同じ worktree を cwd とするサブエージェントのセッションには、この制限はかからない（レビュアーが同じ形を実行できた）。迷ったら git は 1 コマンドずつ実行する
 
+- **`.claude/` 配下の書き分け**: `.claude/agents/` `.claude/rules/` と `CLAUDE.md` は Write / Edit ツールで編集できる。`.claude/settings.json` と `.claude/hooks/` は auto mode の分類器が拒否する（§4 の注意）。サンドボックス内の Bash からはさらに `.claude/skills/` と `.mcp.json` も書き込めない
+- **UI 検証の配信手順**: Playwright MCP は `file:` URL を拒否するので、`pnpm build && pnpm preview` で HTTP 配信する（`http://127.0.0.1:4321/`）。停止は `pnpm exec astro preview stop`。preview の疎通確認は `curl`（ask 対象）ではなく `browser_navigate` で行う
+- **コミット署名の現状**: このマシンでは `.claude/settings.local.json` がサンドボックスを無効にしているため、1Password SSH 署名付きの `git commit` はそのまま通る（2026-09-20 確認）。サンドボックスを戻すときは §5 の未検証項目を先に確かめる
+
 ## 4. 権限設定（PO 承認 2026-09-20）
 
 方針: HANDOFF 3-8 の既定「読み取り・テスト実行は自動、push・削除・外部通信は確認」から始め、2026-09-20 に承認プロンプトの実測（§6）をもとに「個人リポジトリの feature / fix ブランチへの push、Issue / PR の作成とコメント、lockfile 固定の install、worktree の後片付け」を自動にした。
