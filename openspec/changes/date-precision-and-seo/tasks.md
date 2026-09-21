@@ -26,3 +26,50 @@
 ## 提案（後続へ）
 
 <!-- 実装中に気づいたスコープ外の改善をここに追記する -->
+
+レビューで出た Minor と ponytail、実装中に気づいた点。いずれもこの change では直さない
+（`.claude/rules/review.md`: Minor は修正ラウンドを起こさず後続へ）。
+
+### 日付まわり
+
+1. 粒度の判定基準が 2 か所で不揃い。`src/lib/career.ts` の `dateSortKey` は文字列の長さ 7、`formatDate` は
+   セグメント数 3 で見ている。`datePrecision` を将来広げた（例: `YYYY` を許す）とき、2 か所が別々に壊れる
+2. 暦として存在しない日が通る。`2025-02-30` は `2025年3月2日`、`2025-11-31` は `2025年12月1日`、`0000-01` は
+   `1900年1月` と黙って転がる。この change の回帰ではなく既存の `isoDate` 由来だが、日を書かない項目が
+   増えた分だけ誤記が気づきにくい方向ではある
+3. `src/lib/validate.ts` の `validateCareerParity` は件数しか見ておらず、日英で同じ index の `date` が
+   一致しているかを見ていない。`2016-03` のような同着ペアの日英の表示順は、「同じ順に書く」という
+   人間の約束だけが担保している。index ごとの `date` 一致検査は 4 行で足せる
+4. `tests/unit/schemas.test.ts` の「年月日まで（YYYY-MM-DD）を受け付ける」は、下の「同じ配列の中で
+   2 つの形式が混ざってよい」が同じ受理を含んでいる。後者だけ残せる（-3 行）
+5. `src/lib/career.ts` の `formatDate` の `hasDay` 変数と条件付きスプレッドは、
+   `day: date.split('-').length === 3 ? 'numeric' : undefined` の 1 行に畳める（-3 行）
+
+### URL まわり
+
+6. `src/lib/site.ts` の `canonicalUrl` は `lang` が `path` と食い違うと別ページの URL を黙って返す
+   （`canonicalUrl('/ja/career/', 'en', …)` → `…/en/career/`）。いまは `BaseLayout.astro` が同じ `path` から
+   導いた `pathLocale` を渡すので到達しない。引数を落として内部で `localeFromPath` する方が安全
+7. `canonicalUrl` は `site` にパスがあると捨てる（`https://example.com/sub/` → `/sub` が消える）。
+   いまの `astro.config.ts` の `site` はパス無しなので到達しないが、独自ドメイン移行で `site` を
+   変えるときの地雷
+8. `tests/unit/site.test.ts` の「URL オブジェクトの site も受ける」は実質 `new URL()` の標準挙動の確認で、
+   `canonicalUrl` 固有の分岐を 1 つも通らない。`canonicalUrl` の it 4 本は 1 本に畳める（-11 行）
+
+### SEO まわり
+
+9. 写真の個別ページの `description` が汎用の `tagline` になっている。写真の `title` と `location` を使った
+   ページごとの文面にできる（design D6 で「分岐を持つ価値が無い」として見送った既知のトレードオフ）
+10. OGP と Twitter Card が無い。SNS に貼ったときの見た目は素のまま
+11. サイトマップに `<lastmod>` が無い。正確な最終更新日を持っていないため出していない。git の
+    コミット日時を使う手はある
+12. `CLAUDE.md` の「次にやることの候補」に残っている「sitemap と robots.txt の追加」は、この change で
+    sitemap を入れ robots.txt は作らないと決めたので、候補から外す（wrap-up で対応する）
+
+### 環境
+
+13. `astro preview --port <n>` が指定を無視して別のポートで起動することがある。この change でも
+    `--port 4321` が無視されて 4322 になった（直前に `astro preview stop` で「No preview server is running」
+    を確認済みなので、この worktree 内の別プレビューが原因ではない）。`deploy-and-e2e` の後続提案に既出
+14. worktree のガードが `&&` で連結した複数コマンドを拒否するため、検証の `grep` を 1 本ずつ実行する
+    必要がある。手数が増える
