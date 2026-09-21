@@ -1,24 +1,83 @@
 experience:
-  - from: "2020-04"
-    organization: Sample Inc.
-    role: Software Engineer
+  - from: "2025-04"
+    organization: Toyota Motor Corporation
+    role: Engineering Dev-Standards Lead (Cross-Project)
     bullets:
-      - Designed and built internal web applications
-      - Set up CI/CD pipelines
-  - from: "2017-04"
-    to: "2020-03"
-    organization: Example Systems
-    role: Programmer
+      - Founded and lead a cross-project engineering-standards function for 100+ engineers
+  - from: "2023-02"
+    organization: Toyota Motor Corporation
+    role: Product Owner — Connected-Vehicle Data Platform
     bullets:
-      - Maintained and extended business systems
+      - Product owner for a large-scale data platform covering 10M+ connected vehicles in 20+ countries
+  - from: "2019-04"
+    to: "2023-02"
+    organization: Toyota Motor Corporation
+    role: Connected Services Development Lead
+    bullets:
+      - Led cloud backend development for B2C connected services
+  - from: "2018-04"
+    to: "2019-04"
+    organization: Toyota Motor Corporation
+    role: Big Data Analytics Engineer
+    bullets:
+      - Statistical analysis of in-market vehicle data
 skills:
-  Languages: [TypeScript, Python]
-  Cloud: [AWS]
+  Cloud: [AWS, Serverless architecture, CI/CD]
+  Data platform: [Large-scale data processing, Data platform design, Stream processing]
+  Machine learning: [Natural language processing, Word embeddings, Statistical analysis]
+  Product & process: [Product ownership, Scrum, Engineering standards]
+  Programming languages: [Python, SQL]
 certifications:
-  - date: "2023-06-01"
-    name: Applied Information Technology Engineer
+  - date: "2026-05-01"
+    name: "TOEIC Listening & Reading: 900"
+  - date: "2025-10-01"
+    name: AWS Certified AI Practitioner
+  - date: "2025-10-01"
+    name: AWS Certified CloudOps Engineer - Associate
+  - date: "2025-10-01"
+    name: AWS Certified Data Engineer - Associate
+  - date: "2025-10-01"
+    name: AWS Certified Developer - Associate
+  - date: "2025-10-01"
+    name: AWS Certified DevOps Engineer - Professional
+  - date: "2025-10-01"
+    name: AWS Certified Machine Learning Engineer - Associate
+  - date: "2025-10-01"
+    name: AWS Certified Advanced Networking - Specialty
+  - date: "2025-10-01"
+    name: AWS Certified Security - Specialty
+  - date: "2025-10-01"
+    name: AWS Certified Machine Learning - Specialty
+  - date: "2025-09-01"
+    name: AWS Certified Cloud Practitioner
+  - date: "2025-04-01"
+    name: AWS Certified Solutions Architect - Professional
+  - date: "2025-04-01"
+    name: AWS Certified Solutions Architect - Associate
+  - date: "2020-07-01"
+    name: Licensed Scrum Master (Scrum Inc.)
 achievements:
-  - date: "2024-10-12"
-    name: Talk at a community meetup (sample)
+  - date: "2026-05-01"
+    name: AWS All Certifications Engineers
+    kind: award
+    url: https://aws.amazon.com/jp/blogs/psa/2026-japan-all-aws-certifications-engineers/
+  - date: "2018-03-01"
+    name: Hypernym-Hyponym Relation Estimation Considering Bidirectionality and Nonlinearity (ANLP 2018)
     kind: talk
-    url: https://example.com/talk
+    url: https://www.anlp.jp/proceedings/annual_meeting/2018/pdf_dir/D4-4.pdf
+  - date: "2017-08-31"
+    name: "Patent application: Topic Estimation Learning Device and Method (JP 2017-151838A)"
+    kind: other
+    url: https://patents.google.com/patent/JP2017151838A/ja
+  - date: "2016-12-01"
+    name: Distributional Hypernym Generation by Jointly Learning Clusters and Projections (COLING 2016, oral)
+    kind: talk
+    url: https://aclanthology.org/C16-1176/
+  - date: "2016-03-01"
+    name: ANLP Young Researcher Award
+    kind: award
+    url: https://www.anlp.jp/award/nenji.html
+  - date: "2016-03-01"
+    name: Joint Learning of Projections and Clusters for Hypernym-Hyponym Relations (ANLP 2016)
+    kind: talk
+    url: https://www.anlp.jp/proceedings/annual_meeting/2016/pdf_dir/B3-4.pdf

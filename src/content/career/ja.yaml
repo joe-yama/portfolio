@@ -1,24 +1,83 @@
 experience:
-  - from: "2020-04"
-    organization: サンプル株式会社
-    role: ソフトウェアエンジニア
+  - from: "2025-04"
+    organization: トヨタ自動車株式会社
+    role: エンジニアリング標準化リード（全社横断）
     bullets:
-      - 社内向け Web アプリケーションの設計と実装
-      - CI/CD パイプラインの整備
-  - from: "2017-04"
-    to: "2020-03"
-    organization: 例示システムズ
-    role: プログラマ
+      - 100 名超のエンジニアを対象に、プロジェクト横断の開発標準化機能を立ち上げ、リードしている
+  - from: "2023-02"
+    organization: トヨタ自動車株式会社
+    role: プロダクトオーナー（コネクテッドカー データ基盤）
     bullets:
-      - 業務システムの保守と機能追加
+      - 20 か国以上・1,000 万台超のコネクテッドカーを対象とする大規模データ基盤のプロダクトオーナー
+  - from: "2019-04"
+    to: "2023-02"
+    organization: トヨタ自動車株式会社
+    role: コネクテッドサービス開発リード
+    bullets:
+      - B2C 向けコネクテッドサービスのクラウドバックエンド開発を主導
+  - from: "2018-04"
+    to: "2019-04"
+    organization: トヨタ自動車株式会社
+    role: ビッグデータ解析エンジニア
+    bullets:
+      - 市場を走行する車両データの統計解析
 skills:
-  言語: [TypeScript, Python]
-  クラウド: [AWS]
+  クラウド: [AWS, サーバーレスアーキテクチャ, CI/CD]
+  データ基盤: [大規模データ処理, データ基盤設計, ストリーム処理]
+  機械学習: [自然言語処理, 単語分散表現, 統計解析]
+  プロダクト・プロセス: [プロダクトオーナー, スクラム, 開発標準化]
+  プログラミング言語: [Python, SQL]
 certifications:
-  - date: "2023-06-01"
-    name: 応用情報技術者
+  - date: "2026-05-01"
+    name: TOEIC Listening & Reading 900点
+  - date: "2025-10-01"
+    name: AWS Certified AI Practitioner
+  - date: "2025-10-01"
+    name: AWS Certified CloudOps Engineer - Associate
+  - date: "2025-10-01"
+    name: AWS Certified Data Engineer - Associate
+  - date: "2025-10-01"
+    name: AWS Certified Developer - Associate
+  - date: "2025-10-01"
+    name: AWS Certified DevOps Engineer - Professional
+  - date: "2025-10-01"
+    name: AWS Certified Machine Learning Engineer - Associate
+  - date: "2025-10-01"
+    name: AWS Certified Advanced Networking - Specialty
+  - date: "2025-10-01"
+    name: AWS Certified Security - Specialty
+  - date: "2025-10-01"
+    name: AWS Certified Machine Learning - Specialty
+  - date: "2025-09-01"
+    name: AWS Certified Cloud Practitioner
+  - date: "2025-04-01"
+    name: AWS Certified Solutions Architect - Professional
+  - date: "2025-04-01"
+    name: AWS Certified Solutions Architect - Associate
+  - date: "2020-07-01"
+    name: Licensed Scrum Master (Scrum Inc.)
 achievements:
-  - date: "2024-10-12"
-    name: 社外勉強会で登壇（サンプル）
+  - date: "2026-05-01"
+    name: AWS All Certifications Engineers 認定
+    kind: award
+    url: https://aws.amazon.com/jp/blogs/psa/2026-japan-all-aws-certifications-engineers/
+  - date: "2018-03-01"
+    name: 双方向性と非線形性を考慮した上位語・下位語関係の推定（言語処理学会 第24回年次大会）
     kind: talk
-    url: https://example.com/talk
+    url: https://www.anlp.jp/proceedings/annual_meeting/2018/pdf_dir/D4-4.pdf
+  - date: "2017-08-31"
+    name: "特許出願: 話題推定学習装置及び話題推定学習方法（特開2017-151838）"
+    kind: other
+    url: https://patents.google.com/patent/JP2017151838A/ja
+  - date: "2016-12-01"
+    name: Distributional Hypernym Generation by Jointly Learning Clusters and Projections（COLING 2016 口頭発表）
+    kind: talk
+    url: https://aclanthology.org/C16-1176/
+  - date: "2016-03-01"
+    name: 言語処理学会 若手奨励賞
+    kind: award
+    url: https://www.anlp.jp/award/nenji.html
+  - date: "2016-03-01"
+    name: 上位語・下位語の射影関係とそのクラスタの同時学習（言語処理学会 第22回年次大会）
+    kind: talk
+    url: https://www.anlp.jp/proceedings/annual_meeting/2016/pdf_dir/B3-4.pdf
