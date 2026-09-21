@@ -39,11 +39,15 @@ export function formatPeriod(from: string, to: string | null | undefined, lang: 
   return `${format(from)} – ${to ? format(to) : present[lang]}`;
 }
 
-/** 資格・実績の日付。ja: `2023年6月1日`、en: `June 1, 2023` */
+/**
+ * 資格・実績の日付。書かれた粒度のまま出す（design D3）。
+ * ja: `2023年6月1日` / `2025年10月`、en: `June 1, 2023` / `October 2025`
+ */
 export function formatDate(date: string, lang: Locale): string {
+  const hasDay = date.split('-').length === 3;
   return new Intl.DateTimeFormat(lang, {
     year: 'numeric',
     month: 'long',
-    day: 'numeric',
+    ...(hasDay ? { day: 'numeric' } : {}),
   }).format(toLocalDate(date));
 }

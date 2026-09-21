@@ -100,6 +100,19 @@ describe('formatDate', () => {
   it('月初を前月に丸めない', () => {
     expect(formatDate('2024-01-01', 'en')).toBe('January 1, 2024');
   });
+
+  it('年月までの日付は ja で 年月（日を補わない）', () => {
+    expect(formatDate('2025-10', 'ja')).toBe('2025年10月');
+  });
+
+  it('年月までの日付は en で 月 年', () => {
+    expect(formatDate('2025-10', 'en')).toBe('October 2025');
+  });
+
+  it('年月日までの日付はこれまでどおり日まで出す', () => {
+    expect(formatDate('2017-08-31', 'ja')).toBe('2017年8月31日');
+    expect(formatDate('2017-08-31', 'en')).toBe('August 31, 2017');
+  });
 });
 
 describe('負のオフセットの環境でのタイムゾーン退行の検出', () => {
@@ -109,6 +122,7 @@ describe('負のオフセットの環境でのタイムゾーン退行の検出'
     try {
       expect(formatPeriod('2020-01', '2020-01', 'en')).toBe('Jan 2020 – Jan 2020');
       expect(formatDate('2024-01-01', 'en')).toBe('January 1, 2024');
+      expect(formatDate('2025-01', 'en')).toBe('January 2025');
     } finally {
       if (saved === undefined) delete process.env.TZ;
       else process.env.TZ = saved;
