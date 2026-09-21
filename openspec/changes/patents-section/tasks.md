@@ -42,7 +42,7 @@
 
 - [x] 5.1 `<scratchpad>/patents.json` から `career/ja.yaml` と `career/en.yaml` の `patents` を生成して置き換える（51 件）。日英で件数と並び順を一致させる
 - [x] 5.2 `pnpm build` `pnpm test` `pnpm lint` `pnpm typecheck` `pnpm e2e` をすべて実行して緑を確認する
-- [ ] 5.3 `<scratchpad>/patents-table.md` の表を change の Issue にコメントする（`gh issue comment --body-file`）。日本語名称が暫定であること（D7b）と、後日に回した全件取得の範囲（`research/publications.md` の「取得できなかったもの」）を同じコメントに書く
+- [x] 5.3 `<scratchpad>/patents-table.md` の表を change の Issue にコメントする（`gh issue comment --body-file`）。日本語名称が暫定であること（D7b）と、後日に回した全件取得の範囲（`research/publications.md` の「取得できなかったもの」）を同じコメントに書く
 
 ## 6. 仕上げ
 
