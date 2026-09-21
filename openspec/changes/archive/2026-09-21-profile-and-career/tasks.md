@@ -22,9 +22,9 @@
 
 ## 4. 仕上げ
 
-- [ ] 4.1 `pnpm lint && pnpm typecheck && pnpm test && pnpm build` がすべて緑、`openspec validate profile-and-career --strict` が valid、`git status --short` が空であることを確認し、本ファイルの完了項目を `[x]` にしてコミットする
-- [ ] 4.2 `reviewer`（Opus）でブランチ全体をレビューし、結果を Issue にコメントする
-- [ ] 4.3 push して `Closes #<Issue>` を含む PR を作り、CI 緑と Approved を確認してマージする
+- [x] 4.1 `pnpm lint && pnpm typecheck && pnpm test && pnpm build` がすべて緑、`openspec validate profile-and-career --strict` が valid、`git status --short` が空であることを確認し、本ファイルの完了項目を `[x]` にしてコミットする
+- [x] 4.2 `reviewer`（Opus）でブランチ全体をレビューし、結果を Issue にコメントする
+- [x] 4.3 push して `Closes #<Issue>` を含む PR を作り、CI 緑と Approved を確認してマージする
 
 ## 提案（この change では実装しない。後続の change 用）
 

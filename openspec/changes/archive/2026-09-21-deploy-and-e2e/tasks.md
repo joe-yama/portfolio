@@ -33,7 +33,7 @@
 
 - [x] 6.1 `pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm e2e` がすべて緑、`openspec validate deploy-and-e2e --strict` が valid、`git status --short` が空であることを確認し、本ファイルの完了項目を `[x]` にしてコミットする
 - [x] 6.2 `reviewer`（Opus）でブランチ全体をレビューし、結果を Issue にコメントする
-- [ ] 6.3 push して `Closes #<Issue>` を含む PR を作り、CI 緑と Approved を確認してマージする。マージ後に `gh run list --workflow deploy.yml` → `gh run watch <id>` でデプロイの成功を確認する
+- [x] 6.3 push して `Closes #<Issue>` を含む PR を作り、CI 緑と Approved を確認してマージする。マージ後に `gh run list --workflow deploy.yml` → `gh run watch <id>` でデプロイの成功を確認する
 
 ## 提案（この change では実装しない。後続の change 用）
 
