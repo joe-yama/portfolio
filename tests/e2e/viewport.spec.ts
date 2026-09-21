@@ -72,6 +72,47 @@ async function assertNoHorizontalScroll(page: Page, label: string) {
   ).toBeLessThanOrEqual(clientWidth);
 }
 
+/**
+ * 写真の表示高さが下限（design.md D2 の `max(12rem, …)` の 12rem = 192px）を下回らないことを確認する。
+ * `max(12rem, …)` の下限だけを外す変異（`calc(…)` に置き換える等）は、1280×720 や 1440×900 のような
+ * 通常の画面では常に `100svh - Nrem` が正の値になるため検出できない。画面の高さが極端に小さい
+ * （1280×400）ときに限って下限が発動するため、この画面で検査する
+ */
+async function assertPhotoHeightAtLeastFloor(locator: Locator, label: string) {
+  const height = await locator.evaluate((img) => img.getBoundingClientRect().height);
+  const floorPx = 192; // 12rem（既定の 16px/rem 換算）
+  expect(
+    height,
+    `${label}: 写真の表示高さが下限（12rem=192px）を下回っている（height=${height.toFixed(1)}）`,
+  ).toBeGreaterThanOrEqual(floorPx);
+}
+
+/**
+ * 390×844（狭い画面）で、写真の表示幅が本文（`main` の content box）の幅と一致することを確認する。
+ * spec `photo-pipeline` の Scenario「狭い画面」は「写真は本文の幅いっぱいに表示され」も要求しているが、
+ * 従来の検査は横スクロールの有無しか見ていなかった
+ */
+async function assertPhotoFillsMainContentWidth(page: Page, selector: string, label: string) {
+  const measured = await page.evaluate((sel) => {
+    const main = document.querySelector('main');
+    if (!main) throw new Error('main が見つからない');
+    const style = getComputedStyle(main);
+    const contentWidth =
+      main.clientWidth -
+      Number.parseFloat(style.paddingLeft) -
+      Number.parseFloat(style.paddingRight);
+    const img = document.querySelector(sel);
+    if (!img) throw new Error(`写真の img が見つからない（${sel}）`);
+    return { contentWidth, imageWidth: img.getBoundingClientRect().width };
+  }, selector);
+  const relativeError =
+    Math.abs(measured.imageWidth - measured.contentWidth) / measured.contentWidth;
+  expect(
+    relativeError,
+    `${label}: 写真の表示幅 ${measured.imageWidth.toFixed(1)} が本文の幅 ${measured.contentWidth.toFixed(1)} と一致しない`,
+  ).toBeLessThanOrEqual(tolerance);
+}
+
 // --- 1.1 トップページの初見表示 ---------------------------------------------------------
 
 for (const lang of locales) {
@@ -125,6 +166,22 @@ test('回帰: 写真の表示比は元画像の縦横比と一致する（トッ
   const figureImg = page.locator('figure picture img');
   await waitForImageLoaded(figureImg);
   await assertDisplayRatioMatchesNatural(figureImg, '個別ページの写真');
+});
+
+test('回帰: 極端に低い画面でも写真の表示高さは0にならない（トップと個別ページ）', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 400 });
+
+  await page.goto('./ja/');
+  const hero = page.locator('main .hero picture img');
+  await waitForImageLoaded(hero);
+  await assertPhotoHeightAtLeastFloor(hero, 'トップの代表写真');
+
+  await page.goto(`./ja/photos/${verticalSlug}/`);
+  const figureImg = page.locator('figure picture img');
+  await waitForImageLoaded(figureImg);
+  await assertPhotoHeightAtLeastFloor(figureImg, '個別ページの写真');
 });
 
 /**
@@ -183,4 +240,16 @@ test('回帰: 390×844 で横スクロールが発生しない（トップと個
 
   await page.goto(`./ja/photos/${verticalSlug}/`);
   await assertNoHorizontalScroll(page, '個別ページ');
+});
+
+test('回帰: 390×844 で写真は本文の幅いっぱいに表示される（トップと個別ページ）', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+
+  await page.goto('./ja/');
+  await assertPhotoFillsMainContentWidth(page, 'main .hero picture img', 'トップの代表写真');
+
+  await page.goto(`./ja/photos/${verticalSlug}/`);
+  await assertPhotoFillsMainContentWidth(page, 'figure picture img', '個別ページの写真');
 });
