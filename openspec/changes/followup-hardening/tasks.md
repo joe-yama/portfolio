@@ -147,6 +147,16 @@
 - `deploy.yml` のトップレベル `permissions` を消したので、今後 job を足す人が明示を忘れるとリポジトリ既定を継承する（1 行コメントで足りる）
 - ponytail（`net: -18 lines possible.`）: `isPreviewAlreadyRunning` の補助チェックを消す / マーカーのパス定数を `tests/e2e/preview-marker.ts` に括り出す / `links.spec.ts` と `deploy.yml` のコメントを 1 行に
 
+**ブランチ全体レビュー（単位 E。Critical 0 / Important 2 は本体を修正、以下は Minor）**
+
+- `src/content/schemas.ts` の `isCalendarDate` は `Date.UTC` を使えば 0001〜0099 年の問題が 1 行で直る
+- `src/lib/site.ts` の `ogLocale` が `locales` を使わない三項で、3 言語目を足すと黙って `en_US` を返す
+- `src/lib/validate.ts` と `src/layouts/BaseLayout.astro` で写真 0 枚の扱いが割れている（前者は早期 return で許し、後者は throw する）
+- `scripts/photo-add.ts` は画像でないファイルを渡すと exifr のバンドル 64 KB が端末に出る
+- ponytail（`net: -65 lines possible.`）: `validate.ts` の比較ループ 3 本を `[key, keyOf]` の表に / `isoDate` と `datePrecision` の refine の重複 / `theme.ts` の `TOKEN_NAMES` と `export type Tokens` / マーカーの定数と pid 解析を `tests/e2e/preview.ts` へ 1 本化（I1 の修正と同じ場所）/ `career.astro` の特許 `<li>` の 14 行重複 / `theme.test.ts` の `cases` の `name` 列
+
 ### PO へ上げる件
 
 - **タスク 1.8 の実測は公開 Release への再アップロードではなく、`PATH` 上の偽 `gh` で行った**（コントローラーの裁定）。Release の公開アセットは sharp が EXIF を落としており、それを入稿に渡すと EXIF 不足で中断して差し替え経路に到達しないため。PO 本人の元画像で 1 回実測すると、spec の Scenario「差し替え後のビルドで古い版が残らない」まで確かめられる
+- **`deploy.yml` の job 単位 permissions はマージ後の deploy 実行でしか確かめられない。** 失敗すると公開が止まるので、マージ直後に Actions を見る必要がある（GitHub 公式の starter workflow と同じ分割なので確度は高い）
+- **新しい占有検出（ポートへの fetch）は macOS でのみ実測。** CI（ubuntu）での初回通過は PR の CI が最終証拠
