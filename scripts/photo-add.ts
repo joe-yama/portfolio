@@ -16,7 +16,14 @@ import { basename, join } from 'node:path';
 import exifr from 'exifr';
 import sharp from 'sharp';
 import { PHOTO_BASE_URL } from '../src/content/schemas.ts';
-import { exifToPhotoMeta, nextOrder, renderPhotoYaml, toSlug } from '../src/lib/photo-meta.ts';
+import {
+  exifToPhotoMeta,
+  hasFeaturedFlag,
+  nextOrder,
+  parseOrder,
+  renderPhotoYaml,
+  toSlug,
+} from '../src/lib/photo-meta.ts';
 
 const PHOTOS_DIR = 'src/content/photos';
 const RELEASE_TAG = 'photos';
@@ -98,12 +105,9 @@ console.log(`登録: ${RELEASE_TAG}/${slug}.jpg`);
 // (6) YAML を書く。asset が上がった後に書くので、途中で失敗しても再実行で回復できる
 mkdirSync(PHOTOS_DIR, { recursive: true });
 const existing = readdirSync(PHOTOS_DIR).filter((f) => f.endsWith('.yaml'));
-const orders = existing.map((f) => {
-  const m = readFileSync(join(PHOTOS_DIR, f), 'utf8').match(/^order:\s*(-?\d+)/m);
-  return m ? Number(m[1]) : 0;
-});
+const orders = existing.map((f) => parseOrder(readFileSync(join(PHOTOS_DIR, f), 'utf8')));
 const hasFeatured = existing.some((f) =>
-  /^featured:\s*true\s*$/m.test(readFileSync(join(PHOTOS_DIR, f), 'utf8')),
+  hasFeaturedFlag(readFileSync(join(PHOTOS_DIR, f), 'utf8')),
 );
 const yamlPath = join(PHOTOS_DIR, `${slug}.yaml`);
 writeFileSync(

@@ -108,6 +108,17 @@ export function nextOrder(orders: number[]): number {
   return orders.length === 0 ? 10 : Math.max(...orders) + 10;
 }
 
+/** 写真データファイルの YAML テキストから order を読む。無ければ 0 */
+export function parseOrder(text: string): number {
+  const m = text.match(/^order:\s*(-?\d+)/m);
+  return m ? Number(m[1]) : 0;
+}
+
+/** 写真データファイルの YAML テキストに featured: true があるか */
+export function hasFeaturedFlag(text: string): boolean {
+  return /^featured:\s*true\s*$/m.test(text);
+}
+
 /** YAML の二重引用符スカラーは JSON の文字列と同じ規則なので、JSON.stringify で正しく囲める */
 const q = (s: string) => JSON.stringify(s);
 

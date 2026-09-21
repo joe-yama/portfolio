@@ -3,8 +3,10 @@ import {
   exifToPhotoMeta,
   formatShutterSpeed,
   formatTakenAtYmd,
+  hasFeaturedFlag,
   nextOrder,
   type PhotoMeta,
+  parseOrder,
   type RawExif,
   renderPhotoYaml,
   toSlug,
@@ -68,6 +70,30 @@ describe('formatTakenAtYmd', () => {
     // UTC に直すと撮影日がずれるので、ローカルの年月日をそのまま使う
     expect(formatTakenAtYmd(new Date(2025, 10, 3, 5, 30))).toBe('2025-11-03');
     expect(formatTakenAtYmd(new Date(2025, 0, 9, 23, 59))).toBe('2025-01-09');
+  });
+});
+
+describe('parseOrder', () => {
+  it('order の値を読む', () => {
+    expect(parseOrder('image: "x"\norder: 30\nfeatured: false\n')).toBe(30);
+  });
+
+  it('order が無ければ 0', () => {
+    expect(parseOrder('image: "x"\nfeatured: false\n')).toBe(0);
+  });
+
+  it('先頭が - の値も読む', () => {
+    expect(parseOrder('order: -5\n')).toBe(-5);
+  });
+});
+
+describe('hasFeaturedFlag', () => {
+  it('featured: true があれば真', () => {
+    expect(hasFeaturedFlag('order: 10\nfeatured: true\n')).toBe(true);
+  });
+
+  it('featured: true が無ければ偽', () => {
+    expect(hasFeaturedFlag('order: 10\nfeatured: false\n')).toBe(false);
   });
 });
 
