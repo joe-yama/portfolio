@@ -57,11 +57,13 @@ CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `ope
 - **サンドボックス保護パス**: `.claude/settings.json`, `.claude/hooks/`, `.claude/skills/`, `.mcp.json` はサンドボックス内の Bash から書き込めない（Claude Code が保護）。`openspec init` の Claude 連携もこれで一度失敗した。編集は Write/Edit ツールか、サンドボックス外実行で行う
 - **npm グローバル**: `/opt/homebrew` と `~/.npm/_cacache` は書き込み不可。npm は「root 所有ファイル」と誤報するが実際はサンドボックス起因（所有者は全て joe）
 - **git 署名**: `commit.gpgsign=true` + 1Password `op-ssh-sign`。エージェントソケットへの接続がサンドボックスで拒否されるため、`git commit` は単体コマンド（`excludedCommands` 対象）として実行するか、サンドボックス外で行う
-- **Playwright MCP**: `file:` プロトコル不可。スクリーンショットは `filename` を渡すとサーバーの cwd 基準で保存される（`--output-dir` は自動命名時のみ）
+- **Playwright MCP**: `file:` プロトコル不可。スクリーンショットは `filename` を渡すとサーバーの cwd 基準で保存される（`--output-dir` は自動命名時のみ）。UI 検証は `pnpm build && pnpm preview` で HTTP 配信する（`http://127.0.0.1:4321/`。停止は `pnpm exec astro preview stop`）。preview の疎通確認は `curl`（ask 対象）ではなく `browser_navigate` で行う
 - **gh の複数アカウント**: `gh auth status` には github.com の joe-yama と職場アカウント、および社内 GitHub Enterprise が登録されている。2026-09-17 時点で有効だったのは職場アカウントで、joe-yama のトークンは失効していた（PO が `gh auth login -h github.com -w` で再認証し `gh auth switch -h github.com -u joe-yama` で切り替え済み）。Agent は `gh` で書き込む前に `gh api user --jq .login` を確認する（`.claude/rules/git.md`）
 - **サブエージェントへの MCP ツールの受け渡し**（2026-09-20、change `harness-ui-review` で実測）: `.claude/agents/*.md` の `tools:` に `mcp__<server>__<tool>` を列挙すれば MCP ツールはサブエージェントに渡る。ただし **agent 定義の変更は実行中のセッションには反映されない**。同一セッションで編集して dispatch すると、セッション開始時の定義で起動し `No such tool available: mcp__playwright__browser_navigate` になる（Change 2 の失敗の原因はこれ）。定義を変えたらセッションを開き直す。検証は 4 回の dispatch で行った: 同一セッション ❌ 2 回 / 新しいセッション（`claude -p`）✅ 2 回（1 回目は `browser_navigate` だけを列挙した試験、2 回目は 11 個の最終形で navigate / snapshot / evaluate / emulate_media / console_messages を実呼び出しし、ヘッダー 4 リンクの href とダーク時の body 背景色を取得）。内訳は Issue #6 の 1.2 と 3.1。公式ドキュメント（code.claude.com/docs/en/sub-agents）によれば `tools:` を省略すると MCP 込みで全継承になる（これは未実測）。reviewer には MCP ツールを 11 個だけ列挙する方針で、列挙の実体は `.claude/agents/reviewer.md` の `tools:` を正とする。なお `tools:` に書いても渡らないツールがある。`claude -p` で起こしたセッションの `Glob` / `Grep` がそうで（`Glob is not available in this session` と返る）、セッションの構成しだいで使えるツールは変わる。`.mcp.json` は `@playwright/mcp@latest` を指しているので、`reviewer.md` に列挙したツール名は上流のリネームで使えなくなることがある。reviewer が `No such tool available` を報告したら、まず `@playwright/mcp` の README で現行のツール名を確認する
 - **Playwright MCP の保存先**: `browser_run_code_unsafe` で（Change 2 の実測。`browser_take_screenshot` も同じ挙動と見られる）相対パスを指定すると、worktree で作業していてもファイルは**メインリポジトリの root** に落ちる。保存先は絶対パスで指定する
 - **worktree セッションの Bash ガード**: `EnterWorktree` で worktree に分離されたセッションでは、**git を含むコマンドのうち「worktree の中に留まると検証できない形」が拒否される**。2026-09-20 の実測: `for f in a b; do echo $f; done; git log --oneline -1 | sed -n '1p'` は `This session is isolated in the worktree ..., but this command names git in a form too complex to verify that it stays inside the worktree. Refusing to run it` で拒否。一方 `git status --short && echo ok`、`git log --oneline -1 | cat`、git を含まない `for` ループ、`sed ... && grep ...` は通った。Change 2 では `sed ... && git ...` と git という語を含む heredoc が拒否されている。同じ worktree を cwd とするサブエージェントのセッションには、この制限はかからない（レビュアーが同じ形を実行できた）。迷ったら git は 1 コマンドずつ実行する
+- **`.claude/` 配下の書き分け**: `.claude/agents/` `.claude/rules/` と `CLAUDE.md` は Write / Edit ツールで編集できる。`.claude/settings.json` と `.claude/hooks/` は auto mode の分類器が拒否する（§4 の注意）。サンドボックス内の Bash からはさらに `.claude/skills/` と `.mcp.json` も書き込めない
+- **コミット署名の現状**: このマシンでは `.claude/settings.local.json` がサンドボックスを無効にしているため、1Password SSH 署名付きの `git commit` はそのまま通る（2026-09-20 確認）。サンドボックスを戻すときは §5 の未検証項目を先に確かめる
 
 ## 4. 権限設定（PO 承認 2026-09-20）
 
@@ -111,7 +113,7 @@ CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `ope
 2. 自律実行時のコミット署名の扱い: sandbox が無効の間は署名付きコミットがそのまま通る。sandbox を戻すときに `excludedCommands: git` で足りるかを検証する
 3. OpenSpec の成果物言語を日本語にした（`--language ja`）ことの確認。英語に変えるなら `openspec/config.yaml` の `context` を編集
 4. OpenSpec プロファイルをデフォルト（core）にした。拡張ワークフロー（`/opsx:ff` 等）が必要になったら追加
-5. 技術スタック導入時のハーネス更新は change `project-foundation` で実施済み（2026-09-18）: testing.md のコマンド節、hooks の `detect_lint()` → `pnpm exec biome check --error-on-warnings --no-errors-on-unmatched <file>`、`detect_test()` → `pnpm test`、CLAUDE.md のコマンド表
+5. 技術スタック導入時のハーネス更新は change `project-foundation` で実施済み（2026-09-18）: testing.md のコマンド節（2026-09-22 に CLAUDE.md へ統合）、hooks の `detect_lint()` → `pnpm exec biome check --error-on-warnings --no-errors-on-unmatched <file>`、`detect_test()` → `pnpm test`、CLAUDE.md のコマンド表
 6. agent teams 無効化（`env`）が次のセッションで効いているか: `ListAgents` の表示が Teammates ではなく Subagents になり、`~/.claude/projects/.../<session>/subagents/*.meta.json` の `taskKind` が `in_process_teammate` でなければ効いている
 
 ## 6. 承認プロンプトとターン数の実測（2026-09-20）
@@ -129,6 +131,7 @@ transcript（`~/.claude/projects/-Users-joe-repo-github-personal-joe-yama-portfo
 
 - Issue コメント 28 回はユーザー設定の `ask` がプロジェクトの `allow` に勝っていたため（`.claude/rules/git.md` の「コメントは自動許可」は一度も効いていなかった）。Change 1・2 の残りの多くは sandbox 外実行（`dangerouslyDisableSandbox`）の確認で、現在は sandbox 無効のため発生しない
 - ターン数は change の大きさに比例しない。harness-ui-review は agent 定義 1 行と文言の統一で 344 メッセージ。主因はタスク単位の Opus レビュー + 再レビュー（Change 1 は 8 タスクに 17 回）、Minor の後追い修正（Change 2 は 27 件の triage → 11 件修正 → 再レビューで回帰）、タスクごとの Issue コメントと `tasks.md` だけのコミット（Change 1 は各 11 回・8 回）、agent teams の teammate 通知（1 セッション 56〜65 通）
-- コストの大半は出力ではなく、コントローラーの巨大なコンテキストの再読込（1 リクエスト 37〜66 万トークン）。対策は CLAUDE.md「標準ワークフロー」4（実装は新しいセッション、コントローラーは Opus）、「小さな change の経路」、`.claude/rules/review.md`「レビューの単位」「Minor の扱い」、`.claude/rules/git.md`
+- コストの大半は出力ではなく、コントローラーの巨大なコンテキストの再読込（1 リクエスト 37〜66 万トークン）。対策は CLAUDE.md「標準ワークフロー」（実装は新しいセッション、コントローラーは Opus）、「小さな change の経路」、`.claude/rules/review.md`「レビューの単位」「Minor の扱い」、`.claude/rules/git.md`
+- `.claude/rules/review.md` の個別ルールが立っている実測: 「レビューの単位」は layout-followups が **CSS の Minor 5 件の確認に 135 回のツール呼び出し**を使ったこと、「指摘は全部そろえて 1 回で送る」は **分割送付で layout-followups が 5 ラウンドまで伸びた**こと
 
 集計スクリプトはその場限り（scratchpad）で、リポジトリには置いていない。再集計が必要なら同じ jsonl から `type: assistant` の `tool_use` と `attachment.hookEvent == "PermissionRequest"` を数える。
