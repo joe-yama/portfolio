@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { formatDate, formatPeriod, sortByDateDesc, sortExperience } from '../../src/lib/career';
+import {
+  formatDate,
+  formatMonth,
+  formatPeriod,
+  sortByDateDesc,
+  sortExperience,
+  sortPatents,
+  splitPatents,
+} from '../../src/lib/career';
 
 const experience = [
   {
@@ -71,6 +79,74 @@ describe('sortByDateDesc', () => {
       { date: '2016-03', name: 'A' },
     ];
     expect(sortByDateDesc(items).map((i) => i.name)).toEqual(['B', 'A']);
+  });
+});
+
+const patents = [
+  { number: 'A', filedAt: '2019-10', title: 't', countries: ['JP'] },
+  { number: 'B', filedAt: '2021-03', title: 't', countries: ['JP', 'CN', 'TW'] },
+  { number: 'C', filedAt: '2020-01', title: 't', countries: ['JP', 'CN'] },
+  { number: 'D', filedAt: '2021-03', title: 't', countries: ['JP', 'CN'] },
+  { number: 'E', filedAt: '2021-03', title: 't', countries: ['JP', 'CN'] },
+  { number: 'F', filedAt: '2021-03', title: 't', countries: ['JP', 'CN'] },
+];
+
+describe('sortPatents', () => {
+  it('countries の件数の降順に並べる', () => {
+    const twoOnly = [patents[0], patents[1]];
+    expect(sortPatents(twoOnly).map((p) => p.number)).toEqual(['B', 'A']);
+  });
+
+  it('countries の件数が同じなら filedAt の降順に並べる', () => {
+    const sameCount = [patents[2], patents[3]];
+    expect(sortPatents(sameCount).map((p) => p.number)).toEqual(['D', 'C']);
+  });
+
+  it('countries と filedAt が同じなら記述順を保つ（安定ソート）', () => {
+    const tied = [patents[3], patents[4], patents[5]];
+    expect(sortPatents(tied).map((p) => p.number)).toEqual(['D', 'E', 'F']);
+  });
+
+  it('元の配列を破壊しない', () => {
+    const before = patents.map((p) => p.number);
+    sortPatents(patents);
+    expect(patents.map((p) => p.number)).toEqual(before);
+  });
+});
+
+describe('splitPatents', () => {
+  const items = (n: number) => Array.from({ length: n }, (_, i) => i);
+
+  it('4 件なら head に 4 件、rest は空', () => {
+    expect(splitPatents(items(4))).toEqual({ head: items(4), rest: [] });
+  });
+
+  it('5 件なら head に 5 件、rest は空', () => {
+    expect(splitPatents(items(5))).toEqual({ head: items(5), rest: [] });
+  });
+
+  it('6 件なら head に 5 件、rest に 1 件', () => {
+    const result = splitPatents(items(6));
+    expect(result.head).toHaveLength(5);
+    expect(result.rest).toHaveLength(1);
+  });
+
+  it('12 件なら head に 5 件、rest に 7 件', () => {
+    const result = splitPatents(items(12));
+    expect(result.head).toHaveLength(5);
+    expect(result.rest).toHaveLength(7);
+    expect(result.head).toEqual(items(5));
+    expect(result.rest).toEqual(items(12).slice(5));
+  });
+});
+
+describe('formatMonth', () => {
+  it('ja は YYYY年M月', () => {
+    expect(formatMonth('2021-03', 'ja')).toBe('2021年3月');
+  });
+
+  it('en は 短縮月 年', () => {
+    expect(formatMonth('2021-03', 'en')).toBe('Mar 2021');
   });
 });
 

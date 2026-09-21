@@ -65,10 +65,6 @@ achievements:
     name: 双方向性と非線形性を考慮した上位語・下位語関係の推定（言語処理学会 第24回年次大会）
     kind: talk
     url: https://www.anlp.jp/proceedings/annual_meeting/2018/pdf_dir/D4-4.pdf
-  - date: "2017-08-31"
-    name: "特許出願: 話題推定学習装置及び話題推定学習方法（特開2017-151838）"
-    kind: other
-    url: https://patents.google.com/patent/JP2017151838A/ja
   - date: "2016-12"
     name: Distributional Hypernym Generation by Jointly Learning Clusters and Projections（COLING 2016 口頭発表）
     kind: talk
@@ -81,3 +77,259 @@ achievements:
     name: 上位語・下位語の射影関係とそのクラスタの同時学習（言語処理学会 第22回年次大会）
     kind: talk
     url: https://www.anlp.jp/proceedings/annual_meeting/2016/pdf_dir/B3-4.pdf
+patents:
+  - number: JP6549500B2
+    filedAt: "2016-02"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP6549500B2/ja
+    title: 話題推定学習装置及び話題推定学習方法
+  - number: JP7151181B2
+    filedAt: "2018-05"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP7151181B2/ja
+    title: 音声対話システム、その処理方法及びプログラム
+  - number: CN111238513B
+    filedAt: "2019-10"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN111238513B/ja
+    title: 情報提供システム、サーバ、車載装置および情報提供方法
+  - number: CN111238491A
+    filedAt: "2019-10"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN111238491A/ja
+    title: 情報提供システム、サーバ、車載装置および情報提供方法
+  - number: CN111243314A
+    filedAt: "2019-11"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN111243314A/ja
+    title: 情報提供システム、サーバ、携帯端末および非一時的記憶媒体
+  - number: CN111246160A
+    filedAt: "2019-11"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN111246160A/ja
+    title: 情報提供システムおよび方法、サーバ、車載装置
+  - number: CN111243332A
+    filedAt: "2019-11"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN111243332A/ja
+    title: 情報提供システムおよび方法、サーバ、車載装置および記憶媒体
+  - number: CN111301284B
+    filedAt: "2019-11"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN111301284B/ja
+    title: 車載装置、プログラムおよび車両
+  - number: CN111311919A
+    filedAt: "2019-11"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN111311919A/ja
+    title: サーバ、車載装置、プログラム、情報提供システムおよび方法
+  - number: CN111301285A
+    filedAt: "2019-12"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN111301285A/ja
+    title: 制御システム、サーバ、車載制御装置、車両および制御方法
+  - number: CN111422128A
+    filedAt: "2020-01"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN111422128A/ja
+    title: サーバ、車載装置、車両、記憶媒体および情報提供方法
+  - number: CN113140119A
+    filedAt: "2021-01"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113140119A/ja
+    title: 情報処理装置、情報処理方法およびコンピュータ可読媒体
+  - number: CN113135091B
+    filedAt: "2021-01"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113135091B/ja
+    title: 情報処理装置、記録媒体および情報処理方法
+  - number: CN113492768B
+    filedAt: "2021-01"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113492768B/ja
+    title: 情報処理装置、情報処理システムおよびコンピュータ可読記録媒体
+  - number: CN113256364A
+    filedAt: "2021-01"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113256364A/ja
+    title: 情報処理装置、情報処理方法および非一時的媒体
+  - number: CN113160552A
+    filedAt: "2021-01"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113160552A/ja
+    title: 情報処理装置、情報処理方法およびコンピュータ可読媒体
+  - number: CN113344312A
+    filedAt: "2021-02"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113344312A/ja
+    title: 情報処理装置、情報処理方法およびコンピュータ可読媒体
+  - number: CN113269988B
+    filedAt: "2021-02"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113269988B/ja
+    title: 情報処理装置、情報処理方法および記録媒体
+  - number: CN113538174A
+    filedAt: "2021-03"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113538174A/ja
+    title: 情報処理装置、情報処理システムおよびプログラム
+  - number: CN113395316B
+    filedAt: "2021-03"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113395316B/ja
+    title: 情報処理装置および情報処理システム
+  - number: CN113411776A
+    filedAt: "2021-03"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113411776A/ja
+    title: 情報処理装置、車両システムおよび情報処理方法
+  - number: CN113401074B
+    filedAt: "2021-03"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113401074B/ja
+    title: 情報処理装置、情報処理方法および非一時的記憶媒体
+  - number: CN113401129B
+    filedAt: "2021-03"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113401129B/ja
+    title: 情報処理装置、記録媒体および情報処理方法
+  - number: CN113453193B
+    filedAt: "2021-03"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113453193B/ja
+    title: 情報処理装置および記録媒体
+  - number: CN113553496B
+    filedAt: "2021-04"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113553496B/ja
+    title: 情報処理装置、情報処理方法および非一時的媒体
+  - number: CN113743976A
+    filedAt: "2021-04"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113743976A/ja
+    title: 情報処理装置、情報処理システムおよびプログラム
+  - number: CN113744090A
+    filedAt: "2021-04"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113744090A/ja
+    title: 情報処理装置、情報処理システムおよびプログラム
+  - number: CN113497750B
+    filedAt: "2021-04"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113497750B/ja
+    title: 情報処理装置、情報処理システムおよび非一時的媒体
+  - number: CN113587939A
+    filedAt: "2021-04"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113587939A/ja
+    title: 情報処理装置、情報処理システムおよびプログラム
+  - number: CN113813597B
+    filedAt: "2021-04"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113813597B/ja
+    title: 情報処理装置、情報処理システムおよびプログラム
+  - number: CN113902570A
+    filedAt: "2021-04"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113902570A/ja
+    title: 情報処理装置、情報処理システムおよびプログラム
+  - number: CN113744551A
+    filedAt: "2021-05"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113744551A/ja
+    title: 情報処理装置、非一時的記憶媒体および情報提供方法
+  - number: CN114119293A
+    filedAt: "2021-06"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN114119293A/ja
+    title: 情報処理装置、情報処理システムおよびプログラム
+  - number: CN113928246A
+    filedAt: "2021-06"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113928246A/ja
+    title: 情報処理装置、情報処理システムおよびプログラム
+  - number: CN113852916B
+    filedAt: "2021-06"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN113852916B/ja
+    title: 情報処理システム、情報処理方法および記録媒体
+  - number: CN114331248B
+    filedAt: "2021-08"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN114331248B/ja
+    title: 情報処理装置により実行される方法、情報処理装置
+  - number: CN116331121A
+    filedAt: "2022-10"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN116331121A/ja
+    title: 車両、情報処理システム、記憶媒体および情報提供方法
+  - number: CN117273560A
+    filedAt: "2023-03"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN117273560A/ja
+    title: 車両、電子署名発行システム、記憶媒体および電子的方法
+  - number: CN117227753A
+    filedAt: "2023-03"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN117227753A/ja
+    title: 車両、情報処理システムおよび非一時的コンピュータ可読媒体
+  - number: CN117252497A
+    filedAt: "2023-03"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN117252497A/ja
+    title: 車両、方法およびプログラム
+  - number: CN117391570A
+    filedAt: "2023-06"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN117391570A/ja
+    title: 管理装置、管理システム、管理方法および移動体
+  - number: CN118261665A
+    filedAt: "2023-12"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN118261665A/ja
+    title: データ管理システム、データ管理方法およびサーバ
+  - number: CN119957041A
+    filedAt: "2024-10"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN119957041A/ja
+    title: 情報処理装置
+  - number: CN120156448A
+    filedAt: "2024-11"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN120156448A/ja
+    title: 情報処理装置
+  - number: CN120166291A
+    filedAt: "2024-12"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN120166291A/ja
+    title: 情報処理装置
+  - number: CN120156443A
+    filedAt: "2024-12"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN120156443A/ja
+    title: 情報報知装置および車両
+  - number: CN120156444A
+    filedAt: "2024-12"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN120156444A/ja
+    title: 音声案内装置、車両および非一時的コンピュータ可読媒体
+  - number: CN120156521A
+    filedAt: "2024-12"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN120156521A/ja
+    title: 後退支援装置および車両
+  - number: CN120164348A
+    filedAt: "2024-12"
+    countries: [CN]
+    url: https://patents.google.com/patent/CN120164348A/ja
+    title: 情報処理装置、駐車支援方法および非一時的媒体
+  - number: TWI923233B
+    filedAt: "2024-12"
+    countries: [TW]
+    url: https://patents.google.com/patent/TWI923233B/ja
+    title: 車両消耗品の補充支援方法、車両消耗品の補充支援プログラム及び情報処理装置
+  - number: TW202539941A
+    filedAt: "2024-12"
+    countries: [TW]
+    url: https://patents.google.com/patent/TW202539941A/ja
+    title: 方法、プログラムおよび情報処理装置

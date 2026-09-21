@@ -177,12 +177,14 @@ describe('ui の経歴ページの文字列', () => {
       skills: 'スキル',
       certifications: '資格',
       achievements: '実績',
+      patents: '特許',
     });
     expect(ui.en.careerSections).toEqual({
       experience: 'Experience',
       skills: 'Skills',
       certifications: 'Certifications',
       achievements: 'Achievements',
+      patents: 'Patents',
     });
   });
 
@@ -194,5 +196,15 @@ describe('ui の経歴ページの文字列', () => {
     }
     expect(ui.ja.achievementKind.talk).toBe('登壇');
     expect(ui.en.achievementKind.talk).toBe('Talk');
+  });
+
+  it('特許の区画見出しが両ロケールにある', () => {
+    expect(ui.ja.careerSections.patents).toBe('特許');
+    expect(ui.en.careerSections.patents).toBe('Patents');
+  });
+
+  it('特許の折りたたみの文言が件数を埋めて返る', () => {
+    expect(ui.ja.morePatents(46)).toBe('さらに 46 件を表示');
+    expect(ui.en.morePatents(46)).toBe('Show 46 more');
   });
 });

@@ -108,6 +108,7 @@ describe('validateCareerParity', () => {
     skills: { lang: ['ts'] },
     certifications: [{ date: '2023-06-01', name: 'c' }],
     achievements: [{ date: '2024-10-12', name: 'a', kind: 'talk' }],
+    patents: [{ filedAt: '2021-03', title: 't', number: 'JP1', countries: ['JP'] }],
   };
 
   it('件数が一致すれば問題なし', () => {
@@ -126,6 +127,14 @@ describe('validateCareerParity', () => {
       errors.some((e) => e.includes('certifications') && e.includes('1') && e.includes('0')),
     ).toBe(true);
     expect(errors.some((e) => e.includes('achievements'))).toBe(true);
+  });
+
+  it('patents の件数差を報告する', () => {
+    const en: Career = { ...base, patents: [] };
+    const errors = validateCareerParity(base, en);
+    expect(errors.some((e) => e.includes('patents') && e.includes('1') && e.includes('0'))).toBe(
+      true,
+    );
   });
 
   it('skills のカテゴリ数が日英で違えば報告する', () => {
