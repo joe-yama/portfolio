@@ -149,25 +149,21 @@ describe('ogLocale', () => {
 });
 
 describe('canonicalUrl', () => {
-  it('base 付きでそのページ自身の絶対 URL を返す', () => {
-    expect(canonicalUrl('/portfolio/en/career/', 'en', 'https://example.com', '/portfolio')).toBe(
+  it('base 付きでそのページ自身の絶対 URL を返す（lang はパスから判定する）', () => {
+    expect(canonicalUrl('/portfolio/en/career/', 'https://example.com', '/portfolio')).toBe(
       'https://example.com/portfolio/en/career/',
     );
   });
 
-  it('base が無いときはそのまま', () => {
-    expect(canonicalUrl('/ja/', 'ja', 'https://example.com', '/')).toBe('https://example.com/ja/');
-  });
-
-  it('末尾スラッシュを補う', () => {
-    expect(canonicalUrl('/ja/career', 'ja', 'https://example.com', '/')).toBe(
+  it('末尾スラッシュを補い、URL オブジェクトの site も受ける', () => {
+    expect(canonicalUrl('/ja/career', new URL('https://example.com'), '/')).toBe(
       'https://example.com/ja/career/',
     );
   });
 
-  it('URL オブジェクトの site も受ける', () => {
-    expect(canonicalUrl('/en/photos/', 'en', new URL('https://example.com'), '/')).toBe(
-      'https://example.com/en/photos/',
+  it('site にパスがあっても捨てない', () => {
+    expect(canonicalUrl('/portfolio/ja/', 'https://example.com/sub/', '/portfolio')).toBe(
+      'https://example.com/sub/portfolio/ja/',
     );
   });
 });

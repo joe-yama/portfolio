@@ -1,5 +1,13 @@
 import type { AchievementKind } from '../content/schemas';
-import { alternatePath, defaultLocale, type Locale, locales, otherLocale, withBase } from './i18n';
+import {
+  alternatePath,
+  defaultLocale,
+  type Locale,
+  localeFromPath,
+  locales,
+  otherLocale,
+  withBase,
+} from './i18n';
 
 export type AlternateLink = { hreflang: Locale | 'x-default'; href: string };
 export type NavLink = { label: string; href: string };
@@ -97,11 +105,15 @@ export function careerPath(lang: Locale, base: string): string {
 }
 
 /**
- * そのページ自身の絶対 URL（design D6）。自分のロケールを alternatePath に渡すと、
- * 末尾スラッシュと接頭辞が正規化された同じページのパスが返る
+ * そのページ自身の絶対 URL（design D6）。alternatePath でパスを正規化し、
+ * site にパスがあっても（例: `https://example.com/sub/`）捨てずに残す
  */
-export function canonicalUrl(path: string, lang: Locale, site: string | URL, base: string): string {
-  return new URL(alternatePath(path, lang, base), site).href;
+export function canonicalUrl(path: string, site: string | URL, base: string): string {
+  const lang = localeFromPath(path, base) ?? defaultLocale;
+  const normalized = alternatePath(path, lang, base);
+  const siteUrl = new URL(site);
+  const sitePath = siteUrl.pathname.endsWith('/') ? siteUrl.pathname : `${siteUrl.pathname}/`;
+  return new URL(`.${normalized}`, `${siteUrl.origin}${sitePath}`).href;
 }
 
 /** 共有カードの og:locale（design D3）。地域付きの表記に対応づける */

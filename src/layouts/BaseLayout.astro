@@ -25,7 +25,7 @@ const profile = await getProfile(lang);
 if (!Astro.site) throw new Error('astro.config の site が必要（hreflang の絶対 URL に使う）');
 const alternates = pathLocale ? alternateLinks(path, Astro.site, base) : [];
 // canonical と description は hreflang と同じ条件で出す（404 には出さない。design D6）
-const canonical = pathLocale ? canonicalUrl(path, pathLocale, Astro.site, base) : null;
+const canonical = pathLocale ? canonicalUrl(path, Astro.site, base) : null;
 const description = pathLocale ? profile.tagline : null;
 const pageTitle = title ? `${title} · ${profile.name}` : profile.name;
 
