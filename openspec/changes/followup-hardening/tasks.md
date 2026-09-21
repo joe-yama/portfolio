@@ -60,7 +60,7 @@
 
 ## 6. 仕上げの細部（単位 D に含める）
 
-- [ ] 6.1 `src/pages/404.astro` の `<span class="dot">` と `<a class="dot">` を `<p class="dot">` にまとめ、`main > p:last-child { margin-bottom: 0 }` で上下の対称を取る。`pnpm build` 後に 1280px と 390px のスクリーンショットで崩れていないことを確認する
+- [x] 6.1 `src/pages/404.astro` の `<span class="dot">` と `<a class="dot">` を `<p class="dot">` にまとめ、`main > p:last-child { margin-bottom: 0 }` で上下の対称を取る。`pnpm build` 後に 1280px と 390px のスクリーンショットで崩れていないことを確認する
 - [ ] 6.2 `src/components/Header.astro` の `showNav ? languageSwitch(...) : undefined` と内側の `{sw && …}` を、`const sw = languageSwitch(path, lang, base)` に寄せてガードを 1 つにする。`pnpm build` 後に `dist/ja/index.html` のヘッダーが 4 リンク、`dist/404.html` が 1 リンクであることを grep で確認する
 - [ ] 6.3 `openspec/specs/profile-and-career/spec.md` の「トップページの連絡先リンク」の Scenario を、廃止済みの `mailto:hello@example.com` に依存しない例に置き換える（`specs/profile-and-career/spec.md` の delta と同じ内容）。`openspec validate followup-hardening --strict` が valid であることを確認する
 - [ ] 6.4 `CLAUDE.md` を更新する: 「写真を差し替えるときは 2 点に注意する」の段落を削除してタスク 1.5 がコードで両方を吸収したことを 1 行に置き換え、「次にやること」の候補から「OGP と Twitter Card の追加」を外し、この change を Change 9 として一覧に足す。`git diff CLAUDE.md` で意図した変更だけであることを確認する
