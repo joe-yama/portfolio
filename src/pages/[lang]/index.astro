@@ -5,10 +5,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getPhotos, getProfile } from '../../lib/content';
 import { locales, toLocale } from '../../lib/i18n';
 import { briefcase, camera, github, globe, linkedin } from '../../lib/pixel';
-import { languageSwitch, navLinks, ui } from '../../lib/site';
+import { languageSwitch, navLinks, pairByIndex, ui } from '../../lib/site';
 
-/** サイト内導線（Photos/Career）は navLinks の順で固定なので、見た目のアイコンをラベルで対応づける */
-const navIcons: Record<string, readonly string[]> = { Photos: camera, Career: briefcase };
+/** サイト内導線のアイコン。navLinks の順（Photos → Career）と位置で対応づける */
+const navIcons: readonly (readonly string[])[] = [camera, briefcase];
 
 /** 連絡先リンクの kind に対応するドット絵。github/linkedin 以外は spec 通りアイコンなし */
 const contactIcons: Partial<Record<string, readonly string[]>> = { github, linkedin };
@@ -33,11 +33,9 @@ if (!featured) throw new Error('featured: true の写真が 1 枚も無い');
   <p class="muted">{profile.tagline}</p>
 
   <nav class="links" aria-label={ui[lang].siteNav}>
-    {navLinks(lang, base).map((link) => (
+    {pairByIndex(navLinks(lang, base), navIcons).map(([link, icon]) => (
       <a href={link.href}>
-        {navIcons[link.label] && (
-          <PixelArt rows={navIcons[link.label] as readonly string[]} scale={1} />
-        )}
+        <PixelArt rows={icon} scale={1} />
         {link.label}
       </a>
     ))}
@@ -48,16 +46,17 @@ if (!featured) throw new Error('featured: true の写真が 1 枚も無い');
   </nav>
 
   <ul class="links">
-    {profile.links.map((link) => (
-      <li>
-        <a href={link.url}>
-          {contactIcons[link.kind] && (
-            <PixelArt rows={contactIcons[link.kind] as readonly string[]} scale={1} />
-          )}
-          {link.label}
-        </a>
-      </li>
-    ))}
+    {profile.links.map((link) => {
+      const icon = contactIcons[link.kind];
+      return (
+        <li>
+          <a href={link.url}>
+            {icon && <PixelArt rows={icon} scale={1} />}
+            {link.label}
+          </a>
+        </li>
+      );
+    })}
   </ul>
 </BaseLayout>
 

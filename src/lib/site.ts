@@ -132,6 +132,18 @@ export function navLinks(lang: Locale, base: string): NavLink[] {
   ];
 }
 
+/** 2 つの配列を同じ位置どうしで対にする。件数が違えば対応が崩れているので例外を投げる */
+export function pairByIndex<A, B extends {}>(as: readonly A[], bs: readonly B[]): [A, B][] {
+  if (as.length !== bs.length) {
+    throw new Error(`件数が一致しない: ${as.length} 件と ${bs.length} 件`);
+  }
+  return as.map((a, i) => {
+    const b = bs[i];
+    if (b === undefined) throw new Error(`${i} 番目の対応が無い`);
+    return [a, b];
+  });
+}
+
 /** 相手の言語名を表示し、同じページの他言語版へ飛ぶリンク */
 export function languageSwitch(path: string, lang: Locale, base: string): LanguageSwitch {
   const target = otherLocale(lang);

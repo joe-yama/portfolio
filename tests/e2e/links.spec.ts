@@ -1,8 +1,8 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { expect, test } from '@playwright/test';
-import { cells, github, linkedin } from '../../src/lib/pixel';
+import { expect, type Locator, test } from '@playwright/test';
+import { briefcase, type Cell, camera, cells, github, globe, linkedin } from '../../src/lib/pixel';
 import { homePath } from '../../src/lib/site';
 
 // cwd（テスト実行時のカレントディレクトリ）に依存せず、このファイルの位置から
@@ -26,6 +26,16 @@ function resolveToDist(ref: string): string {
   return path.endsWith('/') || relative === '' ? join(target, 'index.html') : target;
 }
 
+/** リンク内の svg rect の (x, y) 列を、描画順のまま取り出す */
+function rectCells(link: Locator): Promise<Cell[]> {
+  return link.locator('svg rect').evaluateAll((rects) =>
+    rects.map((rect) => ({
+      x: Number(rect.getAttribute('x')),
+      y: Number(rect.getAttribute('y')),
+    })),
+  );
+}
+
 test('ヘッダーロゴリンクに下線が無く、引き続きリンクとして機能する', async ({ page }) => {
   await page.goto('ja/');
 
@@ -37,40 +47,47 @@ test('ヘッダーロゴリンクに下線が無く、引き続きリンクと�
   expect(textDecorationLine).toBe('none');
 });
 
-test('本文最下部はサイト内導線が先、連絡先リンクが最も下で、各リンクにドット絵アイコンが付く', async ({
-  page,
-}) => {
-  await page.goto('ja/');
+for (const lang of ['ja', 'en'] as const) {
+  test(`本文最下部はサイト内導線が先、連絡先リンクが最も下で、各リンクにドット絵アイコンが付く（${lang}）`, async ({
+    page,
+  }) => {
+    await page.goto(`${lang}/`);
 
-  const navLinks = page.locator('main nav.links a');
-  const contactLinks = page.locator('main ul.links li a');
+    const navLinks = page.locator('main nav.links a');
+    const contactLinks = page.locator('main ul.links li a');
 
-  await expect(navLinks).toHaveCount(3);
-  await expect(contactLinks).toHaveCount(2);
+    await expect(navLinks).toHaveCount(3);
+    await expect(contactLinks).toHaveCount(2);
 
-  const navTop = await navLinks.first().evaluate((el) => el.getBoundingClientRect().top);
-  const contactTop = await contactLinks.first().evaluate((el) => el.getBoundingClientRect().top);
-  expect(navTop).toBeLessThan(contactTop);
+    const navTop = await navLinks.first().evaluate((el) => el.getBoundingClientRect().top);
+    const contactTop = await contactLinks.first().evaluate((el) => el.getBoundingClientRect().top);
+    expect(navTop).toBeLessThan(contactTop);
 
-  for (const locator of [navLinks, contactLinks]) {
-    const count = await locator.count();
-    for (let i = 0; i < count; i++) {
-      const svg = locator.nth(i).locator('svg[aria-hidden="true"]');
-      await expect(svg).toHaveCount(1);
-      await expect(svg).toHaveAttribute('viewBox', '0 0 16 16');
+    for (const locator of [navLinks, contactLinks]) {
+      const count = await locator.count();
+      for (let i = 0; i < count; i++) {
+        const svg = locator.nth(i).locator('svg[aria-hidden="true"]');
+        await expect(svg).toHaveCount(1);
+        await expect(svg).toHaveAttribute('viewBox', '0 0 16 16');
+      }
     }
-  }
 
-  const githubLink = contactLinks.filter({ hasText: 'GitHub' });
-  const linkedinLink = contactLinks.filter({ hasText: 'LinkedIn' });
-  await expect(githubLink).toHaveCount(1);
-  await expect(linkedinLink).toHaveCount(1);
+    const navGrids = [camera, briefcase, globe];
+    for (let i = 0; i < navGrids.length; i++) {
+      const grid = navGrids[i];
+      if (!grid) throw new Error(`navGrids[${i}] が無い`);
+      expect(await rectCells(navLinks.nth(i))).toEqual(cells(grid));
+    }
 
-  const githubRectCount = await githubLink.locator('svg rect').count();
-  const linkedinRectCount = await linkedinLink.locator('svg rect').count();
-  expect(githubRectCount).toBe(cells(github).length);
-  expect(linkedinRectCount).toBe(cells(linkedin).length);
-});
+    const githubLink = contactLinks.filter({ hasText: 'GitHub' });
+    const linkedinLink = contactLinks.filter({ hasText: 'LinkedIn' });
+    await expect(githubLink).toHaveCount(1);
+    await expect(linkedinLink).toHaveCount(1);
+
+    expect(await rectCells(githubLink)).toEqual(cells(github));
+    expect(await rectCells(linkedinLink)).toEqual(cells(linkedin));
+  });
+}
 
 test('ビルド出力の内部参照がすべて解決する', () => {
   const files = htmlFiles(dist);
