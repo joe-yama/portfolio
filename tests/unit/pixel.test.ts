@@ -74,19 +74,12 @@ describe('faviconSvg', () => {
 });
 
 describe.each([
+  ['camera', camera],
+  ['lost', lost],
   ['github', github],
   ['linkedin', linkedin],
   ['briefcase', briefcase],
   ['globe', globe],
-])('%s', (_name, rows) => {
-  it('gridSize が 16×16 になる', () => {
-    expect(gridSize(rows)).toEqual({ width: 16, height: 16 });
-  });
-});
-
-describe.each([
-  ['camera', camera],
-  ['lost', lost],
 ])('%s', (_name, rows) => {
   it('16 行 × 16 文字で、. と # だけからなる', () => {
     expect(rows).toHaveLength(16);
