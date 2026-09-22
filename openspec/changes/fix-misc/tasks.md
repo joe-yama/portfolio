@@ -107,6 +107,35 @@ design.md の D1〜D5 を前提とする。`profile-and-career` の spec delta�
   - 2.3 のテストを通す
 - [x] 2.5 検証: `pnpm test`・`pnpm lint`・`pnpm typecheck`・`pnpm build && pnpm e2e` を実行し、既存の `tests/e2e/viewport.spec.ts` の「トップページの初見表示」（1280×720・1440×900、`ja`/`en` 両方）が引き続き緑であることを含めて結果を示す
 
+## 3. 経歴データの文言修正とスキルの追加・置き換え
+
+データ編集のみ。`docs/content-authoring.md`「経歴（日英の対応づけ）」に従い、`ja.yaml` と `en.yaml` を同じカテゴリ数・項目数で更新する。design.md の D9 を参照。
+
+- [x] 3.1 RED: `tests/` 配下を `全社横断`（ja.yaml のみ）・`開発標準化機能`・`リードしている`（experience の role/bullets 文言）・`Python, SQL`（プログラミング言語の現在値）で grep し、これらの厳密な文字列に依存しているテストが無いか確認する。もし依存しているテストがあれば、新しい文言に合わせて期待値を更新する（変更前にまず現状の文言で全テストが緑であることを確認してから着手する）
+- [x] 3.2 GREEN: `src/content/career/ja.yaml` を編集する:
+  - `experience[0].role` を `エンジニアリング標準化リード（全社横断）` → `エンジニアリング標準化リード` に変更する（「（全社横断）」を削除）
+  - `experience[0].bullets[0]` を `100 名超のエンジニアを対象に、プロジェクト横断の開発標準化機能を立ち上げ、リードしている` → `100 名超のエンジニアを対象に、プロジェクト横断の開発標準活動を立ち上げリーディング` に変更する
+  - `skills.クラウド` に `プラットフォームエンジニアリング` を追加する（末尾でよい）
+  - `skills.プログラミング言語` を `[Python, SQL]` から `[Python, Java, Scala, C++, TypeScript]` に置き換える
+  - `skills` に新しいカテゴリ `言語` を追加し、値を `[英語を第一言語とするチームのリーディング]` にする（他のカテゴリの後に追加する）
+- [x] 3.3 GREEN: `src/content/career/en.yaml` を、ja.yaml と同じカテゴリ数・カテゴリごとの項目数になるように編集する（`docs/content-authoring.md` の日英対応づけルールに従う。カテゴリの記述順を ja.yaml と揃えること）:
+  - `experience[0].role` の `(Cross-Project)` 相当はそのままでよい（「全社横断」の削除は日本語版の文言修正であり、英語版はすでに `Cross-Project` のみで「全社」に相当する語を含んでいない）。ただし `bullets[0]` の内容変更（「立ち上げ、リードしている」→「立ち上げリーディング」のニュアンス）に対応する自然な英語表現に更新する（例: `Founded and am leading a cross-project engineering-standards initiative for 100+ engineers` 相当。厳密な直訳でなくてよいが、原文の意味を変えないこと）
+  - `skills.Cloud`（または対応するキー名）に `Platform Engineering` を追加する
+  - `skills.Programming languages`（または対応するキー名）を `[Python, SQL]` 相当から `[Python, Java, Scala, C++, TypeScript]` に置き換える
+  - `skills` に新しいカテゴリ `Languages` を追加し、値を `[Leading teams whose primary language is English]` にする
+- [x] 3.4 検証: `pnpm test`（`validateCareerParity` を含む既存の単体テストが日英の件数一致を検証する）・`pnpm lint`・`pnpm typecheck`・`pnpm build && pnpm e2e` を実行し、3.1 で更新したテストも含めてすべて緑であることを示す
+
+## 4. AWS 認定資格 12 件へのバッジ画像表示
+
+design.md の D6〜D8、`content-schema` と `profile-and-career` の spec delta に沿って実装する。バッジ画像はコントローラーが `/private/tmp/claude-501/-Users-joe-repo-github-personal-joe-yama-portfolio--worktrees-feature-fix-misc/9e44d26a-62f7-494b-8963-a34af1acd186/scratchpad/aws-badges/` に取得済み（取得元 URL・ファイル一覧はコントローラーの報告を参照。取得できなかった資格があれば、その資格には `logo` を付けずに従来どおり文字のみで表示する）。
+
+- [ ] 4.1 RED: `tests/unit/schemas.test.ts` に、`certifications` の項目が任意の `logo`（文字列）を持てることを検証する単体テストを追加し、まだスキーマが `logo` を許可していないため失敗することを確認する
+- [ ] 4.2 GREEN: `src/content/schemas.ts` の `datedItemSchema` に `logo: z.string().optional()` を追加し、4.1 を通す
+- [ ] 4.3 GREEN: バッジ画像ファイルを `public/badges/` にコピーする（コントローラーが取得したファイルをそのまま使う。ファイル名はコントローラーの報告に従う）。`src/content/career/ja.yaml` と `src/content/career/en.yaml` の該当する AWS 認定資格の項目（12 件、`docs/content-authoring.md` の「certifications は日英で同じ順番に並べる」に従い両言語とも同じ項目に）に `logo: /badges/<ファイル名>` を追加する
+- [ ] 4.4 RED: `tests/e2e/pages.spec.ts` または `tests/e2e/links.spec.ts` に、`/ja/career/` の資格セクションで `logo` を持つ項目に `<img>`（`alt` がその資格の `name` と一致）が現れ、`logo` を持たない項目（TOEIC・Licensed Scrum Master 等）には `<img>` が現れないことを検証する e2e テストを追加し、実装前に失敗することを確認する
+- [ ] 4.5 GREEN: `src/pages/[lang]/career.astro` の資格セクションで、`item.logo` がある場合に `<img src={withBase(item.logo, base)} alt={item.name} />` を名前の隣に表示する。4.4 のテストを通す
+- [ ] 4.6 検証: `pnpm test`・`pnpm lint`・`pnpm typecheck`・`pnpm build && pnpm e2e` を実行し、すべて緑であることを示す。加えて `dist/` に `badges/` 配下の画像が出力されていること（`ls dist/badges/` 等）を確認する
+
 ## 提案（本 change のスコープ外・後続への申し送り）
 
 - ヘッダーの常設ナビ（`src/components/Header.astro` の `<nav>`）には今回アイコンを付けていない。トップページ本文と意匠を揃えるなら別 change で検討する

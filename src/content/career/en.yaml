@@ -3,7 +3,7 @@ experience:
     organization: Toyota Motor Corporation
     role: Engineering Dev-Standards Lead (Cross-Project)
     bullets:
-      - Founded and lead a cross-project engineering-standards function for 100+ engineers
+      - Founded and am leading a cross-project engineering-standards initiative for 100+ engineers
   - from: "2023-02"
     organization: Toyota Motor Corporation
     role: Product Owner — Connected-Vehicle Data Platform
@@ -22,11 +22,12 @@ experience:
     bullets:
       - Statistical analysis of in-market vehicle data
 skills:
-  Cloud: [AWS, Serverless architecture, CI/CD]
+  Cloud: [AWS, Serverless architecture, CI/CD, Platform Engineering]
   Data platform: [Large-scale data processing, Data platform design, Stream processing]
   Machine learning: [Natural language processing, Word embeddings, Statistical analysis]
   Product & process: [Product ownership, Scrum, Engineering standards]
-  Programming languages: [Python, SQL]
+  Programming languages: [Python, Java, Scala, C++, TypeScript]
+  Languages: [Leading teams whose primary language is English]
 certifications:
   - date: "2026-05"
     name: "TOEIC Listening & Reading: 900"
