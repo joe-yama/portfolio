@@ -54,6 +54,15 @@ describe('toSlug', () => {
   it('--slug が . から始まる値は例外にする', () => {
     expect(() => toSlug('x.jpg', '.hidden')).toThrow();
   });
+
+  it('--slug が . で終わる値は例外にする（先頭の . と対称に拒否する）', () => {
+    expect(() => toSlug('x.jpg', 'kamo-river.')).toThrow('kamo-river.');
+    expect(() => toSlug('x.jpg', 'kamo-river-v1.2.')).toThrow();
+  });
+
+  it('途中の . は拒否しない', () => {
+    expect(toSlug('x.jpg', 'kamo-river-v1.2')).toBe('kamo-river-v1.2');
+  });
 });
 
 describe('formatShutterSpeed', () => {
