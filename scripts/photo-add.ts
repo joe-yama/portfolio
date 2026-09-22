@@ -14,6 +14,7 @@ import {
 import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import exifr from 'exifr';
 import sharp from 'sharp';
@@ -30,7 +31,10 @@ import {
   translateMissingFields,
 } from '../src/lib/photo-meta.ts';
 
-const PHOTOS_DIR = 'src/content/photos';
+/** リポジトリのルート。cwd がどこでも同じ場所を読み書きする（scripts/ の 1 つ上） */
+const ROOT = fileURLToPath(new URL('..', import.meta.url));
+const PHOTOS_DIR = join(ROOT, 'src/content/photos');
+const ASTRO_ASSETS_CACHE = join(ROOT, 'node_modules/.astro/assets');
 const RELEASE_TAG = 'photos';
 const MAX_EDGE = 2500;
 const USAGE = '使い方: pnpm photo:add <画像ファイル> [--slug <名前>]';
@@ -139,7 +143,7 @@ mkdirSync(PHOTOS_DIR, { recursive: true });
 const yamlPath = join(PHOTOS_DIR, `${slug}.yaml`);
 if (existsSync(yamlPath)) {
   // 差し替え経路でだけキャッシュを消す。古い画像の版がビルド出力に残るのを防ぐ（新規入稿では呼ばない）
-  rmSync(join('node_modules', '.astro', 'assets'), { recursive: true, force: true });
+  rmSync(ASTRO_ASSETS_CACHE, { recursive: true, force: true });
   console.log(`差し替え: ${yamlPath} は変更していない（画像の登録のみ実施）`);
 } else {
   const existing = readdirSync(PHOTOS_DIR).filter((f) => f.endsWith('.yaml'));
