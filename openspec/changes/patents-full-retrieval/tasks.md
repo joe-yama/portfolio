@@ -40,7 +40,20 @@
 
 ## 5. 番人が本当に番人か確かめる
 
-- [ ] 5.1 2.1 / 2.2 / 4.1 / 4.2 で足した検査に 1 つずつ変異を当て、それぞれが落ちることを隔離実行（`docs/harness/README.md` の手順）で確かめる。当てる変異は (a) `countries[0]` の比較を常に真にする、(b) `sortPatents` を外す、(c) `<details>` に `open` を付ける、(d) `en.yaml` の `url` を `/ja` に戻す。落ちなかった検査は直してから再度確かめ、結果を本ファイルに記録する
+- [x] 5.1 2.1 / 2.2 / 4.1 / 4.2 で足した検査に 1 つずつ変異を当て、それぞれが落ちることを隔離実行（`docs/harness/README.md` の手順）で確かめる。当てる変異は (a) `countries[0]` の比較を常に真にする、(b) `sortPatents` を外す、(c) `<details>` に `open` を付ける、(d) `en.yaml` の `url` を `/ja` に戻す。落ちなかった検査は直してから再度確かめ、結果を本ファイルに記録する
+
+  変異は 1 つずつ当てて実行し、都度バックアップから内容を復元した（`git checkout` は使っていない）。`.mut-exp/` での隔離実行（`pnpm exec vitest run --root`）は、`node_modules/.vite` の古いキャッシュが残っていると変異前の挙動のまま緑に見える罠があり、実プロジェクト設定での直接実行に切り替えて確かめ直した（詳細は報告 `task-5-report.md`）。
+
+  | 変異 | 当てた場所 | 落ちた検査 | 結果 |
+  |---|---|---|---|
+  | a countries[0] の比較を常に真に | `src/lib/validate.ts` の `validateCareerPatents`（97-98行目付近） | `tests/unit/validate.test.ts` の「countries の先頭が代表公報の国と違えば…」「日本語のデータは整合し英語のデータだけ先頭が違うとき…」 | 落ちた（2 件） |
+  | a2 見出しの長さの比較を常に真に | 同関数の `length > maxLength` | `tests/unit/validate.test.ts` の「日本語の見出しが 41 文字なら…」「英語の見出しが 91 文字なら…」 | 落ちた（2 件） |
+  | b `sortPatents` を外す | `src/pages/[lang]/career.astro` の `splitPatents(sortPatents(career.patents))` → `splitPatents(career.patents)` | `tests/e2e/pages.spec.ts` の「特許は出願国数が多い順、同数なら出願年月が新しい順に並ぶ」 | 落ちた |
+  | c `<details>` に `open` を付ける | `src/pages/[lang]/career.astro` の `<details>` | `tests/e2e/pages.spec.ts` の「折りたたみを開く前は先頭 5 件だけ見えている」（連鎖して「summary をクリックすると…」も落ちた） | 落ちた（2 件） |
+  | d `en.yaml` の `url` を 1 件だけ `/ja` に戻す | `src/content/career/en.yaml`（`JP7200645B2` の `url`） | `tests/e2e/pages.spec.ts` の「日本語ページと英語ページで特許のリンク先が異なる」 | 落ちた |
+  | e `ja.yaml` / `en.yaml` の `patents` 末尾に同じダミーを 1 件足す | 両ファイル | どの検査も | 落ちなかった（期待どおり。件数の期待値がデータから導かれている証拠。総数 65→66、summary の残数 60→61 に自動で追随した） |
+  | e 追加確認: `tests/e2e/pages.spec.ts` の `parsePatents` を壊す（2 件目以降を数えない） | 同ファイルの `numberMatch` 判定に `if (patents.length >= 1) break;` を追加 | 「折りたたみを開く前は…」「summary をクリックすると…」×2 言語、「出願国数が多い順…」 | 落ちた（5 件。抽出関数自体が件数を正しく見ている証拠） |
+  | f 同じダミーを `ja.yaml` にだけ足す | `src/content/career/ja.yaml` | `pnpm build`（`validateCareerParity`） | ビルドが `patents の件数が日英で違う（ja: 66, en: 65）` で失敗（期待どおり） |
 
 ## 6. 仕上げ
 
