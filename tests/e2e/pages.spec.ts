@@ -45,6 +45,16 @@ function firstBySortOrder(patents: PatentSummary[]): PatentSummary {
   return first;
 }
 
+/** src/lib/career.ts の formatMonth と同じ規則を、e2e から独立に計算する（YAML の filedAt から導く） */
+function formatMonth(value: string, lang: 'ja' | 'en'): string {
+  const [year, month] = value.split('-').map(Number);
+  if (year === undefined || month === undefined) throw new Error(`日付の形式が違う: ${value}`);
+  return new Intl.DateTimeFormat(lang, {
+    year: 'numeric',
+    month: lang === 'ja' ? 'long' : 'short',
+  }).format(new Date(year, month - 1, 1));
+}
+
 const patentsByLang = {
   ja: parsePatents('src/content/career/ja.yaml'),
   en: parsePatents('src/content/career/en.yaml'),
@@ -54,6 +64,8 @@ const PATENTS_HEAD_COUNT = 5;
 const patentsTotal = patentsByLang.ja.length;
 const patentsRestCount = patentsTotal - PATENTS_HEAD_COUNT;
 const expectedFirstNumber = firstBySortOrder(patentsByLang.ja).number;
+const expectedFirstFiledAt = firstBySortOrder(patentsByLang.ja).filedAt;
+const expectedFirstCountries = firstBySortOrder(patentsByLang.ja).countries;
 
 /** 5 種類 × 2 言語。パスは baseURL からの相対（先頭スラッシュなし） */
 const pagePaths = locales.flatMap((lang) => [
@@ -219,6 +231,26 @@ test.describe('特許の区画', () => {
     await page.goto('./ja/career/');
     const section = patentsSection(page, 'ja');
     await expect(section.locator('li').first()).toContainText(expectedFirstNumber);
+  });
+
+  test('先頭の項目は出願年月（ロケール表記）と出願国を YAML の値のまま日本語で表示する', async ({
+    page,
+  }) => {
+    await page.goto('./ja/career/');
+    const section = patentsSection(page, 'ja');
+    const li = section.locator('li').first();
+    await expect(li).toContainText(formatMonth(expectedFirstFiledAt, 'ja'));
+    await expect(li).toContainText(expectedFirstCountries.join(', '));
+  });
+
+  test('先頭の項目は出願年月（ロケール表記）と出願国を YAML の値のまま英語で表示する', async ({
+    page,
+  }) => {
+    await page.goto('./en/career/');
+    const section = patentsSection(page, 'en');
+    const li = section.locator('li').first();
+    await expect(li).toContainText(formatMonth(expectedFirstFiledAt, 'en'));
+    await expect(li).toContainText(expectedFirstCountries.join(', '));
   });
 
   test('日本語ページと英語ページで特許のリンク先が異なる', async ({ page }) => {

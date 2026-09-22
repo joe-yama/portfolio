@@ -56,6 +56,25 @@
   | e 追加確認: `tests/e2e/pages.spec.ts` の `parsePatents` を壊す（2 件目以降を数えない） | 同ファイルの `numberMatch` 判定に `if (patents.length >= 1) break;` を追加 | 「折りたたみを開く前は…」「summary をクリックすると…」×2 言語、「出願国数が多い順…」 | 落ちた（5 件。抽出関数自体が件数を正しく見ている証拠） |
   | f 同じダミーを `ja.yaml` にだけ足す | `src/content/career/ja.yaml` | `pnpm build`（`validateCareerParity`） | ビルドが `patents の件数が日英で違う（ja: 66, en: 65）` で失敗（期待どおり） |
 
+  **裁定 R24（レビュー単位 B+C）**: ブランチ全体レビュー手前で、変異表に無い穴が 2 つ見つかった。
+  I-1「`src/lib/content.ts` の `validateCareerPatents` の配線を消してもどのテストも落ちない」、
+  I-2「`tests/e2e/pages.spec.ts` が出願年月・出願国の表示内容を検査していない」。今回のラウンドで
+  I-2 は `tests/e2e/pages.spec.ts` に検査を追加して塞ぎ、I-1 は追加した変異 (g)(h) が既存の
+  `src/lib/content.ts` の配線で正しく検出されることを確かめて閉じた（配線自体を検査する自動テストは
+  「単体テストでは配線は守れない」制約により追加していない。将来また 2 行を削っても pnpm build /
+  test / e2e のどれも落ちない、という I-1 の指摘の核心は変異による都度確認以外には残る。後続に
+  引き継ぐ）。
+
+  | 変異 | 当てた場所 | 落ちた検査 | 結果 |
+  |---|---|---|---|
+  | g `countries` の先頭 2 つを入れ替える | `src/content/career/ja.yaml`（`JP7200645B2` の `countries: [JP, US, CN]` → `[US, JP, CN]`） | `pnpm build`（`src/lib/content.ts` 経由で呼ばれる `validateCareerPatents`） | ビルドが `countries の先頭が代表公報の国と違う（number: JP7200645B2, countries[0]: US）` で失敗（期待どおり） |
+  | h `title` を 41 文字に伸ばす | `src/content/career/ja.yaml`（`JP7200645B2` の `title`） | `pnpm build`（同上） | ビルドが `title が長すぎる（number: JP7200645B2, 41 文字、上限 40 文字）` で失敗（期待どおり） |
+  | i `<PatentItem lang={lang}>` を `lang="ja"` に固定 | `src/pages/[lang]/career.astro` の 2 か所 | `tests/e2e/pages.spec.ts` の新規「先頭の項目は出願年月（ロケール表記）と出願国を YAML の値のまま英語で表示する」 | 落ちた |
+  | j `countries` の `<span>` を削除 | `src/components/PatentItem.astro` | 上記の新規テスト（日英両方） | 落ちた（2 件） |
+  | k `formatMonth` の `<span>` を削除 | `src/components/PatentItem.astro` | 上記の新規テスト（日英両方） | 落ちた（2 件） |
+
+  I-1・I-2 の確認手順・実行結果の実出力は `.superpowers/sdd/tasks/task-5-report.md` に追記した。
+
 ## 6. 仕上げ
 
 - [ ] 6.1 ブランチ全体のレビューの指摘のうち Critical / Important を反映する。Minor は本ファイル末尾の「提案」に転記する
