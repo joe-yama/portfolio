@@ -10,8 +10,10 @@ export type Localized = z.infer<typeof localizedSchema>;
 
 /** 暦として実在する日か（`2025-02-30` のように形式は合っていても存在しない日を弾く） */
 function isCalendarDate(y: number, m: number, d: number): boolean {
-  const date = new Date(y, m - 1, d);
-  return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+  // new Date(y, …) と Date.UTC は 0〜99 年を 1900 年代に読み替えるので setUTCFullYear で組み立てる
+  const date = new Date(0);
+  date.setUTCFullYear(y, m - 1, d);
+  return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
 }
 
 /** YYYY-MM */
