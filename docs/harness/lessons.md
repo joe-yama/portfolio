@@ -45,7 +45,9 @@ Change 10（followup-hardening）でも 4 件出た。**追加したばかりの
 3. 経歴ページの「0 件の区画を出さない」条件分岐にテストが 1 本も無く、職歴が消えても単体 244 件・e2e 58 件のどれも落ちなかった
 4. 新しく足した `parseOrder` / `hasFeaturedFlag` のテストが行頭アンカーを固定しておらず、`/^order:/m` → `/order:/m` の変異ですり抜けた
 
-**番人を書いたら必ず変異を当てて落ちることを確かめる。** change の `tasks.md` に「番人が本当に番人か確かめる」タスクを 1 つ置く。隔離実行の手順は `docs/harness/README.md`。
+Change 11（patents-full-retrieval）では**変異の確かめ方そのものが誤った緑を返した**。worktree 内の `.mut-exp/` に対象ファイルだけ複製して実行したら、変異を当てても全件緑だった。当時は `node_modules/.vite` の古いキャッシュが原因と見たが、2026-09-23 の再現ではキャッシュでは起きなかった（`.vite/vitest/<hash>/results.json` は実行順と所要時間の記録だけで、`--fsModuleCache` は既定で無効、有効にしても内容で引くので変異後を読む）。再現したのは**`--root` を付けず `--config .mut-exp/vitest.config.ts` だけを渡した形**で、設定は読むが root が cwd（作業ツリー）のままになり、作業ツリーの 11 ファイル 256 件を走らせて緑を返した。逆に `--root .mut-exp --config .mut-exp/vitest.config.ts` は config を root 基準で解決して `.mut-exp/.mut-exp/vitest.config.ts` を探し、起動に失敗する。**症状は件数で見分けられる: 複製したテストの件数ではなく作業ツリー全体の件数が出たら、複製を見ていない。**
+
+**番人を書いたら必ず変異を当てて落ちることを確かめる。** change の `tasks.md` に「番人が本当に番人か確かめる」タスクを 1 つ置く。隔離実行の手順（対照実験を含む）は `docs/harness/README.md` §7。
 
 ## 3. Astro のスコープ CSS は複合セレクタの両側に属性を付ける
 

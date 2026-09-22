@@ -136,3 +136,23 @@ transcript（`~/.claude/projects/-Users-joe-repo-github-personal-joe-yama-portfo
 - `.claude/rules/review.md` の個別ルールが立っている実測: 「レビューの単位」は layout-followups が **CSS の Minor 5 件の確認に 135 回のツール呼び出し**を使ったこと、「指摘は全部そろえて 1 回で送る」は **分割送付で layout-followups が 5 ラウンドまで伸びた**こと
 
 集計スクリプトはその場限り（scratchpad）で、リポジトリには置いていない。再集計が必要なら同じ jsonl から `type: assistant` の `tool_use` と `attachment.hookEvent == "PermissionRequest"` を数える。
+
+## 7. 変異テストの隔離実行（2026-09-23 実測、vitest 5.0.1）
+
+「番人が本当に番人か」は、作業ツリーのソースを変異させずに確かめる。**リポジトリ外に丸ごと複製し、複製に依存を入れ、複製の中で実行する。** 作業ツリーの `node_modules` やキャッシュを一切共有しないので、誤った緑（`docs/harness/lessons.md` §2 の Change 11）が起きる経路が無い。
+
+```sh
+EXP=<scratchpad>/mut-<名前>/exp                          # リポジトリ外の新しいディレクトリ
+mkdir -p "$EXP" && git archive HEAD | tar -x -C "$EXP"
+pnpm --dir "$EXP" install --frozen-lockfile --offline    # store からのリンクだけ。1 秒未満
+pnpm --dir "$EXP" test     # 対照: 変異なしで緑。件数が作業ツリーの pnpm test と同じ
+# 変異を 1 つ当てる（sed か Edit。触るのは $EXP 配下だけ）
+pnpm --dir "$EXP" test     # 変異ありで、狙った検査が赤
+```
+
+- **対照実験は手順の一部で、省かない。** 変異なしで緑・件数一致 → 変異ありで赤、の 2 回を記録する。変異なしで赤なら複製が壊れている。変異ありで件数も結果も変わらないなら複製を見ていない
+- 実測: 変異なし `Tests 256 passed (256)` → `validate.ts` の `countries[0]` の比較を `if (false)` にすると `Tests 2 failed | 254 passed (256)`
+- コミット前の番人を試すときは、`git archive` の後に変更したファイルを `$EXP` へ `cp` で上書きする
+- 複製を `node_modules` の無い場所に置いて作業ツリーから `pnpm exec vitest run --root "$EXP"` すると、`vitest/config` と `astro/zod` が解決できず `ERR_MODULE_NOT_FOUND` で起動しない（`ln -s` は permission で拒否される）。だから複製に `install` する
+- **e2e**: `pnpm --dir "$EXP" e2e`。globalSetup が複製の中で `pnpm build` し直すので、変異を当てた後のビルドは自動で入る。ポート 4399 を作業ツリーや他の worktree の preview と共有するので同時に回さない（占有中なら globalSetup が止める）。実測: 変異なし `68 passed` → `career.astro` の `sortPatents` を外すと `3 failed / 65 passed`
+- 使い終わった `$EXP` は scratchpad に残してよい（`git status` を汚さない）
