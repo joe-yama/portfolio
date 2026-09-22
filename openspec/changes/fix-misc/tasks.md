@@ -130,3 +130,9 @@ design.md の D1〜D5 を前提とする。`profile-and-career` の spec delta�
 - ヘッダーの常設ナビ（`src/components/Header.astro` の `<nav>`）には今回アイコンを付けていない。トップページ本文と意匠を揃えるなら別 change で検討する
 - 手描きの 16×16 ドット絵（GitHub・LinkedIn・Career・言語切り替え）は「仮の絵」（`camera`/`lost` と同水準）。レビューで実際の見た目を見て、視認性が低ければ差し替えを検討する
 - **AWS 認定資格 12 件へのバッジ画像表示は実装したが、PO の判断（見た目が良くない）で取り消した**（2026-09-22、`revert: AWS認定資格のバッジロゴ表示を取り消す`）。aws.amazon.com 公式の 500×500 PNG をそのまま `<img>` で縮小表示する形だった。再挑戦する場合は見せ方（サイズ・配置・ドット絵化するか等）から design.md で検討し直すこと。取得済みだった画像・対応表は削除済みで残っていない
+- ブランチ全体レビュー（2026-09-22、Approved）の Minor 指摘:
+  1. `tests/e2e/links.spec.ts` のアイコン取り違えの番人が rect 数の一致だけを見ており、camera（66）と linkedin（66）が同数のため取り違え変異を検出できない。`outerHTML` か先頭 rect の座標で比較するよう強化する
+  2. `tests/unit/pixel.test.ts` の新規グリッド（github/linkedin/briefcase/globe）の番人が `gridSize` の width/height だけを見ており、1 行だけ短い・`.`/`#` 以外の文字が混ざる等の変異を検出できない。既存のより厳しい番人ブロック（`toHaveLength(16)` + 正規表現）に統合する
+  3. `src/pages/[lang]/index.astro` の nav アイコン対応づけが `navLinks` の表示ラベル文字列（`'Photos'`/`'Career'`）をキーにしている。将来ラベルを訳語にするとアイコンが例外無しに消える。`navLinks` の戻り値にアイコンを持たせるか index 対応にする
+  4. 同ファイルの `as readonly string[]` という型アサーションが 2 箇所。ローカル変数に受けて narrowing すればキャスト無しにできる
+  5. 手描きドット絵の視認性（実測）: briefcase（鞄）が取っ手の線が細く判別しづらい、globe（地球儀）が横帯が枠いっぱいに伸びていて照準のように見える。差し替えるなら globe → briefcase の順で効果が大きい
