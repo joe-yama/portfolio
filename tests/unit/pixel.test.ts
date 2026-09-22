@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { camera, cells, faviconSvg, gridSize, lost } from '../../src/lib/pixel';
+import {
+  briefcase,
+  camera,
+  cells,
+  faviconSvg,
+  github,
+  globe,
+  gridSize,
+  linkedin,
+  lost,
+} from '../../src/lib/pixel';
 
 describe('cells', () => {
   it('# のセル座標を行優先で返す', () => {
@@ -60,6 +70,17 @@ describe('faviconSvg', () => {
 
   it('名前空間以外に外部への参照を持たない', () => {
     expect(faviconSvg(camera).replace(/xmlns="[^"]*"/g, '')).not.toContain('//');
+  });
+});
+
+describe.each([
+  ['github', github],
+  ['linkedin', linkedin],
+  ['briefcase', briefcase],
+  ['globe', globe],
+])('%s', (_name, rows) => {
+  it('gridSize が 16×16 になる', () => {
+    expect(gridSize(rows)).toEqual({ width: 16, height: 16 });
   });
 });
 
