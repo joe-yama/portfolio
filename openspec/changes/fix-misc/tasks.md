@@ -105,7 +105,7 @@ design.md の D1〜D5 を前提とする。`profile-and-career` の spec delta�
   - `<nav class="links">` の `navLinks` 由来の Photos/Career と言語切り替えの `<a>` に、それぞれ `camera`（Photos）・`briefcase`（Career）・`globe`（言語切り替え）を差し込む
   - `<a>` に `display: flex; align-items: center; gap: 0.35em;` を追加する scoped style を書く
   - 2.3 のテストを通す
-- [ ] 2.5 検証: `pnpm test`・`pnpm lint`・`pnpm typecheck`・`pnpm build && pnpm e2e` を実行し、既存の `tests/e2e/viewport.spec.ts` の「トップページの初見表示」（1280×720・1440×900、`ja`/`en` 両方）が引き続き緑であることを含めて結果を示す
+- [x] 2.5 検証: `pnpm test`・`pnpm lint`・`pnpm typecheck`・`pnpm build && pnpm e2e` を実行し、既存の `tests/e2e/viewport.spec.ts` の「トップページの初見表示」（1280×720・1440×900、`ja`/`en` 両方）が引き続き緑であることを含めて結果を示す
 
 ## 提案（本 change のスコープ外・後続への申し送り）
 
