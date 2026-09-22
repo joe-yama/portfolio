@@ -113,7 +113,15 @@ describe('validateCareerParity', () => {
     skills: { lang: ['ts'] },
     certifications: [{ date: '2023-06-01', name: 'c' }],
     achievements: [{ date: '2024-10-12', name: 'a', kind: 'talk' }],
-    patents: [{ filedAt: '2021-03', title: 't', number: 'JP1', countries: ['JP'] }],
+    patents: [
+      {
+        filedAt: '2021-03',
+        title: 't',
+        number: 'JP1',
+        countries: ['JP'],
+        url: 'https://example.com/',
+      },
+    ],
   };
 
   it('件数が一致すれば問題なし', () => {
@@ -226,11 +234,27 @@ describe('validateCareerParity', () => {
   it('patents の同じ位置の filedAt が日英で違えば、何番目かと両方の値を報告する', () => {
     const ja: Career = {
       ...base,
-      patents: [{ filedAt: '2021-03', title: 't', number: 'JP1', countries: ['JP'] }],
+      patents: [
+        {
+          filedAt: '2021-03',
+          title: 't',
+          number: 'JP1',
+          countries: ['JP'],
+          url: 'https://example.com/',
+        },
+      ],
     };
     const en: Career = {
       ...base,
-      patents: [{ filedAt: '2019-08', title: 't-en', number: 'JP1', countries: ['JP'] }],
+      patents: [
+        {
+          filedAt: '2019-08',
+          title: 't-en',
+          number: 'JP1',
+          countries: ['JP'],
+          url: 'https://example.com/',
+        },
+      ],
     };
     const errors = validateCareerParity(ja, en);
     expect(errors).toHaveLength(1);
@@ -242,11 +266,27 @@ describe('validateCareerParity', () => {
   it('patents の同じ位置の countries の件数が日英で違えば報告する', () => {
     const ja: Career = {
       ...base,
-      patents: [{ filedAt: '2021-03', title: 't', number: 'JP1', countries: ['JP'] }],
+      patents: [
+        {
+          filedAt: '2021-03',
+          title: 't',
+          number: 'JP1',
+          countries: ['JP'],
+          url: 'https://example.com/',
+        },
+      ],
     };
     const en: Career = {
       ...base,
-      patents: [{ filedAt: '2021-03', title: 't-en', number: 'JP1', countries: ['JP', 'US'] }],
+      patents: [
+        {
+          filedAt: '2021-03',
+          title: 't-en',
+          number: 'JP1',
+          countries: ['JP', 'US'],
+          url: 'https://example.com/',
+        },
+      ],
     };
     const errors = validateCareerParity(ja, en);
     expect(errors).toHaveLength(1);
@@ -260,13 +300,29 @@ describe('validateCareerParity', () => {
       ...base,
       certifications: [{ date: '2020-01', name: 'a' }],
       achievements: [{ date: '2021-05', name: 'b', kind: 'talk' }],
-      patents: [{ filedAt: '2021-03', title: 't', number: 'JP1', countries: ['JP', 'US'] }],
+      patents: [
+        {
+          filedAt: '2021-03',
+          title: 't',
+          number: 'JP1',
+          countries: ['JP', 'US'],
+          url: 'https://example.com/',
+        },
+      ],
     };
     const en: Career = {
       ...ja,
       certifications: [{ date: '2020-01', name: 'a-en' }],
       achievements: [{ date: '2021-05', name: 'b-en', kind: 'talk' }],
-      patents: [{ filedAt: '2021-03', title: 't-en', number: 'JP1', countries: ['JP', 'US'] }],
+      patents: [
+        {
+          filedAt: '2021-03',
+          title: 't-en',
+          number: 'JP1',
+          countries: ['JP', 'US'],
+          url: 'https://example.com/',
+        },
+      ],
     };
     expect(validateCareerParity(ja, en)).toEqual([]);
   });
@@ -279,6 +335,7 @@ describe('validateCareerPatents', () => {
       title: 't',
       number: 'JP6549500B2',
       countries: ['JP', 'CN', 'US'],
+      url: 'https://example.com/',
       ...over,
     };
   }

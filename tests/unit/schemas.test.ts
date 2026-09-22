@@ -116,6 +116,7 @@ const validCareer = {
       title: '発明の名称',
       number: 'JP2021-123456A',
       countries: ['JP'],
+      url: 'https://patents.google.com/patent/JP2021123456A/ja',
     },
   ],
 };
@@ -213,6 +214,7 @@ const validPatent = {
   title: '発明の名称',
   number: 'JP2021-123456A',
   countries: ['JP', 'CN'],
+  url: 'https://patents.google.com/patent/JP2021123456A/ja',
 };
 
 describe('patentSchema', () => {
@@ -239,12 +241,13 @@ describe('patentSchema', () => {
     expect(patentSchema.safeParse(rest).success).toBe(false);
   });
 
-  it('url は任意', () => {
-    expect(patentSchema.safeParse(validPatent).success).toBe(true);
-    expect(
-      patentSchema.safeParse({ ...validPatent, url: 'https://patents.google.com/patent/x' })
-        .success,
-    ).toBe(true);
+  it('url が無ければ失敗する', () => {
+    const { url: _omit, ...rest } = validPatent;
+    expect(patentSchema.safeParse(rest).success).toBe(false);
+  });
+
+  it('url が URL の形でなければ失敗する', () => {
+    expect(patentSchema.safeParse({ ...validPatent, url: 'JP2021-123456A' }).success).toBe(false);
   });
 });
 

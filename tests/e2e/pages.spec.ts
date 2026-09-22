@@ -277,15 +277,15 @@ test.describe('特許の区画', () => {
     }
   });
 
-  test('url を持つ項目の名称だけが Google Patents へのリンクになる', async ({ page }) => {
+  test('すべての特許の見出しが Google Patents へのリンクになる', async ({ page }) => {
     await page.goto('./ja/career/');
     const section = patentsSection(page, 'ja');
-    await section.locator('summary').click();
-    const links = section.locator('li a');
-    expect(await links.count()).toBeGreaterThan(0);
-    for (const href of await links.evaluateAll((ls) => ls.map((l) => l.getAttribute('href')))) {
-      expect(href).toMatch(/^https:\/\/patents\.google\.com\/patent\//);
-    }
+    // <details> の中の項目も DOM にはあるので、開かずに全件を数えられる
+    const hrefs = await section
+      .locator('li a')
+      .evaluateAll((ls) => ls.map((l) => l.getAttribute('href') ?? ''));
+    expect(hrefs).toHaveLength(patentsTotal);
+    for (const href of hrefs) expect(href).toMatch(/^https:\/\/patents\.google\.com\/patent\//);
   });
 });
 

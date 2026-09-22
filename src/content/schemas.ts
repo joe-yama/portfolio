@@ -84,7 +84,7 @@ export const patentSchema = z.object({
   title: nonEmpty,
   number: nonEmpty,
   countries: z.array(nonEmpty).min(1),
-  url: z.url().optional(),
+  url: z.url(),
 });
 export type Patent = z.infer<typeof patentSchema>;
 
