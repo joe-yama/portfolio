@@ -99,7 +99,7 @@ design.md の D1〜D5 を前提とする。`profile-and-career` の spec delta�
   - `main` 内で `nav.links`（Photos・Career・言語切り替え）の `getBoundingClientRect().top` が `ul.links`（連絡先リンク）のそれより小さい（＝サイト内導線が先、連絡先リンクが最も下）
   - `ul.links li a` と `nav.links a` のすべてのリンクが、内部に `svg[aria-hidden="true"]`（`viewBox="0 0 16 16"`）を 1 つ持つ
   - GitHub・LinkedIn の `<a>` に含まれる `svg` の中身（`rect` の個数、または `outerHTML`）が、それぞれ `github` / `linkedin` グリッドの `#` の数と一致する（アイコンの取り違えがないことの確認）
-- [ ] 2.4 GREEN: `src/pages/[lang]/index.astro` を変更する:
+- [x] 2.4 GREEN: `src/pages/[lang]/index.astro` を変更する:
   - `<nav class="links">` ブロックを `<ul class="links">` ブロックより前（ソース順で先）に置く
   - `<ul class="links">` の各 `<a>` に、`link.kind` に応じて `PixelArt` を差し込む（`github` → `github` グリッド、`linkedin` → `linkedin` グリッド、それ以外は spec 通りアイコンなし）
   - `<nav class="links">` の `navLinks` 由来の Photos/Career と言語切り替えの `<a>` に、それぞれ `camera`（Photos）・`briefcase`（Career）・`globe`（言語切り替え）を差し込む
