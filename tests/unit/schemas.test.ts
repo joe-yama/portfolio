@@ -1,5 +1,8 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
+  achievementKindSchema,
   careerSchema,
   PHOTO_BASE_URL,
   patentSchema,
@@ -36,16 +39,23 @@ describe('photoSchema', () => {
     expect(photoSchema.parse(rest).featured).toBe(false);
   });
 
-  it('takenAt は Date か YYYY-MM-DD 文字列のみ受け付ける（null / 数値 / 真偽値は拒否）', () => {
+  it('takenAt は YYYY-MM-DD 文字列のみ受け付ける（Date オブジェクト・null / 数値 / 真偽値は拒否）', () => {
     expect(photoSchema.safeParse({ ...validPhoto, takenAt: null }).success).toBe(false);
     expect(photoSchema.safeParse({ ...validPhoto, takenAt: 0 }).success).toBe(false);
     expect(photoSchema.safeParse({ ...validPhoto, takenAt: true }).success).toBe(false);
 
-    const parsedFromDate = photoSchema.parse({ ...validPhoto, takenAt: new Date('2025-11-03') });
-    expect(parsedFromDate.takenAt).toBeInstanceOf(Date);
+    // js-yaml はクォート無しの日付（takenAt: 2025-12-06）を Date にしてしまう。
+    // Date オブジェクトを拒否することで、実データ側にクォートを強制する（I1）
+    expect(photoSchema.safeParse({ ...validPhoto, takenAt: new Date('2025-11-03') }).success).toBe(
+      false,
+    );
 
     const parsedFromString = photoSchema.parse({ ...validPhoto, takenAt: '2025-11-03' });
     expect(parsedFromString.takenAt).toBeInstanceOf(Date);
+  });
+
+  it('takenAt は暦に存在しない日（2025-02-30）を拒否する', () => {
+    expect(photoSchema.safeParse({ ...validPhoto, takenAt: '2025-02-30' }).success).toBe(false);
   });
 
   it('image が URL でなければ拒否する', () => {
@@ -146,6 +156,28 @@ describe('careerSchema', () => {
     const bad = { ...validCareer.achievements[0], kind: 'blog' };
     expect(careerSchema.safeParse({ ...validCareer, achievements: [bad] }).success).toBe(false);
   });
+
+  it('achievementKindSchema が talk / article / award / other の 4 つを持つ（site.ts と二重定義しないための正本）', () => {
+    expect(achievementKindSchema.options).toEqual(['talk', 'article', 'award', 'other']);
+  });
+
+  it('skills のカテゴリ名が数字だけだと失敗し、理由をトップレベルの issue で示す', () => {
+    const skills = { ...validCareer.skills, '2024': ['TypeScript'] };
+    const result = careerSchema.safeParse({ ...validCareer, skills });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      // zod v4 の record のキー違反は invalid_key issue に入れ子でメッセージが入り、
+      // Astro は最上位 issue の message しか出さない。superRefine でトップレベルに出す（レビュー I2）
+      expect(
+        result.error.issues.some((i) => i.message === 'カテゴリ名が数字だけになっている'),
+      ).toBe(true);
+    }
+  });
+
+  it('skills のカテゴリ名は数字を含んでいても文字が混じれば受け付ける', () => {
+    const skills = { ...validCareer.skills, '2024年度の実績': ['TypeScript'] };
+    expect(careerSchema.safeParse({ ...validCareer, skills }).success).toBe(true);
+  });
 });
 
 describe('profileSchema', () => {
@@ -224,10 +256,6 @@ describe('資格と実績の日付の粒度', () => {
     expect(certWith('2025-10').success).toBe(true);
   });
 
-  it('年月日まで（YYYY-MM-DD）を受け付ける', () => {
-    expect(certWith('2017-08-31').success).toBe(true);
-  });
-
   it.each(['2025', '2025-10-1', '2025-1-01', '2025-13', '2025-00', '2025-10-32', '2025/10', ''])(
     '%s は受け付けない',
     (date) => {
@@ -256,5 +284,33 @@ describe('資格と実績の日付の粒度', () => {
       { date: '2017-08-31', name: 'B', kind: 'other' as const },
     ];
     expect(careerSchema.safeParse({ ...validCareer, achievements }).success).toBe(true);
+  });
+
+  it.each(['2025-02-30', '2025-11-31'])('%s は暦に存在しないので受け付けない', (date) => {
+    expect(certWith(date).success).toBe(false);
+  });
+
+  it('2024-02-29（閏年）は受け付ける', () => {
+    expect(certWith('2024-02-29').success).toBe(true);
+  });
+});
+
+describe('実データの takenAt', () => {
+  // js-yaml はクォート無しの日付をパース時に Date へ変えてしまい、photoSchema の
+  // z.date() 経由の暦検査の抜け穴になっていた（レビュー I1）。上流（YAML 側）で
+  // クォートすることでスキーマの文字列専用の検証に必ず通す
+  it('src/content/photos/*.yaml の takenAt はクォートされた文字列で書かれている', () => {
+    const dir = join(process.cwd(), 'src/content/photos');
+    const files = readdirSync(dir).filter((f) => f.endsWith('.yaml'));
+    expect(files.length).toBeGreaterThan(0);
+    for (const file of files) {
+      const text = readFileSync(join(dir, file), 'utf-8');
+      const match = text.match(/^takenAt:\s*(.+)$/m);
+      expect(match, `${file} に takenAt が無い`).not.toBeNull();
+      expect(
+        match?.[1].trim().startsWith('"'),
+        `${file} の takenAt がクォートされていない: ${match?.[1]}`,
+      ).toBe(true);
+    }
   });
 });

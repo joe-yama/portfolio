@@ -1,0 +1,91 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+import { camera, faviconSvg } from '../../src/lib/pixel';
+import { contrast, readTokens } from '../../src/lib/theme';
+
+describe('contrast', () => {
+  it('黒と白は 21', () => {
+    expect(contrast('#000000', '#ffffff')).toBeCloseTo(21, 1);
+  });
+
+  it('同じ色は 1', () => {
+    expect(contrast('#8f8f8f', '#8f8f8f')).toBeCloseTo(1, 5);
+  });
+
+  it('#8f8f8f と #fafafa は 3.0〜3.2 の範囲', () => {
+    const c = contrast('#8f8f8f', '#fafafa');
+    expect(c).toBeGreaterThanOrEqual(3.0);
+    expect(c).toBeLessThanOrEqual(3.2);
+  });
+});
+
+describe('readTokens', () => {
+  const css = `
+:root {
+  --bg: #fafafa;
+  --fg: #111111;
+  --fg-muted: #5c5c5c;
+  --line: #8f8f8f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0c0c0c;
+    --fg: #e8e8e8;
+    --fg-muted: #9a9a9a;
+    --line: #606060;
+  }
+}
+`;
+
+  it(':root とダークのブロックから 4 トークンを抜く', () => {
+    expect(readTokens(css)).toEqual({
+      light: { bg: '#fafafa', fg: '#111111', fgMuted: '#5c5c5c', line: '#8f8f8f' },
+      dark: { bg: '#0c0c0c', fg: '#e8e8e8', fgMuted: '#9a9a9a', line: '#606060' },
+    });
+  });
+
+  it('トークンが欠けていれば例外', () => {
+    const missing = css.replace('--line: #8f8f8f;', '');
+    expect(() => readTokens(missing)).toThrow();
+  });
+
+  it('コメントアウトされたトークンは無いものとして例外にする', () => {
+    const commented = css.replace('--line: #8f8f8f;', '/* --line: #8f8f8f; */');
+    expect(() => readTokens(commented)).toThrow();
+  });
+
+  it('再宣言があれば CSS と同じ後勝ちの値を読む', () => {
+    const redeclared = css.replace('--line: #8f8f8f;', '--line: #8f8f8f;\n  --line: #f5f5f5;');
+    expect(readTokens(redeclared).light.line).toBe('#f5f5f5');
+  });
+});
+
+describe('src/styles/global.css の検算', () => {
+  const globalCssPath = fileURLToPath(new URL('../../src/styles/global.css', import.meta.url));
+  const tokens = readTokens(readFileSync(globalCssPath, 'utf-8'));
+
+  const cases = [
+    { name: 'ライト --fg/--bg', theme: 'light' as const, key: 'fg' as const, min: 4.5 },
+    { name: 'ライト --fg-muted/--bg', theme: 'light' as const, key: 'fgMuted' as const, min: 4.5 },
+    { name: 'ライト --line/--bg', theme: 'light' as const, key: 'line' as const, min: 3.0 },
+    { name: 'ダーク --fg/--bg', theme: 'dark' as const, key: 'fg' as const, min: 4.5 },
+    { name: 'ダーク --fg-muted/--bg', theme: 'dark' as const, key: 'fgMuted' as const, min: 4.5 },
+    { name: 'ダーク --line/--bg', theme: 'dark' as const, key: 'line' as const, min: 3.0 },
+  ];
+
+  it.each(cases)('$name は $min 以上', ({ theme, key, min }) => {
+    const c = contrast(tokens[theme][key], tokens[theme].bg);
+    expect(
+      c,
+      `${theme} の --${key} と --bg のコントラスト比は ${c.toFixed(3)} で、下限 ${min} を割った`,
+    ).toBeGreaterThanOrEqual(min);
+  });
+
+  it('faviconSvg(camera) にライトの --fg とダークの --fg が含まれる', () => {
+    const svg = faviconSvg(camera);
+    expect(svg).toContain(`fill="${tokens.light.fg}"`);
+    expect(svg).toContain(`fill:${tokens.dark.fg}`);
+  });
+});

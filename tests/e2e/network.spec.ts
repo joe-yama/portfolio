@@ -1,6 +1,5 @@
 import { expect, test } from '@playwright/test';
-
-const paths = ['ja/', 'en/', 'ja/photos/', 'ja/photos/kariya-ferris-wheel/', 'ja/career/'];
+import { paths } from './paths';
 
 for (const path of paths) {
   test(`${path} は外部ホストへ要求しない`, async ({ page }) => {

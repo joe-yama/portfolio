@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { ui } from '../../src/lib/site';
 
 const locales = ['ja', 'en'] as const;
 const slug = 'kariya-ferris-wheel';
@@ -26,16 +27,38 @@ for (const path of pagePaths) {
 
     const alternates = page.locator('link[rel="alternate"][hreflang]');
     await expect(alternates).toHaveCount(3);
-    for (const href of await alternates.evaluateAll((ls) =>
-      ls.map((l) => l.getAttribute('href') ?? ''),
-    )) {
-      expect(href.startsWith('https://joe-yama.github.io/portfolio/')).toBe(true);
-    }
+    const hreflangHrefs = Object.fromEntries(
+      await alternates.evaluateAll((ls) =>
+        ls.map((l) => [l.getAttribute('hreflang') ?? '', l.getAttribute('href') ?? '']),
+      ),
+    );
+    expect(hreflangHrefs.ja).toMatch(/^https:\/\/joe-yama\.github\.io\/portfolio\/ja\//);
+    expect(hreflangHrefs.en).toMatch(/^https:\/\/joe-yama\.github\.io\/portfolio\/en\//);
+    expect(hreflangHrefs['x-default']).toBe(hreflangHrefs.ja);
 
     const canonical = page.locator('link[rel="canonical"]');
     await expect(canonical).toHaveCount(1);
     await expect(canonical).toHaveAttribute('href', `https://joe-yama.github.io/portfolio/${path}`);
     await expect(page.locator('meta[name="description"]')).toHaveCount(1);
+
+    await expect(page.locator('meta[property^="og:"]')).toHaveCount(10);
+    await expect(page.locator('meta[name^="twitter:"]')).toHaveCount(1);
+    await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute(
+      'content',
+      lang === 'ja' ? 'ja_JP' : 'en_US',
+    );
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+      'content',
+      'summary_large_image',
+    );
+    await expect(page.locator('meta[property="og:image:width"]')).toHaveAttribute(
+      'content',
+      '1200',
+    );
+    await expect(page.locator('meta[property="og:image:height"]')).toHaveAttribute(
+      'content',
+      '630',
+    );
   });
 }
 
@@ -46,6 +69,46 @@ test('404 ページが両言語への戻りリンクを持つ', async ({ page })
   await expect(page.locator('a[href$="/portfolio/en/"]')).toHaveCount(1);
   await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
   await expect(page.locator('meta[name="description"]')).toHaveCount(0);
+  await expect(page.locator('meta[property^="og:"]')).toHaveCount(0);
+  await expect(page.locator('meta[name^="twitter:"]')).toHaveCount(0);
+});
+
+test.describe('SNS 共有カード', () => {
+  const sharePaths = ['ja/', 'en/career/'] as const;
+
+  for (const path of sharePaths) {
+    test(`${path} の og:url / og:title / og:description が canonical / title / description と一致する`, async ({
+      page,
+    }) => {
+      await page.goto(`./${path}`);
+      const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
+      const title = await page.title();
+      const description = await page.locator('meta[name="description"]').getAttribute('content');
+
+      await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
+        'content',
+        canonical ?? '',
+      );
+      await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', title);
+      await expect(page.locator('meta[property="og:description"]')).toHaveAttribute(
+        'content',
+        description ?? '',
+      );
+    });
+
+    test(`${path} の og:image が同一オリジンで取得できる`, async ({ page }) => {
+      await page.goto(`./${path}`);
+      const ogImage = await page.locator('meta[property="og:image"]').getAttribute('content');
+      expect(ogImage).toBeTruthy();
+      // 外部ホストの画像を直接参照してはならない（MUST NOT）ので、オリジンを固定する
+      expect(new URL(ogImage ?? '').origin).toBe('https://joe-yama.github.io');
+      // og:image は本番オリジンの絶対 URL。e2e は 127.0.0.1 のプレビューを見ているので、
+      // パス部分だけを取り出して相対で取得する
+      const imagePath = new URL(ogImage ?? '').pathname;
+      const response = await page.request.get(imagePath);
+      expect(response.status()).toBe(200);
+    });
+  }
 });
 
 test('言語切り替えは同じページの他言語版へ飛ぶ', async ({ page }) => {
@@ -106,4 +169,18 @@ test.describe('特許の区画', () => {
       expect(href).toMatch(/^https:\/\/patents\.google\.com\/patent\//);
     }
   });
+});
+
+test.describe('経歴ページの区画', () => {
+  for (const lang of locales) {
+    test(`/${lang}/career/ の main section が 5 本で、見出しが careerSections と一致する`, async ({
+      page,
+    }) => {
+      await page.goto(`./${lang}/career/`);
+      const sections = page.locator('main section');
+      await expect(sections).toHaveCount(5);
+      const headings = await page.locator('main section h2').allTextContents();
+      expect(headings).toEqual(Object.values(ui[lang].careerSections));
+    });
+  }
 });

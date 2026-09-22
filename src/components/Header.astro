@@ -14,7 +14,7 @@ interface Props {
 
 const { lang, name, path, showNav = true } = Astro.props;
 const base = import.meta.env.BASE_URL;
-const sw = showNav ? languageSwitch(path, lang, base) : undefined;
+const sw = languageSwitch(path, lang, base);
 ---
 
 <header class="dot">
@@ -31,11 +31,9 @@ const sw = showNav ? languageSwitch(path, lang, base) : undefined;
     showNav && (
       <nav>
         {navLinks(lang, base).map((link) => <a href={link.href}>{link.label}</a>)}
-        {sw && (
-          <a href={sw.href} hreflang={sw.hreflang} lang={sw.hreflang}>
-            {sw.label}
-          </a>
-        )}
+        <a href={sw.href} hreflang={sw.hreflang} lang={sw.hreflang}>
+          {sw.label}
+        </a>
       </nav>
     )
   }

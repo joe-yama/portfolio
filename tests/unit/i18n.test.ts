@@ -78,7 +78,8 @@ describe('toLocale', () => {
 
   it('ロケールでない値は例外にする', () => {
     expect(() => toLocale('fr')).toThrow('fr');
-    expect(() => toLocale(undefined)).toThrow();
+    expect(() => toLocale(undefined)).toThrow('undefined');
+    expect(() => toLocale('')).toThrow('""');
   });
 });
 
@@ -101,6 +102,18 @@ describe('stripBase', () => {
 
   it('似た接頭辞を誤って剥がさない', () => {
     expect(stripBase('/portfolios/ja/', '/portfolio/')).toBe('/portfolios/ja/');
+  });
+
+  it('接頭辞が先頭に無ければ、途中に含むだけでは剥がさない', () => {
+    expect(stripBase('/x/portfolio/ja/', '/portfolio/')).toBe('/x/portfolio/ja/');
+  });
+});
+
+describe('normalizeBase（stripBase 経由で観測する両端トリム）', () => {
+  it('前後のスラッシュの有無によらず同じ base として扱う', () => {
+    for (const base of ['portfolio', '/portfolio', 'portfolio/']) {
+      expect(withBase('/en/', base)).toBe('/portfolio/en/');
+    }
   });
 });
 

@@ -1,7 +1,7 @@
 image: "https://github.com/joe-yama/portfolio/releases/download/photos/sunset-dinghies.jpg"
 order: 20
 featured: true
-takenAt: 2026-08-23
+takenAt: "2026-08-23"
 title: { ja: "陽の落ちる浜", en: "Dinghies at Sunset" }
 location: { ja: "琵琶湖", en: "Lake Biwa" }
 alt:

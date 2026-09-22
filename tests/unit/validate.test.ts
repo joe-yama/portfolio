@@ -170,9 +170,100 @@ describe('validateCareerParity', () => {
     expect(validateCareerParity(ja, en)).toEqual([]);
   });
 
+  it('複数カテゴリで対応する項目数がすべて一致すれば問題なし', () => {
+    const ja: Career = { ...base, skills: { 言語: ['ts', 'py'], クラウド: ['aws'] } };
+    const en: Career = { ...base, skills: { Languages: ['ts', 'py'], Cloud: ['aws'] } };
+    expect(validateCareerParity(ja, en)).toEqual([]);
+  });
+
   it('カテゴリ数が違うときは、各カテゴリの項目数の比較まで進まない', () => {
     const en: Career = { ...base, skills: {} };
-    expect(validateCareerParity(base, en)).toHaveLength(1);
+    const errors = validateCareerParity(base, en);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toBe('skills のカテゴリ数が日英で違う（ja: 1, en: 0）');
+  });
+
+  it('certifications の同じ位置の date が日英で違えば、何番目かと両方の値を報告する', () => {
+    const ja: Career = {
+      ...base,
+      certifications: [
+        { date: '2020-01', name: 'a' },
+        { date: '2016-03', name: 'b' },
+      ],
+    };
+    const en: Career = {
+      ...base,
+      certifications: [
+        { date: '2020-01', name: 'a-en' },
+        { date: '2018-06', name: 'b-en' },
+      ],
+    };
+    const errors = validateCareerParity(ja, en);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toBe(
+      'certifications の 2 番目の date が日英で違う（ja: 2016-03, en: 2018-06）',
+    );
+  });
+
+  it('achievements の同じ位置の date が日英で違えば、何番目かと両方の値を報告する', () => {
+    const ja: Career = { ...base, achievements: [{ date: '2024-10-12', name: 'a', kind: 'talk' }] };
+    const en: Career = {
+      ...base,
+      achievements: [{ date: '2025-01-01', name: 'a-en', kind: 'talk' }],
+    };
+    const errors = validateCareerParity(ja, en);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toBe(
+      'achievements の 1 番目の date が日英で違う（ja: 2024-10-12, en: 2025-01-01）',
+    );
+  });
+
+  it('patents の同じ位置の filedAt が日英で違えば、何番目かと両方の値を報告する', () => {
+    const ja: Career = {
+      ...base,
+      patents: [{ filedAt: '2021-03', title: 't', number: 'JP1', countries: ['JP'] }],
+    };
+    const en: Career = {
+      ...base,
+      patents: [{ filedAt: '2019-08', title: 't-en', number: 'JP1', countries: ['JP'] }],
+    };
+    const errors = validateCareerParity(ja, en);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toBe(
+      'patents の 1 番目が日英で違う（ja: countries 1 件 / filedAt 2021-03, en: countries 1 件 / filedAt 2019-08）',
+    );
+  });
+
+  it('patents の同じ位置の countries の件数が日英で違えば報告する', () => {
+    const ja: Career = {
+      ...base,
+      patents: [{ filedAt: '2021-03', title: 't', number: 'JP1', countries: ['JP'] }],
+    };
+    const en: Career = {
+      ...base,
+      patents: [{ filedAt: '2021-03', title: 't-en', number: 'JP1', countries: ['JP', 'US'] }],
+    };
+    const errors = validateCareerParity(ja, en);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toBe(
+      'patents の 1 番目が日英で違う（ja: countries 1 件 / filedAt 2021-03, en: countries 2 件 / filedAt 2021-03）',
+    );
+  });
+
+  it('certifications / achievements / patents の比較キーがすべて一致すれば問題なし', () => {
+    const ja: Career = {
+      ...base,
+      certifications: [{ date: '2020-01', name: 'a' }],
+      achievements: [{ date: '2021-05', name: 'b', kind: 'talk' }],
+      patents: [{ filedAt: '2021-03', title: 't', number: 'JP1', countries: ['JP', 'US'] }],
+    };
+    const en: Career = {
+      ...ja,
+      certifications: [{ date: '2020-01', name: 'a-en' }],
+      achievements: [{ date: '2021-05', name: 'b-en', kind: 'talk' }],
+      patents: [{ filedAt: '2021-03', title: 't-en', number: 'JP1', countries: ['JP', 'US'] }],
+    };
+    expect(validateCareerParity(ja, en)).toEqual([]);
   });
 });
 

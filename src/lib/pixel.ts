@@ -7,7 +7,7 @@ export function cells(rows: readonly string[]): Cell[] {
 
 /** 格子の大きさ。幅は最長行の文字数、高さは行数 */
 export function gridSize(rows: readonly string[]): { width: number; height: number } {
-  return { width: Math.max(0, ...rows.map((row) => row.length)), height: rows.length };
+  return { width: Math.max(0, ...rows.map((row) => [...row].length)), height: rows.length };
 }
 
 /**

@@ -1,7 +1,8 @@
 ---
 // 設計書 §4 の静的リダイレクト。Astro の redirectToDefaultLocale は
 // ルート index.astro の存在を要求し競合 WARN を出すため自前で書く
-import { assetPath, homePath } from '../lib/site';
+import { withBase } from '../lib/i18n';
+import { homePath } from '../lib/site';
 
 const base = import.meta.env.BASE_URL;
 const top = homePath('ja', base);
@@ -13,7 +14,7 @@ const top = homePath('ja', base);
     <meta http-equiv="refresh" content={`0;url=${top}`} />
     <meta name="robots" content="noindex" />
     <title>portfolio</title>
-    <link rel="icon" href={assetPath('/favicon.svg', base)} type="image/svg+xml" />
+    <link rel="icon" href={withBase('/favicon.svg', base)} type="image/svg+xml" />
   </head>
   <body>
     <a href={top}>Redirecting from <code>/</code> to <code>{top}</code></a>

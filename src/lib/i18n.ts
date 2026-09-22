@@ -20,7 +20,6 @@ function normalizeBase(base: string): string {
 export function stripBase(path: string, base: string): string {
   const prefix = normalizeBase(base);
   if (prefix === '/') return path;
-  if (path === prefix.slice(0, -1)) return '/';
   return path.startsWith(prefix) ? `/${path.slice(prefix.length)}` : path;
 }
 
@@ -49,11 +48,8 @@ export function alternatePath(path: string, target: Locale, base: string): strin
   return withBase(`/${segments.join('/')}/`, base);
 }
 
-/**
- * ページの `Astro.params.lang` をロケールに絞る。getStaticPaths が locales しか返さないので
- * 実行時に外れることは無いが、無検査キャスト（`as Locale`）を各ページに複製しないために置く
- */
+/** `Astro.params.lang` をロケールに絞る。無検査キャスト（`as Locale`）を各ページに複製しないために置く */
 export function toLocale(value: string | undefined): Locale {
   if (value !== undefined && isLocale(value)) return value;
-  throw new Error(`ロケールではない値がページに渡された: ${String(value)}`);
+  throw new Error(`ロケールではない値がページに渡された: ${JSON.stringify(value)}`);
 }

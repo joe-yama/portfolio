@@ -3,17 +3,26 @@ import type { Locale } from './i18n';
 
 /** 職歴を from の新しい順に並べた新しい配列を返す */
 export function sortExperience(experience: Career['experience']): Career['experience'] {
-  return [...experience].sort((a, b) => b.from.localeCompare(a.from));
+  return experience.toSorted((a, b) => (b.from > a.from ? 1 : b.from < a.from ? -1 : 0));
+}
+
+/** date が日まで含むか（`YYYY-MM-DD`）。`YYYY-MM` なら false（design D9） */
+export function hasDay(date: string): boolean {
+  return date.split('-').length === 3;
 }
 
 /** 並べ替えの比較キー。年月までの日付はその月の 1 日として扱う（design D2） */
 function dateSortKey(date: string): string {
-  return date.length === 7 ? `${date}-01` : date;
+  return hasDay(date) ? date : `${date}-01`;
 }
 
 /** 日付を持つ項目を date の新しい順に並べた新しい配列を返す（資格と実績で共用） */
 export function sortByDateDesc<T extends { date: string }>(items: T[]): T[] {
-  return [...items].sort((a, b) => dateSortKey(b.date).localeCompare(dateSortKey(a.date)));
+  return items.toSorted((a, b) => {
+    const bKey = dateSortKey(b.date);
+    const aKey = dateSortKey(a.date);
+    return bKey > aKey ? 1 : bKey < aKey ? -1 : 0;
+  });
 }
 
 /**
@@ -21,10 +30,10 @@ export function sortByDateDesc<T extends { date: string }>(items: T[]): T[] {
  * どちらも同じ項目は記述順を保つ（design D2）
  */
 export function sortPatents(patents: Career['patents']): Career['patents'] {
-  return [...patents].sort((a, b) => {
+  return patents.toSorted((a, b) => {
     const byCountryCount = b.countries.length - a.countries.length;
     if (byCountryCount !== 0) return byCountryCount;
-    return b.filedAt.localeCompare(a.filedAt);
+    return b.filedAt > a.filedAt ? 1 : b.filedAt < a.filedAt ? -1 : 0;
   });
 }
 
@@ -35,9 +44,6 @@ const PATENTS_HEAD_COUNT = 5;
 export function splitPatents<T>(patents: T[]): { head: T[]; rest: T[] } {
   return { head: patents.slice(0, PATENTS_HEAD_COUNT), rest: patents.slice(PATENTS_HEAD_COUNT) };
 }
-
-/** 在職中（to が無い）の終わりの表記 */
-const present: Record<Locale, string> = { ja: '現在', en: 'Present' };
 
 /**
  * `YYYY-MM` / `YYYY-MM-DD` をローカル時刻の Date にする。
@@ -53,13 +59,22 @@ function toLocalDate(value: string): Date {
 export function formatMonth(value: string, lang: Locale): string {
   return new Intl.DateTimeFormat(lang, {
     year: 'numeric',
-    month: lang === 'ja' ? 'long' : 'short',
+    // ja は 'long' と 'short' で表記が同じ（どちらも `3月`）ため死んだ分岐だった
+    month: 'short',
   }).format(toLocalDate(value));
 }
 
-/** 職歴の期間。ja: `2020年4月 – 現在`、en: `Apr 2020 – Present` */
-export function formatPeriod(from: string, to: string | null | undefined, lang: Locale): string {
-  return `${formatMonth(from, lang)} – ${to ? formatMonth(to, lang) : present[lang]}`;
+/**
+ * 職歴の期間。ja: `2020年4月 – 現在`、en: `Apr 2020 – Present`。
+ * 在職中（to が無い）の終わりの表記は呼び出し側が渡す（design D10、`ui[lang].present`）
+ */
+export function formatPeriod(
+  from: string,
+  to: string | null | undefined,
+  lang: Locale,
+  present: string,
+): string {
+  return `${formatMonth(from, lang)} – ${to ? formatMonth(to, lang) : present}`;
 }
 
 /**
@@ -67,10 +82,9 @@ export function formatPeriod(from: string, to: string | null | undefined, lang: 
  * ja: `2023年6月1日` / `2025年10月`、en: `June 1, 2023` / `October 2025`
  */
 export function formatDate(date: string, lang: Locale): string {
-  const hasDay = date.split('-').length === 3;
   return new Intl.DateTimeFormat(lang, {
     year: 'numeric',
     month: 'long',
-    ...(hasDay ? { day: 'numeric' } : {}),
+    ...(hasDay(date) ? { day: 'numeric' } : {}),
   }).format(toLocalDate(date));
 }

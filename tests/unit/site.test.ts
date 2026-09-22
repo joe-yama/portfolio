@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
   alternateLinks,
-  assetPath,
   canonicalUrl,
   careerPath,
   homePath,
   languageSwitch,
   navLinks,
+  ogLocale,
   photoPath,
   ui,
 } from '../../src/lib/site';
@@ -88,11 +88,6 @@ describe('base 付きのパス生成', () => {
     expect(photoPath(null, 'ja', '/')).toBe('/ja/photos/');
   });
 
-  it('assetPath', () => {
-    expect(assetPath('/favicon.svg', base)).toBe('/portfolio/favicon.svg');
-    expect(assetPath('/favicon.svg', '/')).toBe('/favicon.svg');
-  });
-
   it('navLinks はすべて base で始まる', () => {
     for (const link of navLinks('ja', base)) {
       expect(link.href.startsWith(base)).toBe(true);
@@ -122,20 +117,20 @@ describe('ui', () => {
 });
 
 describe('ui の写真まわりの文言', () => {
-  it('日英とも同じキーを持つ', () => {
-    for (const key of ['backToGallery', 'prevPhoto', 'nextPhoto'] as const) {
-      expect(ui.ja[key].length).toBeGreaterThan(0);
-      expect(ui.en[key].length).toBeGreaterThan(0);
-      expect(ui.ja[key]).not.toBe(ui.en[key]);
-    }
+  it('日英とも実際の文言になっている', () => {
+    expect(ui.ja.backToGallery).toBe('写真一覧へ');
+    expect(ui.en.backToGallery).toBe('Back to photos');
+    expect(ui.ja.prevPhoto).toBe('前の写真');
+    expect(ui.en.prevPhoto).toBe('Previous photo');
+    expect(ui.ja.nextPhoto).toBe('次の写真');
+    expect(ui.en.nextPhoto).toBe('Next photo');
   });
 
-  it('ナビの aria-label（siteNav / photoNav）が両ロケールで空でない', () => {
-    for (const key of ['siteNav', 'photoNav'] as const) {
-      expect(ui.ja[key].length).toBeGreaterThan(0);
-      expect(ui.en[key].length).toBeGreaterThan(0);
-      expect(ui.ja[key]).not.toBe(ui.en[key]);
-    }
+  it('ナビの aria-label（siteNav / photoNav）が両ロケールで実際の文言になっている', () => {
+    expect(ui.ja.siteNav).toBe('サイト内の案内');
+    expect(ui.en.siteNav).toBe('Site navigation');
+    expect(ui.ja.photoNav).toBe('前後の写真');
+    expect(ui.en.photoNav).toBe('Photo navigation');
   });
 });
 
@@ -146,26 +141,29 @@ describe('careerPath', () => {
   });
 });
 
+describe('ogLocale', () => {
+  it('ja は ja_JP、en は en_US を返す', () => {
+    expect(ogLocale('ja')).toBe('ja_JP');
+    expect(ogLocale('en')).toBe('en_US');
+  });
+});
+
 describe('canonicalUrl', () => {
-  it('base 付きでそのページ自身の絶対 URL を返す', () => {
-    expect(canonicalUrl('/portfolio/en/career/', 'en', 'https://example.com', '/portfolio')).toBe(
+  it('base 付きでそのページ自身の絶対 URL を返す（lang はパスから判定する）', () => {
+    expect(canonicalUrl('/portfolio/en/career/', 'https://example.com', '/portfolio')).toBe(
       'https://example.com/portfolio/en/career/',
     );
   });
 
-  it('base が無いときはそのまま', () => {
-    expect(canonicalUrl('/ja/', 'ja', 'https://example.com', '/')).toBe('https://example.com/ja/');
-  });
-
-  it('末尾スラッシュを補う', () => {
-    expect(canonicalUrl('/ja/career', 'ja', 'https://example.com', '/')).toBe(
+  it('末尾スラッシュを補い、URL オブジェクトの site も受ける', () => {
+    expect(canonicalUrl('/ja/career', new URL('https://example.com'), '/')).toBe(
       'https://example.com/ja/career/',
     );
   });
 
-  it('URL オブジェクトの site も受ける', () => {
-    expect(canonicalUrl('/en/photos/', 'en', new URL('https://example.com'), '/')).toBe(
-      'https://example.com/en/photos/',
+  it('site にパスがあっても捨てない', () => {
+    expect(canonicalUrl('/portfolio/ja/', 'https://example.com/sub/', '/portfolio')).toBe(
+      'https://example.com/sub/portfolio/ja/',
     );
   });
 });
@@ -189,13 +187,18 @@ describe('ui の経歴ページの文字列', () => {
   });
 
   it('実績の種別 4 つすべてにラベルがある', () => {
-    for (const lang of ['ja', 'en'] as const) {
-      for (const kind of ['talk', 'article', 'award', 'other'] as const) {
-        expect(ui[lang].achievementKind[kind]).toBeTruthy();
-      }
-    }
-    expect(ui.ja.achievementKind.talk).toBe('登壇');
-    expect(ui.en.achievementKind.talk).toBe('Talk');
+    expect(ui.ja.achievementKind).toEqual({
+      talk: '登壇',
+      article: '執筆',
+      award: '受賞',
+      other: 'その他',
+    });
+    expect(ui.en.achievementKind).toEqual({
+      talk: 'Talk',
+      article: 'Article',
+      award: 'Award',
+      other: 'Other',
+    });
   });
 
   it('特許の区画見出しが両ロケールにある', () => {
@@ -206,5 +209,10 @@ describe('ui の経歴ページの文字列', () => {
   it('特許の折りたたみの文言が件数を埋めて返る', () => {
     expect(ui.ja.morePatents(46)).toBe('さらに 46 件を表示');
     expect(ui.en.morePatents(46)).toBe('Show 46 more');
+  });
+
+  it('在職中の表記（present）が両ロケールにある（design D10）', () => {
+    expect(ui.ja.present).toBe('現在');
+    expect(ui.en.present).toBe('Present');
   });
 });

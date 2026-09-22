@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { type Exif, PHOTO_BASE_URL } from '../../src/content/schemas';
+import { type Exif, PHOTO_BASE_URL, type PhotoEntry } from '../../src/content/schemas';
 import { formatExif, formatTakenAt, neighbors } from '../../src/lib/photo';
-import type { PhotoEntry } from '../../src/lib/validate';
 
 const exif: Exif = {
   camera: 'Fujifilm X-T5',
@@ -17,7 +16,9 @@ describe('formatExif', () => {
   });
 
   it('絞りが整数のときは小数点を付けない', () => {
-    expect(formatExif({ ...exif, aperture: 2 })).toContain('f/2');
+    expect(formatExif({ ...exif, aperture: 2 })).toBe(
+      'Fujifilm X-T5 · XF 23mm F1.4 R LM WR · f/2 · 1/250 · ISO 800',
+    );
   });
 });
 

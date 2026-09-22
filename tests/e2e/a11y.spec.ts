@@ -1,17 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-
-const paths = [
-  'ja/',
-  'en/',
-  'ja/photos/',
-  'en/photos/',
-  'ja/photos/kariya-ferris-wheel/',
-  'en/photos/kariya-ferris-wheel/',
-  'ja/career/',
-  'en/career/',
-  'does-not-exist/',
-];
+import { paths } from './paths';
 
 for (const path of paths) {
   test(`${path} にアクセシビリティ違反が無い`, async ({ page }) => {

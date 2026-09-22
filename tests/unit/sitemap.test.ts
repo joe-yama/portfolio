@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { alternateLinks, canonicalUrl } from '../../src/lib/site';
 import { sitemapEntries, sitemapXml } from '../../src/lib/sitemap';
 
 const site = 'https://joe-yama.github.io';
@@ -84,5 +85,24 @@ describe('sitemapXml', () => {
 
   it('URL の & を実体参照にする', () => {
     expect(sitemapXml(['a&b'], site, base)).toContain('photos/a&amp;b/');
+  });
+});
+
+describe('site にパスがあるときの一貫性（I2）', () => {
+  const siteWithPath = 'https://example.com/sub/';
+  const path = `${base}/ja/career/`;
+
+  it('canonical・hreflang の自己参照・sitemap の loc が同じ接頭辞を持つ', () => {
+    const canonical = canonicalUrl(path, siteWithPath, base);
+    const selfHref = alternateLinks(path, siteWithPath, base).find(
+      (link) => link.hreflang === 'ja',
+    )?.href;
+    const loc = sitemapEntries(slugs, siteWithPath, base).find((entry) =>
+      entry.loc.endsWith('/ja/career/'),
+    )?.loc;
+
+    expect(canonical).toBe('https://example.com/sub/portfolio/ja/career/');
+    expect(selfHref).toBe(canonical);
+    expect(loc).toBe(canonical);
   });
 });

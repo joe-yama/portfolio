@@ -3,11 +3,15 @@ import {
   exifToPhotoMeta,
   formatShutterSpeed,
   formatTakenAtYmd,
+  ghFailureMessage,
+  hasFeaturedFlag,
+  isReleaseNotFound,
   nextOrder,
   type PhotoMeta,
-  type RawExif,
+  parseOrder,
   renderPhotoYaml,
   toSlug,
+  translateMissingFields,
 } from '../../src/lib/photo-meta';
 
 describe('toSlug', () => {
@@ -18,7 +22,37 @@ describe('toSlug', () => {
   });
 
   it('英数字が残らないファイル名は例外にする（--slug を使わせる）', () => {
-    expect(() => toSlug('鴨川.jpg')).toThrow();
+    expect(() => toSlug('鴨川.jpg')).toThrow('--slug');
+  });
+
+  it('--slug が指定されていれば拡張子に見える部分を切り詰めずそのまま使う', () => {
+    expect(toSlug('x.jpg', 'kamo-river-v1.2')).toBe('kamo-river-v1.2');
+  });
+
+  it('--slug の値に英数字が無ければ例外にする（ファイル名由来とは異なる文言で、--slug の案内はしない）', () => {
+    let message = '';
+    try {
+      toSlug('x.jpg', '鴨川');
+    } catch (e) {
+      message = (e as Error).message;
+    }
+    expect(message).toContain('鴨川');
+    expect(message).not.toContain('--slug');
+  });
+
+  it('--slug にパス区切りを含む値は例外にする（加工せず拒否する）', () => {
+    expect(() => toSlug('x.jpg', '../a')).toThrow();
+    expect(() => toSlug('x.jpg', '../../pwned')).toThrow();
+    expect(() => toSlug('x.jpg', 'a/b')).toThrow();
+    expect(() => toSlug('x.jpg', 'a\\b')).toThrow();
+  });
+
+  it('--slug に空白を含む値は例外にする（加工せず拒否する）', () => {
+    expect(() => toSlug('x.jpg', 'kamo river')).toThrow();
+  });
+
+  it('--slug が . から始まる値は例外にする', () => {
+    expect(() => toSlug('x.jpg', '.hidden')).toThrow();
   });
 });
 
@@ -56,6 +90,42 @@ describe('formatTakenAtYmd', () => {
   });
 });
 
+describe('parseOrder', () => {
+  it('order の値を読む', () => {
+    expect(parseOrder('image: "x"\norder: 30\nfeatured: false\n')).toBe(30);
+  });
+
+  it('order が無ければ 0', () => {
+    expect(parseOrder('image: "x"\nfeatured: false\n')).toBe(0);
+  });
+
+  it('先頭が - の値も読む', () => {
+    expect(parseOrder('order: -5\n')).toBe(-5);
+  });
+
+  it('order: が行頭でなければ無視する（引用符の中などの文字列に惑わされない）', () => {
+    expect(parseOrder('title: "sortorder: 5"\n')).toBe(0);
+  });
+});
+
+describe('hasFeaturedFlag', () => {
+  it('featured: true があれば真', () => {
+    expect(hasFeaturedFlag('order: 10\nfeatured: true\n')).toBe(true);
+  });
+
+  it('featured: true が無ければ偽', () => {
+    expect(hasFeaturedFlag('order: 10\nfeatured: false\n')).toBe(false);
+  });
+
+  it('featured: true が行頭でなければ（引用符の中の文字列など）真にしない', () => {
+    expect(hasFeaturedFlag('alt: "not featured: true really"\n')).toBe(false);
+  });
+
+  it('featured: true の後ろに他の文字が続く行は真にしない', () => {
+    expect(hasFeaturedFlag('featured: true-ish\n')).toBe(false);
+  });
+});
+
 describe('nextOrder', () => {
   it('空なら 10', () => {
     expect(nextOrder([])).toBe(10);
@@ -66,7 +136,7 @@ describe('nextOrder', () => {
   });
 });
 
-const raw: RawExif = {
+const raw: Record<string, unknown> = {
   DateTimeOriginal: new Date(2025, 10, 3, 5, 30),
   Make: 'FUJIFILM',
   Model: 'X-T5',
@@ -78,11 +148,10 @@ const raw: RawExif = {
 
 describe('exifToPhotoMeta', () => {
   it('必要な項目がそろっていれば変換する', () => {
-    const result = exifToPhotoMeta(raw, 'kamo-river-dawn');
+    const result = exifToPhotoMeta(raw);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.meta).toEqual({
-      slug: 'kamo-river-dawn',
       takenAt: '2025-11-03',
       camera: 'FUJIFILM X-T5',
       lens: 'XF23mmF1.4 R LM WR',
@@ -93,19 +162,19 @@ describe('exifToPhotoMeta', () => {
   });
 
   it('Model が Make で始まるときは重ねない', () => {
-    const result = exifToPhotoMeta({ ...raw, Make: 'NIKON', Model: 'NIKON Z 6' }, 's');
+    const result = exifToPhotoMeta({ ...raw, Make: 'NIKON', Model: 'NIKON Z 6' });
     expect(result.ok && result.meta.camera).toBe('NIKON Z 6');
   });
 
   it('欠けている項目名をすべて挙げる', () => {
-    const result = exifToPhotoMeta({ ...raw, LensModel: undefined, ISO: undefined }, 's');
+    const result = exifToPhotoMeta({ ...raw, LensModel: undefined, ISO: undefined });
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.missing).toEqual(['LensModel', 'ISO']);
   });
 
   it('数値項目が 0 / 負 / NaN のときは欠損として扱う', () => {
-    const r = exifToPhotoMeta({ ...raw, ExposureTime: 0, ISO: Number.NaN, FNumber: -1 }, 's');
+    const r = exifToPhotoMeta({ ...raw, ExposureTime: 0, ISO: Number.NaN, FNumber: -1 });
     expect(r.ok).toBe(false);
     if (r.ok) return;
     expect(r.missing).toEqual(['FNumber', 'ExposureTime', 'ISO']);
@@ -114,7 +183,6 @@ describe('exifToPhotoMeta', () => {
 
 describe('renderPhotoYaml', () => {
   const meta: PhotoMeta = {
-    slug: 'kamo-river-dawn',
     takenAt: '2025-11-03',
     camera: 'FUJIFILM X-T5',
     lens: 'XF23mmF1.4 R LM WR',
@@ -128,7 +196,7 @@ describe('renderPhotoYaml', () => {
     expect(yaml).toContain('image: "https://example.com/kamo-river-dawn.jpg"');
     expect(yaml).toContain('order: 20');
     expect(yaml).toContain('featured: false');
-    expect(yaml).toContain('takenAt: 2025-11-03');
+    expect(yaml).toContain('takenAt: "2025-11-03"');
     expect(yaml).toContain('shutterSpeed: "1/250"');
     expect(yaml).toContain('iso: 800');
   });
@@ -142,5 +210,56 @@ describe('renderPhotoYaml', () => {
   it('引用符を含む値を壊さない', () => {
     const odd = renderPhotoYaml({ ...meta, lens: 'a "b": c' }, 'https://e/x.jpg', 10, true);
     expect(odd).toContain('lens: "a \\"b\\": c"');
+  });
+});
+
+describe('isReleaseNotFound', () => {
+  it('終了コード 1 かつ stderr に release not found を含めば真', () => {
+    expect(isReleaseNotFound({ status: 1, stderr: 'release not found' })).toBe(true);
+  });
+
+  it('終了コードが 1 でも別の理由なら偽', () => {
+    expect(isReleaseNotFound({ status: 1, stderr: 'authentication required' })).toBe(false);
+  });
+
+  it('終了コードが 1 以外なら偽', () => {
+    expect(isReleaseNotFound({ status: 2, stderr: 'release not found' })).toBe(false);
+  });
+
+  it('ENOENT のようなオブジェクトでは偽', () => {
+    expect(isReleaseNotFound({ code: 'ENOENT' })).toBe(false);
+  });
+});
+
+describe('ghFailureMessage', () => {
+  it('ENOENT は gh が無いことを示す 1 行にする', () => {
+    expect(ghFailureMessage({ code: 'ENOENT' })).not.toMatch(/\n/);
+    expect(ghFailureMessage({ code: 'ENOENT' })).toContain('gh');
+  });
+
+  it('stderr があれば先頭行だけを使う', () => {
+    expect(ghFailureMessage({ stderr: 'error: authentication required\nmore detail\n' })).toBe(
+      'error: authentication required',
+    );
+  });
+
+  it('stderr が無ければ message を使う', () => {
+    expect(ghFailureMessage({ message: 'boom' })).toBe('boom');
+  });
+});
+
+describe('translateMissingFields', () => {
+  it('EXIF タグ名を spec の語彙に変換する', () => {
+    expect(translateMissingFields(['LensModel'])).toEqual(['レンズ']);
+    expect(translateMissingFields(['DateTimeOriginal', 'FNumber', 'ExposureTime', 'ISO'])).toEqual([
+      '撮影日',
+      '絞り',
+      'シャッター速度',
+      'ISO 感度',
+    ]);
+  });
+
+  it('Make と Model がどちらも欠けていてもカメラは 1 回だけ出す', () => {
+    expect(translateMissingFields(['Make', 'Model'])).toEqual(['カメラ']);
   });
 });

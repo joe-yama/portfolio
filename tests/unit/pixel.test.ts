@@ -31,8 +31,8 @@ describe('gridSize', () => {
     expect(gridSize(['#', '##', '#'])).toEqual({ width: 2, height: 3 });
   });
 
-  it('16 × 16 の絵は 16 × 16', () => {
-    expect(gridSize(camera)).toEqual({ width: 16, height: 16 });
+  it('サロゲートペアの文字でも cells と同じ数え方で幅を出す', () => {
+    expect(gridSize(['💩💩'])).toEqual({ width: 2, height: 1 });
   });
 });
 
@@ -41,6 +41,10 @@ describe('faviconSvg', () => {
     const svg = faviconSvg(camera);
     expect(svg).toContain('viewBox="0 0 16 16"');
     expect(svg).toContain('shape-rendering="crispEdges"');
+  });
+
+  it('幅と高さが違う絵でも viewBox を取り違えない', () => {
+    expect(faviconSvg(['#', '##'])).toContain('viewBox="0 0 2 2"');
   });
 
   it('塗られたセルの数だけ rect を出す', () => {

@@ -1,8 +1,11 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 
-const dist = 'dist';
+// cwd（テスト実行時のカレントディレクトリ）に依存せず、このファイルの位置から
+// リポジトリルート基準で dist を解決する。
+const dist = fileURLToPath(new URL('../../dist', import.meta.url));
 const base = '/portfolio/';
 
 function htmlFiles(dir: string): string[] {

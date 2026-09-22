@@ -5,18 +5,18 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 # 同時に複数のデプロイを走らせない
 concurrency:
   group: pages
   cancel-in-progress: false
 
+# トップレベルの permissions は無く、job ごとに必要最小限を明示している（下記）。
+# 新しい job を足すときは permissions を明示すること。無いとリポジトリ既定の
+# permissions を継承してしまう。
 jobs:
   build:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -27,6 +27,11 @@ jobs:
 
   deploy:
     needs: build
+    # actions/deploy-pages@v5 の README で確認: デプロイジョブに要るのは pages: write と
+    # id-token: write だけで、contents: read は不要（リポジトリを checkout しない）
+    permissions:
+      pages: write
+      id-token: write
     runs-on: ubuntu-latest
     environment:
       name: github-pages

@@ -2,10 +2,7 @@
 // node が直接実行する経路に乗るので、相対 import には .ts を付ける（Node の ESM 解決は拡張子を補わない）
 import { PLACEHOLDER } from './validate.ts';
 
-export type RawExif = Record<string, unknown>;
-
 export type PhotoMeta = {
-  slug: string;
   /** YYYY-MM-DD */
   takenAt: string;
   camera: string;
@@ -15,8 +12,22 @@ export type PhotoMeta = {
   iso: number;
 };
 
-/** ファイル名 → slug。英数字が残らない場合は --slug を使わせる */
-export function toSlug(fileName: string): string {
+/**
+ * ファイル名または --slug の値 → slug。
+ * --slug が指定されていればその値をそのまま使う（拡張子に見える部分も切り詰めない）。
+ * 指定が無ければファイル名の拡張子を除いて作る。どちらの由来でも英数字が残らない場合は
+ * 例外にする（由来がわかるように文言を変える）
+ */
+export function toSlug(fileName: string, slugArg?: string): string {
+  if (slugArg !== undefined) {
+    if (!/[a-zA-Z0-9]/.test(slugArg))
+      throw new Error(`指定された slug に英数字が無く使えない: ${slugArg}`);
+    // パス区切り・空白・先頭の . を含む値は、ファイルの書き込み先や asset 名を
+    // ずらすのに使われ得るため、加工はせず拒否する（--slug の値はそのまま使うため）
+    if (/[/\\\s]/.test(slugArg) || slugArg.startsWith('.'))
+      throw new Error(`指定された slug に使えない文字がある: ${slugArg}`);
+    return slugArg;
+  }
   const base = fileName.replace(/\.[^.]+$/, '');
   const slug = base
     .toLowerCase()
@@ -53,10 +64,13 @@ function cameraName(make: string, model: string): string {
   return m.toLowerCase().startsWith(k.toLowerCase()) ? m : `${k} ${m}`;
 }
 
+function isPositiveFinite(v: unknown): v is number {
+  return typeof v === 'number' && Number.isFinite(v) && v > 0;
+}
+
 /** EXIF の生の値 → YAML に書く値。欠けている項目があれば名前を全部挙げて返す */
 export function exifToPhotoMeta(
-  raw: RawExif,
-  slug: string,
+  raw: Record<string, unknown>,
 ): { ok: true; meta: PhotoMeta } | { ok: false; missing: string[] } {
   const missing: string[] = [];
   const takenAt = raw.DateTimeOriginal;
@@ -66,9 +80,6 @@ export function exifToPhotoMeta(
   const aperture = raw.FNumber;
   const exposure = raw.ExposureTime;
   const iso = raw.ISO;
-
-  const isPositiveFinite = (v: unknown): v is number =>
-    typeof v === 'number' && Number.isFinite(v) && v > 0;
 
   if (!(takenAt instanceof Date)) missing.push('DateTimeOriginal');
   if (typeof make !== 'string' || make.trim() === '') missing.push('Make');
@@ -82,7 +93,6 @@ export function exifToPhotoMeta(
   return {
     ok: true,
     meta: {
-      slug,
       takenAt: formatTakenAtYmd(takenAt as Date),
       camera: cameraName(make as string, model as string),
       lens: (lens as string).trim(),
@@ -96,6 +106,56 @@ export function exifToPhotoMeta(
 /** 既存の order より後ろの値。10 刻みにして後から間に挿し込めるようにする */
 export function nextOrder(orders: number[]): number {
   return orders.length === 0 ? 10 : Math.max(...orders) + 10;
+}
+
+/** 写真データファイルの YAML テキストから order を読む。無ければ 0 */
+export function parseOrder(text: string): number {
+  const m = text.match(/^order:\s*(-?\d+)/m);
+  return m ? Number(m[1]) : 0;
+}
+
+/** 写真データファイルの YAML テキストに featured: true があるか */
+export function hasFeaturedFlag(text: string): boolean {
+  return /^featured:\s*true\s*$/m.test(text);
+}
+
+/**
+ * gh release view が「Release が無い」ために失敗したものかどうかを判別する。
+ * gh はこの場合、終了コード 1・stderr に release not found を含めて返す。
+ * それ以外の失敗（未ログイン、ネットワーク断など）と区別するために使う
+ */
+export function isReleaseNotFound(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) return false;
+  const { status, stderr } = error as { status?: unknown; stderr?: unknown };
+  return status === 1 && typeof stderr === 'string' && stderr.includes('release not found');
+}
+
+/** execFileSync が投げるエラーから、gh の失敗理由をスタックトレースではない 1 行に整形する */
+export function ghFailureMessage(error: unknown): string {
+  if (typeof error !== 'object' || error === null) return String(error);
+  const { code, stderr, message } = error as {
+    code?: unknown;
+    stderr?: unknown;
+    message?: unknown;
+  };
+  if (code === 'ENOENT') return 'gh コマンドが見つからない（未インストール、または PATH に無い）';
+  if (typeof stderr === 'string' && stderr.trim() !== '') return stderr.trim().split('\n')[0];
+  return typeof message === 'string' ? message : String(error);
+}
+
+/** exifToPhotoMeta が返す missing（EXIF タグ名）→ spec の語彙。Make / Model はどちらもカメラなので重複を除く */
+const MISSING_FIELD_LABELS: Record<string, string> = {
+  DateTimeOriginal: '撮影日',
+  Make: 'カメラ',
+  Model: 'カメラ',
+  LensModel: 'レンズ',
+  FNumber: '絞り',
+  ExposureTime: 'シャッター速度',
+  ISO: 'ISO 感度',
+};
+
+export function translateMissingFields(missing: string[]): string[] {
+  return [...new Set(missing.map((tag) => MISSING_FIELD_LABELS[tag] ?? tag))];
 }
 
 /** YAML の二重引用符スカラーは JSON の文字列と同じ規則なので、JSON.stringify で正しく囲める */
@@ -112,7 +172,7 @@ export function renderPhotoYaml(
   return `image: ${q(imageUrl)}
 order: ${order}
 featured: ${featured}
-takenAt: ${meta.takenAt}
+takenAt: ${q(meta.takenAt)}
 title: ${todo('日本語のタイトル', 'English title')}
 location: ${todo('撮影地', 'Location')}
 alt: ${todo('日本語の代替テキスト', 'English alt text')}
