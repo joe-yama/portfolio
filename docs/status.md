@@ -1,10 +1,10 @@
 # 現在の状態
 
-最終更新: 2026-09-22（Change 10 `followup-hardening` のマージとアーカイブ時点）。`CLAUDE.md` の索引から参照される。
+最終更新: 2026-09-22（Change 11 `patents-full-retrieval` のマージとアーカイブ時点）。`CLAUDE.md` の索引から参照される。
 
 ## フェーズ
 
-**v1 公開済み**（2026-09-21）。Change 10 `followup-hardening`（Issue #29、PR #35）をマージ・アーカイブ済み（2026-09-22）。未着手の change は無く、次にやることは PO の指示待ち（下記「次の作業の候補」）。
+**v1 公開済み**（2026-09-21）。Change 11 `patents-full-retrieval`（Issue #34、PR #37）をマージ・アーカイブ済み（2026-09-22）。未着手の change は無く、次にやることは PO の指示待ち（下記「次の作業の候補」）。
 
 ## 公開先（PO 決定 2026-09-21）
 
@@ -17,7 +17,8 @@
 ## 掲載データの状態
 
 - **プロフィールと経歴は PO 本人の実データ**（2026-09-21、Change 6 で差し替え）。出典は本人の公開 LinkedIn で、掲載範囲は PO が項目ごとに決定済み。実名・勤務先・職歴・資格・論文が公開 URL に載っている
-- **特許は PO 本人の実データ 51 件**（2026-09-21、Change 8）。日本語の名称は暫定（英語の定型名称から起こしたもの。裁定 D7b）で、US / EP / WO の出願はまだ載っていない
+- **特許は PO 本人の実データ 65 発明**（2026-09-22、Change 11 で公報単位 51 件から同族単位に作り直し）。代表は JP 公報番号、出願国は最大 6 か国、US を含むものが 47 件。**掲載する名称は公報の正式名称ではなく、請求項 1 から起こした短い見出し**（裁定 D12）。日本語の名称が暫定なのは JP 代表公報が無い 2 件だけ。掲載する全 65 件の照合表（見出し / 正式名称 / 請求項 1 の全文）は `openspec/changes/archive/2026-09-22-patents-full-retrieval/research/publications.md`
+- **Change 8 が載せていた `JP7151181B2` は PO の発明ではなかった**ので Change 11 で落とした（発明者に PO が含まれず、名前は説明文中の引用文献の著者として現れるだけだった）。戻す判断をする場合の根拠は同じ `publications.md` の「落とした公報」
 - **写真はサンプルのまま 2 枚**（差し替えは PO 待ち）
 
 編集時の細則は `docs/content-authoring.md`。
@@ -34,15 +35,17 @@
 
 ## 次の作業の候補
 
-1. **特許の全件取得**（Change 8 が後日に回した分）。ローマ字表記 `Josuke Yamane` での発明者検索で US / EP / WO を拾い、同族を解決して JP 公報番号を代表にし `countries` を埋め、日本語の名称を公報の正式名称に置き換える。詳細は `openspec/changes/archive/2026-09-21-patents-section/tasks.md` の末尾
-2. 写真の追加・差し替え
-3. 独自ドメインへの移行（設計書 §9 の手順で `base` の削除が必要）
-4. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件、**Change 10 の 35 件超**（各 `openspec/changes/archive/*/tasks.md` の末尾）
+1. 写真の追加・差し替え
+2. 独自ドメインへの移行（設計書 §9 の手順で `base` の削除が必要）
+3. **`docs/harness/README.md` の隔離実行の手順の修正**（Change 11 で実測）。`.mut-exp/` に別ルートを作って `pnpm exec vitest run --root` する手順は、`node_modules/.vite` の古いキャッシュのせいで**変異を当てても緑を返す**ことがある。手順を直さないと「番人が本当に番人か」の確認が空振りする
+4. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件、Change 10 の 35 件超、**Change 11 の 20 件**（各 `openspec/changes/archive/*/tasks.md` の末尾）
 5. Change 4・5 の後続への提案と申し送り（各 `openspec/changes/archive/2026-09-21-*/tasks.md` の末尾）
 
 ## PO 判断として残っている件
 
 **Change 9**: 375×667（iPhone SE / 8）では写真の高さ上限が発動して、写真が本文の幅より 26.3% 狭くなる（写真 252.7×379 に対し本文幅 343）。spec が縛る 390×844 では全幅を満たしているので挙動は変えていない。狭い画面で写真を全幅に戻すなら新しい change が要る。
+
+**Change 11**: 特許の見出しのうち 4 件に判断の余地がある（`JP2025095979A` の英語 "a single button"、`JP2020093622A` の英語 "in any car"、`JP7310636B2` と `JP2021111156A` の日本語が抽象的すぎる）。いずれも `en.yaml` / `ja.yaml` の 1 行で直せる。詳細は `openspec/changes/archive/2026-09-22-patents-full-retrieval/tasks.md` の「見出しの精度（PO 判断の余地）」。
 
 **Change 10**: 写真の差し替え（同じ slug での `pnpm photo:add` 再実行）の実測は、偽の `gh` を使ってコード経路だけ通した。公開 Release の画像は入稿時に EXIF が落ちるため、それを入稿に渡すと差し替え経路へ到達しない。**PO 本人の元画像で 1 回実行すれば、spec の Scenario「差し替え後のビルドで古い版が残らない」まで確かめられる。**
 

@@ -16,6 +16,7 @@ Change 1〜10 はすべてマージ・アーカイブ済み。**正本は `opens
 | 8 | `patents-section` | #21 | #26 | 2026-09-21 | 経歴ページに「特許 / Patents」区画。実データ 51 件。先頭 5 件は常時表示、6 件目以降は `<details>`（JavaScript は使わない） |
 | 9 | `photo-height-cap` | #23 | #28 | 2026-09-21 | 写真の表示高さの上限を CSS だけで設け、第一画面に名前・肩書・連絡先・導線を収めた。e2e 27 → 45 件 |
 | 10 | `followup-hardening` | #29 | #35 | 2026-09-22 | 写真入稿の冪等化と引数解析、OGP/Twitter カード、色コントラストの検算、暦の検査と日英パリティの強化、`base`/弱い assert の整理、e2e の拡充と CI（deploy.yml）の permissions を job 単位に、404/ヘッダーの細部修正 |
+| 11 | `patents-full-retrieval` | #34 | #37 | 2026-09-22 | 特許を**公報単位 51 件から同族単位 65 発明**に作り直し、代表を JP 公報番号に、`countries` を最大 6 か国まで、`filedAt` を同族の優先日に。**掲載名称を公報の正式名称から請求項 1 から起こした短い見出しへ**（PO 指示）。`validateCareerPatents` で `countries[0]` と見出しの長さをビルド検証、`PatentItem.astro` で `<li>` の重複を解消、英語ページのリンクを `/en` に。main spec `content-schema` / `profile-and-career` に delta を統合 |
 
 ## 経緯の在り処
 
@@ -29,6 +30,7 @@ Change 1〜10 はすべてマージ・アーカイブ済み。**正本は `opens
 | 8 | Issue #21 のコメント（掲載内容の確認依頼と裁定） | `openspec/changes/archive/2026-09-21-patents-section/tasks.md` 末尾（16 件） |
 | 9 | Issue #23 のコメント（レビュー結果と裁定） | `openspec/changes/archive/2026-09-21-photo-height-cap/tasks.md` 末尾（8 件） |
 | 10 | Issue #29 のコメント（レビュー結果と裁定 8 件） | `openspec/changes/archive/2026-09-22-followup-hardening/tasks.md` 末尾（35 件超） |
+| 11 | Issue #34 のコメント（レビュー 4 回の結果と裁定 25 件）。掲載する全 65 件の照合表は `openspec/changes/archive/2026-09-22-patents-full-retrieval/research/publications.md`、取得手順と HTML の落とし穴 4 つは同 `research/method.md` | `openspec/changes/archive/2026-09-22-patents-full-retrieval/tasks.md` 末尾（20 件） |
 
 ## v1 リリース
 
