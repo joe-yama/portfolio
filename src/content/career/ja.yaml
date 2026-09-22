@@ -33,28 +33,40 @@ certifications:
     name: TOEIC Listening & Reading 900点
   - date: "2025-10"
     name: AWS Certified AI Practitioner
+    logo: /badges/ai-practitioner.png
   - date: "2025-10"
     name: AWS Certified CloudOps Engineer - Associate
+    logo: /badges/cloudops-engineer-associate.png
   - date: "2025-10"
     name: AWS Certified Data Engineer - Associate
+    logo: /badges/data-engineer-associate.png
   - date: "2025-10"
     name: AWS Certified Developer - Associate
+    logo: /badges/developer-associate.png
   - date: "2025-10"
     name: AWS Certified DevOps Engineer - Professional
+    logo: /badges/devops-engineer-professional.png
   - date: "2025-10"
     name: AWS Certified Machine Learning Engineer - Associate
+    logo: /badges/machine-learning-engineer-associate.png
   - date: "2025-10"
     name: AWS Certified Advanced Networking - Specialty
+    logo: /badges/advanced-networking-specialty.png
   - date: "2025-10"
     name: AWS Certified Security - Specialty
+    logo: /badges/security-specialty.png
   - date: "2025-10"
     name: AWS Certified Machine Learning - Specialty
+    logo: /badges/machine-learning-specialty.png
   - date: "2025-09"
     name: AWS Certified Cloud Practitioner
+    logo: /badges/cloud-practitioner.png
   - date: "2025-04"
     name: AWS Certified Solutions Architect - Professional
+    logo: /badges/solutions-architect-professional.png
   - date: "2025-04"
     name: AWS Certified Solutions Architect - Associate
+    logo: /badges/solutions-architect-associate.png
   - date: "2020-07"
     name: Licensed Scrum Master (Scrum Inc.)
 achievements:

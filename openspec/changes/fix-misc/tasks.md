@@ -149,10 +149,10 @@ design.md の D6〜D8、`content-schema` と `profile-and-career` の spec delta
 
 - [x] 4.1 RED: `tests/unit/schemas.test.ts` に、`certifications` の項目が任意の `logo`（文字列）を持てることを検証する単体テストを追加し、まだスキーマが `logo` を許可していないため失敗することを確認する
 - [x] 4.2 GREEN: `src/content/schemas.ts` の `datedItemSchema` に `logo: z.string().optional()` を追加し、4.1 を通す
-- [ ] 4.3 GREEN: 上表の 12 ファイルを `aws-badges/` から `public/badges/` にコピーする。`src/content/career/ja.yaml` と `src/content/career/en.yaml` の該当する AWS 認定資格の項目（12 件、`docs/content-authoring.md` の「certifications は日英で同じ順番に並べる」に従い両言語とも同じ項目に。`name` は日英で同じ英語表記のまま）に、上表の対応で `logo: /badges/<ファイル名>` を追加する
-- [ ] 4.4 RED: `tests/e2e/pages.spec.ts` または `tests/e2e/links.spec.ts` に、`/ja/career/` の資格セクションで `logo` を持つ項目に `<img>`（`alt` がその資格の `name` と一致）が現れ、`logo` を持たない項目（TOEIC・Licensed Scrum Master 等）には `<img>` が現れないことを検証する e2e テストを追加し、実装前に失敗することを確認する
-- [ ] 4.5 GREEN: `src/pages/[lang]/career.astro` の資格セクションで、`item.logo` がある場合に `<img src={withBase(item.logo, base)} alt={item.name} />` を名前の隣に表示する。4.4 のテストを通す
-- [ ] 4.6 検証: `pnpm test`・`pnpm lint`・`pnpm typecheck`・`pnpm build && pnpm e2e` を実行し、すべて緑であることを示す。加えて `dist/` に `badges/` 配下の画像が出力されていること（`ls dist/badges/` 等）を確認する
+- [x] 4.3 GREEN: 上表の 12 ファイルを `aws-badges/` から `public/badges/` にコピーする。`src/content/career/ja.yaml` と `src/content/career/en.yaml` の該当する AWS 認定資格の項目（12 件、`docs/content-authoring.md` の「certifications は日英で同じ順番に並べる」に従い両言語とも同じ項目に。`name` は日英で同じ英語表記のまま）に、上表の対応で `logo: /badges/<ファイル名>` を追加する
+- [x] 4.4 RED: `tests/e2e/pages.spec.ts` または `tests/e2e/links.spec.ts` に、`/ja/career/` の資格セクションで `logo` を持つ項目に `<img>`（`alt` がその資格の `name` と一致）が現れ、`logo` を持たない項目（TOEIC・Licensed Scrum Master 等）には `<img>` が現れないことを検証する e2e テストを追加し、実装前に失敗することを確認する
+- [x] 4.5 GREEN: `src/pages/[lang]/career.astro` の資格セクションで、`item.logo` がある場合に `<img src={withBase(item.logo, base)} alt={item.name} />` を名前の隣に表示する。4.4 のテストを通す
+- [x] 4.6 検証: `pnpm test`・`pnpm lint`・`pnpm typecheck`・`pnpm build && pnpm e2e` を実行し、すべて緑であることを示す。加えて `dist/` に `badges/` 配下の画像が出力されていること（`ls dist/badges/` 等）を確認する
 
 ## 提案（本 change のスコープ外・後続への申し送り）
 
