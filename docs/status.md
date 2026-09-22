@@ -23,7 +23,7 @@
 - **経歴の一部文言・スキルを更新**（2026-09-22、`fix-misc`）。experience 先頭項目の role から「（全社横断）」を削除、bullets を「…開発標準活動を立ち上げリーディング」に変更。skills「クラウド」に「プラットフォームエンジニアリング」追加、「プログラミング言語」を `[Python, Java, Scala, C++, TypeScript]` に置き換え（SQL を除外）、新カテゴリ「言語」（英語を第一言語とするチームのリーディング）を追加。特許の区画見出しを「特許」→「代表的な特許」に変更（区画の構成・折りたたみの挙動は変更なし）
 - **AWS 認定資格 12 件へのバッジロゴ表示は一度実装したが、PO の判断（見た目が良くない）で取り消した**（2026-09-22、`fix-misc`）。詳細と再挑戦時の考慮点は `openspec/changes/archive/2026-09-22-fix-misc/tasks.md` の「提案」
 - トップページ本文最下部を「サイト内導線（Photos/Career/言語切り替え） → 連絡先リンク（GitHub/LinkedIn）」の順に入れ替え、5 リンクにドット絵アイコンを追加（2026-09-22、`fix-misc`。`profile-and-career` spec 改定済み）
-- **経歴のスキルに「コーヒー」を追加**（2026-09-22、PR #42）。スキル表の最終行に `コーヒー: [ハンドドリップ, モカポット, たいてい1日に5杯]` / `Coffee: [Hand drip, Moka pot, Usually five cups a day]` を置き、トップの肩書 "Builder, photographer, coffee lover" のコーヒーを経歴ページで回収した
+- **経歴のスキルに「コーヒー」を追加**（2026-09-23、PR #42）。スキル表の最終行に `コーヒー: [ハンドドリップ, モカポット, たいてい1日に5杯]` / `Coffee: [Hand drip, Moka pot, Usually five cups a day]` を置き、トップの肩書 "Builder, photographer, coffee lover" のコーヒーを経歴ページで回収した
 
 編集時の細則は `docs/content-authoring.md`。
 
@@ -41,7 +41,7 @@
 
 1. 写真の追加・差し替え
 2. 独自ドメインへの移行（設計書 §9 の手順で `base` の削除が必要）
-3. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件、Change 10 の 35 件超、Change 11 の 20 件、**`fix-misc` の 5 件（ブランチレビューの Minor 指摘）**（各 `openspec/changes/archive/*/tasks.md` の末尾）
+3. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件、Change 10 の 35 件超、Change 11 の 19 件（20 件のうち隔離実行の手順の件は 2026-09-23 に対応済み）、**`fix-misc` の 5 件（ブランチレビューの Minor 指摘）**（各 `openspec/changes/archive/*/tasks.md` の末尾）
 4. Change 4・5 の後続への提案と申し送り（各 `openspec/changes/archive/2026-09-21-*/tasks.md` の末尾）
 5. ヘッダーの常設ナビ（`Header.astro`）にはトップページ本文と同じドット絵アイコンを付けていない。意匠を揃えるなら別 change で検討（`fix-misc` の申し送り）
 6. `fix-misc` で追加したドット絵（GitHub・LinkedIn・Career・言語切り替え）は「仮の絵」。ブランチレビューで briefcase（鞄）と globe（地球儀）の視認性が低いと指摘されている（`openspec/changes/archive/2026-09-22-fix-misc/tasks.md` 参照）

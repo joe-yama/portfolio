@@ -139,20 +139,21 @@ transcript（`~/.claude/projects/-Users-joe-repo-github-personal-joe-yama-portfo
 
 ## 7. 変異テストの隔離実行（2026-09-23 実測、vitest 5.0.1）
 
-「番人が本当に番人か」は、作業ツリーのソースを変異させずに確かめる。**リポジトリ外に丸ごと複製し、複製に依存を入れ、複製の中で実行する。** 作業ツリーの `node_modules` やキャッシュを一切共有しないので、誤った緑（`docs/harness/lessons.md` §2 の Change 11）が起きる経路が無い。
+「番人が本当に番人か」は、作業ツリーのソースを変異させずに確かめる。**リポジトリ外に丸ごと複製し、複製に依存を入れ、複製の中で実行する。** 作業ツリーの `node_modules` やキャッシュを共有しないので、既知の誤った緑（`docs/harness/lessons.md` §2 の Change 11 と `--config` だけの形）は起きにくく、起きても下の対照実験で検出できる。
 
 ```sh
 EXP=<scratchpad>/mut-<名前>/exp                          # リポジトリ外の新しいディレクトリ
 mkdir -p "$EXP" && git archive HEAD | tar -x -C "$EXP"
 pnpm --dir "$EXP" install --frozen-lockfile --offline    # store からのリンクだけ。1 秒未満
-pnpm --dir "$EXP" test     # 対照: 変異なしで緑。件数が作業ツリーの pnpm test と同じ
-# 変異を 1 つ当てる（sed か Edit。触るのは $EXP 配下だけ）
+pnpm --dir "$EXP" test     # 対照: 変異なしで緑
+# 変異を当てる
 pnpm --dir "$EXP" test     # 変異ありで、狙った検査が赤
 ```
 
-- **対照実験は手順の一部で、省かない。** 変異なしで緑・件数一致 → 変異ありで赤、の 2 回を記録する。変異なしで赤なら複製が壊れている。変異ありで件数も結果も変わらないなら複製を見ていない
+- **対照実験は手順の一部で、省かない。** 変異なしで緑 → 変異ありで赤、の 2 回を記録する。変異なしで赤なら複製が壊れている
+- **複製を見ているかは、出力の `RUN  v5.0.1 <パス>` の行が `$EXP` を指しているかで確かめる。** 件数では確かめられない（丸ごと複製なので件数は作業ツリーと必ず同じで、変異でも変わらない）。`RUN` の行が `$EXP` を指したまま変異ありでも緑なら、手順の失敗ではなく「その検査は番人でない」という結果で、直すのはテストのほう（原因未特定の Change 11 の緑と見分けるため、直す前に変異が効いていることを関数の直接呼び出し等で 1 度確かめる）
 - 実測: 変異なし `Tests 256 passed (256)` → `validate.ts` の `countries[0]` の比較を `if (false)` にすると `Tests 2 failed | 254 passed (256)`
-- コミット前の番人を試すときは、`git archive` の後に変更したファイルを `$EXP` へ `cp` で上書きする
-- 複製を `node_modules` の無い場所に置いて作業ツリーから `pnpm exec vitest run --root "$EXP"` すると、`vitest/config` と `astro/zod` が解決できず `ERR_MODULE_NOT_FOUND` で起動しない（`ln -s` は permission で拒否される）。だから複製に `install` する
+- `--offline` は lockfile の全パッケージが pnpm の store にあることが前提。無ければ `snapshot not present in local store` で終了コード 1 になるので、その場合は `--offline` を外す
+- コミット前の番人を試すときは、`git archive` の後に `git ls-files -m -o --exclude-standard` で列挙したファイル（変更したファイルと、未追跡の新しいテストファイル）を `$EXP` へ `cp` で上書きする
+- `install` しない丸ごと複製に作業ツリーから `pnpm exec vitest run --root "$EXP"` すると、`vitest.config.ts` が読む `astro/config` を解決できず `Cannot find package 'astro'` で起動しない（`ln -s` は permission で拒否される）。だから複製に `install` する
 - **e2e**: `pnpm --dir "$EXP" e2e`。globalSetup が複製の中で `pnpm build` し直すので、変異を当てた後のビルドは自動で入る。ポート 4399 を作業ツリーや他の worktree の preview と共有するので同時に回さない（占有中なら globalSetup が止める）。実測: 変異なし `68 passed` → `career.astro` の `sortPatents` を外すと `3 failed / 65 passed`
-- 使い終わった `$EXP` は scratchpad に残してよい（`git status` を汚さない）
