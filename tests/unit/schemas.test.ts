@@ -178,21 +178,6 @@ describe('careerSchema', () => {
     const skills = { ...validCareer.skills, '2024年度の実績': ['TypeScript'] };
     expect(careerSchema.safeParse({ ...validCareer, skills }).success).toBe(true);
   });
-
-  it('certifications の項目は任意の logo（バッジ画像へのパス文字列）を持てる（スキーマ通過後も値が残る）', () => {
-    const withLogo = {
-      ...validCareer,
-      certifications: [{ date: '2023-06-01', name: '応用情報技術者', logo: '/badges/example.png' }],
-    };
-    const result = careerSchema.safeParse(withLogo);
-    expect(result.success).toBe(true);
-    // z.object は既定でスキーマに無いキーを黙って取り除く（strip）ため、
-    // success の真偽だけでは logo をスキーマが受理したことの証拠にならない。
-    // parse 後のデータに logo が残っていることまで確認する
-    if (result.success) {
-      expect(result.data.certifications[0]?.logo).toBe('/badges/example.png');
-    }
-  });
 });
 
 describe('profileSchema', () => {

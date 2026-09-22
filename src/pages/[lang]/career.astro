@@ -12,7 +12,7 @@ import {
   splitPatents,
 } from '../../lib/career';
 import { getCareer } from '../../lib/content';
-import { locales, toLocale, withBase } from '../../lib/i18n';
+import { locales, toLocale } from '../../lib/i18n';
 import { ui } from '../../lib/site';
 
 export function getStaticPaths() {
@@ -20,7 +20,6 @@ export function getStaticPaths() {
 }
 
 const lang = toLocale(Astro.params.lang);
-const base = import.meta.env.BASE_URL;
 const career = await getCareer(lang);
 const t = ui[lang].careerSections;
 const kinds = ui[lang].achievementKind;
@@ -79,9 +78,6 @@ const { head: patentsHead, rest: patentsRest } = splitPatents(sortPatents(career
               <span class="muted">{formatDate(item.date, lang)}</span>
               {' · '}
               {item.url ? <a href={item.url}>{item.name}</a> : item.name}
-              {item.logo && (
-                <img class="badge" src={withBase(item.logo, base)} alt={item.name} />
-              )}
             </li>
           ))}
         </ul>
@@ -151,11 +147,5 @@ const { head: patentsHead, rest: patentsRest } = splitPatents(sortPatents(career
   }
   details {
     margin-top: 0.5rem;
-  }
-  .badge {
-    height: 1.5em;
-    width: auto;
-    vertical-align: middle;
-    margin-left: 0.35em;
   }
 </style>
