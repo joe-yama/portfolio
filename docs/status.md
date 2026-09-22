@@ -1,10 +1,10 @@
 # 現在の状態
 
-最終更新: 2026-09-22（Change 11 `patents-full-retrieval` のマージとアーカイブ時点）。`CLAUDE.md` の索引から参照される。
+最終更新: 2026-09-22（change `fix-misc` のマージとアーカイブ時点）。`CLAUDE.md` の索引から参照される。
 
 ## フェーズ
 
-**v1 公開済み**（2026-09-21）。Change 11 `patents-full-retrieval`（Issue #34、PR #37）をマージ・アーカイブ済み（2026-09-22）。未着手の change は無く、次にやることは PO の指示待ち（下記「次の作業の候補」）。
+**v1 公開済み**（2026-09-21）。change `fix-misc`（Issue #39、PR #40）をマージ・アーカイブ済み（2026-09-22）。未着手の change は無く、次にやることは PO の指示待ち（下記「次の作業の候補」）。
 
 ## 公開先（PO 決定 2026-09-21）
 
@@ -20,6 +20,9 @@
 - **特許は PO 本人の実データ 65 発明**（2026-09-22、Change 11 で公報単位 51 件から同族単位に作り直し）。代表は JP 公報番号、出願国は最大 6 か国、US を含むものが 47 件。**掲載する名称は公報の正式名称ではなく、請求項 1 から起こした短い見出し**（裁定 D12）。日本語の名称が暫定なのは JP 代表公報が無い 2 件だけ。掲載する全 65 件の照合表（見出し / 正式名称 / 請求項 1 の全文）は `openspec/changes/archive/2026-09-22-patents-full-retrieval/research/publications.md`
 - **Change 8 が載せていた `JP7151181B2` は PO の発明ではなかった**ので Change 11 で落とした（発明者に PO が含まれず、名前は説明文中の引用文献の著者として現れるだけだった）。戻す判断をする場合の根拠は同じ `publications.md` の「落とした公報」
 - **写真はサンプルのまま 2 枚**（差し替えは PO 待ち）
+- **経歴の一部文言・スキルを更新**（2026-09-22、`fix-misc`）。experience 先頭項目の role から「（全社横断）」を削除、bullets を「…開発標準活動を立ち上げリーディング」に変更。skills「クラウド」に「プラットフォームエンジニアリング」追加、「プログラミング言語」を `[Python, Java, Scala, C++, TypeScript]` に置き換え（SQL を除外）、新カテゴリ「言語」（英語を第一言語とするチームのリーディング）を追加。特許の区画見出しを「特許」→「代表的な特許」に変更（区画の構成・折りたたみの挙動は変更なし）
+- **AWS 認定資格 12 件へのバッジロゴ表示は一度実装したが、PO の判断（見た目が良くない）で取り消した**（2026-09-22、`fix-misc`）。詳細と再挑戦時の考慮点は `openspec/changes/archive/2026-09-22-fix-misc/tasks.md` の「提案」
+- トップページ本文最下部を「サイト内導線（Photos/Career/言語切り替え） → 連絡先リンク（GitHub/LinkedIn）」の順に入れ替え、5 リンクにドット絵アイコンを追加（2026-09-22、`fix-misc`。`profile-and-career` spec 改定済み）
 
 編集時の細則は `docs/content-authoring.md`。
 
@@ -38,8 +41,11 @@
 1. 写真の追加・差し替え
 2. 独自ドメインへの移行（設計書 §9 の手順で `base` の削除が必要）
 3. **`docs/harness/README.md` の隔離実行の手順の修正**（Change 11 で実測）。`.mut-exp/` に別ルートを作って `pnpm exec vitest run --root` する手順は、`node_modules/.vite` の古いキャッシュのせいで**変異を当てても緑を返す**ことがある。手順を直さないと「番人が本当に番人か」の確認が空振りする
-4. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件、Change 10 の 35 件超、**Change 11 の 20 件**（各 `openspec/changes/archive/*/tasks.md` の末尾）
+4. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件、Change 10 の 35 件超、Change 11 の 20 件、**`fix-misc` の 5 件（ブランチレビューの Minor 指摘）**（各 `openspec/changes/archive/*/tasks.md` の末尾）
 5. Change 4・5 の後続への提案と申し送り（各 `openspec/changes/archive/2026-09-21-*/tasks.md` の末尾）
+6. ヘッダーの常設ナビ（`Header.astro`）にはトップページ本文と同じドット絵アイコンを付けていない。意匠を揃えるなら別 change で検討（`fix-misc` の申し送り）
+7. `fix-misc` で追加したドット絵（GitHub・LinkedIn・Career・言語切り替え）は「仮の絵」。ブランチレビューで briefcase（鞄）と globe（地球儀）の視認性が低いと指摘されている（`openspec/changes/archive/2026-09-22-fix-misc/tasks.md` 参照）
+8. AWS 認定資格のバッジロゴ表示を再検討する場合は、見せ方（サイズ・配置・ドット絵化するか等）から設計し直す（一度実装し PO の判断で取り消し済み）
 
 ## PO 判断として残っている件
 
