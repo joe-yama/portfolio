@@ -17,7 +17,14 @@ function parsePatents(yamlPath: string): PatentSummary[] {
   const text = readFileSync(yamlPath, 'utf8');
   const patents: PatentSummary[] = [];
   let current: Partial<PatentSummary> | null = null;
+  let inPatents = false;
   for (const line of text.split('\n')) {
+    // 行頭が空白でない行はトップレベルのキー。patents: の区画の中だけを読む
+    if (/^\S/.test(line)) {
+      inPatents = line.startsWith('patents:');
+      continue;
+    }
+    if (!inPatents) continue;
     const numberMatch = line.match(/^ {2}- number: (.+)$/);
     if (numberMatch) {
       if (current) patents.push(current as PatentSummary);
@@ -35,14 +42,12 @@ function parsePatents(yamlPath: string): PatentSummary[] {
 }
 
 /** src/lib/career.ts の sortPatents と同じ規則を、e2e から独立に計算する（design 5.1 (b)） */
-function firstBySortOrder(patents: PatentSummary[]): PatentSummary {
-  const first = [...patents].sort((a, b) => {
+function sortBySortOrder(patents: PatentSummary[]): PatentSummary[] {
+  return [...patents].sort((a, b) => {
     const byCountryCount = b.countries.length - a.countries.length;
     if (byCountryCount !== 0) return byCountryCount;
     return b.filedAt.localeCompare(a.filedAt);
-  })[0];
-  if (!first) throw new Error('patents が空');
-  return first;
+  });
 }
 
 /** src/lib/career.ts の formatMonth と同じ規則を、e2e から独立に計算する（YAML の filedAt から導く） */
@@ -51,21 +56,18 @@ function formatMonth(value: string, lang: 'ja' | 'en'): string {
   if (year === undefined || month === undefined) throw new Error(`日付の形式が違う: ${value}`);
   return new Intl.DateTimeFormat(lang, {
     year: 'numeric',
-    month: lang === 'ja' ? 'long' : 'short',
+    month: 'short',
   }).format(new Date(year, month - 1, 1));
 }
 
-const patentsByLang = {
-  ja: parsePatents('src/content/career/ja.yaml'),
-  en: parsePatents('src/content/career/en.yaml'),
-};
+const patents = parsePatents('src/content/career/ja.yaml');
 /** 特許の一覧で、操作なしに見せる先頭の件数（spec。src/lib/career.ts の PATENTS_HEAD_COUNT と同じ値） */
 const PATENTS_HEAD_COUNT = 5;
-const patentsTotal = patentsByLang.ja.length;
+const patentsTotal = patents.length;
 const patentsRestCount = patentsTotal - PATENTS_HEAD_COUNT;
-const expectedFirstNumber = firstBySortOrder(patentsByLang.ja).number;
-const expectedFirstFiledAt = firstBySortOrder(patentsByLang.ja).filedAt;
-const expectedFirstCountries = firstBySortOrder(patentsByLang.ja).countries;
+const expectedOrder = sortBySortOrder(patents);
+const expectedFirst = expectedOrder[0];
+if (!expectedFirst) throw new Error('patents が空');
 
 test('ルートは既定ロケールのトップへ遷移する', async ({ page }) => {
   await page.goto('./');
@@ -137,13 +139,11 @@ test.describe('SNS 共有カード', () => {
     }) => {
       await page.goto(`./${path}`);
       const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
+      if (canonical === null) throw new Error(`${path} に canonical が無い`);
       const title = await page.title();
       const description = await page.locator('meta[name="description"]').getAttribute('content');
 
-      await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
-        'content',
-        canonical ?? '',
-      );
+      await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', canonical);
       await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', title);
       await expect(page.locator('meta[property="og:description"]')).toHaveAttribute(
         'content',
@@ -220,9 +220,19 @@ test.describe('特許の区画', () => {
   }
 
   test('特許は出願国数が多い順、同数なら出願年月が新しい順に並ぶ', async ({ page }) => {
+    // タイブレークを確かめられるデータであること（国数が同じで出願年月が違う組がある）
+    const hasTie = patents.some((a) =>
+      patents.some((b) => a.countries.length === b.countries.length && a.filedAt !== b.filedAt),
+    );
+    expect(hasTie).toBe(true);
+
     await page.goto('./ja/career/');
     const section = patentsSection(page, 'ja');
-    await expect(section.locator('li').first()).toContainText(expectedFirstNumber);
+    // PatentItem の <span> は 出願年月 / 公報番号 / 出願国 の順。2 つ目が公報番号
+    const numbers = await section
+      .locator('li')
+      .evaluateAll((lis) => lis.map((li) => li.querySelectorAll('span')[1]?.textContent?.trim()));
+    expect(numbers).toEqual(expectedOrder.map((p) => p.number));
   });
 
   test('先頭の項目は出願年月（ロケール表記）と出願国を YAML の値のまま日本語で表示する', async ({
@@ -231,8 +241,8 @@ test.describe('特許の区画', () => {
     await page.goto('./ja/career/');
     const section = patentsSection(page, 'ja');
     const li = section.locator('li').first();
-    await expect(li).toContainText(formatMonth(expectedFirstFiledAt, 'ja'));
-    await expect(li).toContainText(expectedFirstCountries.join(', '));
+    await expect(li).toContainText(formatMonth(expectedFirst.filedAt, 'ja'));
+    await expect(li).toContainText(expectedFirst.countries.join(', '));
   });
 
   test('先頭の項目は出願年月（ロケール表記）と出願国を YAML の値のまま英語で表示する', async ({
@@ -241,8 +251,8 @@ test.describe('特許の区画', () => {
     await page.goto('./en/career/');
     const section = patentsSection(page, 'en');
     const li = section.locator('li').first();
-    await expect(li).toContainText(formatMonth(expectedFirstFiledAt, 'en'));
-    await expect(li).toContainText(expectedFirstCountries.join(', '));
+    await expect(li).toContainText(formatMonth(expectedFirst.filedAt, 'en'));
+    await expect(li).toContainText(expectedFirst.countries.join(', '));
   });
 
   test('日本語ページと英語ページで特許のリンク先が異なる', async ({ page }) => {
