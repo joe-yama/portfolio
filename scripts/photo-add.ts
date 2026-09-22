@@ -55,8 +55,9 @@ function gh(args: string[]): string {
   }
 }
 
-/** 例外を die の 1 行に載せる文言にする */
-const reason = (error: unknown) => (error instanceof Error ? error.message : String(error));
+/** 例外を die の 1 行に載せる文言にする。parseArgs の複数行のメッセージも改行をたたむ */
+const reason = (error: unknown) =>
+  (error instanceof Error ? error.message : String(error)).replace(/\s*\n\s*/g, ' ');
 
 // gh を一度も呼ばずに判定できるよう、引数と slug の検査はアカウント確認より前に行う（spec の手順 1→2）
 function parseCliArgs(argv: string[]): { file: string; slug: string } {

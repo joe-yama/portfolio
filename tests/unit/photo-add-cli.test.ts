@@ -53,4 +53,12 @@ describe('pnpm photo:add の引数の誤り', () => {
     expect(r.lines).toEqual([expect.stringMatching(/^photo:add: .*--sulg/), USAGE]);
     expect(r.stderr).not.toMatch(/^\s+at /m);
   });
+
+  it('- で始まる --slug の値は、parseArgs の複数行の理由を 1 行にたたみ、使い方と合わせて 2 行で中断する', () => {
+    const r = runPhotoAdd(['x.jpg', '--slug', '-x']);
+    expect(r.status).toBe(1);
+    expect(r.ghCalled).toBe(false);
+    expect(r.lines).toEqual([expect.stringMatching(/^photo:add: .*--slug/), USAGE]);
+    expect(r.stderr).not.toMatch(/^\s+at /m);
+  });
 });
