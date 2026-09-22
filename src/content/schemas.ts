@@ -72,8 +72,16 @@ export const experienceSchema = z.object({
   bullets: z.array(nonEmpty).max(5),
 });
 
-/** 日付付きの項目（資格・実績の共通部分） */
-const datedItemSchema = z.object({ date: datePrecision, name: nonEmpty, url: z.url().optional() });
+/**
+ * 日付付きの項目（資格・実績の共通部分）。`logo` は資格のバッジ画像パス用の任意項目
+ * （design D7）。achievements 側では使わない運用（spec は MUST NOT）
+ */
+const datedItemSchema = z.object({
+  date: datePrecision,
+  name: nonEmpty,
+  url: z.url().optional(),
+  logo: z.string().optional(),
+});
 
 /** 実績の種別。site.ts の achievementKind とここでの二重定義を避け、ここを正本にする */
 export const achievementKindSchema = z.enum(['talk', 'article', 'award', 'other']);

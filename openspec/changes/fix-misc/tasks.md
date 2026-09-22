@@ -127,11 +127,29 @@ design.md の D1〜D5 を前提とする。`profile-and-career` の spec delta�
 
 ## 4. AWS 認定資格 12 件へのバッジ画像表示
 
-design.md の D6〜D8、`content-schema` と `profile-and-career` の spec delta に沿って実装する。バッジ画像はコントローラーが `/private/tmp/claude-501/-Users-joe-repo-github-personal-joe-yama-portfolio--worktrees-feature-fix-misc/9e44d26a-62f7-494b-8963-a34af1acd186/scratchpad/aws-badges/` に取得済み（取得元 URL・ファイル一覧はコントローラーの報告を参照。取得できなかった資格があれば、その資格には `logo` を付けずに従来どおり文字のみで表示する）。
+design.md の D6〜D8、`content-schema` と `profile-and-career` の spec delta に沿って実装する。バッジ画像 12 件すべて取得済み（コントローラーが aws.amazon.com の公式資格ページから取得、`file` コマンドで PNG 500×500 であることを確認済み）:
+`/private/tmp/claude-501/-Users-joe-repo-github-personal-joe-yama-portfolio--worktrees-feature-fix-misc/9e44d26a-62f7-494b-8963-a34af1acd186/scratchpad/aws-badges/`
 
-- [ ] 4.1 RED: `tests/unit/schemas.test.ts` に、`certifications` の項目が任意の `logo`（文字列）を持てることを検証する単体テストを追加し、まだスキーマが `logo` を許可していないため失敗することを確認する
-- [ ] 4.2 GREEN: `src/content/schemas.ts` の `datedItemSchema` に `logo: z.string().optional()` を追加し、4.1 を通す
-- [ ] 4.3 GREEN: バッジ画像ファイルを `public/badges/` にコピーする（コントローラーが取得したファイルをそのまま使う。ファイル名はコントローラーの報告に従う）。`src/content/career/ja.yaml` と `src/content/career/en.yaml` の該当する AWS 認定資格の項目（12 件、`docs/content-authoring.md` の「certifications は日英で同じ順番に並べる」に従い両言語とも同じ項目に）に `logo: /badges/<ファイル名>` を追加する
+資格名（`certifications[].name` の文字列と完全一致）とファイル名の対応:
+
+| name | ファイル名 |
+|---|---|
+| AWS Certified AI Practitioner | `ai-practitioner.png` |
+| AWS Certified CloudOps Engineer - Associate | `cloudops-engineer-associate.png` |
+| AWS Certified Data Engineer - Associate | `data-engineer-associate.png` |
+| AWS Certified Developer - Associate | `developer-associate.png` |
+| AWS Certified DevOps Engineer - Professional | `devops-engineer-professional.png` |
+| AWS Certified Machine Learning Engineer - Associate | `machine-learning-engineer-associate.png` |
+| AWS Certified Advanced Networking - Specialty | `advanced-networking-specialty.png` |
+| AWS Certified Security - Specialty | `security-specialty.png` |
+| AWS Certified Machine Learning - Specialty | `machine-learning-specialty.png` |
+| AWS Certified Cloud Practitioner | `cloud-practitioner.png` |
+| AWS Certified Solutions Architect - Professional | `solutions-architect-professional.png` |
+| AWS Certified Solutions Architect - Associate | `solutions-architect-associate.png` |
+
+- [x] 4.1 RED: `tests/unit/schemas.test.ts` に、`certifications` の項目が任意の `logo`（文字列）を持てることを検証する単体テストを追加し、まだスキーマが `logo` を許可していないため失敗することを確認する
+- [x] 4.2 GREEN: `src/content/schemas.ts` の `datedItemSchema` に `logo: z.string().optional()` を追加し、4.1 を通す
+- [ ] 4.3 GREEN: 上表の 12 ファイルを `aws-badges/` から `public/badges/` にコピーする。`src/content/career/ja.yaml` と `src/content/career/en.yaml` の該当する AWS 認定資格の項目（12 件、`docs/content-authoring.md` の「certifications は日英で同じ順番に並べる」に従い両言語とも同じ項目に。`name` は日英で同じ英語表記のまま）に、上表の対応で `logo: /badges/<ファイル名>` を追加する
 - [ ] 4.4 RED: `tests/e2e/pages.spec.ts` または `tests/e2e/links.spec.ts` に、`/ja/career/` の資格セクションで `logo` を持つ項目に `<img>`（`alt` がその資格の `name` と一致）が現れ、`logo` を持たない項目（TOEIC・Licensed Scrum Master 等）には `<img>` が現れないことを検証する e2e テストを追加し、実装前に失敗することを確認する
 - [ ] 4.5 GREEN: `src/pages/[lang]/career.astro` の資格セクションで、`item.logo` がある場合に `<img src={withBase(item.logo, base)} alt={item.name} />` を名前の隣に表示する。4.4 のテストを通す
 - [ ] 4.6 検証: `pnpm test`・`pnpm lint`・`pnpm typecheck`・`pnpm build && pnpm e2e` を実行し、すべて緑であることを示す。加えて `dist/` に `badges/` 配下の画像が出力されていること（`ls dist/badges/` 等）を確認する
