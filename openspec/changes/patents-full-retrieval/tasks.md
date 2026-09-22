@@ -22,6 +22,7 @@
 - [x] 1.5 各同族の請求項 1（`class="claim-text"` の最初の 1 件。日本語は JP 代表公報の `pages-ja/`、英語は US / EP / WO 代表の `pages/`）から、発明の内容が推測できる短い見出しを日英それぞれ起こし、中間データの `title` を置き換える。正式名称は `officialTitleJa` / `officialTitleEn` として中間データに残す。全 65 件で日本語 40 文字以内・英語 90 文字以内であること、正式名称と一致する見出しが 0 件であることを数えて確かめる（裁定 D12）。日本語 40 文字以内（最長 31）・英語 90 文字以内（最長 90）、正式名称と一致 0 件、重複 0 件（修正ラウンド 2 回目で 23 件の見出しを請求項 1 の記載どおりに直し、`claim1Ja`/`claim1En` を全文化、`titleEnSource` を追加。裁定 R17）
 - [x] 1.6 `verify-1.3.mjs` に見出しの検査を足して通す。(k) 日本語の `title` が 40 文字以内・英語が 90 文字以内、(l) `title` が `officialTitle` と一致しない、(m) 日本語の `title` に「、及び」「及び」で列挙される定型の末尾（`〜装置、プログラム、及び〜`）が無い、(n) 同じ `title` が 2 件以上に現れない（定型に戻っていないことの検出）。`node .superpowers/sdd/tasks/verify-1.3.mjs` が exit 0。a〜o すべて PASS、exit code 0
 - [x] 1.4 `research/publications.md`（掲載する全件の表と、落とした公報の表＋落とした理由）と `research/method.md`（エンドポイント・抽出した構造化データ・照合と同族化の規則・遮断を避ける間隔）を書き、表の件数が 1.2 の出力と一致することを確かめる。**全件の表には「見出し（`title`） / 公報の正式名称 / 根拠にした請求項 1 の抜粋」を含め、PO が 65 件すべてを照合できるようにする**（裁定 D12・D13）
+- [x] 1.7 PO 指示（2026-09-22）: 英語の見出しを、日英で別の発明に見えた 6 件を含め、日本語と同じ代表公報（65 件中 63 件が JP、2 件が代表自身の US）の請求項 1 から作り直し、日英を揃える。`titleEnSource` を実態（JP 63 件・US 2 件）に合わせ、`claim1En` は代表が JP の場合は不要にする。`patents-en.yaml` / `src/content/career/en.yaml` を再生成し、`ja.yaml` は変更しない。`verify-1.3.mjs` に (p)（`number` が JP で始まる同族はすべて `titleEnSource === 'JP'`）を追加し、変異（1 件を `US` に戻す）で FAIL することを確認。`research/publications.md`（英語見出しと英語請求項ブロックの更新）・`research/method.md` §5 の内訳を実態に直す。日英が対応する 6 件の前後比較は `task-1.2-report.md` の修正ラウンド 3 節に記録。英語見出し最長 89 文字、`verify-1.3.mjs` は a〜p すべて PASS
 
 ## 2. ビルドの番人を先に足す
 

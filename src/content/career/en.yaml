@@ -107,12 +107,12 @@ patents:
     filedAt: "2018-11"
     countries: [JP, US, CN]
     url: https://patents.google.com/patent/JP7087966B2/en
-    title: Prioritizing nearby power-source stations by photo-extracted price, based on output mode
+    title: Normalizing power-source prices to a uniform unit to recommend nearby stations
   - number: JP7363621B2
     filedAt: "2020-03"
     countries: [JP, US, CN]
     url: https://patents.google.com/patent/JP7363621B2/en
-    title: Acting on a driver when driving deviates from generated reference data past a threshold
+    title: Judging driving deviation using nearby vehicles' data when reference data is unreliable
   - number: JP7347227B2
     filedAt: "2020-01"
     countries: [JP, CN, US]
@@ -142,37 +142,37 @@ patents:
     filedAt: "2018-11"
     countries: [JP, US, CN]
     url: https://patents.google.com/patent/JP7251120B2/en
-    title: Warning nearby vehicles about a dangerous vehicle reported from a safely-driving vehicle
+    title: Detecting a low-acceleration risky vehicle and warning nearby vehicles of its location
   - number: JP7206854B2
     filedAt: "2018-11"
     countries: [JP, US, CN]
     url: https://patents.google.com/patent/JP7206854B2/en
-    title: Sending hazard info only when its recorded time matches the requester's current time
+    title: Outputting hazard warnings in different styles per user even for the same danger spot
   - number: JP7310636B2
     filedAt: "2020-02"
     countries: [JP, US, CN]
     url: https://patents.google.com/patent/JP7310636B2/en
-    title: Switching to autonomous driving on frequent speed-sign reversals with a nearby vehicle
+    title: Lowering the reversal-count threshold during side-by-side driving to trigger an action
   - number: JP7318576B2
     filedAt: "2020-03"
     countries: [JP, US, CN]
     url: https://patents.google.com/patent/JP7318576B2/en
-    title: Inferring weather and parking activity from another vehicle's wiper and hazard-light use
+    title: Inferring roadside stops from other vehicles' hazard-light history to pick the best route
   - number: JP7420036B2
     filedAt: "2020-09"
     countries: [JP, US, CN]
     url: https://patents.google.com/patent/JP7420036B2/en
-    title: A vehicle that autonomously drives to a store, loads a purchased item, and pays for it
+    title: Determining a loading sequence from cargo space, item size, and driving tendencies
   - number: JP7347276B2
     filedAt: "2020-03"
     countries: [JP, US, CN]
     url: https://patents.google.com/patent/JP7347276B2/en
-    title: Identifying car wash location from SNS posts and its type from vehicle sensor data
+    title: Identifying car wash location and type from SNS posts and notifying the user
   - number: JP7310729B2
     filedAt: "2020-06"
     countries: [JP, US, CN]
     url: https://patents.google.com/patent/JP7310729B2/en
-    title: Reproducing a vehicle's own driving state, including its vibration pattern, on its route
+    title: Reproducing one vehicle's driving state to control another vehicle on a different route
   - number: JP2021117840A
     filedAt: "2020-01"
     countries: [JP, KR, CN, US, BR, EP]
@@ -222,7 +222,7 @@ patents:
     filedAt: "2020-05"
     countries: [JP, US, CN]
     url: https://patents.google.com/patent/JP7331773B2/en
-    title: Deciding a repeat passenger's destination from previously generated preference data
+    title: Deciding a repeat passenger's destination from preference data and predicting congestion
   - number: JP7287291B2
     filedAt: "2020-01"
     countries: [JP, CN, US]
@@ -262,12 +262,12 @@ patents:
     filedAt: "2020-06"
     countries: [JP, CN, US]
     url: https://patents.google.com/patent/JP7415822B2/en
-    title: Sending a facility improvement report with location data after abrupt driving is detected
+    title: Detecting abrupt driving-operation spots in a parking lot and reporting improvements
   - number: JP7331781B2
     filedAt: "2020-05"
     countries: [JP, US, CN]
     url: https://patents.google.com/patent/JP7331781B2/en
-    title: Choosing a facility and driving mode based on an occupant's inferred drowsiness or fatigue
+    title: Inferring an occupant's condition to recommend a facility from similar past cases
   - number: JP7856003B2
     filedAt: "2022-12"
     countries: [JP, US, CN]
@@ -287,7 +287,7 @@ patents:
     filedAt: "2022-07"
     countries: [JP, CN, US]
     url: https://patents.google.com/patent/JP7666423B2/en
-    title: Determining a delivery position from environmental information at the destination
+    title: Managing a delivery robot to stow packages in a container when rain is forecast
   - number: US20250199754A1
     filedAt: "2023-12"
     countries: [US, CN]
@@ -302,7 +302,7 @@ patents:
     filedAt: "2022-06"
     countries: [JP, CN, US]
     url: https://patents.google.com/patent/JP7677243B2/en
-    title: Determining whether to stack a new package based on package information
+    title: Deciding to stack a package based on its size, weight, and stacking-prohibition marking
   - number: JP2025095982A
     filedAt: "2023-12"
     countries: [JP, CN, US]
