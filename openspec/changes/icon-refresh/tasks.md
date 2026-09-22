@@ -11,7 +11,7 @@
 ## 2. 実装
 
 - [x] 2.1 `src/lib/pixel.ts` の `briefcase` を描き直す（取っ手を太く、本体をシルエットで判別できる形に。design.md の Decisions）
-- [ ] 2.2 `src/lib/pixel.ts` の `globe` を描き直す（外周を閉じた円、線を円の内側で止める）
+- [x] 2.2 `src/lib/pixel.ts` の `globe` を描き直す（外周を閉じた円、線を円の内側で止める）
 - [ ] 2.3 `src/pages/[lang]/index.astro`: 導線のアイコン対応づけを表示ラベル非依存（`navLinks()` の結果と `[camera, briefcase]` を index で対応、件数不一致はビルド時に例外）にし、`as readonly string[]` の 2 箇所を narrowing で除去する。DOM 構造と見た目は変えない
 
 ## 3. 確認
