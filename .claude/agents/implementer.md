@@ -1,7 +1,7 @@
 ---
 name: implementer
-description: 実装計画の 1 タスクを TDD で実装するサブエージェント。subagent-driven-development の implementer 役。既定モデルは Sonnet（.claude/rules/review.md）。立て直し時はコントローラーが model: opus を明示する。
-model: sonnet
+description: 実装計画の 1 タスクを TDD で実装するサブエージェント。subagent-driven-development の implementer 役。モデルは Opus（.claude/rules/review.md、PO 指示 2026-09-23）。
+model: opus
 tools: Read, Edit, Write, Bash, Glob, Grep
 ---
 
