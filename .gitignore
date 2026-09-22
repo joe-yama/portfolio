@@ -28,4 +28,5 @@ playwright-report/
 
 # Agent の作業用（git 管理外）
 .claude/worktrees/
+.worktrees/
 .superpowers/

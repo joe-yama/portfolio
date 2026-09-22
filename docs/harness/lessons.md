@@ -45,7 +45,13 @@ Change 10（followup-hardening）でも 4 件出た。**追加したばかりの
 3. 経歴ページの「0 件の区画を出さない」条件分岐にテストが 1 本も無く、職歴が消えても単体 244 件・e2e 58 件のどれも落ちなかった
 4. 新しく足した `parseOrder` / `hasFeaturedFlag` のテストが行頭アンカーを固定しておらず、`/^order:/m` → `/order:/m` の変異ですり抜けた
 
-**番人を書いたら必ず変異を当てて落ちることを確かめる。** change の `tasks.md` に「番人が本当に番人か確かめる」タスクを 1 つ置く。隔離実行の手順は `docs/harness/README.md`。
+Change 11（patents-full-retrieval）では**変異の確かめ方そのものが誤った緑を返した**。worktree 内の `.mut-exp/` に対象ファイルだけ複製して `--root .mut-exp` で実行したら、変異を当てても**複製した `validate.test.ts` の 27 件**が全部緑だった。当時は `.mut-exp/node_modules/.vite` を消したら消えたという記録だけがあり、2026-09-23 に同じ配置で試しても再現しなかった（原因は未特定）。
+
+それとは別に、**`--root` を付けず `--config .mut-exp/vitest.config.ts` だけを渡す形は、作業ツリー全体を走らせる落とし穴**である。設定は読むが root が cwd（作業ツリー）のままになり、変異していない作業ツリーの 11 ファイル 256 件を走らせて緑を返す（2026-09-23 実測）。逆に `--root .mut-exp --config .mut-exp/vitest.config.ts` は config を root 基準で解決して `.mut-exp/.mut-exp/vitest.config.ts` を探し、起動に失敗する。
+
+`docs/harness/README.md` §7 の手順では、どちらの経路も対照実験で検出できる。`--config` だけの形は `RUN` の行が複製を指していないことで分かる。Change 11 の経路との見分け方は README §7 に置く。
+
+**番人を書いたら必ず変異を当てて落ちることを確かめる。** change の `tasks.md` に「番人が本当に番人か確かめる」タスクを 1 つ置く。隔離実行の手順（対照実験を含む）は `docs/harness/README.md` §7。
 
 ## 3. Astro のスコープ CSS は複合セレクタの両側に属性を付ける
 
