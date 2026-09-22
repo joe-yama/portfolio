@@ -145,17 +145,41 @@ test.describe('特許の区画', () => {
     }
   });
 
-  test('summary をクリックすると残りが見え、総数が 51 件になる', async ({ page }) => {
+  test('summary をクリックすると残りが見え、総数が 65 件になる', async ({ page }) => {
     await page.goto('./ja/career/');
     const section = page.locator('section', { has: page.locator('h2', { hasText: '特許' }) });
     const summary = section.locator('summary');
-    await expect(summary).toContainText('46');
+    await expect(summary).toContainText('60');
 
     await summary.click();
     const allItems = section.locator('li');
-    await expect(allItems).toHaveCount(51);
+    await expect(allItems).toHaveCount(65);
     for (const li of await allItems.all()) {
       await expect(li).toBeVisible();
+    }
+  });
+
+  test('日本語ページと英語ページで特許のリンク先が異なる', async ({ page }) => {
+    await page.goto('./ja/career/');
+    const jaSection = page.locator('section', { has: page.locator('h2', { hasText: '特許' }) });
+    await jaSection.locator('summary').click();
+    const jaHrefs = await jaSection
+      .locator('li a')
+      .evaluateAll((ls) => ls.map((l) => l.getAttribute('href') ?? ''));
+
+    await page.goto('./en/career/');
+    const enSection = page.locator('section', { has: page.locator('h2', { hasText: 'Patents' }) });
+    await enSection.locator('summary').click();
+    const enHrefs = await enSection
+      .locator('li a')
+      .evaluateAll((ls) => ls.map((l) => l.getAttribute('href') ?? ''));
+
+    expect(jaHrefs.length).toBeGreaterThan(0);
+    expect(jaHrefs.length).toBe(enHrefs.length);
+    for (const href of jaHrefs) expect(href).toMatch(/\/ja$/);
+    for (const href of enHrefs) expect(href).toMatch(/\/en$/);
+    for (let i = 0; i < jaHrefs.length; i++) {
+      expect(jaHrefs[i]).not.toBe(enHrefs[i]);
     }
   });
 

@@ -25,7 +25,7 @@
 
 ## 2. ビルドの番人を先に足す
 
-- [ ] 2.1 `src/lib/validate.ts` に `validateCareerPatents` を TDD で追加し、ビルド時の検証に組み込む。単体テストは「一致する」「先頭が違う」「英語のデータだけ違う」の 3 つを含み、エラーに `number` と `countries[0]` が含まれることを確かめる。あわせて**見出しの長さ**（日本語 40 文字以内・英語 90 文字以内。超えたら `number` と文字数を含むエラー）も同じ関数で検証し、境界値（40 / 41、90 / 91）の単体テストを足す。`pnpm test` が緑
+- [x] 2.1 `src/lib/validate.ts` に `validateCareerPatents` を TDD で追加し、ビルド時の検証に組み込む。単体テストは「一致する」「先頭が違う」「英語のデータだけ違う」の 3 つを含み、エラーに `number` と `countries[0]` が含まれることを確かめる。あわせて**見出しの長さ**（日本語 40 文字以内・英語 90 文字以内。超えたら `number` と文字数を含むエラー）も同じ関数で検証し、境界値（40 / 41、90 / 91）の単体テストを足す。`pnpm test` が緑
 - [ ] 2.2 `tests/unit/career.test.ts` に `sortPatents` → `splitPatents` の適用順を検査するテストを追加する。並び替えを飛ばすと落ちるように、先頭の項目の `filedAt` を期待する。`pnpm test` が緑
 
 ## 3. 表示の手直し
@@ -35,7 +35,7 @@
 
 ## 4. データの差し替え
 
-- [ ] 4.1 「日本語ページと英語ページで特許のリンク先が異なる」e2e を先に書いて RED を確認し、`src/content/career/{ja,en}.yaml` の `patents` を 1.2 の中間データに差し替えて（`en.yaml` の `url` は `/en`）GREEN にする。`pnpm build` / `pnpm test` / `pnpm e2e` がすべて緑
+- [x] 4.1 「日本語ページと英語ページで特許のリンク先が異なる」e2e を先に書いて RED を確認し、`src/content/career/{ja,en}.yaml` の `patents` を 1.2 の中間データに差し替えて（`en.yaml` の `url` は `/en`）GREEN にする。`pnpm build` / `pnpm test` / `pnpm e2e` がすべて緑
 - [ ] 4.2 `tests/e2e/pages.spec.ts` の特許の検査から件数のハードコード（51 / 46）を除き、「先頭 5 件だけが見えている」（`li:visible` が 5）「折りたたみの件数 = 総数 − 5」「英語ページでも折りたたみが開く」を検査する。`pnpm e2e` が緑
 
 ## 5. 番人が本当に番人か確かめる
