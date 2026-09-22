@@ -151,9 +151,10 @@ pnpm --dir "$EXP" test     # 変異ありで、狙った検査が赤
 ```
 
 - **対照実験は手順の一部で、省かない。** 変異なしで緑 → 変異ありで赤、の 2 回を記録する。変異なしで赤なら複製が壊れている
-- **複製を見ているかは、出力の `RUN  v5.0.1 <パス>` の行が `$EXP` を指しているかで確かめる。** 件数では確かめられない（丸ごと複製なので件数は作業ツリーと必ず同じで、変異でも変わらない）。`RUN` の行が `$EXP` を指したまま変異ありでも緑なら、手順の失敗ではなく「その検査は番人でない」という結果で、直すのはテストのほう（原因未特定の Change 11 の緑と見分けるため、直す前に変異が効いていることを関数の直接呼び出し等で 1 度確かめる）
+- **複製を見ているかは、出力の `RUN  v5.0.1 <パス>` の行が `$EXP` を指しているかで確かめる。** 件数では確かめられない（丸ごと複製なので件数は作業ツリーと必ず同じで、変異でも変わらない）。`RUN` の行が `$EXP` を指したまま変異ありでも緑なら、手順の失敗ではなく「その検査は番人でない」という結果で、直すのはテストのほう
+- ただし結論の前に 1 度だけ、変異を当てた状態で新しい `$EXP` を作り直し（`git archive` → 変異 → `install`）、最初の実行から変異入りで回す。Change 11 の緑は `.vite` を消したら消えたので、それでも緑なら番人でないとする。変異が当たったかの確認には、関数を直接呼ぶ（`node --experimental-strip-types` 等）
 - 実測: 変異なし `Tests 256 passed (256)` → `validate.ts` の `countries[0]` の比較を `if (false)` にすると `Tests 2 failed | 254 passed (256)`
 - `--offline` は lockfile の全パッケージが pnpm の store にあることが前提。無ければ `snapshot not present in local store` で終了コード 1 になるので、その場合は `--offline` を外す
-- コミット前の番人を試すときは、`git archive` の後に `git ls-files -m -o --exclude-standard` で列挙したファイル（変更したファイルと、未追跡の新しいテストファイル）を `$EXP` へ `cp` で上書きする
+- コミット前の番人を試すときは、`git archive` の後に、変更したファイルと未追跡の新しいテストファイルを、作業ツリーの root で `git ls-files -m -o --exclude-standard | tar -c -T - | tar -x -C "$EXP"` として階層ごと上書きする（macOS の `cp` には `--parents` が無い）
 - `install` しない丸ごと複製に作業ツリーから `pnpm exec vitest run --root "$EXP"` すると、`vitest.config.ts` が読む `astro/config` を解決できず `Cannot find package 'astro'` で起動しない（`ln -s` は permission で拒否される）。だから複製に `install` する
 - **e2e**: `pnpm --dir "$EXP" e2e`。globalSetup が複製の中で `pnpm build` し直すので、変異を当てた後のビルドは自動で入る。ポート 4399 を作業ツリーや他の worktree の preview と共有するので同時に回さない（占有中なら globalSetup が止める）。実測: 変異なし `68 passed` → `career.astro` の `sortPatents` を外すと `3 failed / 65 passed`
