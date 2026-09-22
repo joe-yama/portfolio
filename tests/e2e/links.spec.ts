@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
+import { homePath } from '../../src/lib/site';
 
 // cwd（テスト実行時のカレントディレクトリ）に依存せず、このファイルの位置から
 // リポジトリルート基準で dist を解決する。
@@ -29,7 +30,7 @@ test('ヘッダーロゴリンクに下線が無く、引き続きリンクと�
 
   const logo = page.locator('.logo');
   await expect(logo).toHaveJSProperty('tagName', 'A');
-  await expect(logo).toHaveAttribute('href', /.+/);
+  await expect(logo).toHaveAttribute('href', homePath('ja', base));
 
   const textDecorationLine = await logo.evaluate((el) => getComputedStyle(el).textDecorationLine);
   expect(textDecorationLine).toBe('none');
