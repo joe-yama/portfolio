@@ -142,7 +142,7 @@ patents:
     filedAt: "2018-11"
     countries: [JP, US, CN]
     url: https://patents.google.com/patent/JP7251120B2/en
-    title: Detecting a low-acceleration risky vehicle and warning nearby vehicles of its location
+    title: Detecting a dangerous vehicle from a low-acceleration vehicle's camera and warning others
   - number: JP7206854B2
     filedAt: "2018-11"
     countries: [JP, US, CN]

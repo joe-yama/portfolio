@@ -142,7 +142,7 @@ patents:
     filedAt: "2018-11"
     countries: [JP, US, CN]
     url: https://patents.google.com/patent/JP7251120B2/ja
-    title: 低加速の危険車両を検知し周辺車両に位置を警告
+    title: 加速度が基準以下の車の映像から危険車両を検知し周辺へ警告
   - number: JP7206854B2
     filedAt: "2018-11"
     countries: [JP, US, CN]
