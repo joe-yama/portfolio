@@ -1,6 +1,6 @@
 # レビューと使用モデルのルール
 
-PO 指示 2026-09-17。レビューの単位と Minor の扱いは PO 承認 2026-09-20。実測の根拠は `docs/harness/README.md` §6。
+PO 指示 2026-09-17。implementer を Opus にしたのは PO 指示 2026-09-23。レビューの単位と Minor の扱いは PO 承認 2026-09-20。実測の根拠は `docs/harness/README.md` §6。
 
 ## 原則
 
@@ -9,12 +9,11 @@ PO 指示 2026-09-17。レビューの単位と Minor の扱いは PO 承認 202
 - レビューは **敵対的** に行う。実装者の報告は未検証の主張として扱い、diff と実行結果だけを証拠にする。
 - レビューには **ponytail の観点**（過剰設計の摘出）を必ず含める。形式は `.claude/skills/ponytail-review/SKILL.md`。
 
-## 使用モデル（予算の都合）
+## 使用モデル
 
-- Agent ツールでは常に `subagent_type` を `implementer`（Sonnet）か `reviewer`（Opus）にし、**`model` も明示して省略しない**（省略するとセッションのモデル = 最上位・最高額を継承する）。
+- Agent ツールでは常に `subagent_type` を `implementer` か `reviewer` にし、**どちらも `model: opus` を明示して省略しない**（省略するとセッションのモデル = 最上位・最高額を継承する）。
 - 実装フェーズのコントローラー（メインセッション）は `/model opus` で始める。設計と brainstorming は Fable でよい。
-- 立て直し実装だけは `subagent_type: implementer` に `model: opus` を明示する（下記の切り替え条件）。
-- 再レビューも Opus。ただし新しいコンテキストを起こさず、**同じ reviewer に `SendMessage` で続ける**（履歴とプロンプトキャッシュを保ったまま再開でき、`maxTurns` で partial が返ったときも同じ）。1 行の差し替え・文言・リネームのような機械的な修正は、コントローラーが diff と grep で反映を確かめて再レビューを省く。
+- 再レビューは新しいコンテキストを起こさず、**同じ reviewer に `SendMessage` で続ける**（履歴とプロンプトキャッシュを保ったまま再開でき、`maxTurns` で partial が返ったときも同じ）。1 行の差し替え・文言・リネームのような機械的な修正は、コントローラーが diff と grep で反映を確かめて再レビューを省く。
 
 ## レビューの単位
 
@@ -27,15 +26,15 @@ PO 指示 2026-09-17。レビューの単位と Minor の扱いは PO 承認 202
 - Minor は修正ラウンドを起こさない。reviewer は報告に残し、コントローラーは change の `tasks.md` 末尾「提案」に転記して後続に回す。**Minor と ponytail だけの報告は Approved として扱う。**
 - 例外は 2 つ: PO が直せと指示したとき、Minor を Important に格上げする根拠（壊れる入力、spec との矛盾）が示されたとき。
 
-## Opus に実装を切り替える条件（「あまりにもひどい」の定義）
+## 実装を立て直す条件（「あまりにもひどい」の定義）
 
-次のいずれかに当たったら、その場で Sonnet の修正ループを打ち切り、**新しいコンテキスト**の implementer を `model: opus` で起こす。同じ brief を渡し、レビュー報告を添える。
+次のいずれかに当たったら、その場で修正ループを打ち切り、**新しいコンテキスト**の implementer（`model: opus`）を起こす。同じ brief を渡し、レビュー報告を添える。
 
 1. レビューの仕様準拠が ❌ で、Critical の指摘が 1 件以上ある
 2. 修正ラウンドを 2 回行っても「Approved」にならない
 3. レビュアーが報告で「再実装を推奨」と明記した
 
-切り替えたことと理由を、ledger と GitHub Issue に記録する。
+立て直したことと理由を、ledger と GitHub Issue に記録する。
 
 ## コントローラー側の手順
 
@@ -44,5 +43,5 @@ reviewer 自身の作法は `.claude/agents/reviewer.md` にある。コント�
 1. レビュー単位に達したら review package（diff）を作り、reviewer に task brief・Global Constraints・実装者の報告・diff ファイルを渡す
 2. UI があるタスクでは `pnpm build && pnpm preview` を起動し、URL（例 `http://127.0.0.1:4321/ja/`）も渡す。reviewer は自分でビルドしない（作業ツリーを変更しないため）
 3. Needs fixes なら、Critical / Important を**全部そろえて 1 回**で implementer に `SendMessage` する（分割して送ると取りこぼす）
-4. 毎ラウンド、上の切り替え条件を確認する
-5. レビュー結果は最終レビューの後に 1 回だけ、change の Issue にまとめてコメントする（単位ごとの判定 / 指摘数 / 切り替えの有無 / 後続に回した Minor）
+4. 毎ラウンド、上の立て直し条件を確認する
+5. レビュー結果は最終レビューの後に 1 回だけ、change の Issue にまとめてコメントする（単位ごとの判定 / 指摘数 / 立て直しの有無 / 後続に回した Minor）

@@ -18,7 +18,7 @@
 | 強制 | コンテキスト予算の番人 | — | `tests/unit/context-budget.test.ts`（2026-09-22 追加）。`CLAUDE.md` + `.claude/rules/*.md` の合計を **20,000 B** に制限する。`pnpm test` に乗るので Stop hook と CI（required check `check`）の両方で効く。上限を上げるときは理由をコミットメッセージに残す |
 | 権限・隔離 | permissions + sandbox | — | `.claude/settings.json`（下記「4. 権限設定」） |
 | 作業記憶（任意） | Beads | 未導入 | PO 判断待ち（HANDOFF 6.） |
-| 役割別サブエージェント | `.claude/agents/implementer.md`（Sonnet）、`.claude/agents/reviewer.md`（Opus） | — | 2026-09-17 PO 指示。実装と別コンテキストで敵対的 + ponytail 観点のレビュー。モデルの使い分けと Opus 実装への切り替え条件は `.claude/rules/review.md` |
+| 役割別サブエージェント | `.claude/agents/implementer.md`（Opus。2026-09-23 に Sonnet から変更）、`.claude/agents/reviewer.md`（Opus） | — | 2026-09-17 PO 指示。実装と別コンテキストで敵対的 + ponytail 観点のレビュー。モデルと実装の立て直し条件は `.claude/rules/review.md` |
 
 ### openspec/ の構成
 
