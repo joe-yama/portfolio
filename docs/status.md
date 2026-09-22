@@ -1,10 +1,12 @@
 # 現在の状態
 
-最終更新: 2026-09-23（PR #42 のマージと、変異テストの隔離実行の手順の修正時点）。`CLAUDE.md` の索引から参照される。
+最終更新: 2026-09-23（change `icon-refresh` のマージとアーカイブ、変異テストの隔離実行の手順の修正時点）。`CLAUDE.md` の索引から参照される。
 
 ## フェーズ
 
-**v1 公開済み**（2026-09-21）。change `fix-misc`（Issue #39、PR #40）をマージ・アーカイブ済み（2026-09-22）。未着手の change は無く、次にやることは PO の指示待ち（下記「次の作業の候補」）。
+**v1 公開済み**（2026-09-21）。change `icon-refresh`（Issue #43、PR #46）をマージ・アーカイブ済み（2026-09-23）。**進行中は change `followup-minors`（Issue #45、ブランチ `feature/followup-minors`）**: Change 7〜11 の申し送りのうち、今も有効な壊れる入力・番人の穴 7 件と品質改善を束ねたもの（仕分けと除外の理由は同 change の `proposal.md`）。
+
+2026-09-23 から implementer も Opus で動かす（PO 指示、PR #44。`.claude/rules/review.md`）。
 
 ## 公開先（PO 決定 2026-09-21）
 
@@ -22,6 +24,7 @@
 - **写真はサンプルのまま 2 枚**（差し替えは PO 待ち）
 - **経歴の一部文言・スキルを更新**（2026-09-22、`fix-misc`）。experience 先頭項目の role から「（全社横断）」を削除、bullets を「…開発標準活動を立ち上げリーディング」に変更。skills「クラウド」に「プラットフォームエンジニアリング」追加、「プログラミング言語」を `[Python, Java, Scala, C++, TypeScript]` に置き換え（SQL を除外）、新カテゴリ「言語」（英語を第一言語とするチームのリーディング）を追加。特許の区画見出しを「特許」→「代表的な特許」に変更（区画の構成・折りたたみの挙動は変更なし）
 - **AWS 認定資格 12 件へのバッジロゴ表示は一度実装したが、PO の判断（見た目が良くない）で取り消した**（2026-09-22、`fix-misc`）。詳細と再挑戦時の考慮点は `openspec/changes/archive/2026-09-22-fix-misc/tasks.md` の「提案」
+- トップページのドット絵のうち鞄（Career）と地球儀（言語切り替え）を描き直し、アイコン取り違えの番人を座標の完全一致に強化（2026-09-23、`icon-refresh`）
 - トップページ本文最下部を「サイト内導線（Photos/Career/言語切り替え） → 連絡先リンク（GitHub/LinkedIn）」の順に入れ替え、5 リンクにドット絵アイコンを追加（2026-09-22、`fix-misc`。`profile-and-career` spec 改定済み）
 - **経歴のスキルに「コーヒー」を追加**（2026-09-23、PR #42）。スキル表の最終行に `コーヒー: [ハンドドリップ, モカポット, たいてい1日に5杯]` / `Coffee: [Hand drip, Moka pot, Usually five cups a day]` を置き、トップの肩書 "Builder, photographer, coffee lover" のコーヒーを経歴ページで回収した
 
@@ -41,11 +44,10 @@
 
 1. 写真の追加・差し替え
 2. 独自ドメインへの移行（設計書 §9 の手順で `base` の削除が必要）
-3. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件、Change 10 の 35 件超、Change 11 の 19 件（20 件のうち隔離実行の手順の件は 2026-09-23 に対応済み）、**`fix-misc` の 5 件（ブランチレビューの Minor 指摘）**（各 `openspec/changes/archive/*/tasks.md` の末尾）
+3. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件、Change 10 の 35 件超、Change 11 の 19 件（20 件のうち隔離実行の手順の件は 2026-09-23 に対応済み）、`icon-refresh` の 3 件（各 `openspec/changes/archive/*/tasks.md` の末尾）。**Change 7〜11 の分は `followup-minors` で仕分け済みで、束に入れなかったもの（新機能・PO 判断・写真表示まわり）が残る**
 4. Change 4・5 の後続への提案と申し送り（各 `openspec/changes/archive/2026-09-21-*/tasks.md` の末尾）
 5. ヘッダーの常設ナビ（`Header.astro`）にはトップページ本文と同じドット絵アイコンを付けていない。意匠を揃えるなら別 change で検討（`fix-misc` の申し送り）
-6. `fix-misc` で追加したドット絵（GitHub・LinkedIn・Career・言語切り替え）は「仮の絵」。ブランチレビューで briefcase（鞄）と globe（地球儀）の視認性が低いと指摘されている（`openspec/changes/archive/2026-09-22-fix-misc/tasks.md` 参照）
-7. AWS 認定資格のバッジロゴ表示を再検討する場合は、見せ方（サイズ・配置・ドット絵化するか等）から設計し直す（一度実装し PO の判断で取り消し済み）
+6. AWS 認定資格のバッジロゴ表示を再検討する場合は、見せ方（サイズ・配置・ドット絵化するか等）から設計し直す（一度実装し PO の判断で取り消し済み）
 
 ## PO 判断として残っている件
 
