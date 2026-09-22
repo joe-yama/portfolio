@@ -5,7 +5,7 @@
 ## 1. 番人の強化（RED を先に）
 
 - [x] 1.1 `tests/unit/pixel.test.ts`: github / linkedin / briefcase / globe を camera / lost の厳しい番人（16 行 × 16 文字、`^[.#]{16}$`、塗り 1 セル以上）の `describe.each` に統合し、`gridSize` だけの `describe.each` を削除する
-- [ ] 1.2 `tests/e2e/links.spec.ts`: トップページ（ja / en）の導線 3 件と連絡先 2 件それぞれについて、`svg rect` の `(x, y)` 列が期待するグリッドの `cells()` と完全一致することを確かめる（rect 数の比較を置き換える）
+- [x] 1.2 `tests/e2e/links.spec.ts`: トップページ（ja / en）の導線 3 件と連絡先 2 件それぞれについて、`svg rect` の `(x, y)` 列が期待するグリッドの `cells()` と完全一致することを確かめる（rect 数の比較を置き換える）
 - [ ] 1.3 番人が本当に番人か確かめる: (a) `index.astro` で導線の camera と briefcase を入れ替える変異、(b) github と linkedin を入れ替える変異、(c) グリッドの 1 行を 15 文字にする変異、(d) 1 行に `.`/`#` 以外の文字を混ぜる変異 を 1 つずつ当て、それぞれ該当の番人が赤になることを確かめて報告する。手順は `docs/harness/README.md` と `docs/harness/lessons.md`（隔離実行の手順は別 PR で改訂中のため、キャッシュによる誤った緑を避けるには変異前後で対照実験し、作業ツリーを直接変異させる場合はバックアップから復元して `git status` で差分が残っていないことを確かめる）
 
 ## 2. 実装
