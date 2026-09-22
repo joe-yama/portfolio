@@ -78,258 +78,328 @@ achievements:
     kind: talk
     url: https://www.anlp.jp/proceedings/annual_meeting/2016/pdf_dir/B3-4.pdf
 patents:
+  - number: JP7200645B2
+    filedAt: "2018-12"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7200645B2/ja
+    title: 乗員を車外の風景に合成した写真を作る車載カメラ
+  - number: JP7354888B2
+    filedAt: "2020-03"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7354888B2/ja
+    title: 運転の丁寧さから車のアバターが雑談を生成
   - number: JP6549500B2
     filedAt: "2016-02"
     countries: [JP]
     url: https://patents.google.com/patent/JP6549500B2/ja
-    title: 話題推定学習装置及び話題推定学習方法
-  - number: JP7151181B2
-    filedAt: "2018-05"
-    countries: [JP]
-    url: https://patents.google.com/patent/JP7151181B2/ja
-    title: 音声対話システム、その処理方法及びプログラム
-  - number: CN111238513B
-    filedAt: "2019-10"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111238513B/ja
-    title: 情報提供システム、サーバ、車載装置および情報提供方法
-  - number: CN111238491A
-    filedAt: "2019-10"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111238491A/ja
-    title: 情報提供システム、サーバ、車載装置および情報提供方法
-  - number: CN111243314A
-    filedAt: "2019-11"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111243314A/ja
-    title: 情報提供システム、サーバ、携帯端末および非一時的記憶媒体
-  - number: CN111246160A
-    filedAt: "2019-11"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111246160A/ja
-    title: 情報提供システムおよび方法、サーバ、車載装置
-  - number: CN111243332A
-    filedAt: "2019-11"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111243332A/ja
-    title: 情報提供システムおよび方法、サーバ、車載装置および記憶媒体
-  - number: CN111301284B
-    filedAt: "2019-11"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111301284B/ja
-    title: 車載装置、プログラムおよび車両
-  - number: CN111311919A
-    filedAt: "2019-11"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111311919A/ja
-    title: サーバ、車載装置、プログラム、情報提供システムおよび方法
-  - number: CN111301285A
-    filedAt: "2019-12"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111301285A/ja
-    title: 制御システム、サーバ、車載制御装置、車両および制御方法
-  - number: CN111422128A
+    title: 誤答話題を遠ざける話題推定学習装置
+  - number: JP7192443B2
+    filedAt: "2018-11"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7192443B2/ja
+    title: 車載カメラの画像から道路障害物の除去時間を推定し配信
+  - number: JP7371520B2
+    filedAt: "2020-02"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7371520B2/ja
+    title: 加速車線の合流地点で前後の車に合流案内を出す
+  - number: JP7087966B2
+    filedAt: "2018-11"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7087966B2/ja
+    title: 動力源価格の表示形式を統一し近くの補給所を推薦
+  - number: JP7363621B2
+    filedAt: "2020-03"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7363621B2/ja
+    title: 基準の信頼度が低いと近くの車データで運転逸脱を判定
+  - number: JP7347227B2
     filedAt: "2020-01"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111422128A/ja
-    title: サーバ、車載装置、車両、記憶媒体および情報提供方法
-  - number: CN113140119A
-    filedAt: "2021-01"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113140119A/ja
-    title: 情報処理装置、情報処理方法およびコンピュータ可読媒体
-  - number: CN113135091B
-    filedAt: "2021-01"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113135091B/ja
-    title: 情報処理装置、記録媒体および情報処理方法
-  - number: CN113492768B
-    filedAt: "2021-01"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113492768B/ja
-    title: 情報処理装置、情報処理システムおよびコンピュータ可読記録媒体
-  - number: CN113256364A
-    filedAt: "2021-01"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113256364A/ja
-    title: 情報処理装置、情報処理方法および非一時的媒体
-  - number: CN113160552A
-    filedAt: "2021-01"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113160552A/ja
-    title: 情報処理装置、情報処理方法およびコンピュータ可読媒体
-  - number: CN113344312A
-    filedAt: "2021-02"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113344312A/ja
-    title: 情報処理装置、情報処理方法およびコンピュータ可読媒体
-  - number: CN113269988B
-    filedAt: "2021-02"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113269988B/ja
-    title: 情報処理装置、情報処理方法および記録媒体
-  - number: CN113538174A
-    filedAt: "2021-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113538174A/ja
-    title: 情報処理装置、情報処理システムおよびプログラム
-  - number: CN113395316B
-    filedAt: "2021-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113395316B/ja
-    title: 情報処理装置および情報処理システム
-  - number: CN113411776A
-    filedAt: "2021-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113411776A/ja
-    title: 情報処理装置、車両システムおよび情報処理方法
-  - number: CN113401074B
-    filedAt: "2021-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113401074B/ja
-    title: 情報処理装置、情報処理方法および非一時的記憶媒体
-  - number: CN113401129B
-    filedAt: "2021-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113401129B/ja
-    title: 情報処理装置、記録媒体および情報処理方法
-  - number: CN113453193B
-    filedAt: "2021-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113453193B/ja
-    title: 情報処理装置および記録媒体
-  - number: CN113553496B
-    filedAt: "2021-04"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113553496B/ja
-    title: 情報処理装置、情報処理方法および非一時的媒体
-  - number: CN113743976A
-    filedAt: "2021-04"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113743976A/ja
-    title: 情報処理装置、情報処理システムおよびプログラム
-  - number: CN113744090A
-    filedAt: "2021-04"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113744090A/ja
-    title: 情報処理装置、情報処理システムおよびプログラム
-  - number: CN113497750B
-    filedAt: "2021-04"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113497750B/ja
-    title: 情報処理装置、情報処理システムおよび非一時的媒体
-  - number: CN113587939A
-    filedAt: "2021-04"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113587939A/ja
-    title: 情報処理装置、情報処理システムおよびプログラム
-  - number: CN113813597B
-    filedAt: "2021-04"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113813597B/ja
-    title: 情報処理装置、情報処理システムおよびプログラム
-  - number: CN113902570A
-    filedAt: "2021-04"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113902570A/ja
-    title: 情報処理装置、情報処理システムおよびプログラム
-  - number: CN113744551A
-    filedAt: "2021-05"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113744551A/ja
-    title: 情報処理装置、非一時的記憶媒体および情報提供方法
-  - number: CN114119293A
-    filedAt: "2021-06"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN114119293A/ja
-    title: 情報処理装置、情報処理システムおよびプログラム
-  - number: CN113928246A
-    filedAt: "2021-06"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113928246A/ja
-    title: 情報処理装置、情報処理システムおよびプログラム
-  - number: CN113852916B
-    filedAt: "2021-06"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113852916B/ja
-    title: 情報処理システム、情報処理方法および記録媒体
-  - number: CN114331248B
-    filedAt: "2021-08"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN114331248B/ja
-    title: 情報処理装置により実行される方法、情報処理装置
-  - number: CN116331121A
-    filedAt: "2022-10"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN116331121A/ja
-    title: 車両、情報処理システム、記憶媒体および情報提供方法
-  - number: CN117273560A
-    filedAt: "2023-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN117273560A/ja
-    title: 車両、電子署名発行システム、記憶媒体および電子的方法
-  - number: CN117227753A
-    filedAt: "2023-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN117227753A/ja
-    title: 車両、情報処理システムおよび非一時的コンピュータ可読媒体
-  - number: CN117252497A
-    filedAt: "2023-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN117252497A/ja
-    title: 車両、方法およびプログラム
-  - number: CN117391570A
-    filedAt: "2023-06"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN117391570A/ja
-    title: 管理装置、管理システム、管理方法および移動体
-  - number: CN118261665A
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7347227B2/ja
+    title: 同一車線の後続車接近を検知し車線変更を案内
+  - number: JP7147513B2
+    filedAt: "2018-11"
+    countries: [JP, EP, US, CN]
+    url: https://patents.google.com/patent/JP7147513B2/ja
+    title: 掲示の文字認識で駐車場の空きと料金を検出し推薦
+  - number: JP7327279B2
+    filedAt: "2020-05"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7327279B2/ja
+    title: 信号切替時に発進と停止をスマホで運転者に通知
+  - number: JP2020093622A
+    filedAt: "2018-12"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP2020093622A/ja
+    title: 乗員を撮像認識し車の装備設定を他の車にも復元
+  - number: JP7294200B2
+    filedAt: "2020-03"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7294200B2/ja
+    title: 近くの車の状況と嗜好に合わせた画像を選び送信
+  - number: JP7251120B2
+    filedAt: "2018-11"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7251120B2/ja
+    title: 加速度が基準以下の車の映像から危険車両を検知し周辺へ警告
+  - number: JP7206854B2
+    filedAt: "2018-11"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7206854B2/ja
+    title: 同じ危険地点でも利用者ごとに異なる警告態様で出力
+  - number: JP7310636B2
+    filedAt: "2020-02"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7310636B2/ja
+    title: 並走時は閾値を下げ相対速度の反転回数超過で所定処理
+  - number: JP7318576B2
+    filedAt: "2020-03"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7318576B2/ja
+    title: 他車のハザード履歴から駐停車を推定し最適ルートを決定
+  - number: JP7420036B2
+    filedAt: "2020-09"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7420036B2/ja
+    title: 積載空間と商品寸法と運転傾向から積み込み手順を決定
+  - number: JP7347276B2
+    filedAt: "2020-03"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7347276B2/ja
+    title: SNS投稿から洗車機の位置と種類を特定して通知
+  - number: JP7310729B2
+    filedAt: "2020-06"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7310729B2/ja
+    title: 他ルートの実走行を再現し別ルートの車両制御に利用
+  - number: JP2021117840A
+    filedAt: "2020-01"
+    countries: [JP, KR, CN, US, BR, EP]
+    url: https://patents.google.com/patent/JP2021117840A/ja
+    title: 運転履歴から評価しサービスの信用度を算出
+  - number: JP7363647B2
+    filedAt: "2020-04"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7363647B2/ja
+    title: 匿名の車両属性と訪問場所から来訪傾向を集計
+  - number: JP7298526B2
+    filedAt: "2020-03"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7298526B2/ja
+    title: 車車間通信で近くの車の再生中の音楽情報を共有
+  - number: JP7218557B2
+    filedAt: "2018-12"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7218557B2/ja
+    title: 乗用旅客車両のカメラから他車の空車情報を検出し配信
+  - number: JP7115325B2
+    filedAt: "2019-01"
+    countries: [JP, EP, US, CN]
+    url: https://patents.google.com/patent/JP7115325B2/ja
+    title: 歩行者の装着具画像から歩道の日陰や光源位置を検出
+  - number: JP7626057B2
+    filedAt: "2021-12"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7626057B2/ja
+    title: 二次元コードのURL照合で指定の置き配場所を確認して配送
+  - number: JP7331792B2
+    filedAt: "2020-06"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7331792B2/ja
+    title: 乗員構成と機嫌を推定し過去データから施設サービスを決定
+  - number: JP2021174115A
+    filedAt: "2020-04"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP2021174115A/ja
+    title: 走行と外見情報から生体情報を推測し宿泊サービスを決定
+  - number: JP2021189770A
+    filedAt: "2020-05"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP2021189770A/ja
+    title: 地域の車両情報と過去データから地価を推定
+  - number: JP7331773B2
+    filedAt: "2020-05"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7331773B2/ja
+    title: 乗員の過去の嗜好から目的地を決め混雑も予測
+  - number: JP7287291B2
+    filedAt: "2020-01"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7287291B2/ja
+    title: 危険運転時にエンジン出力を落とし音は通常のまま聞かせる
+  - number: JP7396214B2
+    filedAt: "2020-06"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7396214B2/ja
+    title: 感染者の訪問履歴から同時刻の来訪者に感染リスクを通知
+  - number: JP2021117615A
+    filedAt: "2020-01"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP2021117615A/ja
+    title: 周辺車両の運転傾向と比較し逸脱時に運転者へ通知
+  - number: JP7371562B2
+    filedAt: "2020-04"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7371562B2/ja
+    title: 同方向に移動する端末同士をグループ化し待合せ場所を提案
+  - number: JP7347344B2
+    filedAt: "2020-06"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7347344B2/ja
+    title: 周囲の運転評価と走行データを比較し保険料を決定
+  - number: JP7711636B2
+    filedAt: "2022-06"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7711636B2/ja
+    title: 置き配後の修正指示で荷物を別の場所へ移動する車両
+  - number: JP7683552B2
+    filedAt: "2022-06"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7683552B2/ja
+    title: 宛先の署名発行機とパスワード照合し荷物を届ける車両
+  - number: JP7415822B2
+    filedAt: "2020-06"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7415822B2/ja
+    title: 駐車場内の急な運転操作地点を検出し施設に改善情報を提供
+  - number: JP7331781B2
+    filedAt: "2020-05"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7331781B2/ja
+    title: 乗員の状態を推測し似た過去データから適切な施設を決定
+  - number: JP7856003B2
+    filedAt: "2022-12"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7856003B2/ja
+    title: 運転目標の達成をNFTで判定し証明として付与
+  - number: JP2025096043A
     filedAt: "2023-12"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN118261665A/ja
-    title: データ管理システム、データ管理方法およびサーバ
-  - number: CN119957041A
-    filedAt: "2024-10"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN119957041A/ja
-    title: 情報処理装置
-  - number: CN120156448A
-    filedAt: "2024-11"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN120156448A/ja
-    title: 情報処理装置
-  - number: CN120166291A
-    filedAt: "2024-12"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN120166291A/ja
-    title: 情報処理装置
-  - number: CN120156443A
-    filedAt: "2024-12"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN120156443A/ja
-    title: 情報報知装置および車両
-  - number: CN120156444A
-    filedAt: "2024-12"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN120156444A/ja
-    title: 音声案内装置、車両および非一時的コンピュータ可読媒体
-  - number: CN120156521A
-    filedAt: "2024-12"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN120156521A/ja
-    title: 後退支援装置および車両
-  - number: CN120164348A
-    filedAt: "2024-12"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN120164348A/ja
-    title: 情報処理装置、駐車支援方法および非一時的媒体
-  - number: TWI923233B
-    filedAt: "2024-12"
-    countries: [TW]
-    url: https://patents.google.com/patent/TWI923233B/ja
-    title: 車両消耗品の補充支援方法、車両消耗品の補充支援プログラム及び情報処理装置
-  - number: TW202539941A
-    filedAt: "2024-12"
-    countries: [TW]
-    url: https://patents.google.com/patent/TW202539941A/ja
-    title: 方法、プログラムおよび情報処理装置
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP2025096043A/ja
+    title: 座席の使用状況で基準距離を変え障害物までの目安を表示
+  - number: JP2025105050A
+    filedAt: "2023-12"
+    countries: [JP, WO, TW]
+    url: https://patents.google.com/patent/JP2025105050A/ja
+    title: トリガー検知でエンジンルーム画像と補充口位置を案内
+  - number: JP7666423B2
+    filedAt: "2022-07"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7666423B2/ja
+    title: 降雨予測時は配達物を容器に収めて配送するロボット管理
+  - number: US20250199754A1
+    filedAt: "2023-12"
+    countries: [US, CN]
+    url: https://patents.google.com/patent/US20250199754A1/ja
+    title: 車内騒音レベルに応じて音声案内の音量を自動調整
+  - number: JP7852619B2
+    filedAt: "2023-12"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7852619B2/ja
+    title: 施錠時の車内閉じ込めを検知し解錠手順を車内に提示
+  - number: JP7677243B2
+    filedAt: "2022-06"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7677243B2/ja
+    title: 大きさ・重さ・上積厳禁マークの有無を比較し積み重ねを判断
+  - number: JP2025095982A
+    filedAt: "2023-12"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP2025095982A/ja
+    title: バックドアの突出量から障害物までの目安距離を画面表示
+  - number: US20250146351A1
+    filedAt: "2023-11"
+    countries: [US, CN]
+    url: https://patents.google.com/patent/US20250146351A1/ja
+    title: 座席の乗員属性に応じてパワーウィンドウ設定を自動適用
+  - number: JP2025095991A
+    filedAt: "2023-12"
+    countries: [JP, CN, US, DE]
+    url: https://patents.google.com/patent/JP2025095991A/ja
+    title: 駐車枠の向きと車の角度差を検出し画面に案内
+  - number: JP2025095979A
+    filedAt: "2023-12"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP2025095979A/ja
+    title: 短押しで静止画、長押しで動画を撮る車載カメラ操作
+  - number: JP2021111156A
+    filedAt: "2020-01"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2021111156A/ja
+    title: 前方車の灯火が見えにくいと車間拡大か通知の少なくとも一方を実施
+  - number: JP2021111155A
+    filedAt: "2020-01"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2021111155A/ja
+    title: 発進中の前方車と周囲車の速度差から自車運転者に警告
+  - number: JP2025096041A
+    filedAt: "2023-12"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2025096041A/ja
+    title: 指定区間を避けた代替経路を再探索して表示
+  - number: JP2021111271A
+    filedAt: "2020-01"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2021111271A/ja
+    title: 危険運転を検知すると車内に鎮静効果の香りを拡散
+  - number: JP2021114102A
+    filedAt: "2020-01"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2021114102A/ja
+    title: 周辺車両の水はねから道路冠水レベルを判定し地図化
+  - number: JP2025097162A
+    filedAt: "2023-12"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2025097162A/ja
+    title: 運転者はナビ、同乗者は経路編集を同時表示する車載機
+  - number: JP2021140304A
+    filedAt: "2020-03"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2021140304A/ja
+    title: SNS投稿から配車依頼を検知し条件に合う友人に通知
+  - number: JP2021113918A
+    filedAt: "2020-01"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2021113918A/ja
+    title: 不適切運転時の車内音を学習しリアルタイムで運転を判定
+  - number: JP2025096045A
+    filedAt: "2023-12"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2025096045A/ja
+    title: 障害物に接触する開度未満に制限してドアを開く制御
+  - number: JP2025097160A
+    filedAt: "2023-12"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2025097160A/ja
+    title: 経路探索済みの端末を車両が選んで経路情報を取得
+  - number: JP2021109563A
+    filedAt: "2020-01"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2021109563A/ja
+    title: 前方車の急減速を検知し後続車に警告
+  - number: JP2024007891A
+    filedAt: "2022-07"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2024007891A/ja
+    title: スマートキー連携で荷物を屋内に届け再施錠する車両
+  - number: JP2022012286A
+    filedAt: "2020-07"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2022012286A/ja
+    title: 発進後の減速時に前方に交差点があればハザードを点灯
+  - number: JP2024007895A
+    filedAt: "2022-07"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2024007895A/ja
+    title: 配送経路の勾配が許容超なら代替策を選ぶ配送車両
+  - number: JP2024004360A
+    filedAt: "2022-06"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2024004360A/ja
+    title: 返却情報の指定位置で収容ボックスを回収する車両
+  - number: JP2023183846A
+    filedAt: "2022-06"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2023183846A/ja
+    title: 不審な追跡を検知すると配送を中断し対処する車両

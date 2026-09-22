@@ -1,8 +1,71 @@
-import { expect, test } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { expect, type Page, test } from '@playwright/test';
 import { ui } from '../../src/lib/site';
 
 const locales = ['ja', 'en'] as const;
 const slug = 'kariya-ferris-wheel';
+
+type PatentSummary = { number: string; filedAt: string; countries: string[] };
+
+/**
+ * career/{lang}.yaml の patents: ブロックから number / filedAt / countries だけを雑に取り出す。
+ * 件数と並び替えの検算専用なので本格的な YAML パーサーは要らない。
+ * `yaml` パッケージは pnpm の直接依存に無く（astro の内部依存の phantom dependency）、
+ * トップレベルから import できないため使わない
+ */
+function parsePatents(yamlPath: string): PatentSummary[] {
+  const text = readFileSync(yamlPath, 'utf8');
+  const patents: PatentSummary[] = [];
+  let current: Partial<PatentSummary> | null = null;
+  for (const line of text.split('\n')) {
+    const numberMatch = line.match(/^ {2}- number: (.+)$/);
+    if (numberMatch) {
+      if (current) patents.push(current as PatentSummary);
+      current = { number: numberMatch[1] };
+      continue;
+    }
+    if (!current) continue;
+    const filedAtMatch = line.match(/^ {4}filedAt: "?([0-9-]+)"?$/);
+    if (filedAtMatch) current.filedAt = filedAtMatch[1];
+    const countriesMatch = line.match(/^ {4}countries: \[(.+)\]$/);
+    if (countriesMatch) current.countries = countriesMatch[1].split(',').map((s) => s.trim());
+  }
+  if (current) patents.push(current as PatentSummary);
+  return patents;
+}
+
+/** src/lib/career.ts の sortPatents と同じ規則を、e2e から独立に計算する（design 5.1 (b)） */
+function firstBySortOrder(patents: PatentSummary[]): PatentSummary {
+  const first = [...patents].sort((a, b) => {
+    const byCountryCount = b.countries.length - a.countries.length;
+    if (byCountryCount !== 0) return byCountryCount;
+    return b.filedAt.localeCompare(a.filedAt);
+  })[0];
+  if (!first) throw new Error('patents が空');
+  return first;
+}
+
+/** src/lib/career.ts の formatMonth と同じ規則を、e2e から独立に計算する（YAML の filedAt から導く） */
+function formatMonth(value: string, lang: 'ja' | 'en'): string {
+  const [year, month] = value.split('-').map(Number);
+  if (year === undefined || month === undefined) throw new Error(`日付の形式が違う: ${value}`);
+  return new Intl.DateTimeFormat(lang, {
+    year: 'numeric',
+    month: lang === 'ja' ? 'long' : 'short',
+  }).format(new Date(year, month - 1, 1));
+}
+
+const patentsByLang = {
+  ja: parsePatents('src/content/career/ja.yaml'),
+  en: parsePatents('src/content/career/en.yaml'),
+};
+/** 特許の一覧で、操作なしに見せる先頭の件数（spec。src/lib/career.ts の PATENTS_HEAD_COUNT と同じ値） */
+const PATENTS_HEAD_COUNT = 5;
+const patentsTotal = patentsByLang.ja.length;
+const patentsRestCount = patentsTotal - PATENTS_HEAD_COUNT;
+const expectedFirstNumber = firstBySortOrder(patentsByLang.ja).number;
+const expectedFirstFiledAt = firstBySortOrder(patentsByLang.ja).filedAt;
+const expectedFirstCountries = firstBySortOrder(patentsByLang.ja).countries;
 
 /** 5 種類 × 2 言語。パスは baseURL からの相対（先頭スラッシュなし） */
 const pagePaths = locales.flatMap((lang) => [
@@ -128,6 +191,10 @@ test('写真は picture として出力される', async ({ page }) => {
 test.describe('特許の区画', () => {
   const heading = { ja: '特許', en: 'Patents' } as const;
 
+  function patentsSection(page: Page, lang: (typeof locales)[number]) {
+    return page.locator('section', { has: page.locator('h2', { hasText: heading[lang] }) });
+  }
+
   for (const lang of locales) {
     test(`/${lang}/career/ に特許の見出しがある`, async ({ page }) => {
       await page.goto(`./${lang}/career/`);
@@ -135,33 +202,84 @@ test.describe('特許の区画', () => {
     });
   }
 
-  test('折りたたみを開く前は先頭 5 件だけ見えている', async ({ page }) => {
+  for (const lang of locales) {
+    test(`/${lang}/career/ では折りたたみを開く前は先頭 ${PATENTS_HEAD_COUNT} 件だけ見えている`, async ({
+      page,
+    }) => {
+      await page.goto(`./${lang}/career/`);
+      const section = patentsSection(page, lang);
+      await expect(section.locator('li:visible')).toHaveCount(PATENTS_HEAD_COUNT);
+      // <details> の中身は閉じていても DOM には存在する（レンダーされないだけ）。
+      // ここで総数を確かめておくことで、次のテストの「開くと総数になる」と対になる
+      await expect(section.locator('li')).toHaveCount(patentsTotal);
+    });
+
+    test(`/${lang}/career/ で summary をクリックすると残り ${patentsRestCount} 件が見え、総数が ${patentsTotal} 件になる`, async ({
+      page,
+    }) => {
+      await page.goto(`./${lang}/career/`);
+      const section = patentsSection(page, lang);
+      const summary = section.locator('summary');
+      await expect(summary).toContainText(String(patentsRestCount));
+
+      await summary.click();
+      await expect(section.locator('li:visible')).toHaveCount(patentsTotal);
+    });
+  }
+
+  test('特許は出願国数が多い順、同数なら出願年月が新しい順に並ぶ', async ({ page }) => {
     await page.goto('./ja/career/');
-    const section = page.locator('section', { has: page.locator('h2', { hasText: '特許' }) });
-    const headItems = section.locator('> ul > li');
-    await expect(headItems).toHaveCount(5);
-    for (const li of await headItems.all()) {
-      await expect(li).toBeVisible();
-    }
+    const section = patentsSection(page, 'ja');
+    await expect(section.locator('li').first()).toContainText(expectedFirstNumber);
   });
 
-  test('summary をクリックすると残りが見え、総数が 51 件になる', async ({ page }) => {
+  test('先頭の項目は出願年月（ロケール表記）と出願国を YAML の値のまま日本語で表示する', async ({
+    page,
+  }) => {
     await page.goto('./ja/career/');
-    const section = page.locator('section', { has: page.locator('h2', { hasText: '特許' }) });
-    const summary = section.locator('summary');
-    await expect(summary).toContainText('46');
+    const section = patentsSection(page, 'ja');
+    const li = section.locator('li').first();
+    await expect(li).toContainText(formatMonth(expectedFirstFiledAt, 'ja'));
+    await expect(li).toContainText(expectedFirstCountries.join(', '));
+  });
 
-    await summary.click();
-    const allItems = section.locator('li');
-    await expect(allItems).toHaveCount(51);
-    for (const li of await allItems.all()) {
-      await expect(li).toBeVisible();
+  test('先頭の項目は出願年月（ロケール表記）と出願国を YAML の値のまま英語で表示する', async ({
+    page,
+  }) => {
+    await page.goto('./en/career/');
+    const section = patentsSection(page, 'en');
+    const li = section.locator('li').first();
+    await expect(li).toContainText(formatMonth(expectedFirstFiledAt, 'en'));
+    await expect(li).toContainText(expectedFirstCountries.join(', '));
+  });
+
+  test('日本語ページと英語ページで特許のリンク先が異なる', async ({ page }) => {
+    await page.goto('./ja/career/');
+    const jaSection = patentsSection(page, 'ja');
+    await jaSection.locator('summary').click();
+    const jaHrefs = await jaSection
+      .locator('li a')
+      .evaluateAll((ls) => ls.map((l) => l.getAttribute('href') ?? ''));
+
+    await page.goto('./en/career/');
+    const enSection = patentsSection(page, 'en');
+    await enSection.locator('summary').click();
+    const enHrefs = await enSection
+      .locator('li a')
+      .evaluateAll((ls) => ls.map((l) => l.getAttribute('href') ?? ''));
+
+    expect(jaHrefs.length).toBeGreaterThan(0);
+    expect(jaHrefs.length).toBe(enHrefs.length);
+    for (const href of jaHrefs) expect(href).toMatch(/\/ja$/);
+    for (const href of enHrefs) expect(href).toMatch(/\/en$/);
+    for (let i = 0; i < jaHrefs.length; i++) {
+      expect(jaHrefs[i]).not.toBe(enHrefs[i]);
     }
   });
 
   test('url を持つ項目の名称だけが Google Patents へのリンクになる', async ({ page }) => {
     await page.goto('./ja/career/');
-    const section = page.locator('section', { has: page.locator('h2', { hasText: '特許' }) });
+    const section = patentsSection(page, 'ja');
     await section.locator('summary').click();
     const links = section.locator('li a');
     expect(await links.count()).toBeGreaterThan(0);

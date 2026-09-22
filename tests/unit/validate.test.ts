@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { type Career, PHOTO_BASE_URL, type Photo } from '../../src/content/schemas';
-import { assertValid, validateCareerParity, validatePhotos } from '../../src/lib/validate';
+import { type Career, type Patent, PHOTO_BASE_URL, type Photo } from '../../src/content/schemas';
+import {
+  assertValid,
+  validateCareerParity,
+  validateCareerPatents,
+  validatePhotos,
+} from '../../src/lib/validate';
 
 function photo(id: string, over: Partial<Photo> = {}): { id: string; data: Photo } {
   return {
@@ -264,6 +269,80 @@ describe('validateCareerParity', () => {
       patents: [{ filedAt: '2021-03', title: 't-en', number: 'JP1', countries: ['JP', 'US'] }],
     };
     expect(validateCareerParity(ja, en)).toEqual([]);
+  });
+});
+
+describe('validateCareerPatents', () => {
+  function patent(over: Partial<Patent> = {}): Patent {
+    return {
+      filedAt: '2021-03',
+      title: 't',
+      number: 'JP6549500B2',
+      countries: ['JP', 'CN', 'US'],
+      ...over,
+    };
+  }
+
+  function career(patents: Patent[]): Career {
+    return {
+      experience: [],
+      skills: {},
+      certifications: [],
+      achievements: [],
+      patents,
+    };
+  }
+
+  it('countries の先頭が代表公報の国と一致すれば問題なし', () => {
+    const errors = validateCareerPatents(career([patent()]), 'ja');
+    expect(errors).toEqual([]);
+  });
+
+  it('countries の先頭が代表公報の国と違えば number と countries[0] を含めて報告する', () => {
+    const errors = validateCareerPatents(career([patent({ countries: ['CN', 'JP'] })]), 'ja');
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('JP6549500B2');
+    expect(errors[0]).toContain('CN');
+  });
+
+  it('日本語のデータは整合し英語のデータだけ先頭が違うとき、英語側だけ 1 件のエラーになる', () => {
+    const ja = career([patent()]);
+    const en = career([patent({ countries: ['CN', 'JP'] })]);
+    expect(validateCareerPatents(ja, 'ja')).toEqual([]);
+    const enErrors = validateCareerPatents(en, 'en');
+    expect(enErrors).toHaveLength(1);
+    expect(enErrors[0]).toContain('JP6549500B2');
+    expect(enErrors[0]).toContain('CN');
+  });
+
+  it('日本語の見出しが 40 文字なら問題なし', () => {
+    const errors = validateCareerPatents(career([patent({ title: 'あ'.repeat(40) })]), 'ja');
+    expect(errors).toEqual([]);
+  });
+
+  it('日本語の見出しが 41 文字なら number と文字数を含めて報告する', () => {
+    const errors = validateCareerPatents(career([patent({ title: 'あ'.repeat(41) })]), 'ja');
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('JP6549500B2');
+    expect(errors[0]).toContain('41');
+  });
+
+  it('英語の見出しが 90 文字なら問題なし', () => {
+    const errors = validateCareerPatents(career([patent({ title: 'a'.repeat(90) })]), 'en');
+    expect(errors).toEqual([]);
+  });
+
+  it('英語の見出しが 91 文字なら number と文字数を含めて報告する', () => {
+    const errors = validateCareerPatents(career([patent({ title: 'a'.repeat(91) })]), 'en');
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('JP6549500B2');
+    expect(errors[0]).toContain('91');
+  });
+
+  it('サロゲートペアを含む見出しはコードポイント数で数える（UTF-16 単位ではない）', () => {
+    const title = '😀'.repeat(40); // コードポイント 40、UTF-16 単位では 80
+    const errors = validateCareerPatents(career([patent({ title })]), 'ja');
+    expect(errors).toEqual([]);
   });
 });
 

@@ -78,258 +78,328 @@ achievements:
     kind: talk
     url: https://www.anlp.jp/proceedings/annual_meeting/2016/pdf_dir/B3-4.pdf
 patents:
+  - number: JP7200645B2
+    filedAt: "2018-12"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7200645B2/en
+    title: In-vehicle cameras that composite a passenger onto the outside scenery
+  - number: JP7354888B2
+    filedAt: "2020-03"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7354888B2/en
+    title: Generating unrelated chit-chat from a car avatar based on driving courtesy
   - number: JP6549500B2
     filedAt: "2016-02"
     countries: [JP]
-    url: https://patents.google.com/patent/JP6549500B2/ja
-    title: Topic estimation learning apparatus and topic estimation learning method
-  - number: JP7151181B2
-    filedAt: "2018-05"
-    countries: [JP]
-    url: https://patents.google.com/patent/JP7151181B2/ja
-    title: Voice dialogue system, processing method thereof, and program
-  - number: CN111238513B
-    filedAt: "2019-10"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111238513B/ja
-    title: Information providing system, server, vehicle-mounted device, and information method
-  - number: CN111238491A
-    filedAt: "2019-10"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111238491A/ja
-    title: Information providing system, server, vehicle-mounted device, and information method
-  - number: CN111243314A
-    filedAt: "2019-11"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111243314A/ja
-    title: Information providing system, server, mobile terminal, non-transitory storage medium
-  - number: CN111246160A
-    filedAt: "2019-11"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111246160A/ja
-    title: Information providing system and method, server, vehicle-mounted device
-  - number: CN111243332A
-    filedAt: "2019-11"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111243332A/ja
-    title: Information providing system and method, server, in-vehicle device, and storage medium
-  - number: CN111301284B
-    filedAt: "2019-11"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111301284B/ja
-    title: In-vehicle device, program, and vehicle
-  - number: CN111311919A
-    filedAt: "2019-11"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111311919A/ja
-    title: Server, in-vehicle device, program, information providing system, method
-  - number: CN111301285A
-    filedAt: "2019-12"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111301285A/ja
-    title: Control system, server, vehicle-mounted control device, vehicle, and control method
-  - number: CN111422128A
+    url: https://patents.google.com/patent/JP6549500B2/en
+    title: Topic estimation learning that pushes projected vectors away from wrong topics
+  - number: JP7192443B2
+    filedAt: "2018-11"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7192443B2/en
+    title: Estimating road obstacle removal time from vehicle camera images and sharing it
+  - number: JP7371520B2
+    filedAt: "2020-02"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7371520B2/en
+    title: Guiding a merging vehicle and the vehicle behind it at an acceleration lane's end
+  - number: JP7087966B2
+    filedAt: "2018-11"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7087966B2/en
+    title: Normalizing power-source prices to a uniform unit to recommend nearby stations
+  - number: JP7363621B2
+    filedAt: "2020-03"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7363621B2/en
+    title: Judging driving deviation using nearby vehicles' data when reference data is unreliable
+  - number: JP7347227B2
     filedAt: "2020-01"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN111422128A/ja
-    title: Server, in-vehicle device, vehicle, storage medium, and information providing method
-  - number: CN113140119A
-    filedAt: "2021-01"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113140119A/ja
-    title: Information processing apparatus, information processing method, and computer medium
-  - number: CN113135091B
-    filedAt: "2021-01"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113135091B/ja
-    title: Information processing device, recording medium, and information processing method
-  - number: CN113492768B
-    filedAt: "2021-01"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113492768B/ja
-    title: Information processing apparatus, information processing system, computer-readable recording medium
-  - number: CN113256364A
-    filedAt: "2021-01"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113256364A/ja
-    title: Information processing apparatus, information processing method, and non-transitory medium
-  - number: CN113160552A
-    filedAt: "2021-01"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113160552A/ja
-    title: Information processing apparatus, information processing method, and computer medium
-  - number: CN113344312A
-    filedAt: "2021-02"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113344312A/ja
-    title: Information processing apparatus, information processing method, and computer medium
-  - number: CN113269988B
-    filedAt: "2021-02"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113269988B/ja
-    title: Information processing device, information processing method, and recording medium
-  - number: CN113538174A
-    filedAt: "2021-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113538174A/ja
-    title: Information processing apparatus, information processing system, program
-  - number: CN113395316B
-    filedAt: "2021-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113395316B/ja
-    title: Information processing device and information processing system
-  - number: CN113411776A
-    filedAt: "2021-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113411776A/ja
-    title: Information processing device, vehicle system, information processing method
-  - number: CN113401074B
-    filedAt: "2021-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113401074B/ja
-    title: Information processing device, information processing method, and non-transitory storage medium
-  - number: CN113401129B
-    filedAt: "2021-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113401129B/ja
-    title: Information processing device, recording medium, and information processing method
-  - number: CN113453193B
-    filedAt: "2021-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113453193B/ja
-    title: Information processing devices and recording media
-  - number: CN113553496B
-    filedAt: "2021-04"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113553496B/ja
-    title: Information processing device, information processing method and non-transitory medium
-  - number: CN113743976A
-    filedAt: "2021-04"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113743976A/ja
-    title: Information processing device, information processing system, program
-  - number: CN113744090A
-    filedAt: "2021-04"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113744090A/ja
-    title: Information processing device, information processing system, program
-  - number: CN113497750B
-    filedAt: "2021-04"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113497750B/ja
-    title: Information processing apparatus, information processing system, and non-transitory medium
-  - number: CN113587939A
-    filedAt: "2021-04"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113587939A/ja
-    title: Information processing apparatus, information processing system, program
-  - number: CN113813597B
-    filedAt: "2021-04"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113813597B/ja
-    title: Information processing device, information processing system, program
-  - number: CN113902570A
-    filedAt: "2021-04"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113902570A/ja
-    title: Information processing device, information processing system, program
-  - number: CN113744551A
-    filedAt: "2021-05"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113744551A/ja
-    title: Information processing apparatus, non-transitory storage medium, and information method
-  - number: CN114119293A
-    filedAt: "2021-06"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN114119293A/ja
-    title: Information processing device, information processing system, program
-  - number: CN113928246A
-    filedAt: "2021-06"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113928246A/ja
-    title: Information processing device, information processing system, program
-  - number: CN113852916B
-    filedAt: "2021-06"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN113852916B/ja
-    title: Information processing system, information processing method, and recording medium
-  - number: CN114331248B
-    filedAt: "2021-08"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN114331248B/ja
-    title: Method executed by information processing device, information processing device
-  - number: CN116331121A
-    filedAt: "2022-10"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN116331121A/ja
-    title: Vehicle, information processing system, storage medium, and information method
-  - number: CN117273560A
-    filedAt: "2023-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN117273560A/ja
-    title: Vehicles, electronic signature issuance systems, storage media and electronic method
-  - number: CN117227753A
-    filedAt: "2023-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN117227753A/ja
-    title: Vehicles, information processing systems, and non-transitory computer-readable medium
-  - number: CN117252497A
-    filedAt: "2023-03"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN117252497A/ja
-    title: Vehicles, methods and procedures
-  - number: CN117391570A
-    filedAt: "2023-06"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN117391570A/ja
-    title: Management device, management system, management method and mobile body
-  - number: CN118261665A
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7347227B2/en
+    title: Detecting a same-lane vehicle approaching from behind and guiding a lane change
+  - number: JP7147513B2
+    filedAt: "2018-11"
+    countries: [JP, EP, US, CN]
+    url: https://patents.google.com/patent/JP7147513B2/en
+    title: Recognizing parking sign text to detect vacancy and fee, then recommending a lot
+  - number: JP7327279B2
+    filedAt: "2020-05"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7327279B2/en
+    title: Notifying a driver via phone to start and stop at a traffic signal change
+  - number: JP2020093622A
+    filedAt: "2018-12"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP2020093622A/en
+    title: Recognizing an occupant's image to restore vehicle equipment settings in any car
+  - number: JP7294200B2
+    filedAt: "2020-03"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7294200B2/en
+    title: Sending an image to a nearby vehicle based on its situation and the user's preferences
+  - number: JP7251120B2
+    filedAt: "2018-11"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7251120B2/en
+    title: Detecting a dangerous vehicle from a low-acceleration vehicle's camera and warning others
+  - number: JP7206854B2
+    filedAt: "2018-11"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7206854B2/en
+    title: Outputting hazard warnings in different styles per user even for the same danger spot
+  - number: JP7310636B2
+    filedAt: "2020-02"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7310636B2/en
+    title: Lowering the reversal-count threshold during side-by-side driving to trigger an action
+  - number: JP7318576B2
+    filedAt: "2020-03"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7318576B2/en
+    title: Inferring roadside stops from other vehicles' hazard-light history to pick the best route
+  - number: JP7420036B2
+    filedAt: "2020-09"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7420036B2/en
+    title: Determining a loading sequence from cargo space, item size, and driving tendencies
+  - number: JP7347276B2
+    filedAt: "2020-03"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7347276B2/en
+    title: Identifying car wash location and type from SNS posts and notifying the user
+  - number: JP7310729B2
+    filedAt: "2020-06"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7310729B2/en
+    title: Reproducing one vehicle's driving state to control another vehicle on a different route
+  - number: JP2021117840A
+    filedAt: "2020-01"
+    countries: [JP, KR, CN, US, BR, EP]
+    url: https://patents.google.com/patent/JP2021117840A/en
+    title: Evaluating driving history to determine a user's credit score for a service
+  - number: JP7363647B2
+    filedAt: "2020-04"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7363647B2/en
+    title: Aggregating visit trends by vehicle attributes and place without identifying individuals
+  - number: JP7298526B2
+    filedAt: "2020-03"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7298526B2/en
+    title: Sharing currently playing music between nearby vehicles via inter-vehicle communication
+  - number: JP7218557B2
+    filedAt: "2018-12"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7218557B2/en
+    title: Detecting an empty passenger vehicle from a camera and sending its location
+  - number: JP7115325B2
+    filedAt: "2019-01"
+    countries: [JP, EP, US, CN]
+    url: https://patents.google.com/patent/JP7115325B2/en
+    title: Detecting shaded or lit sidewalk spots from vehicle camera images of pedestrian gear
+  - number: JP7626057B2
+    filedAt: "2021-12"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7626057B2/en
+    title: Verifying a drop-off spot via 2D code URL matching before autonomous delivery
+  - number: JP7331792B2
+    filedAt: "2020-06"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7331792B2/en
+    title: Inferring occupant makeup and mood to recommend a facility service from past data
+  - number: JP2021174115A
+    filedAt: "2020-04"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP2021174115A/en
+    title: Inferring biometric traits from driving and appearance data to tailor lodging services
+  - number: JP2021189770A
+    filedAt: "2020-05"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP2021189770A/en
+    title: Estimating regional land prices from vehicle-related information
+  - number: JP7331773B2
+    filedAt: "2020-05"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7331773B2/en
+    title: Deciding a repeat passenger's destination from preference data and predicting congestion
+  - number: JP7287291B2
+    filedAt: "2020-01"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7287291B2/en
+    title: Reducing engine output during risky driving while playing normal-sounding engine noise
+  - number: JP7396214B2
+    filedAt: "2020-06"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7396214B2/en
+    title: Notifying visitors who overlapped with an infected person's visit of exposure risk
+  - number: JP2021117615A
+    filedAt: "2020-01"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP2021117615A/en
+    title: Comparing a driver's tendencies to nearby vehicles' aggregate and alerting on deviation
+  - number: JP7371562B2
+    filedAt: "2020-04"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7371562B2/en
+    title: Grouping nearby terminals moving the same direction and suggesting a meeting spot
+  - number: JP7347344B2
+    filedAt: "2020-06"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7347344B2/en
+    title: Determining insurance premiums by comparing driving data with nearby evaluations
+  - number: JP7711636B2
+    filedAt: "2022-06"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7711636B2/en
+    title: A delivery vehicle that relocates a package after receiving a correction from the user
+  - number: JP7683552B2
+    filedAt: "2022-06"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7683552B2/en
+    title: A delivery vehicle that matches passwords with a destination's signer before drop-off
+  - number: JP7415822B2
+    filedAt: "2020-06"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7415822B2/en
+    title: Detecting abrupt driving-operation spots in a parking lot and reporting improvements
+  - number: JP7331781B2
+    filedAt: "2020-05"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7331781B2/en
+    title: Inferring an occupant's condition to recommend a facility from similar past cases
+  - number: JP7856003B2
+    filedAt: "2022-12"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP7856003B2/en
+    title: Certifying achievement of driving goals with an NFT reward tied to the goal
+  - number: JP2025096043A
     filedAt: "2023-12"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN118261665A/ja
-    title: Data management system, data management method and server
-  - number: CN119957041A
-    filedAt: "2024-10"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN119957041A/ja
-    title: Information processing device
-  - number: CN120156448A
-    filedAt: "2024-11"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN120156448A/ja
-    title: Information processing device
-  - number: CN120166291A
-    filedAt: "2024-12"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN120166291A/ja
-    title: Information processing device
-  - number: CN120156443A
-    filedAt: "2024-12"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN120156443A/ja
-    title: Information prompting device and vehicle
-  - number: CN120156444A
-    filedAt: "2024-12"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN120156444A/ja
-    title: Voice guidance device, vehicle, and non-transitory computer-readable medium
-  - number: CN120156521A
-    filedAt: "2024-12"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN120156521A/ja
-    title: Back-up assist device and vehicle
-  - number: CN120164348A
-    filedAt: "2024-12"
-    countries: [CN]
-    url: https://patents.google.com/patent/CN120164348A/ja
-    title: Information processing device, parking assistance method, and non-transitory medium
-  - number: TWI923233B
-    filedAt: "2024-12"
-    countries: [TW]
-    url: https://patents.google.com/patent/TWI923233B/ja
-    title: Method and program for supporting replenishment of vehicle consumables, and information processing device
-  - number: TW202539941A
-    filedAt: "2024-12"
-    countries: [TW]
-    url: https://patents.google.com/patent/TW202539941A/ja
-    title: Method, program and information processing device
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP2025096043A/en
+    title: Adjusting a reversing guide distance to seat occupancy and marking it near obstacles
+  - number: JP2025105050A
+    filedAt: "2023-12"
+    countries: [JP, WO, TW]
+    url: https://patents.google.com/patent/JP2025105050A/en
+    title: Displaying engine bay images and refill port location upon a vehicle trigger
+  - number: JP7666423B2
+    filedAt: "2022-07"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7666423B2/en
+    title: Managing a delivery robot to stow packages in a container when rain is forecast
+  - number: US20250199754A1
+    filedAt: "2023-12"
+    countries: [US, CN]
+    url: https://patents.google.com/patent/US20250199754A1/en
+    title: Adjusting voice guidance volume to match the detected in-cabin noise level
+  - number: JP7852619B2
+    filedAt: "2023-12"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7852619B2/en
+    title: Detecting a person trapped inside a locked car and guiding them to unlock the door
+  - number: JP7677243B2
+    filedAt: "2022-06"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP7677243B2/en
+    title: Deciding to stack a package based on its size, weight, and stacking-prohibition marking
+  - number: JP2025095982A
+    filedAt: "2023-12"
+    countries: [JP, CN, US]
+    url: https://patents.google.com/patent/JP2025095982A/en
+    title: Showing a rear obstacle guide distance based on the tailgate's rearward swing
+  - number: US20250146351A1
+    filedAt: "2023-11"
+    countries: [US, CN]
+    url: https://patents.google.com/patent/US20250146351A1/en
+    title: Automatically applying power window settings based on the seated occupant's attributes
+  - number: JP2025095991A
+    filedAt: "2023-12"
+    countries: [JP, CN, US, DE]
+    url: https://patents.google.com/patent/JP2025095991A/en
+    title: Detecting the angle between a parking space and the vehicle, then showing guidance
+  - number: JP2025095979A
+    filedAt: "2023-12"
+    countries: [JP, US, CN]
+    url: https://patents.google.com/patent/JP2025095979A/en
+    title: A single button that takes a photo on a short press and records video on a long press
+  - number: JP2021111156A
+    filedAt: "2020-01"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2021111156A/en
+    title: Widening the gap or alerting the driver when a lead vehicle's lights are hard to see
+  - number: JP2021111155A
+    filedAt: "2020-01"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2021111155A/en
+    title: Warning the driver when a starting lead vehicle's speed differs greatly from nearby lanes
+  - number: JP2025096041A
+    filedAt: "2023-12"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2025096041A/en
+    title: Re-searching and displaying an alternate route that avoids a user-specified segment
+  - number: JP2021111271A
+    filedAt: "2020-01"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2021111271A/en
+    title: Diffusing a calming scent in the cabin upon detecting dangerous driving
+  - number: JP2021114102A
+    filedAt: "2020-01"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2021114102A/en
+    title: Judging and mapping road flooding levels from splash patterns on nearby vehicles
+  - number: JP2025097162A
+    filedAt: "2023-12"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2025097162A/en
+    title: An in-vehicle display showing navigation to the driver and route editing to the passenger
+  - number: JP2021140304A
+    filedAt: "2020-03"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2021140304A/en
+    title: Detecting a ride request from an SNS post and notifying matching nearby friends
+  - number: JP2021113918A
+    filedAt: "2020-01"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2021113918A/en
+    title: Training on in-cabin audio during improper driving to judge live driving via a model
+  - number: JP2025096045A
+    filedAt: "2023-12"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2025096045A/en
+    title: Limiting a door opening angle below the point where it would contact obstacles
+  - number: JP2025097160A
+    filedAt: "2023-12"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2025097160A/en
+    title: A vehicle selecting and connecting to the terminal that already searched a route
+  - number: JP2021109563A
+    filedAt: "2020-01"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2021109563A/en
+    title: Detecting a lead vehicle's hard deceleration and warning the vehicle behind
+  - number: JP2024007891A
+    filedAt: "2022-07"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2024007891A/en
+    title: A delivery vehicle that unlocks a smart-key door to place packages inside and re-locks
+  - number: JP2022012286A
+    filedAt: "2020-07"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2022012286A/en
+    title: Flashing hazard lights when decelerating after starting near an upcoming intersection
+  - number: JP2024007895A
+    filedAt: "2022-07"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2024007895A/en
+    title: A delivery vehicle that finds alternatives when a route's slope exceeds cargo limits
+  - number: JP2024004360A
+    filedAt: "2022-06"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2024004360A/en
+    title: A vehicle that collects a delivery box at a location specified in return information
+  - number: JP2023183846A
+    filedAt: "2022-06"
+    countries: [JP]
+    url: https://patents.google.com/patent/JP2023183846A/en
+    title: A vehicle that takes countermeasures when it detects a suspicious pursuer

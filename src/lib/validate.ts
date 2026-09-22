@@ -115,6 +115,37 @@ export function validateCareerParity(ja: Career, en: Career): string[] {
   return errors;
 }
 
+/** 見出し（title）の長さの上限（コードポイント単位）。design D12 */
+const PATENT_TITLE_MAX_LENGTH = { ja: 40, en: 90 } as const;
+
+/**
+ * 特許 1 件の中で閉じる検証。日英を比べる validateCareerParity とは別の関数にする（design D8）。
+ * - countries の先頭が number の先頭 2 文字（代表公報の国）と一致すること
+ * - title の長さが言語ごとの上限（コードポイント単位）を超えないこと
+ */
+export function validateCareerPatents(career: Career, lang: string): string[] {
+  const errors: string[] = [];
+  const maxLength = lang === 'ja' ? PATENT_TITLE_MAX_LENGTH.ja : PATENT_TITLE_MAX_LENGTH.en;
+
+  for (const patent of career.patents) {
+    const expectedCountry = patent.number.slice(0, 2);
+    if (patent.countries[0] !== expectedCountry) {
+      errors.push(
+        `${lang}: countries の先頭が代表公報の国と違う（number: ${patent.number}, countries[0]: ${patent.countries[0]}）`,
+      );
+    }
+
+    const length = [...patent.title].length;
+    if (length > maxLength) {
+      errors.push(
+        `${lang}: title が長すぎる（number: ${patent.number}, ${length} 文字、上限 ${maxLength} 文字）`,
+      );
+    }
+  }
+
+  return errors;
+}
+
 export function assertValid(errors: string[], subject: string): void {
   if (errors.length === 0) return;
   throw new Error(`${subject} の内容に問題がある:\n- ${errors.join('\n- ')}`);
