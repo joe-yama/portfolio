@@ -125,6 +125,14 @@ design.md の D1〜D5 を前提とする。`profile-and-career` の spec delta�
   - `skills` に新しいカテゴリ `Languages` を追加し、値を `[Leading teams whose primary language is English]` にする
 - [x] 3.4 検証: `pnpm test`（`validateCareerParity` を含む既存の単体テストが日英の件数一致を検証する）・`pnpm lint`・`pnpm typecheck`・`pnpm build && pnpm e2e` を実行し、3.1 で更新したテストも含めてすべて緑であることを示す
 
+## 4. 特許の区画見出しを「代表的な特許」に変更
+
+PO が `src/lib/site.ts` を直接編集（2026-09-22、5 つ目の依頼）。区画の構成・折りたたみの挙動は変更しない。design.md の追記を参照。
+
+- [x] 4.1 `src/lib/site.ts` の `careerSections.patents` を ja `特許` → `代表的な特許`、en `Patents` → `Featured Patents` に変更（PO 実施済み）
+- [x] 4.2 `tests/unit/site.test.ts` の該当する期待値（2 箇所）を新しい文言に更新する
+- [x] 4.3 検証: `pnpm test`・`pnpm lint`・`pnpm typecheck`・`pnpm build && pnpm e2e` を実行し、すべて緑であることを示す（`tests/e2e/pages.spec.ts` の `hasText: '特許'/'Patents'` は部分一致のため新しい見出しでも引き続き通る）
+
 ## 提案（本 change のスコープ外・後続への申し送り）
 
 - ヘッダーの常設ナビ（`src/components/Header.astro` の `<nav>`）には今回アイコンを付けていない。トップページ本文と意匠を揃えるなら別 change で検討する
