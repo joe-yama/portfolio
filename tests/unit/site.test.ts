@@ -7,6 +7,7 @@ import {
   languageSwitch,
   navLinks,
   ogLocale,
+  pairByIndex,
   photoPath,
   ui,
 } from '../../src/lib/site';
@@ -53,6 +54,24 @@ describe('navLinks', () => {
       { label: 'Photos', href: '/en/photos/' },
       { label: 'Career', href: '/en/career/' },
     ]);
+  });
+});
+
+describe('pairByIndex', () => {
+  it('2 つの配列を同じ位置どうしで対にし、ラベルの文字列に依存しない', () => {
+    const links = [
+      { label: '写真', href: '/a/' },
+      { label: '経歴', href: '/b/' },
+    ];
+    expect(pairByIndex(links, ['A', 'B'])).toEqual([
+      [links[0], 'A'],
+      [links[1], 'B'],
+    ]);
+  });
+
+  it('件数が一致しなければ例外を投げる', () => {
+    expect(() => pairByIndex([1, 2], ['A'])).toThrow(/2.*1/);
+    expect(() => pairByIndex([1], ['A', 'B'])).toThrow(/1.*2/);
   });
 });
 
