@@ -19,3 +19,7 @@
 - [x] 3.1 `pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm e2e` がすべて緑
 
 ## 提案（本 change のスコープ外・後続への申し送り）
+- ブランチ全体レビュー（2026-09-23、Approved）の Minor / ponytail:
+  1. `5ff44f9` / `9b7bb4a` は tasks.md のチェックだけのコミットで、`.claude/rules/git.md` の「チェックだけのコミットは作らない」の文言に抵触する。ただし検証だけのタスク（変異の確認・全コマンドの実行）には一緒にコミットする実装が無く、main にも前例がある（`b8b530f`、`118b667`）。`git.md` に「検証だけのタスクは例外」と書き足すことを検討する
+  2. `tests/e2e/links.spec.ts:75-80` は導線のアイコンを位置（`nth(i)`）で比べており、リンクの行き先と結びつけていない。`navLinks()` の順を意図的に変えると、Career に camera が付いても緑のまま。`a[href$="/career/"]` のように href で選んで比べれば塞がる（現時点では unit テストが順序を固定しているので実害なし）
+  3. `src/lib/site.ts:135-145` の `pairByIndex` は design の「index.astro 内で対応づけ」から外れ、ヘッダーと共用の `site.ts` に公開関数が 1 つ増えた。`:141` の `b === undefined` の分岐は件数チェック後は到達しない。ponytail: `index.astro` の frontmatter に件数チェックと `entries()` を直書きすれば、`pairByIndex` とその unit テストを消せる（約 -22 行）
