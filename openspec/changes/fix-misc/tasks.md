@@ -95,7 +95,7 @@ design.md の D1〜D5 を前提とする。`profile-and-career` の spec delta�
   ];
   ```
 
-- [ ] 2.3 RED: `tests/e2e/links.spec.ts`（または新規ファイル）に、`/ja/` のトップページで以下を検証する e2e テストを追加し、実装前に失敗することを確認する:
+- [x] 2.3 RED: `tests/e2e/links.spec.ts`（または新規ファイル）に、`/ja/` のトップページで以下を検証する e2e テストを追加し、実装前に失敗することを確認する:
   - `main` 内で `nav.links`（Photos・Career・言語切り替え）の `getBoundingClientRect().top` が `ul.links`（連絡先リンク）のそれより小さい（＝サイト内導線が先、連絡先リンクが最も下）
   - `ul.links li a` と `nav.links a` のすべてのリンクが、内部に `svg[aria-hidden="true"]`（`viewBox="0 0 16 16"`）を 1 つ持つ
   - GitHub・LinkedIn の `<a>` に含まれる `svg` の中身（`rect` の個数、または `outerHTML`）が、それぞれ `github` / `linkedin` グリッドの `#` の数と一致する（アイコンの取り違えがないことの確認）
