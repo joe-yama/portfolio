@@ -97,4 +97,4 @@
 
 <!-- レビューで出た Minor と、実装中に気づいた change 外の改善をここに書く -->
 
-- Change 8 が後続に回した分のうち、この change に含めないもの: 印刷用 CSS（`@media print` で `<details>` を開く）、特許一覧が `<ul>` 2 本に割れる件、`validateCareerParity` が日英で `filedAt` / `countries` の一致を見ていない件（1.3 の (e) で入稿時には確かめるが、ビルドの番人にはしていない）
+- Change 8 が後続に回した分のうち、この change に含めないもの: 印刷用 CSS（`@media print` で `<details>` を開く）、特許一覧が `<ul>` 2 本に割れる件、~~`validateCareerParity` が日英で `filedAt` / `countries` の一致を見ていない件（1.3 の (e) で入稿時には確かめるが、ビルドの番人にはしていない）~~ → **`origin/main` へ rebase した時点（2026-09-22）で解消済み**。別セッションの change `followup-hardening`（Change 10）が `validateCareerParity` に `certifications`/`achievements` の `date`、`patents` の `countries` 件数と `filedAt` の比較キー検査を足しており、この change の 65 件のデータはその検査を通ることを rebase 後の `pnpm build` で確認した
