@@ -28,7 +28,6 @@ import {
   parseOrder,
   renderPhotoYaml,
   toSlug,
-  translateMissingFields,
 } from '../src/lib/photo-meta.ts';
 
 /** リポジトリのルート。cwd がどこでも同じ場所を読み書きする（scripts/ の 1 つ上） */
@@ -80,10 +79,9 @@ function parseCliArgs(argv: string[]): { file: string; slug: string } {
   }
 }
 
-// (1) 引数を解釈する。使えない引数・slug なら、GitHub に問い合わせる前に理由を示して中断する
 const { file, slug } = parseCliArgs(process.argv.slice(2));
 
-// (2) gh のアカウント確認。違うアカウントなら何も変更せずに止まる（設計書 §5.3）
+// 違うアカウントなら何も変更せずに止まる（設計書 §5.3）
 const login = gh(['api', 'user', '--jq', '.login']);
 if (login !== 'joe-yama') {
   die(`gh のアカウントが joe-yama ではない（${login}）。gh auth switch で切り替える`);
@@ -91,19 +89,16 @@ if (login !== 'joe-yama') {
 
 if (!existsSync(file)) die(`ファイルが無い: ${file}`);
 
-// (3) EXIF を読む。縮小前の元画像から読む。
+// EXIF は縮小前の元画像から読む。
 // exifr@7.1.3 のファイルパス経路は fstat を旧 API 形で呼んでおり Node 26 で
 // ERR_INVALID_ARG_TYPE になるため、Buffer に読んでから渡す。
 // EXIF を 1 つも持たない画像では exifr.parse が undefined を返すが、その場合も
 // 「項目名を挙げて中断」の経路に合流させるため空オブジェクトとして扱う
 const raw = (await exifr.parse(await readFile(file), { translateValues: false })) ?? {};
 
-// (4) 足りない項目があれば名前を挙げて中断する
 const result = exifToPhotoMeta(raw);
-if (!result.ok)
-  die(`撮影情報を読み取れない項目がある: ${translateMissingFields(result.missing).join('、')}`);
+if (!result.ok) die(`撮影情報を読み取れない項目がある: ${result.missing.join('、')}`);
 
-// (5) 長辺 2500px 以下・sRGB・品質 90 に変換する。withoutEnlargement で拡大はしない
 const work = mkdtempSync(join(tmpdir(), 'photo-add-'));
 const jpeg = join(work, `${slug}.jpg`);
 const info = await sharp(file)
@@ -114,7 +109,6 @@ const info = await sharp(file)
   .toFile(jpeg);
 console.log(`縮小: ${info.width} x ${info.height}`);
 
-// (6) Release が無ければ作り、asset を上げる（同名は --clobber で差し替え）。
 // 「Release が無い」以外の失敗（未ログインなど）は release create に進まず die で止める
 try {
   execFileSync('gh', ['release', 'view', RELEASE_TAG], {
@@ -138,7 +132,7 @@ try {
 gh(['release', 'upload', RELEASE_TAG, jpeg, '--clobber']);
 console.log(`登録: ${RELEASE_TAG}/${slug}.jpg`);
 
-// (7) 写真データファイルが既にあれば書き換えない（差し替え）。無ければ新規に生成する
+// 写真データファイルが既にあれば書き換えない（差し替え）
 mkdirSync(PHOTOS_DIR, { recursive: true });
 const yamlPath = join(PHOTOS_DIR, `${slug}.yaml`);
 if (existsSync(yamlPath)) {

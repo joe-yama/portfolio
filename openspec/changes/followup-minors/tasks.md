@@ -18,7 +18,7 @@
 - [x] 2.1 `scripts/photo-add.ts`: `parseCliArgs` と `toSlug` の呼び出しを 1 行中断の経路に入れる。`parseArgs` の例外は原因を 1 行に含めて使い方を出す（`:56-70`）。GitHub への問い合わせより前に止まること（spec delta photo-pipeline の 2 Scenario）
 - [x] 2.2 `toSlug`（`src/lib/photo-meta.ts:21-39`）で末尾が `.` の slug を拒否する
 - [x] 2.3 `src/content/photos` と `node_modules/.astro/assets` の削除・参照を cwd 相対からスクリプト基準の絶対パスにする（`scripts/photo-add.ts:33,136`）
-- [ ] 2.4 ponytail: `MISSING_FIELD_LABELS` + `translateMissingFields` の中間表現、冗長な JSDoc・手順番号コメントを簡素化（`src/lib/photo-meta.ts:146-159` ほか、挙動不変）
+- [x] 2.4 ponytail: `MISSING_FIELD_LABELS` + `translateMissingFields` の中間表現、冗長な JSDoc・手順番号コメントを簡素化（`src/lib/photo-meta.ts:146-159` ほか、挙動不変）
 
 ## 3. e2e（単位 3）
 
