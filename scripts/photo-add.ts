@@ -52,8 +52,11 @@ function gh(args: string[]): string {
   }
 }
 
-// gh を一度も呼ばずに判定できるよう、引数解析はアカウント確認より前に行う（spec の手順 1→2）
-function parseCliArgs(argv: string[]): { file: string; slug?: string } {
+/** 例外を die の 1 行に載せる文言にする */
+const reason = (error: unknown) => (error instanceof Error ? error.message : String(error));
+
+// gh を一度も呼ばずに判定できるよう、引数と slug の検査はアカウント確認より前に行う（spec の手順 1→2）
+function parseCliArgs(argv: string[]): { file: string; slug: string } {
   let parsed: { values: { slug?: string }; positionals: string[] };
   try {
     parsed = parseArgs({
@@ -61,16 +64,20 @@ function parseCliArgs(argv: string[]): { file: string; slug?: string } {
       options: { slug: { type: 'string' } },
       allowPositionals: true,
     });
-  } catch {
-    die(USAGE);
+  } catch (error) {
+    die(`${reason(error)}\n${USAGE}`);
   }
   const file = parsed.positionals[0];
   if (file === undefined) die(USAGE);
-  return { file, slug: parsed.values.slug };
+  try {
+    return { file, slug: toSlug(basename(file), parsed.values.slug) };
+  } catch (error) {
+    die(reason(error));
+  }
 }
 
-// (1) 引数を解釈する。必要な引数が無ければ、GitHub に問い合わせる前に使い方を示して中断する
-const { file, slug: slugArg } = parseCliArgs(process.argv.slice(2));
+// (1) 引数を解釈する。使えない引数・slug なら、GitHub に問い合わせる前に理由を示して中断する
+const { file, slug } = parseCliArgs(process.argv.slice(2));
 
 // (2) gh のアカウント確認。違うアカウントなら何も変更せずに止まる（設計書 §5.3）
 const login = gh(['api', 'user', '--jq', '.login']);
@@ -79,7 +86,6 @@ if (login !== 'joe-yama') {
 }
 
 if (!existsSync(file)) die(`ファイルが無い: ${file}`);
-const slug = toSlug(basename(file), slugArg);
 
 // (3) EXIF を読む。縮小前の元画像から読む。
 // exifr@7.1.3 のファイルパス経路は fstat を旧 API 形で呼んでおり Node 26 で
