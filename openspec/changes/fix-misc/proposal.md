@@ -11,6 +11,12 @@
 - トップページ本文の最下部の並びを入れ替える: 現状は連絡先リンク（`ul.links`: GitHub / LinkedIn）→ サイト内導線（`nav.links`: Photos / Career / 言語切り替え）の順だが、これを サイト内導線 → 連絡先リンク の順にする（連絡先リンクが本文の最も下に来る）。
 - GitHub・LinkedIn の連絡先リンクに、サイトの配色に追従するドット絵アイコン（既存の `PixelArt` コンポーネントと同じ技法）を付ける。**BREAKING**（`profile-and-career` の既存要件「種別を文字やアイコンとして表示してはならない」を緩和する spec 変更を伴う。PO 承認 2026-09-22）
 - サイト内導線（Photos・Career・言語切り替え）にも同じ技法でドット絵アイコンを付ける（Photos は既存の `camera` ドット絵を再利用、Career は新規の鞄、言語切り替えは新規の地球儀）
+- 経歴データの文言を修正する: experience 先頭項目の role から「（全社横断）」を削除し、bullets の 1 件目を「100 名超のエンジニアを対象に、プロジェクト横断の開発標準活動を立ち上げリーディング」に変更する（PO 指示 2026-09-22）
+- skills「クラウド」に「プラットフォームエンジニアリング」を追加する
+- skills「プログラミング言語」を `[Python, SQL]` から `[Python, Java, Scala, C++, TypeScript]` に置き換える（SQL は外す。PO 確認済み）
+- skills に新しいカテゴリ「言語」を追加し、「英語を第一言語とするチームのリーディング」を項目として入れる
+- 資格（certifications）に任意の `logo`（バッジ画像へのパス）フィールドを追加し、AWS 認定資格 12 件それぞれに AWS 公式のデジタルバッジ画像を紐づけて経歴ページに表示する（PO 承認 2026-09-22。Claude が aws.amazon.com から画像を取得。取得元・ライセンス上の位置づけは design.md に記録）
+- 特許の「先頭 5 件表示＋残りは折りたたみ」は既存実装のままで変更しない（PO 確認済み。見出し・ラベルの追加はしない）
 - 本 change は今後も同種の軽量な見た目・コンテンツ修正を逐次追加して束ねる想定（PO 指示: change はできるだけまとめる）
 
 ## Capabilities
@@ -21,12 +27,17 @@
 
 ### Modified Capabilities
 
-- `profile-and-career`: 「トップページの連絡先リンク」要件を改定し、`kind` が `github` / `linkedin` のリンクにはドット絵アイコンの表示を **MUST** とする（従来の「種別をアイコンとして表示してはならない」から変更。PO が意図的に承認した仕様変更）。「トップページのサイト内の導線」要件を改定し、3 つの導線リンクにもドット絵アイコンの表示を **MUST** とする
+- `profile-and-career`: 「トップページの連絡先リンク」要件を改定し、`kind` が `github` / `linkedin` のリンクにはドット絵アイコンの表示を **MUST** とする（従来の「種別をアイコンとして表示してはならない」から変更。PO が意図的に承認した仕様変更）。「トップページのサイト内の導線」要件を改定し、3 つの導線リンクにもドット絵アイコンの表示を **MUST** とする。「資格と実績の表示」要件を改定し、`logo` を持つ資格にはバッジ画像の表示を **MUST** とする
+- `content-schema`: 「経歴のデータ構造」要件を改定し、資格（certifications）が任意で `logo`（バッジ画像へのパス）を持ってよい（**MAY**）ことを追加する
 
 ## Impact
 
 - `src/components/Header.astro`（`.logo` の scoped style に 1 行追加。タスク1で対応済み）
 - `src/pages/[lang]/index.astro`（本文最下部のブロック順序の入れ替え、各リンクへのアイコン追加、レイアウト用 CSS）
 - `src/lib/pixel.ts`（GitHub・LinkedIn・Career・言語切り替え用のドット絵グリッドを追加。Photos は既存の `camera` を再利用）
-- `openspec/specs/profile-and-career/spec.md`（本 change のアーカイブ時に delta を反映）
-- 他のページ（ヘッダーの常設ナビ、404 など）の見た目・挙動には影響しない（トップページ本文限定のスコープ）
+- `src/content/career/{ja,en}.yaml`（role・bullets の文言修正、skills の追加・置き換え、certifications に `logo` を追加）
+- `src/content/schemas.ts`（`datedItemSchema` に任意の `logo` フィールドを追加）
+- `src/pages/[lang]/career.astro`（資格に `logo` がある場合はバッジ画像を表示）
+- `public/badges/`（AWS 認定資格 12 件のバッジ画像を新規追加。GitHub Pages のプロジェクトサイトなので参照は `withBase()` でパス接頭辞を付ける）
+- `openspec/specs/profile-and-career/spec.md`・`openspec/specs/content-schema/spec.md`（本 change のアーカイブ時に delta を反映）
+- 他のページ（ヘッダーの常設ナビ、404 など）の見た目・挙動には影響しない（トップページ本文とキャリアページの資格セクションに限定したスコープ）
