@@ -77,7 +77,7 @@
 
 ## 6. 仕上げ
 
-- [ ] 6.1 ブランチ全体のレビューの指摘のうち Critical / Important を反映する。Minor は本ファイル末尾の「提案」に転記する
+- [x] 6.1 ブランチ全体のレビューの指摘のうち Critical / Important を反映する。Minor は本ファイル末尾の「提案」に転記する
 - [ ] 6.2 PR を作る（本文に `Closes #<Issue 番号>` と、掲載する全件・落とした公報の確認用の表への導線）。CI が緑であることを確認する
 
 ## レビューの単位
@@ -98,3 +98,39 @@
 <!-- レビューで出た Minor と、実装中に気づいた change 外の改善をここに書く -->
 
 - Change 8 が後続に回した分のうち、この change に含めないもの: 印刷用 CSS（`@media print` で `<details>` を開く）、特許一覧が `<ul>` 2 本に割れる件、~~`validateCareerParity` が日英で `filedAt` / `countries` の一致を見ていない件（1.3 の (e) で入稿時には確かめるが、ビルドの番人にはしていない）~~ → **`origin/main` へ rebase した時点（2026-09-22）で解消済み**。別セッションの change `followup-hardening`（Change 10）が `validateCareerParity` に `certifications`/`achievements` の `date`、`patents` の `countries` 件数と `filedAt` の比較キー検査を足しており、この change の 65 件のデータはその検査を通ることを rebase 後の `pnpm build` で確認した
+
+### 番人の限界（この change で塞ぎきれなかったもの）
+
+- **`src/lib/content.ts` の `assertValid(validateCareerPatents(...))` の 2 行を消しても、データが正しい限りどのテストも落ちない**。単体テストは `astro:content` に依存するため配線を通せず、e2e とビルドは正しいデータでは配線の有無を区別できない。変異 (g)(h) は「配線がある状態で不正なデータを入れると落ちる」ことしか示していない
+- **検査 (p)（`titleEnSource` が JP）が守るのはラベルであって本文ではない**。レビュアーが実測で、`titleEn` の本文だけを US 請求項由来の旧文言に戻してラベルを `JP` のままにすると ALL PASS になることを確かめている。**PR や文書で「番人が見出しの本文を保証する」と読める書き方をしない**
+- **検査 (o) が見ているのは中間 YAML（`.superpowers/`）であって、出荷される `src/content/career/*.yaml` ではない**。中間データは workspace の削除で消えるので、恒久的な番人にはできない
+- `number` の重複を防ぐビルド時の番人が無い。同じ `number` を 2 件書いても日英の件数が合っていれば e2e も緑になる
+
+### 見出しの精度（PO 判断の余地）
+
+- `JP2025095979A` の英語見出し `A **single button** that takes…` — 請求項は「ユーザの撮影操作を受け付ける入力部」。ブランチ全体のレビューは「請求項が入力部を単数で書き、短押し・長押しを明示しているので許容範囲の具体化」と判定して Minor 据え置き。日本語は正確
+- `JP2020093622A` の英語見出し `…settings in **any car**` — 請求項は「当該車載制御装置または他の車載制御装置」。やや広い。日本語「他の車にも復元」は正確
+- `JP7310636B2` は日英そろって抽象語（ja「所定処理」/ en "an action"）で、請求項には忠実だが読み手に何が起きるか伝わらない。US 請求項の「手動運転から自動運転へ切り替える」は JP 請求項に無いので足せない
+- `JP2021111156A` の日本語見出し「…の**少なくとも一方を実施**」も請求項の言い回しがそのままで読みにくい
+- どれも `en.yaml` の 1 行と `publications.md` の 1 行だけで直せる（`validateCareerParity` は `title` を比べないので後続で安全に直せる）
+
+### コードと番人の整理
+
+- `src/lib/validate.ts` の `validateCareerPatents(career, lang: string)` が `PATENT_TITLE_MAX_LENGTH` を定数オブジェクトにしながら三項演算子で引いている。`'JA'` / `'jp'` を渡すと**日本語データが黙って 90 文字上限で検査される**。`lang: Locale` ＋ `PATENT_TITLE_MAX_LENGTH[lang]` にすれば型で塞げる（`i18n.ts` は astro 非依存なので型のみ import は node 直実行の経路を壊さない）
+- `src/lib/content.ts` が `assertValid` を日英で 2 回呼ぶので、ja にエラーがあると en のエラーが出ない（1 回のビルドで両方直せない）。配列を結合して 1 回にできる
+- `tests/e2e/pages.spec.ts` の `patentsByLang.en` がどこからも読まれていない。`parsePatents` が `patents:` ブロックに限定せずファイル全体を走査している（将来ほかの区画が `number` を持つと総数が黙って増える）
+- `tests/e2e/pages.spec.ts` の `formatMonth` が `month: lang === 'ja' ? 'long' : 'short'` を使っているが、本体の `src/lib/career.ts` は「ja では long と short の出力が同じ」として意図的に `'short'` 固定にしている。**独立実装のつもりが、本体が消した分岐を復活させている**
+- `tests/e2e/pages.spec.ts` の「出願国数が多い順、**同数なら出願年月が新しい順**に並ぶ」は、assert が先頭 1 件の `number` だけで、先頭が 6 か国で唯一のためタイブレークを壊す変異では落ちない。タイブレーク自体は `tests/unit/career.test.ts` が守っているので穴ではないが、**テスト名が守備範囲を過大に言っている**
+- 65 件すべてが `url` を持つため、spec の「`url` を持たない項目をリンクにしてはならない」を実データで踏む経路が無く、`PatentItem.astro` の三項の else 側は実質デッドパス
+- ponytail（`net: -95 lines possible.`）: e2e の `firstBySortOrder` の返り値と 3 定数への分散、「url を持つ項目の名称だけが…」テストが日英リンク比較と重複、`publications.md` の「見出し（en）もこの日本語の請求項を根拠にしている」が 63 ブロックに逐語で繰り返されている（前段の節に同じ説明があるので例外の 2 件だけ注記すればよい）
+
+### `PatentItem` の切り出しが残した非対称
+
+- `career.astro` の `<style>` の `ul` 規則は `<ul>` が career.astro 内にあるため効くが、`<li>` は `PatentItem` 側にあり `data-astro-cid-*` を持たない。**将来 `career.astro` の `<style>` に `li { … }` を足すと、資格・実績の `<li>` にだけ効いて特許の `<li>` には効かない**。いまは `li` 規則が無いので実害ゼロ（レビュアーが computed 値の一致を実測済み）。`li` 規則を足すときは `global.css` か `PatentItem.astro` 側に置く
+
+### 調査と文書
+
+- `research/publications.md` の落とした公報の名称だけ英語大文字（`VOICE DIALOGUE SYSTEM, …`）。`pages-ja` から日本語の正式名称を取れる
+- `research/publications.md` の同族メンバー表が、行によって代表公報自身を含んだり含まなかったりする（束ねた公報の数を読み手が数えられない）
+- **`docs/harness/README.md` の隔離実行の手順（`.mut-exp/` に別ルートを作って `pnpm exec vitest run --root` する）は、`node_modules/.vite` の古いキャッシュのせいで誤った緑を返す**（Task 5.1 で実測）。実装者は「実プロジェクト設定へ直接変異＋バックアップ復元」方式に切り替えて正しい結果を得た。手順の記述を直す必要がある
+- 発明者クエリの網羅性は `Josuke Yamane` / `山根丈亮` の 2 表記でしか確かめていない。`J. Yamane` のような別表記で登録された公報があれば取りこぼす
