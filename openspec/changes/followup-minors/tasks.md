@@ -25,7 +25,7 @@
 - [x] 3.1 `tests/e2e/paths.ts` で `src/content/photos/*.yaml` から slug を導き、全写真の個別ページ（日英）を対象に含める。`pages.spec.ts` の `pagePaths` もそこから作る
 - [x] 3.2 `a11y.spec.ts` / `network.spec.ts` で `page.goto` の応答ステータスが 200 であることを確かめる
 - [x] 3.3 `pages.spec.ts` の整理: 未使用の `patentsByLang.en`（:59）、到達しない `canonical ?? ''`（:153）、本体に無い `formatMonth` の `'long'` 分岐（:48-54）を消す。`parsePatents`（:16-32）の走査を `patents:` 区画に限る。「同数なら新しい順」のテストでタイブレークも確かめる（:230-234）
-- [ ] 3.4 `tests/e2e/global-setup.ts:47-59`: `isPreviewAlreadyRunning` の補助チェックとマーカーパス定数を簡素化（挙動不変）
+- [x] 3.4 `tests/e2e/global-setup.ts:47-59`: `isPreviewAlreadyRunning` の補助チェックとマーカーパス定数を簡素化（挙動不変）
 
 ## 4. 番人の確認と仕上げ
 

@@ -12,7 +12,7 @@ const PORT_CHECK_TIMEOUT_MS = 1_000;
 // setup が実際に起動した preview の pid を global-teardown.ts に伝えるマーカー。
 // globalSetup と globalTeardown は別のモジュール評価になりうるため、
 // モジュールスコープの変数ではなくファイル（.astro/ 配下。git 管理外）で受け渡す。
-const STARTED_MARKER = fileURLToPath(
+export const STARTED_MARKER = fileURLToPath(
   new URL('../../.astro/e2e-preview-started-by-setup', import.meta.url),
 );
 
@@ -43,20 +43,15 @@ function parsePreviewPid(output: string): number | null {
   return match?.[1] ? Number(match[1]) : null;
 }
 
-// astro preview status は起動有無にかかわらず終了コード 0 で返る（実測。バージョンで
-// 変わりうるため頼らない）。--json で固定した出力の message を見て判定する。
-// これは「同じプロジェクト root で別ポートに preview が動いている」場合
-// （--port が無視されて 60 秒タイムアウトになる）を早く落とすための補助チェックで、
-// 別 root・別プロセスがポートを占有しているケースは検出できない
-// （isPortOccupied で見る。レビュー C1）。
+// 同じプロジェクト root の preview が別ポートで動いていると --port が無視されて 60 秒待つので、
+// 先に落とす補助チェック。別 root・別プロセスの占有は isPortOccupied が見る（レビュー C1）
 function isPreviewAlreadyRunning(): boolean {
-  let output: string;
   try {
-    output = execSync('pnpm exec astro preview status --json', { encoding: 'utf-8' });
+    const output = execSync('pnpm exec astro preview status --json', { encoding: 'utf-8' });
+    return parsePreviewMessage(output) !== null;
   } catch {
     return false;
   }
-  return parsePreviewMessage(output) !== null;
 }
 
 // baseURL（このリポジトリの preview が使うポート）に何か応答するプロセスがいれば、
