@@ -11,7 +11,7 @@
 design.md の D1〜D5 を前提とする。`profile-and-career` の spec delta（`specs/profile-and-career/spec.md`）に沿って実装する。
 
 - [x] 2.1 RED: `src/lib/pixel.ts` に追加する新規グリッド（2.2 で追加）が 16 行 × 各行 16 文字であることを検証する単体テスト（`tests/unit/pixel.test.ts` を新規作成。既存の `gridSize` を使って `github` / `linkedin` / `briefcase` / `globe` それぞれの `gridSize(rows)` が `{ width: 16, height: 16 }` になることを確認する形でよい）を追加し、まだグリッドが存在しないため失敗することを確認する
-- [ ] 2.2 GREEN: `src/lib/pixel.ts` に次の 4 つの定数を追加し、2.1 を通す（デザインはコントローラーが確定済みなので値をそのまま使う。修正が必要な場合のみ変更してよいが、寸法（16×16）は変えないこと）:
+- [x] 2.2 GREEN: `src/lib/pixel.ts` に次の 4 つの定数を追加し、2.1 を通す（デザインはコントローラーが確定済みなので値をそのまま使う。修正が必要な場合のみ変更してよいが、寸法（16×16）は変えないこと）:
 
   ```ts
   /** トップの連絡先リンクのアイコン: GitHub（簡略化した猫のシルエット） */
