@@ -24,6 +24,17 @@ function resolveToDist(ref: string): string {
   return path.endsWith('/') || relative === '' ? join(target, 'index.html') : target;
 }
 
+test('ヘッダーロゴリンクに下線が無く、引き続きリンクとして機能する', async ({ page }) => {
+  await page.goto('ja/');
+
+  const logo = page.locator('.logo');
+  await expect(logo).toHaveJSProperty('tagName', 'A');
+  await expect(logo).toHaveAttribute('href', /.+/);
+
+  const textDecorationLine = await logo.evaluate((el) => getComputedStyle(el).textDecorationLine);
+  expect(textDecorationLine).toBe('none');
+});
+
 test('ビルド出力の内部参照がすべて解決する', () => {
   const files = htmlFiles(dist);
   expect(files.length).toBeGreaterThan(0);
