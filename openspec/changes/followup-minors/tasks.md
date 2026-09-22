@@ -10,8 +10,8 @@
 - [ ] 1.4 `validate.ts` の比較ループ（`:59-116`、certifications / achievements / patents / skills）を `[key, keyOf]` の表に一本化する（挙動不変）
 - [ ] 1.5 `isCalendarDate`（`src/content/schemas.ts:12-15`）を `Date.UTC` ベースにして年 0001〜0099 の誤判定を直す（テストを先に）
 - [ ] 1.6 `src/lib/theme.ts` の `TOKEN_NAMES` 恒等写像と未使用の `export type Tokens` を削る。`ogLocale`（`src/lib/site.ts:124-126`）を `locales` から導く
-- [ ] 1.7 `src/lib/career.ts`: `splitPatents<T>` の不要なジェネリックを外し、`sortPatents` の JSDoc を整理。`tests/unit/career.test.ts:86-138` の共有可変フィクスチャ・`title:'t'`・6 件 / 12 件の重複テストを整理する
-- [ ] 1.8 `src/pages/[lang]/career.astro:42,108`: `ui[lang].present` と `career.patents.length` の参照を他区画と同じ派生変数の書き方に揃える（挙動不変）
+- [x] 1.7 `src/lib/career.ts`: `splitPatents<T>` の不要なジェネリックを外し、`sortPatents` の JSDoc を整理。`tests/unit/career.test.ts:86-138` の共有可変フィクスチャ・`title:'t'`・6 件 / 12 件の重複テストを整理する
+- [x] 1.8 `src/pages/[lang]/career.astro:42,108`: `ui[lang].present` と `career.patents.length` の参照を他区画と同じ派生変数の書き方に揃える（挙動不変）
 
 ## 2. 入稿スクリプト（単位 2）
 

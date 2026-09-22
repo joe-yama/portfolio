@@ -25,10 +25,7 @@ export function sortByDateDesc<T extends { date: string }>(items: T[]): T[] {
   });
 }
 
-/**
- * 特許を出願国の数の降順、同数なら filedAt の新しい順に並べた新しい配列を返す。
- * どちらも同じ項目は記述順を保つ（design D2）
- */
+/** 出願国数の降順、同数なら filedAt の新しい順（どちらも同じなら記述順）に並べた新しい配列を返す */
 export function sortPatents(patents: Career['patents']): Career['patents'] {
   return patents.toSorted((a, b) => {
     const byCountryCount = b.countries.length - a.countries.length;
@@ -41,7 +38,10 @@ export function sortPatents(patents: Career['patents']): Career['patents'] {
 const PATENTS_HEAD_COUNT = 5;
 
 /** 先頭 5 件（head）とそれ以降（rest）に分ける。並び替えは呼び出し側の責務 */
-export function splitPatents<T>(patents: T[]): { head: T[]; rest: T[] } {
+export function splitPatents(patents: Career['patents']): {
+  head: Career['patents'];
+  rest: Career['patents'];
+} {
   return { head: patents.slice(0, PATENTS_HEAD_COUNT), rest: patents.slice(PATENTS_HEAD_COUNT) };
 }
 
