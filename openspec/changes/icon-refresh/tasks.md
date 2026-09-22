@@ -16,6 +16,6 @@
 
 ## 3. 確認
 
-- [ ] 3.1 `pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm e2e` がすべて緑
+- [x] 3.1 `pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm e2e` がすべて緑
 
 ## 提案（本 change のスコープ外・後続への申し送り）
