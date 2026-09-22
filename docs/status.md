@@ -1,10 +1,10 @@
 # 現在の状態
 
-最終更新: 2026-09-22（Change 10 `followup-hardening` 実装中）。`CLAUDE.md` の索引から参照される。
+最終更新: 2026-09-22（Change 10 `followup-hardening` のマージとアーカイブ時点）。`CLAUDE.md` の索引から参照される。
 
 ## フェーズ
 
-**v1 公開済み**（2026-09-21）。**Change 10 `followup-hardening`（Issue #29）が実装中**（まだマージされていない。詳細は `docs/changes.md` と `openspec/changes/followup-hardening/`）。それ以外に未着手の change は無い。マージ後にやることは PO の指示待ち（下記「次の作業の候補」）。
+**v1 公開済み**（2026-09-21）。Change 10 `followup-hardening`（Issue #29、PR #35）をマージ・アーカイブ済み（2026-09-22）。未着手の change は無く、次にやることは PO の指示待ち（下記「次の作業の候補」）。
 
 ## 公開先（PO 決定 2026-09-21）
 
@@ -37,12 +37,14 @@
 1. **特許の全件取得**（Change 8 が後日に回した分）。ローマ字表記 `Josuke Yamane` での発明者検索で US / EP / WO を拾い、同族を解決して JP 公報番号を代表にし `countries` を埋め、日本語の名称を公報の正式名称に置き換える。詳細は `openspec/changes/archive/2026-09-21-patents-section/tasks.md` の末尾
 2. 写真の追加・差し替え
 3. 独自ドメインへの移行（設計書 §9 の手順で `base` の削除が必要）
-4. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件（各 `openspec/changes/archive/*/tasks.md` の末尾）
+4. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件、**Change 10 の 35 件超**（各 `openspec/changes/archive/*/tasks.md` の末尾）
 5. Change 4・5 の後続への提案と申し送り（各 `openspec/changes/archive/2026-09-21-*/tasks.md` の末尾）
 
 ## PO 判断として残っている件
 
 **Change 9**: 375×667（iPhone SE / 8）では写真の高さ上限が発動して、写真が本文の幅より 26.3% 狭くなる（写真 252.7×379 に対し本文幅 343）。spec が縛る 390×844 では全幅を満たしているので挙動は変えていない。狭い画面で写真を全幅に戻すなら新しい change が要る。
+
+**Change 10**: 写真の差し替え（同じ slug での `pnpm photo:add` 再実行）の実測は、偽の `gh` を使ってコード経路だけ通した。公開 Release の画像は入稿時に EXIF が落ちるため、それを入稿に渡すと差し替え経路へ到達しない。**PO 本人の元画像で 1 回実行すれば、spec の Scenario「差し替え後のビルドで古い版が残らない」まで確かめられる。**
 
 ## 未決事項
 

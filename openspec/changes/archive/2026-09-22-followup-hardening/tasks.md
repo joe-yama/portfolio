@@ -65,7 +65,8 @@
 - [x] 6.3 `openspec/specs/profile-and-career/spec.md` の「トップページの連絡先リンク」の Scenario を、廃止済みの `mailto:hello@example.com` に依存しない例に置き換える（`specs/profile-and-career/spec.md` の delta と同じ内容）。`openspec validate followup-hardening --strict` が valid であることを確認する
 - [x] 6.4 `CLAUDE.md` を更新する: 「写真を差し替えるときは 2 点に注意する」の段落を削除してタスク 1.5 がコードで両方を吸収したことを 1 行に置き換え、「次にやること」の候補から「OGP と Twitter Card の追加」を外し、この change を Change 9 として一覧に足す。`git diff CLAUDE.md` で意図した変更だけであることを確認する
   - コントローラーによる読み替え（tasks.md 本文参照）に従い、`CLAUDE.md` は索引だけのため本体は変更せず、実体は `docs/content-authoring.md`（写真差し替えの節）、`docs/status.md`（次の作業の候補からタスク 1.5 で不要になった「OGP と Twitter Card の追加」を削除）、`docs/changes.md`（Change 10 `followup-hardening` を表に追加、経緯の在り処にも追加）を更新した
-- [ ] 6.5 `openspec archive` の後に `openspec/specs/{content-schema,layout-shell,photo-pipeline,profile-and-career,quality-gates}/spec.md` を目視で確認し、この change の delta が既存の要求（特に `content-schema` の日付の段落と Scenario）を落としていないことを確かめる。これは PR のマージとアーカイブの後に行う
+- [x] 6.5 `openspec archive` の後に `openspec/specs/{content-schema,layout-shell,photo-pipeline,profile-and-career,quality-gates}/spec.md` を目視で確認し、この change の delta が既存の要求（特に `content-schema` の日付の段落と Scenario）を落としていないことを確かめる。これは PR のマージとアーカイブの後に行う
+  - sync 前の `openspec/specs/` を控え、要求名と Scenario 名を前後で突き合わせた結果、**落ちた要求・Scenario は 0 件**（8 capability すべて）。増えたのは `layout-shell` の要求「SNS 共有カード」1 つと Scenario 14 件のみ。`content-schema` の日付の段落（年月と年月日の両方を受ける / 暦として存在する日）と、`quality-gates` に `photo-height-cap` が足した画面サイズの 3 点・Scenario 3 つも残っていることを個別に確認した。`openspec validate --specs` は 8 件すべて pass
 
 ## 7. 仕上げ
 
