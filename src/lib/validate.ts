@@ -1,6 +1,7 @@
 // Task 5 の photo-meta.ts がこのファイルから PLACEHOLDER を読み、そちらは node が直接実行する
 // 経路に乗る。Node の ESM 解決は拡張子を補わないので、ここだけ .ts を明示する（計画の落とし穴 5）
 import { type Career, PHOTO_BASE_URL, type PhotoEntry } from '../content/schemas.ts';
+import type { Locale } from './i18n.ts';
 
 /** 入稿コマンドが title / location / alt に入れる未記入の印 */
 export const PLACEHOLDER = 'TODO:';
@@ -116,18 +117,25 @@ export function validateCareerParity(ja: Career, en: Career): string[] {
 }
 
 /** 見出し（title）の長さの上限（コードポイント単位）。design D12 */
-const PATENT_TITLE_MAX_LENGTH = { ja: 40, en: 90 } as const;
+const PATENT_TITLE_MAX_LENGTH: Record<Locale, number> = { ja: 40, en: 90 };
 
 /**
- * 特許 1 件の中で閉じる検証。日英を比べる validateCareerParity とは別の関数にする（design D8）。
+ * 特許の、1 つの言語のデータの中で閉じる検証。日英を比べる validateCareerParity とは別の関数にする（design D8）。
+ * - number が重複しないこと
  * - countries の先頭が number の先頭 2 文字（代表公報の国）と一致すること
  * - title の長さが言語ごとの上限（コードポイント単位）を超えないこと
  */
-export function validateCareerPatents(career: Career, lang: string): string[] {
+export function validateCareerPatents(career: Career, lang: Locale): string[] {
   const errors: string[] = [];
-  const maxLength = lang === 'ja' ? PATENT_TITLE_MAX_LENGTH.ja : PATENT_TITLE_MAX_LENGTH.en;
+  const maxLength = PATENT_TITLE_MAX_LENGTH[lang];
+  const seen = new Set<string>();
 
   for (const patent of career.patents) {
+    if (seen.has(patent.number)) {
+      errors.push(`${lang}: number が重複している（number: ${patent.number}）`);
+    }
+    seen.add(patent.number);
+
     const expectedCountry = patent.number.slice(0, 2);
     if (patent.countries[0] !== expectedCountry) {
       errors.push(

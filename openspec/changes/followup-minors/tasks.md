@@ -5,7 +5,7 @@
 ## 1. スキーマと検証（単位 1）
 
 - [x] 1.1 特許の `url` を必須にする（`src/content/schemas.ts` の特許スキーマ）。`PatentItem.astro` の `patent.url ? … : …` を常にリンクに。関係する単体テスト・e2e（`tests/e2e/pages.spec.ts` の「url を持つ項目だけがリンク」は日英リンク比較テストと重複しているので、「すべての見出しがリンク」の 1 本に置き換える）を spec delta（content-schema / profile-and-career）に合わせる。`docs/content-authoring.md:18` に `url` が必須であることを書き足す
-- [ ] 1.2 `validateCareerPatents` に言語ごとの `number` 重複検出を足す（エラーに `number` を含める）。`lang` 引数を `Locale` 型にする（`src/lib/validate.ts:126-147`）
+- [x] 1.2 `validateCareerPatents` に言語ごとの `number` 重複検出を足す（エラーに `number` を含める）。`lang` 引数を `Locale` 型にする（`src/lib/validate.ts:126-147`）
 - [ ] 1.3 `getCareer`（`src/lib/content.ts`）の検証の配線を守る単体テスト: `astro:content` を `vi.mock` し、公報番号が重複したデータで例外になることを確かめる（design D3。効かなければ「提案」に記録）
 - [ ] 1.4 `validate.ts` の比較ループ（`:59-116`、certifications / achievements / patents / skills）を `[key, keyOf]` の表に一本化する（挙動不変）
 - [ ] 1.5 `isCalendarDate`（`src/content/schemas.ts:12-15`）を `Date.UTC` ベースにして年 0001〜0099 の誤判定を直す（テストを先に）

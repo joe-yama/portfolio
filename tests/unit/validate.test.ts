@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from 'vitest';
 import { type Career, type Patent, PHOTO_BASE_URL, type Photo } from '../../src/content/schemas';
+import type { Locale } from '../../src/lib/i18n';
 import {
   assertValid,
   validateCareerParity,
@@ -399,6 +400,34 @@ describe('validateCareerPatents', () => {
   it('サロゲートペアを含む見出しはコードポイント数で数える（UTF-16 単位ではない）', () => {
     const title = '😀'.repeat(40); // コードポイント 40、UTF-16 単位では 80
     const errors = validateCareerPatents(career([patent({ title })]), 'ja');
+    expect(errors).toEqual([]);
+  });
+
+  it('lang は Locale だけを受ける（"JA" のような文字列で英語の上限が黙って使われない）', () => {
+    expectTypeOf(validateCareerPatents).parameter(1).toEqualTypeOf<Locale>();
+  });
+
+  it('同じ言語で number が重複したら、重複した number を含めて 1 件報告する', () => {
+    const errors = validateCareerPatents(
+      career([patent(), patent({ filedAt: '2019-01', title: 'u' })]),
+      'ja',
+    );
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('JP6549500B2');
+    expect(errors[0]).toContain('重複');
+  });
+
+  it('英語のデータでも number の重複を報告する', () => {
+    const errors = validateCareerPatents(career([patent(), patent()]), 'en');
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('JP6549500B2');
+  });
+
+  it('number が違えば重複として報告しない', () => {
+    const errors = validateCareerPatents(
+      career([patent(), patent({ number: 'JP7200645B2' })]),
+      'ja',
+    );
     expect(errors).toEqual([]);
   });
 });
