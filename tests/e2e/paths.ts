@@ -1,12 +1,32 @@
-/** アクセシビリティ検査（a11y.spec.ts）と外部要求の検査（network.spec.ts）が共有する検査対象パス。 */
-export const paths = [
-  'ja/',
-  'en/',
-  'ja/photos/',
-  'en/photos/',
-  'ja/photos/kariya-ferris-wheel/',
-  'en/photos/kariya-ferris-wheel/',
-  'ja/career/',
-  'en/career/',
-  'does-not-exist/',
-];
+import { readdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { locales } from '../../src/lib/i18n';
+
+// cwd に依存せず、このファイルの位置からリポジトリの写真データを読む
+const photosDir = fileURLToPath(new URL('../../src/content/photos', import.meta.url));
+
+/** 写真の slug（= src/content/photos/<slug>.yaml のファイル名） */
+export const photoSlugs = readdirSync(photosDir)
+  .filter((name) => name.endsWith('.yaml'))
+  .map((name) => name.slice(0, -'.yaml'.length))
+  .sort();
+if (photoSlugs.length === 0) throw new Error(`${photosDir} に写真データが無い`);
+
+/** 200 を返すべきページ。パスは baseURL からの相対（先頭スラッシュなし） */
+export const pagePaths = locales.flatMap((lang) => [
+  `${lang}/`,
+  `${lang}/photos/`,
+  ...photoSlugs.map((slug) => `${lang}/photos/${slug}/`),
+  `${lang}/career/`,
+]);
+
+/** 404 ページを確かめるための、存在しないパス */
+export const notFoundPath = 'does-not-exist/';
+
+/** アクセシビリティ検査（a11y.spec.ts）と外部要求の検査（network.spec.ts）の対象 */
+export const paths = [...pagePaths, notFoundPath];
+
+/** そのパスの応答として期待するステータス */
+export function expectedStatus(path: string): number {
+  return path === notFoundPath ? 404 : 200;
+}

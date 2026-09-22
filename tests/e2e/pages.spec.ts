@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { expect, type Page, test } from '@playwright/test';
 import { ui } from '../../src/lib/site';
+import { pagePaths } from './paths';
 
 const locales = ['ja', 'en'] as const;
-const slug = 'kariya-ferris-wheel';
 
 type PatentSummary = { number: string; filedAt: string; countries: string[] };
 
@@ -66,14 +66,6 @@ const patentsRestCount = patentsTotal - PATENTS_HEAD_COUNT;
 const expectedFirstNumber = firstBySortOrder(patentsByLang.ja).number;
 const expectedFirstFiledAt = firstBySortOrder(patentsByLang.ja).filedAt;
 const expectedFirstCountries = firstBySortOrder(patentsByLang.ja).countries;
-
-/** 5 種類 × 2 言語。パスは baseURL からの相対（先頭スラッシュなし） */
-const pagePaths = locales.flatMap((lang) => [
-  `${lang}/`,
-  `${lang}/photos/`,
-  `${lang}/photos/${slug}/`,
-  `${lang}/career/`,
-]);
 
 test('ルートは既定ロケールのトップへ遷移する', async ({ page }) => {
   await page.goto('./');
