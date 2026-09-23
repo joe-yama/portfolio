@@ -37,5 +37,5 @@
 
 ## Risks / Trade-offs
 
-- ヘッダーの折り返し: 320px 幅で 3 リンクの幅が 16px + gap ずつ増える。既存の Scenario「狭い画面」（横スクロールなし・全リンク表示）の e2e が番人になる。折り返しが 1 行増えること自体は spec 上許容
-- 並行の worktree（`feature/followup-minors-2`）が `tests/e2e/links.spec.ts` と `src/lib/site.ts` に触らないよう範囲を分けてある。PR 前に `origin/main` へ rebase する
+- ヘッダーの折り返し: アイコンと gap でナビが約 65px 広がる。30rem 未満ではアイコンを隠すので（D2 追補）、狭い画面の折り返しは変更前と同じ（ja は約 377px 以下、en は約 369px 以下で 2 行）。既存の Scenario「狭い画面」（横スクロールなし・全リンク表示）の e2e が番人のまま
+- 並行の worktree（`feature/followup-minors-2`）が `tests/e2e/links.spec.ts` と `src/lib/site.ts` に触らないよう範囲を分けてある。PR 前に `origin/main` をマージで取り込む（push 済みの履歴は書き換えない）

@@ -22,3 +22,14 @@
 - [x] 3.2 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
 
 ## 提案（本 change のスコープ外・後続への申し送り）
+
+ブランチ全体のレビュー（Approved、Critical / Important なし）とタスク単位のレビューの Minor・ponytail。
+
+1. `src/components/Header.astro` の `@media (max-width: 29.99rem)` は spec「30rem 未満」と幅 479.84〜480px の間だけ食い違う（実在の DPR・ズームでは該当なし、該当しても 1 行のまま）。厳密に一致させるなら `@media not all and (min-width: 30rem)`（`(width < 30rem)` は古い Safari で規則ごと無視されるので避ける）。2 と一緒に直すとよい
+2. `tests/e2e/links.spec.ts` のアイコンを隠す側の検査は 390px の 1 点だけ。閾値を 27rem に下げても緑のままで、432〜443px で 2 行が戻る。隠す側の幅に 479px を足す
+3. 1280px でナビの文字のベースラインがロゴより 1.8px 上にずれる（`header` の `align-items: baseline` × リンクの `inline-flex` + `center`）。spec の要求ではない。候補: `nav a { align-items: baseline }` + `nav :global(svg) { align-self: center }`（未検証）
+4. ヘッダーのリンクの並び（ロゴが先頭、言語切り替えがナビの後）を見る e2e が無い（この change の前から）。データの順は `tests/unit/site.test.ts` の navLinks の toEqual が押さえる。1 ページで `header a` の href を順に比べる e2e を 1 本足すと足りる
+5. ponytail: `tests/unit/site.test.ts` の describe「導線のアイコン（design D1）」は、navLinks / languageSwitch の toEqual と同じ主張の繰り返し（-11 行）
+6. ponytail: `tests/e2e/links.spec.ts` の同じ行の判定で `getBoundingClientRect` の evaluate が 2 回ある。`boundingBox()` にまとめられる（-4 行）
+7. `src/lib/site.ts` の `CareerSection` の JSDoc「順は pages.spec が見出しの順と比べる」は union の順と誤読されうる。「ui.careerSections のキーの順は…」と書く
+
