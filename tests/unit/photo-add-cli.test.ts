@@ -1,5 +1,13 @@
 import { spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  chmodSync,
+  existsSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,10 +29,15 @@ afterAll(() => {
  * 本物の src/content/photos/ に YAML が書かれないようにする。
  * PATH は偽の gh のディレクトリだけにして、本物の gh に落ちないようにする。
  * login はシングルクォートでそのまま埋め込むので、改行を含めれば複数行になる
+ * env は spawn の環境変数に上書きで足す（TMPDIR の差し替えに使う）
  */
 function runPhotoAdd(
   args: string[],
-  { file = '', login = 'joe-yama' }: { file?: string | Buffer; login?: string } = {},
+  {
+    file = '',
+    login = 'joe-yama',
+    env = {},
+  }: { file?: string | Buffer; login?: string; env?: Record<string, string> } = {},
 ) {
   const dir = mkdtempSync(join(tmpdir(), 'photo-add-cli-'));
   dirs.push(dir);
@@ -39,7 +52,7 @@ function runPhotoAdd(
   const result = spawnSync(process.execPath, [SCRIPT, ...args], {
     cwd: dir,
     encoding: 'utf8',
-    env: { ...process.env, PATH: dir },
+    env: { ...process.env, PATH: dir, ...env },
   });
   return {
     status: result.status,
@@ -98,6 +111,28 @@ describe('pnpm photo:add のアカウント確認', () => {
   });
 });
 
+/** EXIF は読めるが画素のデータが欠けた JPEG。exifr は通り、sharp の縮小で失敗する */
+async function brokenPixelJpeg(): Promise<Buffer> {
+  const full = await sharp({
+    create: { width: 8, height: 8, channels: 3, background: '#888888' },
+  })
+    .withExif({
+      IFD0: { Make: 'FUJIFILM', Model: 'X-T5' },
+      IFD2: {
+        LensModel: 'XF23mm',
+        FNumber: '28/10',
+        ExposureTime: '1/250',
+        ISOSpeedRatings: '200',
+        DateTimeOriginal: '2025:01:02 03:04:05',
+      },
+    })
+    .jpeg()
+    .toBuffer();
+  // SOS（FF DA）の直後 4 バイトで切る。EXIF（APP1）は残り、画素のデータが欠ける
+  const sos = full.indexOf(Buffer.from([0xff, 0xda]));
+  return full.subarray(0, sos + 4);
+}
+
 describe('pnpm photo:add の画像の読み取り', () => {
   it('画像でないファイルは 1 行で中断し、読み取り部品の内部情報を出さず、Release に触れない', () => {
     const r = runPhotoAdd(['x.jpg'], { file: 'hello\n' });
@@ -109,29 +144,20 @@ describe('pnpm photo:add の画像の読み取り', () => {
   });
 
   it('EXIF は読めても画素が壊れた JPEG は、縮小の失敗を 1 行で中断し、sharp の内部情報を出さない', async () => {
-    const full = await sharp({
-      create: { width: 8, height: 8, channels: 3, background: '#888888' },
-    })
-      .withExif({
-        IFD0: { Make: 'FUJIFILM', Model: 'X-T5' },
-        IFD2: {
-          LensModel: 'XF23mm',
-          FNumber: '28/10',
-          ExposureTime: '1/250',
-          ISOSpeedRatings: '200',
-          DateTimeOriginal: '2025:01:02 03:04:05',
-        },
-      })
-      .jpeg()
-      .toBuffer();
-    // SOS（FF DA）の直後 4 バイトで切る。EXIF（APP1）は残り、画素のデータが欠ける
-    const sos = full.indexOf(Buffer.from([0xff, 0xda]));
-    const r = runPhotoAdd(['x.jpg'], { file: full.subarray(0, sos + 4) });
+    const r = runPhotoAdd(['x.jpg'], { file: await brokenPixelJpeg() });
     expect(r.status).toBe(1);
     expect(r.lines).toEqual(['photo:add: 画像として読めない: x.jpg']);
     expect(r.stderr).not.toMatch(/sharp|vips|node_modules/i);
     expect(r.stderr).not.toMatch(/^\s+at /m);
     expect(r.ghCalls).toEqual(['api user --jq .login']);
+  });
+
+  it('画素が壊れた JPEG で中断しても、作業用の一時ディレクトリを残さない', async () => {
+    const tmp = mkdtempSync(join(tmpdir(), 'photo-add-tmpdir-'));
+    dirs.push(tmp);
+    const r = runPhotoAdd(['x.jpg'], { file: await brokenPixelJpeg(), env: { TMPDIR: tmp } });
+    expect(r.lines).toEqual(['photo:add: 画像として読めない: x.jpg']);
+    expect(readdirSync(tmp).filter((name) => name.startsWith('photo-add-'))).toEqual([]);
   });
 
   it('レンズ情報を持たない JPEG は「レンズ」を挙げて 1 行で中断する', async () => {

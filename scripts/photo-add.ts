@@ -118,6 +118,7 @@ try {
     .jpeg({ quality: 90 })
     .toFile(jpeg);
 } catch {
+  rmSync(work, { recursive: true, force: true });
   die(`画像として読めない: ${file}`);
 }
 console.log(`縮小: ${info.width} x ${info.height}`);
