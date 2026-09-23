@@ -44,7 +44,9 @@ function parsePreviewPid(output: string): number | null {
 }
 
 // 同じプロジェクト root の preview が別ポートで動いていると --port が無視されて 60 秒待つので、
-// 先に落とす補助チェック。別 root・別プロセスの占有は isPortOccupied が見る（レビュー C1）
+// 先に落とす補助チェック。別 root・別プロセスの占有は isPortOccupied が見る（レビュー C1）。
+// `astro preview status` は起動の有無によらず exit 0 で終わるので、終了コードではなく
+// `--json` の `message` を見る
 function isPreviewAlreadyRunning(): boolean {
   try {
     const output = execSync('pnpm exec astro preview status --json', { encoding: 'utf-8' });
