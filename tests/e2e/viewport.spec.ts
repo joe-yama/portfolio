@@ -6,6 +6,8 @@ const viewports = [
   { width: 1280, height: 720 },
   { width: 1440, height: 900 },
 ];
+/** トップの初見表示は、横並びの境目（64rem = 1024px）でも確かめる */
+const topViewports = [...viewports, { width: 1024, height: 768 }];
 /**
  * 縦位置の写真。design.md D2 のプロトタイプ実測もこの写真（1248×1872）を使っている。
  * 縦位置かどうかは YAML に無いので slug の一覧から導けない
@@ -105,7 +107,7 @@ async function assertPhotoFillsMainContentWidth(page: Page, selector: string, la
 // --- 1.1 トップページの初見表示 ---------------------------------------------------------
 
 for (const lang of locales) {
-  for (const viewport of viewports) {
+  for (const viewport of topViewports) {
     test(`トップページの初見表示（${lang}, ${viewport.width}x${viewport.height}）`, async ({
       page,
     }) => {
@@ -114,13 +116,95 @@ for (const lang of locales) {
       await waitForImageLoaded(page.locator('main .hero picture img'));
 
       await assertBottomsWithinViewport(page, 'main .hero picture img', '代表写真');
-      await assertBottomsWithinViewport(page, 'main > h1', '名前');
-      await assertBottomsWithinViewport(page, 'main > p.muted', '肩書');
+      await assertBottomsWithinViewport(page, 'main h1', '名前');
+      await assertBottomsWithinViewport(page, 'main p.headline', '仕事の一行');
+      await assertBottomsWithinViewport(page, 'main .intro > p.muted', '肩書');
       await assertBottomsWithinViewport(page, 'main ul.links li a', '連絡先リンク');
       await assertBottomsWithinViewport(page, 'main nav.links a', 'サイト内導線');
     });
   }
 }
+
+// --- トップページの横並び（64rem 以上で写真を左、文字列を右） ------------------------------
+
+/** 横並びで写真の右に来る文字列 */
+const introTextSelector =
+  'main h1, main p.headline, main .intro > p.muted, main nav.links a, main ul.links a';
+
+/** 代表写真と、セレクタに一致する要素それぞれの getBoundingClientRect を測る */
+async function measureHeroAnd(page: Page, selector: string) {
+  const hero = page.locator('main .hero picture img');
+  await waitForImageLoaded(hero);
+  const heroRect = await hero.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return { right: r.right, bottom: r.bottom, width: r.width };
+  });
+  const rects = await page.locator(selector).evaluateAll((els) =>
+    els.map((el) => {
+      const r = el.getBoundingClientRect();
+      return { left: r.left, top: r.top };
+    }),
+  );
+  expect(rects.length, `要素が見つからない（${selector}）`).toBeGreaterThan(0);
+  return { heroRect, rects };
+}
+
+test('横並び: 1280×720 の /ja/ では代表写真が文字列の左にあり、本文の幅の半分以上を占める', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto('./ja/');
+  const { heroRect, rects } = await measureHeroAnd(page, introTextSelector);
+  for (const [i, rect] of rects.entries()) {
+    expect(
+      heroRect.right,
+      `代表写真の右端（${heroRect.right.toFixed(1)}）が文字列[${i}] の左端（${rect.left.toFixed(1)}）より左にない`,
+    ).toBeLessThan(rect.left);
+  }
+  const contentWidth = await page.evaluate(() => {
+    const main = document.querySelector('main');
+    if (!main) throw new Error('main が見つからない');
+    const style = getComputedStyle(main);
+    return (
+      main.clientWidth -
+      Number.parseFloat(style.paddingLeft) -
+      Number.parseFloat(style.paddingRight)
+    );
+  });
+  expect(
+    heroRect.width,
+    `代表写真の幅 ${heroRect.width.toFixed(1)} が本文の幅 ${contentWidth.toFixed(1)} の半分に満たない`,
+  ).toBeGreaterThanOrEqual(contentWidth / 2);
+});
+
+test('横並び: 1024×768 の /en/ では代表写真が名前の左にある', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.goto('./en/');
+  const { heroRect, rects } = await measureHeroAnd(page, 'main h1');
+  expect(heroRect.right).toBeLessThan(rects[0]?.left ?? Number.NaN);
+});
+
+test('縦並び: 1023×768 の /ja/ では代表写真が名前の上にある', async ({ page }) => {
+  await page.setViewportSize({ width: 1023, height: 768 });
+  await page.goto('./ja/');
+  const { heroRect, rects } = await measureHeroAnd(page, 'main h1');
+  expect(heroRect.bottom).toBeLessThanOrEqual(rects[0]?.top ?? Number.NaN);
+});
+
+test('縦並び: 390×844 の /ja/ では代表写真が名前の上にあり、横スクロールが出ない', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./ja/');
+  const { heroRect, rects } = await measureHeroAnd(page, 'main h1');
+  expect(heroRect.bottom).toBeLessThanOrEqual(rects[0]?.top ?? Number.NaN);
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow, '横スクロールが発生している（scrollWidth − clientWidth）').toBeLessThanOrEqual(
+    0,
+  );
+});
 
 // --- 1.2 写真の個別ページの初見表示（縦位置） ---------------------------------------------
 
