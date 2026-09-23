@@ -38,9 +38,21 @@ function parsePreviewMessage(output: string): string | null {
   }
 }
 
-function parsePreviewPid(output: string): number | null {
+/** status --json の出力から動作中の preview の pid を取り出す。動いていなければ null。 */
+export function parsePreviewPid(output: string): number | null {
   const match = parsePreviewMessage(output)?.match(/pid (\d+)/);
   return match?.[1] ? Number(match[1]) : null;
+}
+
+/** 今動いている preview の pid。動いていない・判定できないときは null（setup と teardown で共用） */
+export function currentPreviewPid(): number | null {
+  try {
+    return parsePreviewPid(
+      execSync('pnpm exec astro preview status --json', { encoding: 'utf-8' }),
+    );
+  } catch {
+    return null;
+  }
 }
 
 // 同じプロジェクト root の preview が別ポートで動いていると --port が無視されて 60 秒待つので、
@@ -130,8 +142,7 @@ export default async function globalSetup(): Promise<void> {
   // 起動した preview 自身の pid と、この実行の runId を記録する（teardown が
   // 「今動いている preview の pid」かつ「自分がこの実行で書いたマーカーか」の
   // 両方を照合するため。レビュー C2 / I1）。
-  const statusOutput = execSync('pnpm exec astro preview status --json', { encoding: 'utf-8' });
-  const pid = parsePreviewPid(statusOutput);
+  const pid = currentPreviewPid();
   const runId = randomUUID();
   process.env[RUN_ID_ENV] = runId;
   mkdirSync(dirname(STARTED_MARKER), { recursive: true });

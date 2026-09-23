@@ -33,7 +33,7 @@
 ## 5. 品質改善（挙動不変）: e2e の基盤
 
 - [x] 5.1 F13: `tests/e2e/global-setup.ts` に「`preview status` は起動の有無によらず exit 0 なので message を見る」理由のコメントを戻す
-- [ ] 5.2 F17 + H-D5: teardown の `currentPreviewPid` と setup の `parsePreviewPid` を 1 本にし、マーカー定数を共有する
+- [x] 5.2 F17 + H-D5: teardown の `currentPreviewPid` と setup の `parsePreviewPid` を 1 本にし、マーカー定数を共有する
 - [ ] 5.3 H-D4: global-setup の `pnpm build` / `astro preview` に `cwd` をリポジトリの root として明示する
 
 ## 6. 品質改善（挙動不変）: 写真表示まわり
