@@ -50,14 +50,27 @@
 
 - [x] 7.1 変異を当てて 2 章・3 章の新しいテストが落ちることを確かめる（`docs/harness/README.md` の隔離実行の手順）。少なくとも: (a) `generateId` を外す、(b) `validatePhotos` の早期 return を戻す、(c) photo-add の try を外す、(d) `ghFailureMessage` を `message` 全体に戻す、(e) `assertValid` を ja → en の 2 回に戻す、(f) 検証に渡すロケールを入れ替える、(g) 特許 1 件の `url` を別の項目のものに入れ替える、(h) hreflang を `ja-JP` にする
 - [x] 7.2 畳んだ・整理したテスト（3.2、4.2、4.4、6.1〜6.4）が、整理前と同じ変異で落ちることを確かめる
-- [ ] 7.3 `docs/status.md` の「PO 判断として残っている件」から Change 9（375×667、PO 決定: 直さない）と Change 11（見出し 4 件、本 change で対応）の段落を片付ける
-- [ ] 7.4 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
+- [x] 7.3 `docs/status.md` の「PO 判断として残っている件」から Change 9（375×667、PO 決定: 直さない）と Change 11（見出し 4 件、本 change で対応）の段落を片付ける
+- [x] 7.4 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
 
 ## 提案（本 change のスコープ外・後続への申し送り）
 
-- 2.1（D2）: 実データで `.` を含む slug の写真を入稿したとき、`getStaticPaths` がそのページを出し、Release の画像の取得まで含めてビルドと配信が通ることを 1 度確かめる（本 change では Release に該当の画像が無く、検証を通ってページの生成に入るところと、`.` を含むディレクトリが静的配信で 200 を返すところまでを確かめた）
+- 2.1（D2）: 実データで `.` を含む slug の写真を入稿したとき、`getStaticPaths` がそのページを出し、Release の画像の取得まで含めてビルドと配信が通ることを 1 度確かめる（本 change では Release に該当の画像が無く、検証を通ってページの生成に入るところと、`.` を含むディレクトリが静的配信で 200 を返すところまでを確かめた）。あわせて、大文字を含む slug のビルドと、GitHub Pages が末尾スラッシュ無しの `/photos/kamo-river-v1.2` を拡張子として扱うかも未実測なので同じときに確かめる（Task 2、レビュー単位 1）
 - 4.1（Change 4 の ponytail）: `.org` を `<b>` にする件は見送った。Chromium で計算済みスタイルを測ると `<span class="org">` は `font-weight: 600`、クラスなしの `<b>` は `700` で、見た目が変わる（`<b class="org">` にすると 600 のままだが、要素を変えるだけで CSS は減らない）。`<p class="org">` はブロック要素なので `<b>` にできない。やるなら `.org` を 700 にしてよいかを PO に確かめてから
 - 6.6（H1）: `inferRemoteSize` の重複は「同じ関数の中で 2 回呼ぶ」ものではなく、`PhotoPicture.astro` が呼び出しごとに 1 回呼ぶので、ギャラリー・個別ページ・トップで同じ画像の寸法を別々に読んでいるもの。ビルド時間が問題になったら、`src/lib/photo.ts` などで slug ごとに寸法を覚える仕組みを検討する（本 change ではやらない。ponytail）
+- Task 2（単位 1）: `tests/e2e/paths.ts` の `readdirSync` + `endsWith('.yaml')` は Astro の glob `*.yaml`（ドットファイルを除く）と厳密に一致しない。`.draft.yaml` があると e2e だけがそのページを期待して 404 で落ちる（安全側）
+- Task 3（単位 2）: `getFeaturedPhoto` が `getPhotos` を通ることを固定するテストが無い（0 枚の `getFeaturedPhoto` のケースを 1 本足す）/ `content.test.ts` の `photoEntries.list` を `beforeEach` で戻していない
+- Task 4（単位 3）: `scripts/photo-add.ts` の `mkdtempSync(work)` が sharp より前にあり、sharp が失敗すると OS の tmp に `photo-add-*` が残る（既存の挙動、worktree の外）
+- Task 6（単位 4）: `tests/unit/theme.test.ts` のテスト名「3 桁や 8 桁の色は抽出しない」は今の挙動（抽出の時点で拒む）と合わない
+- Task 5（単位 4）: `content.test.ts` の両言語のエラーの正規表現が ja → en の並び順も固定している（design D4 は順序を決めていない）
+- Task 8（単位 4）: 特許の YAML の `url` が別の公報を指す誤りを捕まえる番人が無い（`url` が `/patent/<number>/` を含むことの検査）。e2e の「YAML と一致」は期待値を同じ YAML から読むので原理的に捕まえられない（7.1 (g) で緑を確認）
+- Task 9（単位 5）: `schemas.ts` の `existsOnCalendar` への統合で、形式違反のときのエラーの組み合わせが変わった（`'2024-10'` を isoDate に渡すと、形式 + 暦 → 形式のみ。改善）。`'2024-13-01'` は両方のまま。JSDoc の「YYYY-MM は常に true」は実際（日が無ければ常に true）とずれている
+- Task 10（単位 5）: `global-setup.ts` で `status --json` が例外を投げると `pid: null` で進み、preview を取り残したまま緑で終わりうる（次の実行で `isPortOccupied` が検出する）。直すなら `pid === null` で throw
+- Task 9・10（単位 5）: `schemas.test.ts` の enum の `it.each` で `value` と `parse` の中のリテラルが二重 / ponytail: `parsePreviewPid` の export は不要、`status --json` の execSync が 2 か所
+- Task 10（単位 5、7.1 で実測）: cwd をリポジトリの外にして `playwright test -c <worktree>/playwright.config.ts` を実行すると、globalSetup のビルドと preview の起動・停止は通るが、`tests/e2e/pages.spec.ts:75` の `parsePatents('src/content/career/ja.yaml')` が cwd 相対で `ENOENT` になり全体が落ちる。`tests/e2e/sitemap.spec.ts:18` の `join('dist', lang)` も cwd 相対。直すなら `paths.ts` と同じく `import.meta.url` から組み立てる
+- Task 11（単位 6）: `viewport.spec.ts` の横スクロールの検査は失敗時に scrollWidth / clientWidth が出なくなった（`scrollWidth - clientWidth` を `toBeLessThanOrEqual(0)` にすれば Received に出る）/ ponytail: 同じ検査の 2 重書き
+- Task 12（単位 6）: `.art` を global.css に移したので全ページに載る。後から `class="art"` を使うコンポーネントがマージンを継承する
+- 裁定（単位 6）: tasks.md 6.6 の「pictureSizing」（寸法の計算を `photo.ts` に切り出して単体テストできるようにする。出典 archive/2026-09-21-photo-pipeline の提案）は、挙動不変の整理ではなくテスト容易性のための切り出しなので本 change では見送った
 
 ## 変異の記録（7.1・7.2、HEAD `be6cbd7`）
 
