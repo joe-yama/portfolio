@@ -1,12 +1,15 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect, test } from '@playwright/test';
+import { locales } from '../../src/lib/i18n';
 
-const locales = ['ja', 'en'] as const;
 const viewports = [
   { width: 1280, height: 720 },
   { width: 1440, height: 900 },
 ];
-/** 縦位置の写真。design.md D2 のプロトタイプ実測もこの写真（1248×1872）を使っている */
+/**
+ * 縦位置の写真。design.md D2 のプロトタイプ実測もこの写真（1248×1872）を使っている。
+ * 縦位置かどうかは YAML に無いので slug の一覧から導けない
+ */
 const verticalSlug = 'kariya-ferris-wheel';
 /** サブピクセル丸めの分だけを許容する相対誤差（design.md D3） */
 const tolerance = 0.01;

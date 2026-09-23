@@ -38,7 +38,7 @@
 
 ## 6. 品質改善（挙動不変）: 写真表示まわり
 
-- [ ] 6.1 F16 + C4: `tests/e2e/viewport.spec.ts` の写真の slug の直書きと `locales` の重複を、`paths.ts` と `src/lib/i18n` から導く
+- [x] 6.1 F16 + C4: `tests/e2e/viewport.spec.ts` の写真の slug の直書きと `locales` の重複を、`paths.ts` と `src/lib/i18n` から導く
 - [ ] 6.2 C3: 縦横比の検査を両ロケール・主要ビューポートに広げる
 - [ ] 6.3 C6: `floorPx = 192` が 1280×400 で等号ぎりぎりになる件。root の font-size から導いた値で比較する
 - [ ] 6.4 C7: ponytail（`waitForImageLoaded` を `expect.poll` に、`assertNoHorizontalScroll` を畳む、失敗メッセージを 1 行に）
