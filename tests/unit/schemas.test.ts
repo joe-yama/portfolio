@@ -58,6 +58,10 @@ describe('photoSchema', () => {
     expect(photoSchema.safeParse({ ...validPhoto, takenAt: '2025-02-30' }).success).toBe(false);
   });
 
+  it('takenAt も年 0001〜0099 の実在する日を受け付ける', () => {
+    expect(photoSchema.safeParse({ ...validPhoto, takenAt: '0050-02-28' }).success).toBe(true);
+  });
+
   it('image が URL でなければ拒否する', () => {
     expect(photoSchema.safeParse({ ...validPhoto, image: '../../assets/x.jpg' }).success).toBe(
       false,
@@ -116,6 +120,7 @@ const validCareer = {
       title: '発明の名称',
       number: 'JP2021-123456A',
       countries: ['JP'],
+      url: 'https://patents.google.com/patent/JP2021123456A/ja',
     },
   ],
 };
@@ -213,6 +218,7 @@ const validPatent = {
   title: '発明の名称',
   number: 'JP2021-123456A',
   countries: ['JP', 'CN'],
+  url: 'https://patents.google.com/patent/JP2021123456A/ja',
 };
 
 describe('patentSchema', () => {
@@ -239,12 +245,13 @@ describe('patentSchema', () => {
     expect(patentSchema.safeParse(rest).success).toBe(false);
   });
 
-  it('url は任意', () => {
-    expect(patentSchema.safeParse(validPatent).success).toBe(true);
-    expect(
-      patentSchema.safeParse({ ...validPatent, url: 'https://patents.google.com/patent/x' })
-        .success,
-    ).toBe(true);
+  it('url が無ければ失敗する', () => {
+    const { url: _omit, ...rest } = validPatent;
+    expect(patentSchema.safeParse(rest).success).toBe(false);
+  });
+
+  it('url が URL の形でなければ失敗する', () => {
+    expect(patentSchema.safeParse({ ...validPatent, url: 'JP2021-123456A' }).success).toBe(false);
   });
 });
 
@@ -292,6 +299,19 @@ describe('資格と実績の日付の粒度', () => {
 
   it('2024-02-29（閏年）は受け付ける', () => {
     expect(certWith('2024-02-29').success).toBe(true);
+  });
+
+  // new Date(y, …) も Date.UTC も 0〜99 年を 1900 年代に読み替えるため、
+  // どちらで組み立てても 0050-02-28 を「暦に無い」と誤判定する
+  it.each(['0050-02-28', '0099-12-31', '0004-02-29'])(
+    '%s（年 0001〜0099）は暦にある日なので受け付ける',
+    (date) => {
+      expect(certWith(date).success).toBe(true);
+    },
+  );
+
+  it('0100-02-29 は閏年ではないので受け付けない', () => {
+    expect(certWith('0100-02-29').success).toBe(false);
   });
 });
 

@@ -120,9 +120,11 @@ export function canonicalUrl(path: string, site: string | URL, base: string): st
   return absoluteUrl(alternatePath(path, lang, base), site);
 }
 
-/** 共有カードの og:locale（design D3）。地域付きの表記に対応づける */
+/** 共有カードの og:locale（design D3）。Record<Locale, …> なので、ロケールを足すと型エラーで気づける */
+const OG_LOCALES: Record<Locale, string> = { ja: 'ja_JP', en: 'en_US' };
+
 export function ogLocale(lang: Locale): string {
-  return lang === 'ja' ? 'ja_JP' : 'en_US';
+  return OG_LOCALES[lang];
 }
 
 export function navLinks(lang: Locale, base: string): NavLink[] {

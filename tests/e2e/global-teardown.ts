@@ -1,12 +1,6 @@
 import { execSync } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { RUN_ID_ENV } from './global-setup';
-
-// global-setup.ts が実際に起動したときだけ立てる、pid と runId 入りのマーカー。
-const STARTED_MARKER = fileURLToPath(
-  new URL('../../.astro/e2e-preview-started-by-setup', import.meta.url),
-);
+import { RUN_ID_ENV, STARTED_MARKER } from './global-setup';
 
 /** 今動いている preview の pid。動いていない・判定できないときは null。 */
 function currentPreviewPid(): number | null {

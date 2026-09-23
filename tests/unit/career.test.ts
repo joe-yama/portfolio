@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { Career } from '../../src/content/schemas';
 import {
   formatDate,
   formatMonth,
@@ -83,40 +84,51 @@ describe('sortByDateDesc', () => {
   });
 });
 
-const patents = [
-  { number: 'A', filedAt: '2019-10', title: 't', countries: ['JP'] },
-  { number: 'B', filedAt: '2021-03', title: 't', countries: ['JP', 'CN', 'TW'] },
-  { number: 'C', filedAt: '2020-01', title: 't', countries: ['JP', 'CN'] },
-  { number: 'D', filedAt: '2021-03', title: 't', countries: ['JP', 'CN'] },
-  { number: 'E', filedAt: '2021-03', title: 't', countries: ['JP', 'CN'] },
-  { number: 'F', filedAt: '2021-03', title: 't', countries: ['JP', 'CN'] },
-];
+type Patent = Career['patents'][number];
+
+function patent(number: string, filedAt: string, countries: string[]): Patent {
+  return { number, filedAt, countries, title: 't', url: 'https://example.com/' };
+}
+
+/** 呼ぶたびに新しい配列を返す（テストどうしで状態を共有しない） */
+function patents(): Patent[] {
+  return [
+    patent('A', '2019-10', ['JP']),
+    patent('B', '2021-03', ['JP', 'CN', 'TW']),
+    patent('C', '2020-01', ['JP', 'CN']),
+    patent('D', '2021-03', ['JP', 'CN']),
+    patent('E', '2021-03', ['JP', 'CN']),
+    patent('F', '2021-03', ['JP', 'CN']),
+  ];
+}
 
 describe('sortPatents', () => {
   it('countries の件数の降順に並べる', () => {
-    const twoOnly = [patents[0], patents[1]];
-    expect(sortPatents(twoOnly).map((p) => p.number)).toEqual(['B', 'A']);
+    const [a, b] = patents();
+    expect(sortPatents([a, b]).map((p) => p.number)).toEqual(['B', 'A']);
   });
 
   it('countries の件数が同じなら filedAt の降順に並べる', () => {
-    const sameCount = [patents[2], patents[3]];
-    expect(sortPatents(sameCount).map((p) => p.number)).toEqual(['D', 'C']);
+    const [, , c, d] = patents();
+    expect(sortPatents([c, d]).map((p) => p.number)).toEqual(['D', 'C']);
   });
 
   it('countries と filedAt が同じなら記述順を保つ（安定ソート）', () => {
-    const tied = [patents[3], patents[4], patents[5]];
+    const tied = patents().slice(3);
     expect(sortPatents(tied).map((p) => p.number)).toEqual(['D', 'E', 'F']);
   });
 
   it('元の配列を破壊しない', () => {
-    const before = patents.map((p) => p.number);
-    sortPatents(patents);
-    expect(patents.map((p) => p.number)).toEqual(before);
+    const input = patents();
+    const before = input.map((p) => p.number);
+    sortPatents(input);
+    expect(input.map((p) => p.number)).toEqual(before);
   });
 });
 
 describe('splitPatents', () => {
-  const items = (n: number) => Array.from({ length: n }, (_, i) => i);
+  const items = (n: number) =>
+    Array.from({ length: n }, (_, i) => patent(String(i), '2021-03', ['JP']));
 
   it('4 件なら head に 4 件、rest は空', () => {
     expect(splitPatents(items(4))).toEqual({ head: items(4), rest: [] });
@@ -126,16 +138,8 @@ describe('splitPatents', () => {
     expect(splitPatents(items(5))).toEqual({ head: items(5), rest: [] });
   });
 
-  it('6 件なら head に 5 件、rest に 1 件', () => {
-    const result = splitPatents(items(6));
-    expect(result.head).toHaveLength(5);
-    expect(result.rest).toHaveLength(1);
-  });
-
-  it('12 件なら head に 5 件、rest に 7 件', () => {
+  it('12 件なら head に先頭 5 件、rest に残り 7 件', () => {
     const result = splitPatents(items(12));
-    expect(result.head).toHaveLength(5);
-    expect(result.rest).toHaveLength(7);
     expect(result.head).toEqual(items(5));
     expect(result.rest).toEqual(items(12).slice(5));
   });

@@ -24,14 +24,14 @@ export function contrast(a: string, b: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-export type Tokens = { bg: string; fg: string; fgMuted: string; line: string };
-
-const TOKEN_NAMES = { bg: 'bg', fg: 'fg', fgMuted: 'fg-muted', line: 'line' } as const;
+const TOKEN_KEYS = ['bg', 'fg', 'fgMuted', 'line'] as const;
+type Tokens = Record<(typeof TOKEN_KEYS)[number], string>;
 
 function parseTokens(block: string, label: string): Tokens {
   const withoutComments = block.replace(/\/\*[\s\S]*?\*\//g, '');
   const out = {} as Tokens;
-  for (const [key, cssName] of Object.entries(TOKEN_NAMES) as [keyof Tokens, string][]) {
+  for (const key of TOKEN_KEYS) {
+    const cssName = key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`); // fgMuted → fg-muted
     const matches = [
       ...withoutComments.matchAll(new RegExp(`--${cssName}:\\s*(#[0-9a-fA-F]{3,8})`, 'g')),
     ];

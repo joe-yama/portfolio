@@ -12,19 +12,14 @@ export type PhotoMeta = {
   iso: number;
 };
 
-/**
- * ファイル名または --slug の値 → slug。
- * --slug が指定されていればその値をそのまま使う（拡張子に見える部分も切り詰めない）。
- * 指定が無ければファイル名の拡張子を除いて作る。どちらの由来でも英数字が残らない場合は
- * 例外にする（由来がわかるように文言を変える）
- */
+/** ファイル名（拡張子を除いて kebab-case に）または --slug の値（そのまま）→ slug。使えなければ由来の分かる文言で例外 */
 export function toSlug(fileName: string, slugArg?: string): string {
   if (slugArg !== undefined) {
     if (!/[a-zA-Z0-9]/.test(slugArg))
       throw new Error(`指定された slug に英数字が無く使えない: ${slugArg}`);
-    // パス区切り・空白・先頭の . を含む値は、ファイルの書き込み先や asset 名を
+    // パス区切り・空白・先頭または末尾の . を含む値は、ファイルの書き込み先や asset 名を
     // ずらすのに使われ得るため、加工はせず拒否する（--slug の値はそのまま使うため）
-    if (/[/\\\s]/.test(slugArg) || slugArg.startsWith('.'))
+    if (/[/\\\s]/.test(slugArg) || slugArg.startsWith('.') || slugArg.endsWith('.'))
       throw new Error(`指定された slug に使えない文字がある: ${slugArg}`);
     return slugArg;
   }
@@ -68,11 +63,11 @@ function isPositiveFinite(v: unknown): v is number {
   return typeof v === 'number' && Number.isFinite(v) && v > 0;
 }
 
-/** EXIF の生の値 → YAML に書く値。欠けている項目があれば名前を全部挙げて返す */
+/** EXIF の生の値 → YAML に書く値。欠けている項目があれば spec の語彙（撮影日・カメラ…）で全部挙げて返す */
 export function exifToPhotoMeta(
   raw: Record<string, unknown>,
 ): { ok: true; meta: PhotoMeta } | { ok: false; missing: string[] } {
-  const missing: string[] = [];
+  const missing = new Set<string>();
   const takenAt = raw.DateTimeOriginal;
   const make = raw.Make;
   const model = raw.Model;
@@ -81,14 +76,14 @@ export function exifToPhotoMeta(
   const exposure = raw.ExposureTime;
   const iso = raw.ISO;
 
-  if (!(takenAt instanceof Date)) missing.push('DateTimeOriginal');
-  if (typeof make !== 'string' || make.trim() === '') missing.push('Make');
-  if (typeof model !== 'string' || model.trim() === '') missing.push('Model');
-  if (typeof lens !== 'string' || lens.trim() === '') missing.push('LensModel');
-  if (!isPositiveFinite(aperture)) missing.push('FNumber');
-  if (!isPositiveFinite(exposure)) missing.push('ExposureTime');
-  if (!isPositiveFinite(iso)) missing.push('ISO');
-  if (missing.length > 0) return { ok: false, missing };
+  if (!(takenAt instanceof Date)) missing.add('撮影日');
+  if (typeof make !== 'string' || make.trim() === '') missing.add('カメラ');
+  if (typeof model !== 'string' || model.trim() === '') missing.add('カメラ');
+  if (typeof lens !== 'string' || lens.trim() === '') missing.add('レンズ');
+  if (!isPositiveFinite(aperture)) missing.add('絞り');
+  if (!isPositiveFinite(exposure)) missing.add('シャッター速度');
+  if (!isPositiveFinite(iso)) missing.add('ISO 感度');
+  if (missing.size > 0) return { ok: false, missing: [...missing] };
 
   return {
     ok: true,
@@ -141,21 +136,6 @@ export function ghFailureMessage(error: unknown): string {
   if (code === 'ENOENT') return 'gh コマンドが見つからない（未インストール、または PATH に無い）';
   if (typeof stderr === 'string' && stderr.trim() !== '') return stderr.trim().split('\n')[0];
   return typeof message === 'string' ? message : String(error);
-}
-
-/** exifToPhotoMeta が返す missing（EXIF タグ名）→ spec の語彙。Make / Model はどちらもカメラなので重複を除く */
-const MISSING_FIELD_LABELS: Record<string, string> = {
-  DateTimeOriginal: '撮影日',
-  Make: 'カメラ',
-  Model: 'カメラ',
-  LensModel: 'レンズ',
-  FNumber: '絞り',
-  ExposureTime: 'シャッター速度',
-  ISO: 'ISO 感度',
-};
-
-export function translateMissingFields(missing: string[]): string[] {
-  return [...new Set(missing.map((tag) => MISSING_FIELD_LABELS[tag] ?? tag))];
 }
 
 /** YAML の二重引用符スカラーは JSON の文字列と同じ規則なので、JSON.stringify で正しく囲める */

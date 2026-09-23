@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from 'vitest';
 import { type Career, type Patent, PHOTO_BASE_URL, type Photo } from '../../src/content/schemas';
+import type { Locale } from '../../src/lib/i18n';
 import {
   assertValid,
   validateCareerParity,
@@ -113,7 +114,15 @@ describe('validateCareerParity', () => {
     skills: { lang: ['ts'] },
     certifications: [{ date: '2023-06-01', name: 'c' }],
     achievements: [{ date: '2024-10-12', name: 'a', kind: 'talk' }],
-    patents: [{ filedAt: '2021-03', title: 't', number: 'JP1', countries: ['JP'] }],
+    patents: [
+      {
+        filedAt: '2021-03',
+        title: 't',
+        number: 'JP1',
+        countries: ['JP'],
+        url: 'https://example.com/',
+      },
+    ],
   };
 
   it('件数が一致すれば問題なし', () => {
@@ -226,11 +235,27 @@ describe('validateCareerParity', () => {
   it('patents の同じ位置の filedAt が日英で違えば、何番目かと両方の値を報告する', () => {
     const ja: Career = {
       ...base,
-      patents: [{ filedAt: '2021-03', title: 't', number: 'JP1', countries: ['JP'] }],
+      patents: [
+        {
+          filedAt: '2021-03',
+          title: 't',
+          number: 'JP1',
+          countries: ['JP'],
+          url: 'https://example.com/',
+        },
+      ],
     };
     const en: Career = {
       ...base,
-      patents: [{ filedAt: '2019-08', title: 't-en', number: 'JP1', countries: ['JP'] }],
+      patents: [
+        {
+          filedAt: '2019-08',
+          title: 't-en',
+          number: 'JP1',
+          countries: ['JP'],
+          url: 'https://example.com/',
+        },
+      ],
     };
     const errors = validateCareerParity(ja, en);
     expect(errors).toHaveLength(1);
@@ -242,11 +267,27 @@ describe('validateCareerParity', () => {
   it('patents の同じ位置の countries の件数が日英で違えば報告する', () => {
     const ja: Career = {
       ...base,
-      patents: [{ filedAt: '2021-03', title: 't', number: 'JP1', countries: ['JP'] }],
+      patents: [
+        {
+          filedAt: '2021-03',
+          title: 't',
+          number: 'JP1',
+          countries: ['JP'],
+          url: 'https://example.com/',
+        },
+      ],
     };
     const en: Career = {
       ...base,
-      patents: [{ filedAt: '2021-03', title: 't-en', number: 'JP1', countries: ['JP', 'US'] }],
+      patents: [
+        {
+          filedAt: '2021-03',
+          title: 't-en',
+          number: 'JP1',
+          countries: ['JP', 'US'],
+          url: 'https://example.com/',
+        },
+      ],
     };
     const errors = validateCareerParity(ja, en);
     expect(errors).toHaveLength(1);
@@ -260,13 +301,29 @@ describe('validateCareerParity', () => {
       ...base,
       certifications: [{ date: '2020-01', name: 'a' }],
       achievements: [{ date: '2021-05', name: 'b', kind: 'talk' }],
-      patents: [{ filedAt: '2021-03', title: 't', number: 'JP1', countries: ['JP', 'US'] }],
+      patents: [
+        {
+          filedAt: '2021-03',
+          title: 't',
+          number: 'JP1',
+          countries: ['JP', 'US'],
+          url: 'https://example.com/',
+        },
+      ],
     };
     const en: Career = {
       ...ja,
       certifications: [{ date: '2020-01', name: 'a-en' }],
       achievements: [{ date: '2021-05', name: 'b-en', kind: 'talk' }],
-      patents: [{ filedAt: '2021-03', title: 't-en', number: 'JP1', countries: ['JP', 'US'] }],
+      patents: [
+        {
+          filedAt: '2021-03',
+          title: 't-en',
+          number: 'JP1',
+          countries: ['JP', 'US'],
+          url: 'https://example.com/',
+        },
+      ],
     };
     expect(validateCareerParity(ja, en)).toEqual([]);
   });
@@ -279,6 +336,7 @@ describe('validateCareerPatents', () => {
       title: 't',
       number: 'JP6549500B2',
       countries: ['JP', 'CN', 'US'],
+      url: 'https://example.com/',
       ...over,
     };
   }
@@ -342,6 +400,34 @@ describe('validateCareerPatents', () => {
   it('サロゲートペアを含む見出しはコードポイント数で数える（UTF-16 単位ではない）', () => {
     const title = '😀'.repeat(40); // コードポイント 40、UTF-16 単位では 80
     const errors = validateCareerPatents(career([patent({ title })]), 'ja');
+    expect(errors).toEqual([]);
+  });
+
+  it('lang は Locale だけを受ける（"JA" のような文字列で英語の上限が黙って使われない）', () => {
+    expectTypeOf(validateCareerPatents).parameter(1).toEqualTypeOf<Locale>();
+  });
+
+  it('同じ言語で number が重複したら、重複した number を含めて 1 件報告する', () => {
+    const errors = validateCareerPatents(
+      career([patent(), patent({ filedAt: '2019-01', title: 'u' })]),
+      'ja',
+    );
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('JP6549500B2');
+    expect(errors[0]).toContain('重複');
+  });
+
+  it('英語のデータでも number の重複を報告する', () => {
+    const errors = validateCareerPatents(career([patent(), patent()]), 'en');
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('JP6549500B2');
+  });
+
+  it('number が違えば重複として報告しない', () => {
+    const errors = validateCareerPatents(
+      career([patent(), patent({ number: 'JP7200645B2' })]),
+      'ja',
+    );
     expect(errors).toEqual([]);
   });
 });

@@ -1,6 +1,7 @@
 // Task 5 の photo-meta.ts がこのファイルから PLACEHOLDER を読み、そちらは node が直接実行する
 // 経路に乗る。Node の ESM 解決は拡張子を補わないので、ここだけ .ts を明示する（計画の落とし穴 5）
 import { type Career, PHOTO_BASE_URL, type PhotoEntry } from '../content/schemas.ts';
+import type { Locale } from './i18n.ts';
 
 /** 入稿コマンドが title / location / alt に入れる未記入の印 */
 export const PLACEHOLDER = 'TODO:';
@@ -49,12 +50,27 @@ export function validatePhotos(entries: PhotoEntry[]): string[] {
 }
 
 /**
- * 日英の経歴で、並べて表示する項目の対応が取れていること。
- * `experience` / `certifications` / `achievements` / `patents`（配列）は件数が一致することを、
- * `certifications` / `achievements` / `patents` はさらに同じ位置にある項目の比較キー
- * （表示の並び替えに使う値。日英で書かれた位置が対応するため）が一致することを見る。
- * `skills` は配列ではなく Record（カテゴリ名 → 項目の配列）なので、カテゴリ数と
- * 各カテゴリの項目数を見る。件数が違う配列は、比較キーの突き合わせまで進まない
+ * 同じ位置の項目どうしを突き合わせる配列と、その比較キー（表示の並び替えに使う値）。
+ * label はエラー文の「N 番目」の後ろに入る語（patents は複数の値をまとめて出すので空）
+ */
+const INDEXED_KEYS: [
+  key: 'certifications' | 'achievements' | 'patents',
+  label: string,
+  keyOf: (career: Career, index: number) => string,
+][] = [
+  ['certifications', 'の date ', (c, i) => c.certifications[i].date],
+  ['achievements', 'の date ', (c, i) => c.achievements[i].date],
+  [
+    'patents',
+    '',
+    (c, i) => `countries ${c.patents[i].countries.length} 件 / filedAt ${c.patents[i].filedAt}`,
+  ],
+];
+
+/**
+ * 日英の経歴で、並べて表示する項目の対応が取れていること。配列は件数の一致と、
+ * INDEXED_KEYS の比較キーの一致を見る。`skills` は配列ではなく Record
+ * （カテゴリ名 → 項目の配列）なので、カテゴリ数と各カテゴリの項目数を見る
  */
 export function validateCareerParity(ja: Career, en: Career): string[] {
   const errors: string[] = [];
@@ -64,33 +80,17 @@ export function validateCareerParity(ja: Career, en: Career): string[] {
     }
   }
 
-  // certifications / achievements は同じ位置の date が対応づけの比較キー（表示は
-  // date の安定ソートで並ぶため）。件数が違う配列は比較まで進まない
-  for (const key of ['certifications', 'achievements'] as const) {
+  // 件数が違う配列は、比較キーの突き合わせまで進まない
+  for (const [key, label, keyOf] of INDEXED_KEYS) {
     if (ja[key].length !== en[key].length) continue;
-    ja[key].forEach((jaItem, index) => {
-      const enItem = en[key][index];
-      if (jaItem.date !== enItem.date) {
+    for (let index = 0; index < ja[key].length; index++) {
+      const [jaKey, enKey] = [keyOf(ja, index), keyOf(en, index)];
+      if (jaKey !== enKey) {
         errors.push(
-          `${key} の ${index + 1} 番目の date が日英で違う（ja: ${jaItem.date}, en: ${enItem.date}）`,
+          `${key} の ${index + 1} 番目${label}が日英で違う（ja: ${jaKey}, en: ${enKey}）`,
         );
       }
-    });
-  }
-
-  // patents は countries の件数と filedAt の組が比較キー
-  if (ja.patents.length === en.patents.length) {
-    ja.patents.forEach((jaItem, index) => {
-      const enItem = en.patents[index];
-      if (
-        jaItem.countries.length !== enItem.countries.length ||
-        jaItem.filedAt !== enItem.filedAt
-      ) {
-        errors.push(
-          `patents の ${index + 1} 番目が日英で違う（ja: countries ${jaItem.countries.length} 件 / filedAt ${jaItem.filedAt}, en: countries ${enItem.countries.length} 件 / filedAt ${enItem.filedAt}）`,
-        );
-      }
-    });
+    }
   }
 
   // skills は配列ではなくカテゴリ名から項目への対応。カテゴリ名は訳語になるので
@@ -116,18 +116,25 @@ export function validateCareerParity(ja: Career, en: Career): string[] {
 }
 
 /** 見出し（title）の長さの上限（コードポイント単位）。design D12 */
-const PATENT_TITLE_MAX_LENGTH = { ja: 40, en: 90 } as const;
+const PATENT_TITLE_MAX_LENGTH: Record<Locale, number> = { ja: 40, en: 90 };
 
 /**
- * 特許 1 件の中で閉じる検証。日英を比べる validateCareerParity とは別の関数にする（design D8）。
+ * 特許の、1 つの言語のデータの中で閉じる検証。日英を比べる validateCareerParity とは別の関数にする（design D8）。
+ * - number が重複しないこと
  * - countries の先頭が number の先頭 2 文字（代表公報の国）と一致すること
  * - title の長さが言語ごとの上限（コードポイント単位）を超えないこと
  */
-export function validateCareerPatents(career: Career, lang: string): string[] {
+export function validateCareerPatents(career: Career, lang: Locale): string[] {
   const errors: string[] = [];
-  const maxLength = lang === 'ja' ? PATENT_TITLE_MAX_LENGTH.ja : PATENT_TITLE_MAX_LENGTH.en;
+  const maxLength = PATENT_TITLE_MAX_LENGTH[lang];
+  const seen = new Set<string>();
 
   for (const patent of career.patents) {
+    if (seen.has(patent.number)) {
+      errors.push(`${lang}: number が重複している（number: ${patent.number}）`);
+    }
+    seen.add(patent.number);
+
     const expectedCountry = patent.number.slice(0, 2);
     if (patent.countries[0] !== expectedCountry) {
       errors.push(

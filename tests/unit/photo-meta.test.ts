@@ -11,7 +11,6 @@ import {
   parseOrder,
   renderPhotoYaml,
   toSlug,
-  translateMissingFields,
 } from '../../src/lib/photo-meta';
 
 describe('toSlug', () => {
@@ -53,6 +52,15 @@ describe('toSlug', () => {
 
   it('--slug が . から始まる値は例外にする', () => {
     expect(() => toSlug('x.jpg', '.hidden')).toThrow();
+  });
+
+  it('--slug が . で終わる値は例外にする（先頭の . と対称に拒否する）', () => {
+    expect(() => toSlug('x.jpg', 'kamo-river.')).toThrow('kamo-river.');
+    expect(() => toSlug('x.jpg', 'kamo-river-v1.2.')).toThrow();
+  });
+
+  it('途中の . は拒否しない', () => {
+    expect(toSlug('x.jpg', 'kamo-river-v1.2')).toBe('kamo-river-v1.2');
   });
 });
 
@@ -166,18 +174,28 @@ describe('exifToPhotoMeta', () => {
     expect(result.ok && result.meta.camera).toBe('NIKON Z 6');
   });
 
-  it('欠けている項目名をすべて挙げる', () => {
+  it('欠けている項目を spec の語彙ですべて挙げる', () => {
     const result = exifToPhotoMeta({ ...raw, LensModel: undefined, ISO: undefined });
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.missing).toEqual(['LensModel', 'ISO']);
+    expect(result.missing).toEqual(['レンズ', 'ISO 感度']);
   });
 
   it('数値項目が 0 / 負 / NaN のときは欠損として扱う', () => {
     const r = exifToPhotoMeta({ ...raw, ExposureTime: 0, ISO: Number.NaN, FNumber: -1 });
     expect(r.ok).toBe(false);
     if (r.ok) return;
-    expect(r.missing).toEqual(['FNumber', 'ExposureTime', 'ISO']);
+    expect(r.missing).toEqual(['絞り', 'シャッター速度', 'ISO 感度']);
+  });
+
+  it('撮影日が欠けていれば撮影日を挙げる', () => {
+    const r = exifToPhotoMeta({ ...raw, DateTimeOriginal: undefined });
+    expect(r.ok === false && r.missing).toEqual(['撮影日']);
+  });
+
+  it('Make と Model がどちらも欠けていてもカメラは 1 回だけ挙げる', () => {
+    const r = exifToPhotoMeta({ ...raw, Make: undefined, Model: undefined });
+    expect(r.ok === false && r.missing).toEqual(['カメラ']);
   });
 });
 
@@ -245,21 +263,5 @@ describe('ghFailureMessage', () => {
 
   it('stderr が無ければ message を使う', () => {
     expect(ghFailureMessage({ message: 'boom' })).toBe('boom');
-  });
-});
-
-describe('translateMissingFields', () => {
-  it('EXIF タグ名を spec の語彙に変換する', () => {
-    expect(translateMissingFields(['LensModel'])).toEqual(['レンズ']);
-    expect(translateMissingFields(['DateTimeOriginal', 'FNumber', 'ExposureTime', 'ISO'])).toEqual([
-      '撮影日',
-      '絞り',
-      'シャッター速度',
-      'ISO 感度',
-    ]);
-  });
-
-  it('Make と Model がどちらも欠けていてもカメラは 1 回だけ出す', () => {
-    expect(translateMissingFields(['Make', 'Model'])).toEqual(['カメラ']);
   });
 });

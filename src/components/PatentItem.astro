@@ -18,7 +18,7 @@ const { patent, lang } = Astro.props;
   {' · '}
   <span class="muted">{patent.number}</span>
   {' · '}
-  {patent.url ? <a href={patent.url}>{patent.title}</a> : patent.title}
+  <a href={patent.url}>{patent.title}</a>
   {' · '}
   <span class="muted">{patent.countries.join(', ')}</span>
 </li>
