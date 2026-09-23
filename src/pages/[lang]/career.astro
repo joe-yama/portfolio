@@ -5,7 +5,9 @@ import PatentItem from '../../components/PatentItem.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import {
   formatDate,
+  formatGroupPeriod,
   formatPeriod,
+  groupCertifications,
   sortByDateDesc,
   sortExperience,
   sortPatents,
@@ -27,7 +29,8 @@ const present = ui[lang].present;
 const morePatents = ui[lang].morePatents;
 const experience = sortExperience(career.experience);
 const skillEntries = Object.entries(career.skills);
-const certifications = sortByDateDesc(career.certifications);
+const certEntries = groupCertifications(sortByDateDesc(career.certifications));
+const certGroupCount = ui[lang].certGroupCount;
 const achievements = sortByDateDesc(career.achievements);
 const patents = sortPatents(career.patents);
 const { head: patentsHead, rest: patentsRest } = splitPatents(patents);
@@ -35,6 +38,9 @@ const { head: patentsHead, rest: patentsRest } = splitPatents(patents);
 
 <BaseLayout title="Career">
   <h1>Career</h1>
+  <ul class="highlights">
+    {career.highlights.map((line) => <li>{line}</li>)}
+  </ul>
 
   {
     experience.length > 0 && (
@@ -72,17 +78,38 @@ const { head: patentsHead, rest: patentsRest } = splitPatents(patents);
   }
 
   {
-    certifications.length > 0 && (
+    certEntries.length > 0 && (
       <section>
         <h2>{t.certifications}</h2>
         <ul>
-          {certifications.map((item) => (
-            <li>
-              <span class="muted">{formatDate(item.date, lang)}</span>
-              {' · '}
-              {item.url ? <a href={item.url}>{item.name}</a> : item.name}
-            </li>
-          ))}
+          {certEntries.map((entry) =>
+            entry.kind === 'single' ? (
+              <li>
+                <span class="muted">{formatDate(entry.item.date, lang)}</span>
+                {' · '}
+                {entry.item.url ? <a href={entry.item.url}>{entry.item.name}</a> : entry.item.name}
+              </li>
+            ) : (
+              <li>
+                <details>
+                  <summary>
+                    <span class="muted">{formatGroupPeriod(entry.items, lang)}</span>
+                    {' · '}
+                    {certGroupCount(entry.name, entry.items.length)}
+                  </summary>
+                  <ul>
+                    {entry.items.map((item) => (
+                      <li>
+                        <span class="muted">{formatDate(item.date, lang)}</span>
+                        {' · '}
+                        {item.url ? <a href={item.url}>{item.name}</a> : item.name}
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </li>
+            ),
+          )}
         </ul>
       </section>
     )
@@ -133,6 +160,9 @@ const { head: patentsHead, rest: patentsRest } = splitPatents(patents);
 
 <style>
   section {
+    margin-bottom: 2.5rem;
+  }
+  .highlights {
     margin-bottom: 2.5rem;
   }
   article {

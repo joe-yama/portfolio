@@ -72,6 +72,60 @@ function formatMonth(value: string, lang: Locale): string {
   }).format(new Date(year, month - 1, 1));
 }
 
+/** career/{lang}.yaml の highlights: の各行（`  - ` の後ろ）を記述順に取り出す */
+function parseHighlights(yamlPath: string): string[] {
+  const text = readFileSync(yamlPath, 'utf8');
+  const highlights: string[] = [];
+  let inHighlights = false;
+  for (const line of text.split('\n')) {
+    // parsePatents と同じく、トップレベルのキーで区画を切り替える
+    if (/^[^\s#]/.test(line)) {
+      inHighlights = /^highlights:\s*$/.test(line);
+      continue;
+    }
+    if (!inHighlights) continue;
+    const itemMatch = line.match(/^ {2}- (.+)$/);
+    if (itemMatch) highlights.push(itemMatch[1]);
+  }
+  return highlights;
+}
+
+type CertSummary = { date: string; name: string; group?: string };
+
+/** 前後の " を外す（YAML のクォートを使った値のため） */
+const unquote = (value: string) => value.replace(/^"(.*)"$/, '$1');
+
+/**
+ * certifications: の区画から date / name / group を取り出す。
+ * `  - date: "2025-10"` で 1 件が始まり、`    name: ...`（前後の " は外す）と `    group: ...` が続く
+ */
+function parseCertifications(yamlPath: string): CertSummary[] {
+  const text = readFileSync(yamlPath, 'utf8');
+  const certs: CertSummary[] = [];
+  let current: Partial<CertSummary> | null = null;
+  let inCerts = false;
+  for (const line of text.split('\n')) {
+    if (/^[^\s#]/.test(line)) {
+      inCerts = /^certifications:\s*$/.test(line);
+      continue;
+    }
+    if (!inCerts) continue;
+    const dateMatch = line.match(/^ {2}- date: "?([0-9-]+)"?$/);
+    if (dateMatch) {
+      if (current) certs.push(current as CertSummary);
+      current = { date: dateMatch[1] };
+      continue;
+    }
+    if (!current) continue;
+    const nameMatch = line.match(/^ {4}name: (.+)$/);
+    if (nameMatch) current.name = unquote(nameMatch[1]);
+    const groupMatch = line.match(/^ {4}group: (.+)$/);
+    if (groupMatch) current.group = unquote(groupMatch[1]);
+  }
+  if (current) certs.push(current as CertSummary);
+  return certs;
+}
+
 /** cwd に依存せず、このファイルの位置からリポジトリの経歴データを読む */
 const careerYaml = (lang: Locale) =>
   fileURLToPath(new URL(`../../src/content/career/${lang}.yaml`, import.meta.url));
@@ -351,6 +405,91 @@ test.describe('経歴ページの区画', () => {
       await expect(sections).toHaveCount(5);
       const headings = await page.locator('main section h2').allTextContents();
       expect(headings).toEqual(Object.values(ui[lang].careerSections));
+    });
+  }
+});
+
+test.describe('経歴ページの要約と資格の束ね', () => {
+  function certSection(page: Page, lang: Locale) {
+    return page.locator('section', {
+      has: page.locator('h2', { hasText: ui[lang].careerSections.certifications }),
+    });
+  }
+
+  /** 年月までの日付はその月の 1 日として比べる（src/lib/career.ts とは独立に計算する） */
+  const sortKey = (date: string) => (date.split('-').length === 3 ? date : `${date}-01`);
+
+  /** 資格の日付の表記（e2e から独立に計算する） */
+  function formatCertDate(date: string, lang: Locale): string {
+    const [year, month, day] = date.split('-').map(Number);
+    if (year === undefined || month === undefined) throw new Error(`日付の形式が違う: ${date}`);
+    return new Intl.DateTimeFormat(lang, {
+      year: 'numeric',
+      month: 'long',
+      day: day === undefined ? undefined : 'numeric',
+    }).format(new Date(year, month - 1, day ?? 1));
+  }
+
+  for (const lang of locales) {
+    const highlights = parseHighlights(careerYaml(lang));
+    const certs = parseCertifications(careerYaml(lang));
+    const grouped = certs.filter((c) => c.group !== undefined);
+    const ungroupedCount = certs.length - grouped.length;
+    const groupName = grouped[0]?.group ?? '';
+    // 新しい順（安定ソート）。期間は最古と最新から作る
+    const groupedDesc = grouped.toSorted((a, b) => sortKey(b.date).localeCompare(sortKey(a.date)));
+    const newest = groupedDesc[0]?.date ?? '';
+    const oldest = groupedDesc[groupedDesc.length - 1]?.date ?? '';
+    const newestText = formatCertDate(newest, lang);
+    const oldestText = formatCertDate(oldest, lang);
+    const period = newestText === oldestText ? newestText : `${oldestText} – ${newestText}`;
+
+    test(`/${lang}/career/ の要約が Career と職歴の見出しのあいだに YAML の順で出る`, async ({
+      page,
+    }) => {
+      expect(highlights.length).toBeGreaterThan(0);
+      await page.goto(`./${lang}/career/`);
+      const tags = await page
+        .locator('main > *')
+        .evaluateAll((els) => els.slice(0, 3).map((el) => el.tagName));
+      expect(tags).toEqual(['H1', 'UL', 'SECTION']);
+      await expect(page.locator('main > ul.highlights > li')).toHaveText(highlights);
+      await expect(page.locator('main > ul.highlights + section > h2')).toHaveText(
+        ui[lang].careerSections.experience,
+      );
+    });
+
+    test(`/${lang}/career/ の資格の区画にグループの項目が 1 つだけあり、件数と期間を含む`, async ({
+      page,
+    }) => {
+      // データが変わって束ねが空になったのに緑、を防ぐ
+      expect(grouped).toHaveLength(12);
+      expect(new Set(grouped.map((c) => c.group)).size).toBe(1);
+      await page.goto(`./${lang}/career/`);
+      const section = certSection(page, lang);
+      const items = section.locator(':scope > ul > li');
+      await expect(items).toHaveCount(ungroupedCount + 1);
+      const groupItems = items.filter({ has: page.locator('details') });
+      await expect(groupItems).toHaveCount(1);
+      const summary = groupItems.locator('summary');
+      await expect(summary).toContainText(period);
+      await expect(summary).toContainText(ui[lang].certGroupCount(groupName, grouped.length));
+    });
+
+    test(`/${lang}/career/ で資格のグループの summary を押すと 12 件が新しい順に見える`, async ({
+      page,
+    }) => {
+      await page.goto(`./${lang}/career/`);
+      const details = certSection(page, lang).locator('details');
+      await expect(details.locator('li:visible')).toHaveCount(0);
+      await details.locator('summary').click();
+      await expect(details.locator('li:visible')).toHaveCount(grouped.length);
+      const names = await details
+        .locator('li')
+        .evaluateAll((lis) =>
+          lis.map((li) => (li.querySelector('a') ?? li).textContent?.split(' · ').at(-1)?.trim()),
+        );
+      expect(names).toEqual(groupedDesc.map((c) => c.name));
     });
   }
 });

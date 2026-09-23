@@ -24,7 +24,7 @@
   - 期間の文字列（ja は `2025年4月 – 2025年10月`、en は `April 2025 – October 2025`、同じ月だけのグループは 1 つ）
 
   GREEN: `src/lib/career.ts` に関数を足し、`ui` に `certGroupCount` を足す
-- [ ] 2.2 D2 / D3: `src/pages/[lang]/career.astro` に要約（`<h1>` の直後の見出しの無い `<ul>`）と、束ねた資格（`<li><details><summary>…</summary><ul>…</ul></details></li>`）を出す。RED → GREEN: `tests/e2e/pages.spec.ts` で次の 3 点を確かめる
+- [x] 2.2 D2 / D3: `src/pages/[lang]/career.astro` に要約（`<h1>` の直後の見出しの無い `<ul>`）と、束ねた資格（`<li><details><summary>…</summary><ul>…</ul></details></li>`）を出す。RED → GREEN: `tests/e2e/pages.spec.ts` で次の 3 点を確かめる
   - 要約が `Career` と職歴の見出しのあいだに YAML の順で出ること
   - 資格の区画にグループの項目が 1 つだけあり、`AWS 認定（12 件）` / `AWS Certifications (12)` と期間を含むこと
   - `summary` を押すと 12 件が見えること
