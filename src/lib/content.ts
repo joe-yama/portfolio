@@ -17,9 +17,15 @@ export async function getProfile(lang: Locale): Promise<Profile> {
 export async function getCareer(lang: Locale): Promise<Career> {
   const [ja, en] = await Promise.all([getEntry('career', 'ja'), getEntry('career', 'en')]);
   if (!ja || !en) throw new Error('career/ja.yaml と career/en.yaml の両方が必要');
-  assertValid(validateCareerParity(ja.data, en.data), 'career');
-  assertValid(validateCareerPatents(ja.data, 'ja'), 'career/ja');
-  assertValid(validateCareerPatents(en.data, 'en'), 'career/en');
+  // 1 回にまとめて投げる。言語ごとに投げると ja のエラーが en のエラーを隠す（design D4）
+  assertValid(
+    [
+      ...validateCareerParity(ja.data, en.data),
+      ...validateCareerPatents(ja.data, 'ja'),
+      ...validateCareerPatents(en.data, 'en'),
+    ],
+    'career',
+  );
   return lang === 'ja' ? ja.data : en.data;
 }
 
