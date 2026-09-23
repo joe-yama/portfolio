@@ -106,6 +106,7 @@ describe('photoSchema', () => {
 });
 
 const validCareer = {
+  highlights: ['要約 1'],
   experience: [
     {
       from: '2020-04',
@@ -138,6 +139,25 @@ describe('careerSchema', () => {
   it('patents を持たないと失敗する', () => {
     const { patents: _omit, ...rest } = validCareer;
     expect(careerSchema.safeParse(rest).success).toBe(false);
+  });
+
+  it('highlights を持たないと失敗する', () => {
+    const { highlights: _omit, ...rest } = validCareer;
+    expect(careerSchema.safeParse(rest).success).toBe(false);
+  });
+
+  it.each([0, 5])('highlights が %i 件なら失敗する', (n) => {
+    const highlights = Array.from({ length: n }, (_, i) => `要約 ${i + 1}`);
+    expect(careerSchema.safeParse({ ...validCareer, highlights }).success).toBe(false);
+  });
+
+  it.each([1, 4])('highlights が %i 件なら成功する', (n) => {
+    const highlights = Array.from({ length: n }, (_, i) => `要約 ${i + 1}`);
+    expect(careerSchema.safeParse({ ...validCareer, highlights }).success).toBe(true);
+  });
+
+  it('highlights に空文字列があれば失敗する', () => {
+    expect(careerSchema.safeParse({ ...validCareer, highlights: [''] }).success).toBe(false);
   });
 
   it('experience の bullets は最大 5', () => {

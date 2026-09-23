@@ -92,6 +92,7 @@ export type Patent = z.infer<typeof patentSchema>;
 
 export const careerSchema = z
   .object({
+    highlights: z.array(nonEmpty).min(1).max(4),
     experience: z.array(experienceSchema),
     skills: z.record(nonEmpty, z.array(nonEmpty)),
     certifications: z.array(datedItemSchema),

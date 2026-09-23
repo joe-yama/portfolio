@@ -122,6 +122,7 @@ describe('validatePhotos', () => {
 
 describe('validateCareerParity', () => {
   const base: Career = {
+    highlights: ['h'],
     experience: [{ from: '2020-04', organization: 'o', role: 'r', bullets: [] }],
     skills: { lang: ['ts'] },
     certifications: [{ date: '2023-06-01', name: 'c' }],
@@ -300,6 +301,7 @@ describe('validateCareerParity', () => {
 describe('validateCareerPatents', () => {
   function career(patents: Patent[]): Career {
     return {
+      highlights: ['h'],
       experience: [],
       skills: {},
       certifications: [],
