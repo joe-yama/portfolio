@@ -16,7 +16,10 @@ function isCalendarDate(y: number, m: number, d: number): boolean {
   return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
 }
 
-/** `YYYY-MM-DD` なら暦に実在する日か。`YYYY-MM` は月の範囲を正規表現が保証済みなので常に true */
+/**
+ * `YYYY-MM-DD` なら暦に実在する日か。日が無ければ（`YYYY-MM`）月を見ずに常に true。
+ * 月の範囲は呼び出し側の正規表現が見る
+ */
 const existsOnCalendar = (s: string) => {
   const [y, m, d] = s.split('-').map(Number);
   return d === undefined || isCalendarDate(y, m, d);
