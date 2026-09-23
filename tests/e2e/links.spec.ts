@@ -106,6 +106,7 @@ for (const viewport of [
 
 for (const { width, iconsVisible } of [
   { width: 390, iconsVisible: false },
+  { width: 479, iconsVisible: false },
   { width: 480, iconsVisible: true },
 ]) {
   for (const path of pagePaths) {

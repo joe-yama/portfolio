@@ -12,7 +12,7 @@
 
 ## 2. ヘッダー
 
-- [ ] 2.1 H1 + H2 / D2: `tests/e2e/links.spec.ts` のアイコンを隠す側の幅に 479px を足す。`src/components/Header.astro` のメディアクエリを `not all and (min-width: 30rem)` にする。`pnpm e2e` で 390 / 479 / 480px の検査が緑であることを確かめる
+- [x] 2.1 H1 + H2 / D2: `tests/e2e/links.spec.ts` のアイコンを隠す側の幅に 479px を足す。`src/components/Header.astro` のメディアクエリを `not all and (min-width: 30rem)` にする。`pnpm e2e` で 390 / 479 / 480px の検査が緑であることを確かめる
 - [ ] 2.2 H3 / D2: RED: `tests/e2e/links.spec.ts` に、1280×720 と 480×844 で ロゴとナビの 3 つのリンクの文字のベースラインの差が 0.5px 以内であることの検査を足し（測り方は design D2）、修正前は 1280px で 1.8px 前後の差で赤になることを確かめる。GREEN: `Header.astro` の CSS を直す。既存の「行が高くならない」と 2.1 の検査が緑のままであることを確かめる
 - [ ] 2.3 H4: `tests/e2e/links.spec.ts` に、ja と en のページそれぞれ 1 つで `header a` の href が「ロゴ → Photos → Career → 言語切り替え」の順であることの検査を足す
 
