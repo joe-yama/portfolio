@@ -8,7 +8,7 @@
 - [x] 1.2 M11 + M18 + M12 の一部 / D4: `tests/e2e/global-setup.ts` で起動後の pid が `null` なら throw する。`parsePreviewPid` の export を外し、`status --json` の `execSync` を 1 か所にまとめる（まとめられない理由があれば報告に書く）。`pnpm e2e` が緑のままであることで確かめる
 - [x] 1.3 M17 / D5: RED: `tests/unit/photo-add-cli.test.ts` で偽の `gh` が `joe-yama\nother` を返すとき、1 行の理由で中断し Release に触れないことを確かめる。GREEN: `scripts/photo-add.ts` の login の比較を出力全体（`trim()` 後）で行い、`die` の文言にだけ先頭行を使う
 - [x] 1.4 M6 / D5: RED: `TMPDIR` を一時ディレクトリに向け、画素が壊れた JPEG を入稿したあとその中に `photo-add-*` が残らないことを確かめる。GREEN: sharp の catch で作業ディレクトリを消してから `die` する
-- [ ] 1.5 M13 + M4 / D3: `tests/e2e/pages.spec.ts` の YAML の読み込みと `tests/e2e/sitemap.spec.ts` の `dist` を `import.meta.url` 起点にする。`tests/e2e/paths.ts` の写真ファイルの一覧から `.` で始まる名前を除く。cwd をリポジトリの外にして `playwright test -c <worktree>/playwright.config.ts` が通ることで確かめる（5.3）
+- [x] 1.5 M13 + M4 / D3: `tests/e2e/pages.spec.ts` の YAML の読み込みと `tests/e2e/sitemap.spec.ts` の `dist` を `import.meta.url` 起点にする。`tests/e2e/paths.ts` の写真ファイルの一覧から `.` で始まる名前を除く。cwd をリポジトリの外にして `playwright test -c <worktree>/playwright.config.ts` が通ることで確かめる（5.3）
 
 ## 2. ヘッダー
 
@@ -35,7 +35,7 @@
 
 - [ ] 5.1 変異を当てて 1〜3 章の新しいテストが落ちることを確かめる（`docs/harness/README.md` の隔離実行の手順）。少なくとも: (a) 1.1 の検査を外す、(b) 完全一致を `includes` にする（前方一致のケースが赤）、(c) ja だけに検査をかける、(d) 2.1 の閾値を 27rem にする（479px が赤）、(e) 2.2 の CSS を戻す、(f) ヘッダーのナビの Photos と Career を入れ替える（2.3 が赤）、(g) 1.2 の throw を外して pid を null にする、(h) 1.3 の比較を先頭行に戻す、(i) 1.4 の削除を外す、(j) 1.5 のドットファイルの除外を外して `.draft.yaml` を置く、(k) `getFeaturedPhoto` が `getPhotos` を通らないようにする
 - [ ] 5.2 M19: `tests/e2e/pages.spec.ts` の `parsePatents` が `patentsX:` に一致しないことの対照実験。`ja.yaml` の patents の後に `patentsX:` の区画を足した入力で、今の実装は特許の件数が変わらず、`/^patents:/` に戻すと変わる（赤になる）ことを確かめる
-- [ ] 5.3 cwd をリポジトリの外にして `<worktree>/node_modules/.bin/playwright test -c <worktree>/playwright.config.ts` を実行し、全件緑になることを確かめる（修正前は `pages.spec.ts:75` の `ENOENT` で落ちることを対照として記録する）
+- [x] 5.3 cwd をリポジトリの外にして `<worktree>/node_modules/.bin/playwright test -c <worktree>/playwright.config.ts` を実行し、全件緑になることを確かめる（修正前は `pages.spec.ts:75` の `ENOENT` で落ちることを対照として記録する）
 - [ ] 5.4 書き換えたテスト（3.2、4.1、4.2、4.5、4.7）が、書き換え前と同じ変異で落ちることを確かめる
 - [ ] 5.5 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
 

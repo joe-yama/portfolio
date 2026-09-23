@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
 import { type Locale, locales } from '../../src/lib/i18n';
 import { ui } from '../../src/lib/site';
@@ -71,9 +72,13 @@ function formatMonth(value: string, lang: Locale): string {
   }).format(new Date(year, month - 1, 1));
 }
 
+/** cwd に依存せず、このファイルの位置からリポジトリの経歴データを読む */
+const careerYaml = (lang: Locale) =>
+  fileURLToPath(new URL(`../../src/content/career/${lang}.yaml`, import.meta.url));
+
 const patentsByLang: Record<Locale, PatentSummary[]> = {
-  ja: parsePatents('src/content/career/ja.yaml'),
-  en: parsePatents('src/content/career/en.yaml'),
+  ja: parsePatents(careerYaml('ja')),
+  en: parsePatents(careerYaml('en')),
 };
 const patents = patentsByLang.ja;
 /** 特許の一覧で、操作なしに見せる先頭の件数（spec。src/lib/career.ts の PATENTS_HEAD_COUNT と同じ値） */
