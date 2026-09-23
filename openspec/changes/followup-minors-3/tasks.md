@@ -29,7 +29,7 @@
 - [x] 4.4 M7: `tests/unit/theme.test.ts` のテスト名「3 桁や 8 桁の色は抽出しない」を、今の挙動（抽出の時点で拒む）に合わせる
 - [x] 4.5 M8: `tests/unit/content.test.ts` の「ja と en の両方にエラーがあれば…」の正規表現を、ja と en の並び順に依存しない形にする（各エラーを別々に確かめる）
 - [x] 4.6 M10: `src/content/schemas.ts` の `existsOnCalendar` の JSDoc を「日が無ければ（`YYYY-MM`）常に true」の実際に合わせる
-- [ ] 4.7 M12: `tests/unit/schemas.test.ts` の enum の `it.each` で `value` と `parse` の中のリテラルが二重になっているのを 1 つにする
+- [x] 4.7 M12: `tests/unit/schemas.test.ts` の enum の `it.each` で `value` と `parse` の中のリテラルが二重になっているのを 1 つにする
 
 ## 5. 番人の確認と仕上げ
 

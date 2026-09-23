@@ -216,23 +216,20 @@ describe('kind の列挙', () => {
     {
       field: 'careerSchema の achievements[].kind',
       value: 'blog',
-      parse: () =>
+      parse: (kind: string) =>
         careerSchema.safeParse({
           ...validCareer,
-          achievements: [{ ...validCareer.achievements[0], kind: 'blog' }],
+          achievements: [{ ...validCareer.achievements[0], kind }],
         }),
     },
     {
       field: 'profileSchema の links[].kind',
       value: 'mastodon',
-      parse: () =>
-        profileSchema.safeParse({
-          ...validProfile,
-          links: [{ ...validProfile.links[0], kind: 'mastodon' }],
-        }),
+      parse: (kind: string) =>
+        profileSchema.safeParse({ ...validProfile, links: [{ ...validProfile.links[0], kind }] }),
     },
-  ])('$field は列挙に無い $value を拒否する', ({ parse }) => {
-    expect(parse().success).toBe(false);
+  ])('$field は列挙に無い $value を拒否する', ({ value, parse }) => {
+    expect(parse(value).success).toBe(false);
   });
 });
 
