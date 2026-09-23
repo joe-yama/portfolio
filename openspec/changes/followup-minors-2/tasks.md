@@ -43,7 +43,7 @@
 - [x] 6.3 C6: `floorPx = 192` が 1280×400 で等号ぎりぎりになる件。root の font-size から導いた値で比較する
 - [x] 6.4 C7: ponytail（`waitForImageLoaded` を `expect.poll` に、`assertNoHorizontalScroll` を畳む、失敗メッセージを 1 行に）
 - [x] 6.5 C5: `index.astro` と `[slug].astro` の高さ上限の式、`global.css` の `100dvh` に、svh と dvh を使い分ける意図のコメントを足す
-- [ ] 6.6 H1: `PhotoPicture` の pictureSizing と `eager` → `priority`、`[slug].astro` の `neighbors` の戻り値、`photo.ts` の `Set` のラップと `inferRemoteSize` の重複を整理する
+- [x] 6.6 H1: `PhotoPicture` の pictureSizing と `eager` → `priority`、`[slug].astro` の `neighbors` の戻り値、`photo.ts` の `Set` のラップと `inferRemoteSize` の重複を整理する
 - [ ] 6.7 H2: `.art` の CSS が index と 404 に重複している件を `global.css` に寄せる
 
 ## 7. 番人の確認と仕上げ
@@ -57,3 +57,4 @@
 
 - 2.1（D2）: 実データで `.` を含む slug の写真を入稿したとき、`getStaticPaths` がそのページを出し、Release の画像の取得まで含めてビルドと配信が通ることを 1 度確かめる（本 change では Release に該当の画像が無く、検証を通ってページの生成に入るところと、`.` を含むディレクトリが静的配信で 200 を返すところまでを確かめた）
 - 4.1（Change 4 の ponytail）: `.org` を `<b>` にする件は見送った。Chromium で計算済みスタイルを測ると `<span class="org">` は `font-weight: 600`、クラスなしの `<b>` は `700` で、見た目が変わる（`<b class="org">` にすると 600 のままだが、要素を変えるだけで CSS は減らない）。`<p class="org">` はブロック要素なので `<b>` にできない。やるなら `.org` を 700 にしてよいかを PO に確かめてから
+- 6.6（H1）: `inferRemoteSize` の重複は「同じ関数の中で 2 回呼ぶ」ものではなく、`PhotoPicture.astro` が呼び出しごとに 1 回呼ぶので、ギャラリー・個別ページ・トップで同じ画像の寸法を別々に読んでいるもの。ビルド時間が問題になったら、`src/lib/photo.ts` などで slug ごとに寸法を覚える仕組みを検討する（本 change ではやらない。ponytail）

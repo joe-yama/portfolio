@@ -10,10 +10,10 @@ interface Props {
   lang: Locale;
   variant: 'grid' | 'full';
   /** トップの代表写真だけ true。loading=eager + fetchpriority=high になる */
-  eager?: boolean;
+  priority?: boolean;
 }
 
-const { photo, lang, variant, eager = false } = Astro.props;
+const { photo, lang, variant, priority = false } = Astro.props;
 
 // 設計書 §6 の表。sizes は自分で渡す（image.layout を設定していないので自動生成されない）
 const preset = {
@@ -33,7 +33,7 @@ const original = await inferRemoteSize(photo.data.image);
 const width = Math.min(Math.max(...preset.widths), original.width);
 const height = Math.round((width * original.height) / original.width);
 // sharp は拡大しないので、元画像より大きい幅を並べても同じ画像が重複するだけ。上限で打ち切る
-const widths = [...new Set([...preset.widths.filter((w) => w < width), width])];
+const widths = [...preset.widths.filter((w) => w < width), width];
 ---
 
 <Picture
@@ -45,7 +45,7 @@ const widths = [...new Set([...preset.widths.filter((w) => w < width), width])];
   sizes={preset.sizes}
   formats={['avif', 'webp']}
   fallbackFormat="jpeg"
-  priority={eager}
+  priority={priority}
   class={variant}
 />
 

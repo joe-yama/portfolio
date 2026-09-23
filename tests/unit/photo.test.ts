@@ -83,6 +83,11 @@ describe('neighbors', () => {
     expect(next).toBeUndefined();
   });
 
+  it('探した写真そのものも返す', () => {
+    expect(neighbors(photos, 'b').photo).toBe(photos[1]);
+    expect(neighbors([entry('only', 10)], 'only').photo.id).toBe('only');
+  });
+
   it('知らない slug は例外にする', () => {
     expect(() => neighbors(photos, 'zzz')).toThrow('zzz');
   });

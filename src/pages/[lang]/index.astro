@@ -22,7 +22,7 @@ const featured = await getFeaturedPhoto();
 ---
 
 <BaseLayout>
-  <div class="hero"><PhotoPicture photo={featured} lang={lang} variant="full" eager /></div>
+  <div class="hero"><PhotoPicture photo={featured} lang={lang} variant="full" priority /></div>
   <div class="art"><PixelArt rows={camera} /></div>
   <h1>{profile.name}</h1>
   <p class="muted">{profile.tagline}</p>
