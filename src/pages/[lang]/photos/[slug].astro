@@ -43,6 +43,8 @@ const t = ui[lang];
 
 <style>
   figure {
+    /* 写真の高さ上限は svh（アドレスバーが出ている最小の高さ）で決める。
+       dvh にするとスクロールでバーが隠れるたびに写真の高さが変わる */
     --photo-max-height: max(12rem, 100svh - 18rem);
     margin: 0;
   }
