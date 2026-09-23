@@ -140,6 +140,49 @@ for (const { width, iconsVisible } of [
   }
 }
 
+/**
+ * 要素の最初の空でないテキストノードの文字のベースライン（viewport 基準の y）。
+ * Range の矩形の上端は行の内容領域の上端（= ベースライン − ascent）なので、
+ * その要素の計算済みフォントで測った fontBoundingBoxAscent を足す（design D2）
+ */
+function textBaseline(link: Locator): Promise<number> {
+  return link.evaluate((el) => {
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let node = walker.nextNode();
+    while (node && !node.textContent?.trim()) node = walker.nextNode();
+    if (!node) throw new Error('テキストが無い');
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    const top = range.getBoundingClientRect().top;
+    const context = document.createElement('canvas').getContext('2d');
+    if (!context) throw new Error('canvas が使えない');
+    context.font = getComputedStyle(node.parentElement ?? el).font;
+    return top + context.measureText('x').fontBoundingBoxAscent;
+  });
+}
+
+for (const viewport of [
+  { width: 1280, height: 720 },
+  { width: 480, height: 844 },
+]) {
+  for (const path of ['ja/', 'en/']) {
+    test(`${viewport.width}×${viewport.height} の ${path} でロゴとナビの文字のベースラインがそろう`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(viewport);
+      await page.goto(path);
+      await page.evaluate(() => document.fonts.ready);
+      const logo = await textBaseline(page.locator('header .logo'));
+      const links = page.locator('header nav a');
+      await expect(links).toHaveCount(3);
+      for (const link of await links.all()) {
+        const name = await link.textContent();
+        expect(Math.abs((await textBaseline(link)) - logo), name ?? '').toBeLessThanOrEqual(0.5);
+      }
+    });
+  }
+}
+
 for (const lang of ['ja', 'en'] as const) {
   test(`本文最下部はサイト内導線が先、連絡先リンクが最も下で、各リンクにドット絵アイコンが付く（${lang}）`, async ({
     page,
