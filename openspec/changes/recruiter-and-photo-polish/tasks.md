@@ -38,7 +38,7 @@
 
 ## 4. メタデータと共有カード
 
-- [ ] 4.1 D1: RED: `tests/e2e/pages.spec.ts`（または description を見ている既存の検査）で、`description` と `og:description` が `headline` と一致することを確かめる。GREEN: `BaseLayout.astro` を直す
+- [x] 4.1 D1: RED: `tests/e2e/pages.spec.ts`（または description を見ている既存の検査）で、`description` と `og:description` が `headline` と一致することを確かめる。GREEN: `BaseLayout.astro` を直す
 - [ ] 4.2 D6: RED: `tests/e2e/pages.spec.ts` で次の 3 点を確かめる
   - 代表写真ではない写真の個別ページの `og:image` が `/ja/` と異なり、`og:image:alt` がその写真の `alt` であること
   - `/en/career/` と `/en/photos/` の `og:image` が `/en/` と同じであること

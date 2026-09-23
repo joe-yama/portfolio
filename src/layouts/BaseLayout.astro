@@ -26,7 +26,7 @@ if (!Astro.site) throw new Error('astro.config の site が必要（hreflang の
 const alternates = pathLocale ? alternateLinks(path, Astro.site, base) : [];
 // canonical と description は hreflang と同じ条件で出す（404 には出さない。design D6）
 const canonical = pathLocale ? canonicalUrl(path, Astro.site, base) : null;
-const description = pathLocale ? profile.tagline : null;
+const description = pathLocale ? profile.headline : null;
 const pageTitle = title ? `${title} · ${profile.name}` : profile.name;
 
 // 共有カード（design D3）。canonical / description と同じ条件でだけ出す。

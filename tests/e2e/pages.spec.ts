@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
-import { type Locale, locales } from '../../src/lib/i18n';
+import { type Locale, locales, toLocale } from '../../src/lib/i18n';
 import { ui } from '../../src/lib/site';
 import { pagePaths } from './paths';
 
@@ -189,6 +189,11 @@ for (const path of pagePaths) {
     await expect(canonical).toHaveCount(1);
     await expect(canonical).toHaveAttribute('href', `https://joe-yama.github.io/portfolio/${path}`);
     await expect(page.locator('meta[name="description"]')).toHaveCount(1);
+    // description は仕事の一行（og:description との一致は「SNS 共有カード」の検査が見る）
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      parseProfileLine(toLocale(lang), 'headline'),
+    );
 
     await expect(page.locator('meta[property^="og:"]')).toHaveCount(10);
     await expect(page.locator('meta[name^="twitter:"]')).toHaveCount(1);
