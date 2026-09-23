@@ -19,7 +19,10 @@ export type LanguageSwitch = {
   icon: readonly string[];
 };
 
-/** 経歴ページの区画。ui.careerSections のキー（順は pages.spec が見出しの順と比べる） */
+/**
+ * 経歴ページの区画の名前。このユニオンの並びに意味は無い。
+ * 見出しの表示順は ui.careerSections のキーの順に合わせ、pages.spec が見出しの順と比べる
+ */
 export type CareerSection = 'experience' | 'skills' | 'certifications' | 'achievements' | 'patents';
 
 type UiStrings = {
