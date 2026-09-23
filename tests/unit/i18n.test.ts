@@ -110,6 +110,15 @@ describe('stripBase', () => {
 });
 
 describe('normalizeBase（stripBase 経由で観測する両端トリム）', () => {
+  it.each(['portfolio', '/portfolio', 'portfolio/', '/portfolio/'])(
+    'base が %s でも同じ base として剥がす',
+    (base) => {
+      expect(stripBase('/portfolio/en/', base)).toBe('/en/');
+    },
+  );
+});
+
+describe('normalizeBase（withBase 経由で観測する両端トリム）', () => {
   it('前後のスラッシュの有無によらず同じ base として扱う', () => {
     for (const base of ['portfolio', '/portfolio', 'portfolio/']) {
       expect(withBase('/en/', base)).toBe('/portfolio/en/');
