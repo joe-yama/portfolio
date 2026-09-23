@@ -4,11 +4,8 @@ import PixelArt from '../../components/pixel/PixelArt.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getPhotos, getProfile } from '../../lib/content';
 import { locales, toLocale } from '../../lib/i18n';
-import { briefcase, camera, github, globe, linkedin } from '../../lib/pixel';
-import { languageSwitch, navLinks, pairByIndex, ui } from '../../lib/site';
-
-/** サイト内導線のアイコン。navLinks の順（Photos → Career）と位置で対応づける */
-const navIcons: readonly (readonly string[])[] = [camera, briefcase];
+import { camera, github, linkedin } from '../../lib/pixel';
+import { languageSwitch, navLinks, ui } from '../../lib/site';
 
 /** 連絡先リンクの kind に対応するドット絵。github/linkedin 以外は spec 通りアイコンなし */
 const contactIcons: Partial<Record<string, readonly string[]>> = { github, linkedin };
@@ -33,14 +30,14 @@ if (!featured) throw new Error('featured: true の写真が 1 枚も無い');
   <p class="muted">{profile.tagline}</p>
 
   <nav class="links" aria-label={ui[lang].siteNav}>
-    {pairByIndex(navLinks(lang, base), navIcons).map(([link, icon]) => (
+    {navLinks(lang, base).map((link) => (
       <a href={link.href}>
-        <PixelArt rows={icon} scale={1} />
+        <PixelArt rows={link.icon} scale={1} />
         {link.label}
       </a>
     ))}
     <a href={sw.href} hreflang={sw.hreflang} lang={sw.hreflang}>
-      <PixelArt rows={globe} scale={1} />
+      <PixelArt rows={sw.icon} scale={1} />
       {sw.label}
     </a>
   </nav>
