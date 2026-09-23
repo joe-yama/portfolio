@@ -20,7 +20,7 @@ function patent(number: string): Patent {
     title: 't',
     number,
     countries: ['JP'],
-    url: 'https://example.com/',
+    url: `https://patents.google.com/patent/${number}/ja`,
   };
 }
 
