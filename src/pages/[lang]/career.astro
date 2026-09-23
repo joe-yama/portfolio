@@ -24,6 +24,7 @@ const career = await getCareer(lang);
 const t = ui[lang].careerSections;
 const kinds = ui[lang].achievementKind;
 const present = ui[lang].present;
+const morePatents = ui[lang].morePatents;
 const experience = sortExperience(career.experience);
 const skillEntries = Object.entries(career.skills);
 const certifications = sortByDateDesc(career.certifications);
@@ -117,7 +118,7 @@ const { head: patentsHead, rest: patentsRest } = splitPatents(patents);
         </ul>
         {patentsRest.length > 0 && (
           <details>
-            <summary>{ui[lang].morePatents(patentsRest.length)}</summary>
+            <summary>{morePatents(patentsRest.length)}</summary>
             <ul>
               {patentsRest.map((p) => (
                 <PatentItem patent={p} lang={lang} />
