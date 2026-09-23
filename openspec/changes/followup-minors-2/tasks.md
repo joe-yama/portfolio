@@ -43,7 +43,7 @@
 - [x] 6.3 C6: `floorPx = 192` が 1280×400 で等号ぎりぎりになる件。root の font-size から導いた値で比較する
 - [x] 6.4 C7: ponytail（`waitForImageLoaded` を `expect.poll` に、`assertNoHorizontalScroll` を畳む、失敗メッセージを 1 行に）
 - [x] 6.5 C5: `index.astro` と `[slug].astro` の高さ上限の式、`global.css` の `100dvh` に、svh と dvh を使い分ける意図のコメントを足す
-- [x] 6.6 H1: `PhotoPicture` の pictureSizing と `eager` → `priority`、`[slug].astro` の `neighbors` の戻り値、`photo.ts` の `Set` のラップと `inferRemoteSize` の重複を整理する
+- [x] 6.6 H1: `PhotoPicture` の pictureSizing と `eager` → `priority`、`[slug].astro` の `neighbors` の戻り値、`photo.ts` の `Set` のラップと `inferRemoteSize` の重複を整理する（pictureSizing は見送り。「提案」の裁定（単位 6）を参照）
 - [x] 6.7 H2: `.art` の CSS が index と 404 に重複している件を `global.css` に寄せる
 
 ## 7. 番人の確認と仕上げ
@@ -71,6 +71,10 @@
 - Task 11（単位 6）: `viewport.spec.ts` の横スクロールの検査は失敗時に scrollWidth / clientWidth が出なくなった（`scrollWidth - clientWidth` を `toBeLessThanOrEqual(0)` にすれば Received に出る）/ ponytail: 同じ検査の 2 重書き
 - Task 12（単位 6）: `.art` を global.css に移したので全ページに載る。後から `class="art"` を使うコンポーネントがマージンを継承する
 - 裁定（単位 6）: tasks.md 6.6 の「pictureSizing」（寸法の計算を `photo.ts` に切り出して単体テストできるようにする。出典 archive/2026-09-21-photo-pipeline の提案）は、挙動不変の整理ではなくテスト容易性のための切り出しなので本 change では見送った
+- ブランチ全体のレビュー: `scripts/photo-add.ts:86` は比較に使う login そのものを先頭行に切っている。`joe-yama\n<何か>` がアカウント確認を通るようになった（実際の `--jq .login` は 1 行なので Minor）。比較は出力全体で行い、`die` の文言にだけ先頭行を当てる
+- ブランチ全体のレビュー: 5.2 は挙動不変のはずが、`status --json` の失敗を握りつぶして `pid: null` で進むようになった（上の Task 10 の件と同じ）。`global-setup.ts` で `pid === null` なら throw する 1 行で元の「大きな音で落ちる」に戻せる
+- ブランチ全体のレビュー: `tests/e2e/pages.spec.ts:31` の `patentsX:` に一致させない変更（`/^patents:\s*$/`）には対照実験が無い。`patentsX:` を足した YAML を入力に 1 回確かめる
+- ブランチ全体のレビュー: `docs/status.md` の冒頭の「最終更新」「フェーズ」と、「PO 判断として残っている件」に残した片付け済みの Change 9 の 1 行は、archive のときに現状へ書き換える（片付け済みの行は「掲載データの状態」へ移すか消す）
 
 ## 変異の記録（7.1・7.2、HEAD `be6cbd7`）
 
