@@ -25,6 +25,17 @@ function photo(id: string, over: Partial<Photo> = {}): { id: string; data: Photo
   };
 }
 
+function patent(over: Partial<Patent> = {}): Patent {
+  return {
+    filedAt: '2021-03',
+    title: 't',
+    number: 'JP6549500B2',
+    countries: ['JP', 'CN', 'US'],
+    url: 'https://example.com/',
+    ...over,
+  };
+}
+
 describe('validatePhotos', () => {
   it('写真が 0 枚なら代表写真が無いことを報告する', () => {
     expect(validatePhotos([])).toEqual(['featured はちょうど 1 枚にする（現在 0 枚: なし）']);
@@ -114,15 +125,7 @@ describe('validateCareerParity', () => {
     skills: { lang: ['ts'] },
     certifications: [{ date: '2023-06-01', name: 'c' }],
     achievements: [{ date: '2024-10-12', name: 'a', kind: 'talk' }],
-    patents: [
-      {
-        filedAt: '2021-03',
-        title: 't',
-        number: 'JP1',
-        countries: ['JP'],
-        url: 'https://example.com/',
-      },
-    ],
+    patents: [patent({ number: 'JP1', countries: ['JP'] })],
   };
 
   it('件数が一致すれば問題なし', () => {
@@ -146,9 +149,7 @@ describe('validateCareerParity', () => {
   it('patents の件数差を報告する', () => {
     const en: Career = { ...base, patents: [] };
     const errors = validateCareerParity(base, en);
-    expect(errors.some((e) => e.includes('patents') && e.includes('1') && e.includes('0'))).toBe(
-      true,
-    );
+    expect(errors).toContain('patents の件数が日英で違う（ja: 1, en: 0）');
   });
 
   it('skills のカテゴリ数が日英で違えば報告する', () => {
@@ -235,27 +236,11 @@ describe('validateCareerParity', () => {
   it('patents の同じ位置の filedAt が日英で違えば、何番目かと両方の値を報告する', () => {
     const ja: Career = {
       ...base,
-      patents: [
-        {
-          filedAt: '2021-03',
-          title: 't',
-          number: 'JP1',
-          countries: ['JP'],
-          url: 'https://example.com/',
-        },
-      ],
+      patents: [patent({ number: 'JP1', countries: ['JP'] })],
     };
     const en: Career = {
       ...base,
-      patents: [
-        {
-          filedAt: '2019-08',
-          title: 't-en',
-          number: 'JP1',
-          countries: ['JP'],
-          url: 'https://example.com/',
-        },
-      ],
+      patents: [patent({ filedAt: '2019-08', title: 't-en', number: 'JP1', countries: ['JP'] })],
     };
     const errors = validateCareerParity(ja, en);
     expect(errors).toHaveLength(1);
@@ -267,27 +252,11 @@ describe('validateCareerParity', () => {
   it('patents の同じ位置の countries の件数が日英で違えば報告する', () => {
     const ja: Career = {
       ...base,
-      patents: [
-        {
-          filedAt: '2021-03',
-          title: 't',
-          number: 'JP1',
-          countries: ['JP'],
-          url: 'https://example.com/',
-        },
-      ],
+      patents: [patent({ number: 'JP1', countries: ['JP'] })],
     };
     const en: Career = {
       ...base,
-      patents: [
-        {
-          filedAt: '2021-03',
-          title: 't-en',
-          number: 'JP1',
-          countries: ['JP', 'US'],
-          url: 'https://example.com/',
-        },
-      ],
+      patents: [patent({ title: 't-en', number: 'JP1', countries: ['JP', 'US'] })],
     };
     const errors = validateCareerParity(ja, en);
     expect(errors).toHaveLength(1);
@@ -296,51 +265,38 @@ describe('validateCareerParity', () => {
     );
   });
 
+  it('比較キーが 3 つとも日英で違えば、certifications → achievements → patents の順に報告する', () => {
+    const en: Career = {
+      ...base,
+      certifications: [{ date: '2019-01', name: 'c-en' }],
+      achievements: [{ date: '2025-01-01', name: 'a-en', kind: 'talk' }],
+      patents: [patent({ filedAt: '2019-08', title: 't-en', number: 'JP1', countries: ['JP'] })],
+    };
+    expect(validateCareerParity(base, en)).toEqual([
+      'certifications の 1 番目の date が日英で違う（ja: 2023-06-01, en: 2019-01）',
+      'achievements の 1 番目の date が日英で違う（ja: 2024-10-12, en: 2025-01-01）',
+      'patents の 1 番目が日英で違う（ja: countries 1 件 / filedAt 2021-03, en: countries 1 件 / filedAt 2019-08）',
+    ]);
+  });
+
   it('certifications / achievements / patents の比較キーがすべて一致すれば問題なし', () => {
     const ja: Career = {
       ...base,
       certifications: [{ date: '2020-01', name: 'a' }],
       achievements: [{ date: '2021-05', name: 'b', kind: 'talk' }],
-      patents: [
-        {
-          filedAt: '2021-03',
-          title: 't',
-          number: 'JP1',
-          countries: ['JP', 'US'],
-          url: 'https://example.com/',
-        },
-      ],
+      patents: [patent({ number: 'JP1', countries: ['JP', 'US'] })],
     };
     const en: Career = {
       ...ja,
       certifications: [{ date: '2020-01', name: 'a-en' }],
       achievements: [{ date: '2021-05', name: 'b-en', kind: 'talk' }],
-      patents: [
-        {
-          filedAt: '2021-03',
-          title: 't-en',
-          number: 'JP1',
-          countries: ['JP', 'US'],
-          url: 'https://example.com/',
-        },
-      ],
+      patents: [patent({ title: 't-en', number: 'JP1', countries: ['JP', 'US'] })],
     };
     expect(validateCareerParity(ja, en)).toEqual([]);
   });
 });
 
 describe('validateCareerPatents', () => {
-  function patent(over: Partial<Patent> = {}): Patent {
-    return {
-      filedAt: '2021-03',
-      title: 't',
-      number: 'JP6549500B2',
-      countries: ['JP', 'CN', 'US'],
-      url: 'https://example.com/',
-      ...over,
-    };
-  }
-
   function career(patents: Patent[]): Career {
     return {
       experience: [],
@@ -413,13 +369,14 @@ describe('validateCareerPatents', () => {
       'ja',
     );
     expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatch(/^ja: number が重複/);
     expect(errors[0]).toContain('JP6549500B2');
-    expect(errors[0]).toContain('重複');
   });
 
   it('英語のデータでも number の重複を報告する', () => {
     const errors = validateCareerPatents(career([patent(), patent()]), 'en');
     expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatch(/^en: number が重複/);
     expect(errors[0]).toContain('JP6549500B2');
   });
 
