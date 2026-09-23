@@ -10,7 +10,7 @@
 
 - [x] 2.1 N1 / D2: RED: `photoIdFromEntry` の unit テスト（`kamo-river-v1.2.yaml` → `kamo-river-v1.2`、`Kamo.yaml` → `Kamo`）と、`kamo-river-v1.2.yaml` を置いた状態でビルドが落ちることの実測。GREEN: `src/lib/photo-meta.ts` に関数を置き、`src/content.config.ts` の photos に `generateId` で渡す。`.` を含む slug の写真ページがビルド・配信できることを確かめ、実測に使った YAML は消す。`tests/e2e/paths.ts` の slug の作り方とコメントを合わせ、未使用の `photoSlugs` の export を消す（F15）
 - [x] 2.2 D3 / H-B1: RED: `validatePhotos([])` が featured の不足を返すテスト。GREEN: 早期 return を消す。`src/lib/content.ts` に `getFeaturedPhoto()` を置き、BaseLayout と index.astro の到達しない throw を消す（H-B3）
-- [ ] 2.3 H-A2 + F10 / D5: RED: 拡張子 `.jpg` のテキストファイルと、レンズ情報を持たない JPEG（sharp でその場で作る）を子プロセスで入稿し、1 行の中断文言と、スタックトレース・バンドルが出ないことを確かめる。GREEN: `scripts/photo-add.ts` の exifr / sharp を try で包み `die()` する
+- [x] 2.3 H-A2 + F10 / D5: RED: 拡張子 `.jpg` のテキストファイルと、レンズ情報を持たない JPEG（sharp でその場で作る）を子プロセスで入稿し、1 行の中断文言と、スタックトレース・バンドルが出ないことを確かめる。GREEN: `scripts/photo-add.ts` の exifr / sharp を try で包み `die()` する
 - [ ] 2.4 F11 / D5: RED: stderr が空白だけで `message` が複数行のとき、`ghFailureMessage` が 1 行を返すテスト。GREEN: 先頭行だけを使う（login も同様）
 - [x] 2.5 F9: photo-add-cli のテストで PATH を偽の gh のディレクトリだけにし、`afterAll` で一時ディレクトリを消し、`--slug a/b` のケースを足す
 - [ ] 2.6 R2 + F6 / D4: RED: ja と en の両方にエラーがあるとき 1 つの例外に両方が出るテスト、`getCareer('ja')` の成功、検証のロケールの入れ替えで落ちるテスト（41〜90 文字の日本語 title）。GREEN: `assertValid` を 1 回にまとめる。content.test の未使用の `getCollection` モック、通らない `undefined` 分岐、自前の `Patent` 型を整理する

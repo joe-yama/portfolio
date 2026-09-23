@@ -17,7 +17,7 @@ import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import exifr from 'exifr';
-import sharp from 'sharp';
+import sharp, { type OutputInfo } from 'sharp';
 import { PHOTO_BASE_URL } from '../src/content/schemas.ts';
 import {
   exifToPhotoMeta,
@@ -94,20 +94,31 @@ if (!existsSync(file)) die(`ファイルが無い: ${file}`);
 // exifr@7.1.3 のファイルパス経路は fstat を旧 API 形で呼んでおり Node 26 で
 // ERR_INVALID_ARG_TYPE になるため、Buffer に読んでから渡す。
 // EXIF を 1 つも持たない画像では exifr.parse が undefined を返すが、その場合も
-// 「項目名を挙げて中断」の経路に合流させるため空オブジェクトとして扱う
-const raw = (await exifr.parse(await readFile(file), { translateValues: false })) ?? {};
+// 「項目名を挙げて中断」の経路に合流させるため空オブジェクトとして扱う。
+// 画像として読めないファイルでは exifr も sharp も例外を投げるので、die の 1 行にする
+let raw: Record<string, unknown>;
+try {
+  raw = (await exifr.parse(await readFile(file), { translateValues: false })) ?? {};
+} catch {
+  die(`画像として読めない: ${file}`);
+}
 
 const result = exifToPhotoMeta(raw);
 if (!result.ok) die(`撮影情報を読み取れない項目がある: ${result.missing.join('、')}`);
 
 const work = mkdtempSync(join(tmpdir(), 'photo-add-'));
 const jpeg = join(work, `${slug}.jpg`);
-const info = await sharp(file)
-  .rotate()
-  .resize({ width: MAX_EDGE, height: MAX_EDGE, fit: 'inside', withoutEnlargement: true })
-  .toColorspace('srgb')
-  .jpeg({ quality: 90 })
-  .toFile(jpeg);
+let info: OutputInfo;
+try {
+  info = await sharp(file)
+    .rotate()
+    .resize({ width: MAX_EDGE, height: MAX_EDGE, fit: 'inside', withoutEnlargement: true })
+    .toColorspace('srgb')
+    .jpeg({ quality: 90 })
+    .toFile(jpeg);
+} catch {
+  die(`画像として読めない: ${file}`);
+}
 console.log(`縮小: ${info.width} x ${info.height}`);
 
 // 「Release が無い」以外の失敗（未ログインなど）は release create に進まず die で止める

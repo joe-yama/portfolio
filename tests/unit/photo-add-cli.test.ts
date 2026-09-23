@@ -3,6 +3,7 @@ import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import sharp from 'sharp';
 import { afterAll, describe, expect, it } from 'vitest';
 
 const SCRIPT = fileURLToPath(new URL('../../scripts/photo-add.ts', import.meta.url));
@@ -71,5 +72,29 @@ describe('pnpm photo:add の引数の誤り', () => {
     expect(r.ghCalls).toEqual([]);
     expect(r.lines).toEqual([expect.stringMatching(/^photo:add: .*--slug/), USAGE]);
     expect(r.stderr).not.toMatch(/^\s+at /m);
+  });
+});
+
+describe('pnpm photo:add の画像の読み取り', () => {
+  it('画像でないファイルは 1 行で中断し、読み取り部品の内部情報を出さず、Release に触れない', () => {
+    const r = runPhotoAdd(['x.jpg'], { file: 'hello\n' });
+    expect(r.status).toBe(1);
+    expect(r.lines).toEqual([expect.stringMatching(/^photo:add: 画像として読めない: x\.jpg$/)]);
+    expect(r.stderr).not.toMatch(/^\s+at /m);
+    expect(r.stderr).not.toMatch(/exifr|sharp|node_modules/);
+    expect(r.ghCalls).toEqual(['api user --jq .login']);
+  });
+
+  it('レンズ情報を持たない JPEG は「レンズ」を挙げて 1 行で中断する', async () => {
+    const jpeg = await sharp({
+      create: { width: 8, height: 8, channels: 3, background: '#888888' },
+    })
+      .jpeg()
+      .toBuffer();
+    const r = runPhotoAdd(['x.jpg'], { file: jpeg });
+    expect(r.status).toBe(1);
+    expect(r.lines).toHaveLength(1);
+    expect(r.lines[0]).toMatch(/^photo:add: 撮影情報を読み取れない項目がある: .*レンズ/);
+    expect(r.ghCalls).toEqual(['api user --jq .login']);
   });
 });
