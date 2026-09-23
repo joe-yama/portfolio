@@ -45,6 +45,7 @@
 |---|---|---|---|
 | 1 | 導線がアイコンを持つ・型と単体テストの整理 | 1.1〜1.4 | 単位 1（共有インターフェース `NavLink` / `LanguageSwitch` に触るのでこの Task でレビュー） |
 | 2 | ヘッダーのアイコンと e2e | 2.1〜2.4 | 単位 2（spec の要求と UI。Playwright で実測） |
+| 2b | 狭い画面でヘッダーのアイコンを隠す（PO 決定 2026-09-23、Task 2 のレビューで追加） | 2.5 | 単位 2 の修正ラウンドとして再レビュー |
 | 3 | 番人の確認と全コマンド | 3.1、3.2 | ブランチ全体のレビューに含める |
 
 ブランチ全体のレビューを最後に 1 回行う。
@@ -359,6 +360,8 @@ pnpm --dir "$EXP" install --frozen-lockfile --offline
 | (c) `navLinks()` の Photos と Career の順を入れ替える | `$EXP/src/lib/site.ts` | links.spec のアイコンの検査は**緑のまま**（行き先に結びついているので取り違えない）。他の spec が並び順で落ちる場合はその名前を記録する（並び順は spec「この順で持つ」の要求なので落ちてよい） |
 | (d) ロゴに svg を足す | `$EXP/src/components/Header.astro` の `.logo` の `<a>` の中に `<PixelArt rows={camera} scale={1} />` を足す（`camera` を import） | 2.1 が赤（ロゴの svg 0 件） |
 | (e) トップ本文の Photos の図柄を取り違える | `$EXP/src/pages/[lang]/index.astro` の `rows={link.icon}` を `rows={link.label === 'Photos' ? briefcase : link.icon}` | 2.4 が赤 |
+| (f) 2.5 の media query を消す | `$EXP/src/components/Header.astro` の `@media (max-width: 29.99rem)` の規則を削除 | 2.5 の 390 の検査が赤（アイコンが見える / 2 行） |
+| (g) media query の閾値を 20rem にする | 同上の `29.99rem` を `20rem` に | 2.5 の 390 の検査が赤 |
 
 各変異で、実行コマンド・赤になったテスト名・失敗の抜粋を報告に貼る。(c) は緑だったテスト名と、落ちたテストがあればその名前を貼る。
 

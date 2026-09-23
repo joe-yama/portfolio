@@ -14,9 +14,11 @@
 - [x] 2.3 GREEN: `src/components/Header.astro` のナビ 3 リンクに `PixelArt rows={…icon} scale={1}` を文字の前に置き、リンクを `inline-flex` + `align-items: center` + `gap: 0.35em` にする。ロゴとのベースラインの揃いを目視で確かめる
 - [x] 2.4 既存のトップページの導線アイコンの検査（`links.spec.ts:75-80`）を、`nth(i)` の位置比較から行き先で選ぶ比較に書き換え、2.1 と同じ対応表を使う（`icon-refresh` 申し送り 2）
 
+- [ ] 2.5 RED→GREEN（PO 決定 2026-09-23、D2 追補）: 390×844 で両ロケールの代表ページのヘッダーのアイコンが表示されず（`toBeHidden`）ロゴとナビが同じ行に並ぶこと、480×844 でアイコンが表示され同じ行に並ぶことを確かめる e2e を書き、失敗を確認してから、`Header.astro` に `@media (max-width: 29.99rem)` でナビの svg を `display: none` にする規則を足す。2.2 の検査幅を 390 → 480 にする（spec delta の Scenario 変更に合わせる）
+
 ## 3. 番人の確認と仕上げ
 
-- [ ] 3.1 変異を当てて 2.1・2.2・2.4 のテストが落ちることを確かめる（`docs/harness/README.md` の隔離実行の手順）。少なくとも: (a) ヘッダーの Career に camera を渡す、(b) ヘッダーのアイコンを `scale={2}` にする、(c) `navLinks()` の Photos と Career の順を入れ替える（トップの比較が href に結びついていれば、図柄の取り違えは起きず緑のままであることも確かめる）、(d) ロゴに svg を足す
+- [ ] 3.1 変異を当てて 2.1・2.2・2.4 のテストが落ちることを確かめる（`docs/harness/README.md` の隔離実行の手順）。少なくとも: (a) ヘッダーの Career に camera を渡す、(b) ヘッダーのアイコンを `scale={2}` にする、(c) `navLinks()` の Photos と Career の順を入れ替える（トップの比較が href に結びついていれば、図柄の取り違えは起きず緑のままであることも確かめる）、(d) ロゴに svg を足す、(e) トップ本文の Photos の図柄を取り違える（2.4）、(f) 2.5 の media query を消す、(g) media query の閾値を 20rem にする
 - [ ] 3.2 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
 
 ## 提案（本 change のスコープ外・後続への申し送り）

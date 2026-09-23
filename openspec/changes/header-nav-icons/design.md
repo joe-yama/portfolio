@@ -23,6 +23,8 @@
 
 トップ本文と同じ `PixelArt scale={1}`（16px）を文字の左に置き、リンクを `display: inline-flex; align-items: center; gap: 0.35em` にする。本文の行の高さ（16px × line-height）より小さいので、ヘッダーの高さは変わらない想定。これを e2e で「リンクの高さ ≤ そのリンクの computed `line-height`」として固定する（spec の Scenario「アイコンで行が高くならない」）。写真の高さ上限の式（`100svh - 18rem` / `- 27rem`）はヘッダーの高さを前提にしているため、既存の `viewport.spec` もそのまま番人になる。
 
+**D2 追補（PO 決定 2026-09-23、Task 2 のレビューで判明）**: アイコンと gap でナビが約 65px 広がり、390px でヘッダーが 2 行（65px → 98.6px）になった。1 行に収まる最小幅は約 443px。`@media (max-width: 29.99rem)` でヘッダーの svg を `display: none` にし、狭い画面では今と同じ 1 行を保つ。30rem（480px）は両ロケールで 1 行に収まることを e2e で固定する。トップ本文の導線のアイコンは隠さない（本文は折り返してよい）。
+
 `header` は `align-items: baseline` なので、ナビのリンクを flex にしてもロゴとの文字のベースラインが揃うことを実装時に目視で確かめる。
 
 ### D3: e2e の比較を href に結びつける
