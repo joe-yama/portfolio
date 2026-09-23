@@ -12,7 +12,7 @@ vi.mock('astro:content', () => ({
   getCollection: vi.fn(async () => photoEntries.list),
 }));
 
-import { getCareer, getPhotos } from '../../src/lib/content';
+import { getCareer, getFeaturedPhoto, getPhotos } from '../../src/lib/content';
 
 function patent(number: string): Patent {
   return {
@@ -89,9 +89,20 @@ describe('getCareer の検証の配線', () => {
 });
 
 describe('getPhotos の検証の配線', () => {
-  it('写真が 0 枚ならビルドを止め、代表写真が無いことを示す', async () => {
+  beforeEach(() => {
     photoEntries.list = [];
+  });
+
+  it('写真が 0 枚ならビルドを止め、代表写真が無いことを示す', async () => {
     await expect(getPhotos()).rejects.toThrow(
+      /photos の内容に問題がある[\s\S]*featured[\s\S]*0 枚/,
+    );
+  });
+
+  // getFeaturedPhoto が getPhotos（検証）を通らず getCollection を直接読むと、
+  // 別の文言で落ちるか undefined を返す
+  it('getFeaturedPhoto も写真が 0 枚なら同じ検証で止まる', async () => {
+    await expect(getFeaturedPhoto()).rejects.toThrow(
       /photos の内容に問題がある[\s\S]*featured[\s\S]*0 枚/,
     );
   });

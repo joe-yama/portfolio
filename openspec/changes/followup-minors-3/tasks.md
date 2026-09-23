@@ -18,7 +18,7 @@
 
 ## 3. テストの穴
 
-- [ ] 3.1 M5: `tests/unit/content.test.ts` に、写真が 0 枚のとき `getFeaturedPhoto` が代表写真の不足で失敗するケースを足す（`getPhotos` の検証を通ることの番人）。`photoEntries.list` を `beforeEach` で空に戻す
+- [x] 3.1 M5: `tests/unit/content.test.ts` に、写真が 0 枚のとき `getFeaturedPhoto` が代表写真の不足で失敗するケースを足す（`getPhotos` の検証を通ることの番人）。`photoEntries.list` を `beforeEach` で空に戻す
 - [ ] 3.2 M14: `tests/e2e/viewport.spec.ts` の横スクロールの検査を、`scrollWidth - clientWidth` を `toBeLessThanOrEqual(0)` で比べる形にして、失敗時に値が出るようにする。トップと個別ページの 2 重書きを 1 つのループにする
 
 ## 4. 整理（挙動不変）
