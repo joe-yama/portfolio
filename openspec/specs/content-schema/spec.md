@@ -191,6 +191,10 @@
 - **WHEN** `exif` に `iso` が無い写真をビルドする
 - **THEN** ビルドは失敗する
 
+#### Scenario: ファイル名に `.` や大文字を含む
+- **WHEN** `kamo-river-v1.2.yaml` と `Kamo.yaml` の写真ファイルがあり、それぞれの `image` が `.../photos/kamo-river-v1.2.jpg` と `.../photos/Kamo.jpg` である
+- **THEN** slug はそれぞれ `kamo-river-v1.2` と `Kamo` になり、検証は通る
+
 ### Requirement: 写真の画像 URL の形式
 `image` は `https://github.com/joe-yama/portfolio/releases/download/photos/<slug>.jpg` の形式でなければならず（MUST）、`<slug>` はその写真ファイルの slug と一致しなければならない（MUST）。それ以外の URL はビルドを失敗させる。
 
@@ -207,7 +211,7 @@
 - **THEN** ビルドは失敗する
 
 ### Requirement: 写真の集合全体の制約
-写真コレクション全体で、`featured: true` の写真はちょうど 1 枚でなければならず（MUST）、`order` の値は重複してはならない（MUST）。違反はビルドを失敗させ、該当する slug を示さなければならない（MUST）。写真が 0 枚のときはこれらの制約を評価せず、ビルドは成功する。
+写真コレクション全体で、`featured: true` の写真はちょうど 1 枚でなければならず（MUST）、`order` の値は重複してはならない（MUST）。違反はビルドを失敗させ、該当する slug を示さなければならない（MUST）。写真が 0 枚のときも代表写真がちょうど 1 枚という制約を評価し、ビルドは失敗しなければならない（MUST）。
 
 #### Scenario: 代表写真が 1 枚
 - **WHEN** 3 枚のうち 1 枚だけ `featured: true` で、`order` がすべて異なる
@@ -227,7 +231,7 @@
 
 #### Scenario: 写真が 0 枚
 - **WHEN** 写真ファイルが 1 つも無い状態でビルドする
-- **THEN** ビルドは成功する
+- **THEN** ビルドは失敗し、エラーに代表写真が無いことが示される
 
 ### Requirement: 未記入プレースホルダの検出
 写真の `title`、`location`、`alt` は入稿時に自動生成されず、人が記入する欄である。入稿コマンドはこれらに未記入の印として `TODO:` で始まる文字列を入れる。写真コレクションにこの印が残ったままビルドした場合、ビルドを失敗させなければならない（MUST）。失敗時は該当する slug と項目名を示さなければならない（MUST）。

@@ -1,10 +1,10 @@
 # 現在の状態
 
-最終更新: 2026-09-23（change `header-nav-icons` のマージとアーカイブ時点）。`CLAUDE.md` の索引から参照される。
+最終更新: 2026-09-23（change `followup-minors-2` のマージとアーカイブ時点）。`CLAUDE.md` の索引から参照される。
 
 ## フェーズ
 
-**v1 公開済み**（2026-09-21）。change `header-nav-icons`（Issue #51、PR #53）をマージ・アーカイブ済み（2026-09-23）。**実装中の change は無い。** change `followup-minors-2`（Issue #52）は提案だけ済んでいて（ブランチ `feature/followup-minors-2` の worktree、main には未マージ）、実装は未着手
+**v1 公開済み**（2026-09-21）。change `followup-minors-2`（Issue #52、PR #55）をマージ・アーカイブ済み（2026-09-23）。**進行中の change は無い。**
 
 2026-09-23 から implementer も Opus で動かす（PO 指示、PR #44。`.claude/rules/review.md`）。
 
@@ -19,9 +19,9 @@
 ## 掲載データの状態
 
 - **プロフィールと経歴は PO 本人の実データ**（2026-09-21、Change 6 で差し替え）。出典は本人の公開 LinkedIn で、掲載範囲は PO が項目ごとに決定済み。実名・勤務先・職歴・資格・論文が公開 URL に載っている
-- **特許は PO 本人の実データ 65 発明**（2026-09-22、Change 11 で公報単位 51 件から同族単位に作り直し）。代表は JP 公報番号、出願国は最大 6 か国、US を含むものが 47 件。**掲載する名称は公報の正式名称ではなく、請求項 1 から起こした短い見出し**（裁定 D12）。日本語の名称が暫定なのは JP 代表公報が無い 2 件だけ。掲載する全 65 件の照合表（見出し / 正式名称 / 請求項 1 の全文）は `openspec/changes/archive/2026-09-22-patents-full-retrieval/research/publications.md`。見出し 4 件を 2026-09-23 に直した（`followup-minors-2`。新しい見出しの出典は `openspec/changes/followup-minors-2/design.md` D1。archive の照合表 `publications.md` は旧い見出しのまま）
+- **特許は PO 本人の実データ 65 発明**（2026-09-22、Change 11 で公報単位 51 件から同族単位に作り直し）。代表は JP 公報番号、出願国は最大 6 か国、US を含むものが 47 件。**掲載する名称は公報の正式名称ではなく、請求項 1 から起こした短い見出し**（裁定 D12）。日本語の名称が暫定なのは JP 代表公報が無い 2 件だけ。掲載する全 65 件の照合表（見出し / 正式名称 / 請求項 1 の全文）は `openspec/changes/archive/2026-09-22-patents-full-retrieval/research/publications.md`。見出し 4 件を 2026-09-23 に直した（`followup-minors-2`。新しい見出しの出典は `openspec/changes/archive/2026-09-23-followup-minors-2/design.md` D1。archive の照合表 `publications.md` は旧い見出しのまま）
 - **Change 8 が載せていた `JP7151181B2` は PO の発明ではなかった**ので Change 11 で落とした（発明者に PO が含まれず、名前は説明文中の引用文献の著者として現れるだけだった）。戻す判断をする場合の根拠は同じ `publications.md` の「落とした公報」
-- **写真はサンプルのまま 2 枚**（差し替えは PO 待ち）。写真が 0 枚だと代表写真が無いのでビルドが落ちる（2026-09-23、`followup-minors-2`）
+- **写真はサンプルのまま 2 枚**（差し替えは PO 待ち）。375×667 では写真の高さ上限が発動して本文の幅より狭くなるが、直さない（PO 決定 2026-09-23、Change 9 の件）。写真が 0 枚だと代表写真が無いのでビルドが落ちる（2026-09-23、`followup-minors-2`）
 - **経歴の一部文言・スキルを更新**（2026-09-22、`fix-misc`）。experience 先頭項目の role から「（全社横断）」を削除、bullets を「…開発標準活動を立ち上げリーディング」に変更。skills「クラウド」に「プラットフォームエンジニアリング」追加、「プログラミング言語」を `[Python, Java, Scala, C++, TypeScript]` に置き換え（SQL を除外）、新カテゴリ「言語」（英語を第一言語とするチームのリーディング）を追加。特許の区画見出しを「特許」→「代表的な特許」に変更（区画の構成・折りたたみの挙動は変更なし）
 - **AWS 認定資格 12 件へのバッジロゴ表示は一度実装したが、PO の判断（見た目が良くない）で取り消した**（2026-09-22、`fix-misc`）。詳細と再挑戦時の考慮点は `openspec/changes/archive/2026-09-22-fix-misc/tasks.md` の「提案」
 - **特許の `url` は必須**（2026-09-23、`followup-minors`）。欠けていたり、同じ言語の中で公報番号が重複したりするとビルドが落ちる。特許の見出しはすべてリンクになる（全 65 件が元から `url` を持っていたので見た目は変わらない）
@@ -46,13 +46,11 @@
 
 1. 写真の追加・差し替え
 2. 独自ドメインへの移行（設計書 §9 の手順で `base` の削除が必要）
-3. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件、Change 10 の 35 件超、Change 11 の 19 件（20 件のうち隔離実行の手順の件は 2026-09-23 に対応済み）、`icon-refresh` の 3 件（各 `openspec/changes/archive/*/tasks.md` の末尾）。**Change 7〜11 の分は `followup-minors` で仕分け・対応済みで、束に入れなかったもの（新機能・PO 判断・写真表示まわり）が残る**。`followup-minors` 自身の申し送り（Minor・ponytail 約 25 件）は `openspec/changes/archive/2026-09-23-followup-minors/tasks.md` の末尾。`header-nav-icons` の申し送り 7 件（30rem の書き方と境界 479px の検査、1280px でナビの文字のベースラインがロゴより 1.8px 上、ヘッダーのリンクの並びを見る e2e が無い、ほか）は `openspec/changes/archive/2026-09-23-header-nav-icons/tasks.md` の末尾
+3. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件、Change 10 の 35 件超、Change 11 の 19 件（20 件のうち隔離実行の手順の件は 2026-09-23 に対応済み）、`icon-refresh` の 3 件（各 `openspec/changes/archive/*/tasks.md` の末尾）。**Change 7〜11 の分は `followup-minors` で仕分け・対応済みで、束に入れなかったもの（新機能・PO 判断・写真表示まわり）が残る**。`followup-minors` 自身の申し送り（Minor・ponytail 約 25 件）は `openspec/changes/archive/2026-09-23-followup-minors/tasks.md` の末尾。`header-nav-icons` の申し送り 7 件（30rem の書き方と境界 479px の検査、1280px でナビの文字のベースラインがロゴより 1.8px 上、ヘッダーのリンクの並びを見る e2e が無い、ほか）は `openspec/changes/archive/2026-09-23-header-nav-icons/tasks.md` の末尾。`followup-minors-2` の申し送り 20 件（特許の `url` が別の公報を指す誤りの番人が無い、e2e が cwd 相対で YAML を読む、`.` を含む slug の実データでの確認、pictureSizing の見送り、ほか）は `openspec/changes/archive/2026-09-23-followup-minors-2/tasks.md` の「提案」
 4. Change 4・5 の後続への提案と申し送り（各 `openspec/changes/archive/2026-09-21-*/tasks.md` の末尾）
 5. AWS 認定資格のバッジロゴ表示を再検討する場合は、見せ方（サイズ・配置・ドット絵化するか等）から設計し直す（一度実装し PO の判断で取り消し済み）
 
 ## PO 判断として残っている件
-
-- Change 9 の 375×667 で写真が本文の幅より狭くなる件は、PO 決定 2026-09-23: 直さない（片付け済み）
 
 **Change 10**: 写真の差し替え（同じ slug での `pnpm photo:add` 再実行）の実測は、偽の `gh` を使ってコード経路だけ通した。公開 Release の画像は入稿時に EXIF が落ちるため、それを入稿に渡すと差し替え経路へ到達しない。**PO 本人の元画像で 1 回実行すれば、spec の Scenario「差し替え後のビルドで古い版が残らない」まで確かめられる。**
 
