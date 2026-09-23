@@ -34,9 +34,19 @@
 ## 5. 番人の確認と仕上げ
 
 - [x] 5.1 変異を当てて 1〜3 章の新しいテストが落ちることを確かめる（`docs/harness/README.md` の隔離実行の手順）。少なくとも: (a) 1.1 の検査を外す、(b) 完全一致を `includes` にする（前方一致のケースが赤）、(c) ja だけに検査をかける、(d) 2.1 の閾値を 27rem にする（479px が赤）、(e) 2.2 の CSS を戻す、(f) ヘッダーのナビの Photos と Career を入れ替える（2.3 が赤）、(g) 1.2 の throw を外して pid を null にする、(h) 1.3 の比較を先頭行に戻す、(i) 1.4 の削除を外す、(j) 1.5 のドットファイルの除外を外して `.draft.yaml` を置く、(k) `getFeaturedPhoto` が `getPhotos` を通らないようにする
-- [ ] 5.2 M19: `tests/e2e/pages.spec.ts` の `parsePatents` が `patentsX:` に一致しないことの対照実験。`ja.yaml` の patents の後に `patentsX:` の区画を足した入力で、今の実装は特許の件数が変わらず、`/^patents:/` に戻すと変わる（赤になる）ことを確かめる
+- [x] 5.2 M19: `tests/e2e/pages.spec.ts` の `parsePatents` が `patentsX:` に一致しないことの対照実験。`ja.yaml` の patents の後に `patentsX:` の区画を足した入力で、今の実装は特許の件数が変わらず、`/^patents:/` に戻すと変わる（赤になる）ことを確かめる
+  - 裁定（コントローラー、2026-09-23）: 書いた形の対照は成り立たなかった。`/^patents:/` も `patents` の直後にコロンを要するので `patentsX:` に一致せず、緑のまま（130 passed）。`patentsX:` に一致する `/^patents/` に変えると特許の件数の検査など 7 件が赤（期待 66 件・実際 65 件）になり、今の実装が `patentsX:` を読まないことはこの対照で確かめた。テストは直さない。記録: `.superpowers/sdd/2026-09-23-followup-minors-3/task-8-9-report.md` §5.2
 - [x] 5.3 cwd をリポジトリの外にして `<worktree>/node_modules/.bin/playwright test -c <worktree>/playwright.config.ts` を実行し、全件緑になることを確かめる（修正前は `pages.spec.ts:75` の `ENOENT` で落ちることを対照として記録する）
 - [x] 5.4 書き換えたテスト（3.2、4.1、4.2、4.5、4.7）が、書き換え前と同じ変異で落ちることを確かめる
 - [x] 5.5 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
 
 ## 提案（本 change のスコープ外・後続への申し送り）
+
+- `src/lib/validate.ts:154` のコメント「includes だと前方一致も通す」が、次の行の配列の `includes` と紛らわしい。「文字列の includes だと」にする（Task 1 レビュー Minor）
+- `src/lib/validate.ts:155` の `new URL` はスキーマを通していない値で例外を投げる。今の呼び出し元はスキーマ済みのデータだけなので、JSDoc に前提を一言足す程度（Task 1 レビュー Minor）
+- `src/lib/validate.ts:155` は `mailto:` のような階層の無い URL でも、パスが `number` と同じなら通る。spec の規則どおりなので記録のみ（Task 1 レビュー Minor）
+- **配信 CSS ではメディアクエリが範囲構文に書き換わる**: Vite 8 が lightningcss（既定ターゲット safari16.4）で縮小するので、`not all and (min-width: 30rem)` は `not all and (width>=30rem)` として配信される（修正前の `max-width: 29.99rem` も `(width<=29.99rem)` になっていた）。design D2 の「古い Safari で規則ごと無視されるので範囲構文を使わない」はビルド後には効いていない。Safari 16.4 未満を支えるなら `build.cssTarget` を足す、支えないなら D2 と `Header.astro` のコメントから Safari の理由を外す。PO 判断（Task 5 レビュー、裁定: 本 change では直さない）
+- `tests/e2e/links.spec.ts:159-160` のベースラインの測り方は canvas の ascent が丸め前の値で、-0.112px の偏りがある。実際のずれが [-0.388, +0.612]px なら緑になる。0×0 の目印をベースラインに置いて測れば偏りは 0（Task 5 レビュー Minor）
+- `tests/e2e/links.spec.ts:159` の `?? el` は不要（テキストノードの親は必ずある）（Task 5 レビュー ponytail）
+- `tests/e2e/pages.spec.ts` の `parsePatents` のコメントが `patentsX:` を弾く理由を `\s*$` に帰しているが、`\s*$` が実際に弾くのは `patents: []` のような同じ行に値を持つ形。コメントを実態に合わせる（5.2 の裁定）
+- `tests/unit/site.test.ts` の 4.1 の削除で `toBe(globe)` の同一参照の検査が無くなり、`toEqual` の構造比較だけになった。`globe` と同じ中身の別の配列に差し替えても捕まらないが、描画は変わらないので記録のみ（Task 8）
