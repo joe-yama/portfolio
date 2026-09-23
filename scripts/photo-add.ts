@@ -83,8 +83,9 @@ function parseCliArgs(argv: string[]): { file: string; slug: string } {
 const { file, slug } = parseCliArgs(process.argv.slice(2));
 
 // 違うアカウントなら何も変更せずに止まる（設計書 §5.3）
-const login = gh(['api', 'user', '--jq', '.login']).split('\n')[0];
-if (login !== 'joe-yama') {
+const loginOutput = gh(['api', 'user', '--jq', '.login']).trim();
+if (loginOutput !== 'joe-yama') {
+  const login = loginOutput.split('\n')[0];
   die(`gh のアカウントが joe-yama ではない（${login}）。gh auth switch で切り替える`);
 }
 

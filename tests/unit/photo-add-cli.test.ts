@@ -88,6 +88,14 @@ describe('pnpm photo:add のアカウント確認', () => {
     expect(r.lines[0]).toMatch(/^photo:add: gh のアカウントが joe-yama ではない（someone）/);
     expect(r.ghCalls).toEqual(['api user --jq .login']);
   });
+
+  it('gh の出力の先頭行だけが joe-yama でも、出力全体が一致しなければ中断し Release に触れない', () => {
+    const r = runPhotoAdd(['x.jpg'], { login: 'joe-yama\nother' });
+    expect(r.status).toBe(1);
+    expect(r.lines).toHaveLength(1);
+    expect(r.lines[0]).toMatch(/^photo:add: gh のアカウントが joe-yama ではない（joe-yama）/);
+    expect(r.ghCalls).toEqual(['api user --jq .login']);
+  });
 });
 
 describe('pnpm photo:add の画像の読み取り', () => {
