@@ -77,7 +77,7 @@
 
 ## 7. 最終レビューの修正
 
-- [x] 7.1 最終レビュー I1: ja の headline の行頭禁則（`line-break: strict` ほか）と、その e2e を足す
+- [x] 7.1 最終レビュー I1: ja の headline の行頭禁則（`line-break: strict`）と、その e2e を足す
 
 ## 提案（本 change のスコープ外・後続への申し送り）
 
@@ -91,3 +91,4 @@
 - 64rem 未満の縦並びの初見表示（30rem の見積もり）を守る e2e が無い
 - `og:image:alt` の検査は本文の alt と比べているので、両方が同じロケールへずれると見逃す。写真の個別ページの `og:image` のオリジンも確かめていない
 - ponytail: pages.spec の代表でない写真の slug を写真のディレクトリから導く処理は定数 1 行にできる。`.highlights` の margin は `section` と 1 ブロックにまとめられる。資格 1 件分のマークアップが career.astro の 2 か所にある
+- 390 で ja の headline が『プロダク / トオーナー』と語の途中で折り返す（行頭禁則は `line-break: strict` で対処済み）。直すなら `text-wrap: balance` と `word-break: auto-phrase` を足し、番人を computed style（`lineBreak === 'strict'`）と文節の頭（2 行目が『つくる』で始まる）の 2 本に分ける。PO 判断
