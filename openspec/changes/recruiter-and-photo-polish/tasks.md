@@ -4,7 +4,7 @@
 
 ## 1. データ構造と日英の検査
 
-- [ ] 1.1 D1: RED: `tests/unit/schemas.test.ts` で、`headline` が無い・空のプロフィールが失敗し、ある場合は通ることを確かめる。GREEN: `profileSchema` に `headline` を足し、`src/content/profile/{ja,en}.yaml` に proposal の文言を書く。`pnpm test` と `pnpm build` で確かめる
+- [x] 1.1 D1: RED: `tests/unit/schemas.test.ts` で、`headline` が無い・空のプロフィールが失敗し、ある場合は通ることを確かめる。GREEN: `profileSchema` に `headline` を足し、`src/content/profile/{ja,en}.yaml` に proposal の文言を書く。`pnpm test` と `pnpm build` で確かめる
 - [ ] 1.2 D2: RED: `tests/unit/schemas.test.ts` で、`highlights` が無い・0 件・5 件なら失敗し、1 件と 4 件なら通ることを確かめる。GREEN: `careerSchema` に `highlights` を足し、`src/content/career/{ja,en}.yaml` に 4 件ずつ書く
   - ja の文言:
     - コネクテッドカーのデータ基盤（20 か国以上・1,000 万台超）のプロダクトオーナー

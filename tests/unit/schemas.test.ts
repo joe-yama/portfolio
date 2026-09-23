@@ -187,6 +187,7 @@ describe('careerSchema', () => {
 
 const validProfile = {
   name: 'joe-yama',
+  headline: '写真を撮るソフトウェアエンジニアのプロダクトオーナー',
   tagline: '写真を撮るソフトウェアエンジニア',
   links: [
     { label: 'GitHub', url: 'https://github.com/joe-yama', kind: 'github' },
@@ -208,6 +209,18 @@ describe('profileSchema', () => {
   it('tagline を欠くと失敗する', () => {
     const { tagline: _omit, ...rest } = validProfile;
     expect(profileSchema.safeParse(rest).success).toBe(false);
+  });
+
+  it('headline を欠くと失敗し、エラーの path に headline が入る', () => {
+    const { headline: _omit, ...rest } = validProfile;
+    const result = profileSchema.safeParse(rest);
+    expect(result.success).toBe(false);
+    if (!result.success)
+      expect(result.error.issues.some((i) => i.path[0] === 'headline')).toBe(true);
+  });
+
+  it.each(['', '   '])('headline が空（%j）なら失敗する', (headline) => {
+    expect(profileSchema.safeParse({ ...validProfile, headline }).success).toBe(false);
   });
 });
 
