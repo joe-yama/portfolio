@@ -1,6 +1,6 @@
 # change の履歴
 
-Change 1〜11 と `fix-misc`・`icon-refresh`・`followup-minors` はすべてマージ・アーカイブ済み。**正本は `openspec/changes/archive/<name>/` と GitHub の Issue / PR** で、この表はその索引。経緯・裁定・後続への提案を追うときは、まず下の「経緯の在り処」を見る。
+Change 1〜11 と `fix-misc`・`icon-refresh`・`followup-minors`・`header-nav-icons` はすべてマージ・アーカイブ済み。**正本は `openspec/changes/archive/<name>/` と GitHub の Issue / PR** で、この表はその索引。経緯・裁定・後続への提案を追うときは、まず下の「経緯の在り処」を見る。
 
 | # | change | Issue | PR | 日付 | 要点 |
 |---|---|---|---|---|---|
@@ -20,6 +20,7 @@ Change 1〜11 と `fix-misc`・`icon-refresh`・`followup-minors` はすべて�
 | 12 | `fix-misc` | #39 | #40 | 2026-09-22 | ヘッダーの名前の下線除去、トップページ本文の並び替えとドット絵アイコン、経歴の文言とスキルの更新。main spec `profile-and-career` に delta を統合 |
 | 13 | `icon-refresh` | #43 | #46 | 2026-09-23 | 鞄と地球儀のドット絵を描き直し、アイコン取り違えの番人を座標の完全一致に強化、アイコンの対応づけを表示ラベル非依存に（spec 変更なし） |
 | 14 | `followup-minors` | #45 | #48 | 2026-09-23 | Change 7〜11 の申し送りの束。特許の `url` 必須化と公報番号の重複検出、`getCareer` の配線テスト、暦日の年 0001〜0099、入稿コマンドの 1 行中断とスクリプト基準のパス、e2e の対象を写真データから導きステータスも検査（69 → 75 件）。main spec `content-schema` / `profile-and-career` / `photo-pipeline` に delta を統合 |
+| 15 | `header-nav-icons` | #51 | #53 | 2026-09-23 | ヘッダーの Photos / Career / 言語切り替えにトップ本文と同じ 16px のドット絵。アイコンは導線のデータ（`navLinks()` / `languageSwitch()`）が持ち `pairByIndex` を削除。**幅 30rem 未満ではヘッダーのアイコンを隠して 1 行を保つ**（実装中の PO 決定）。e2e のアイコン検査を行き先で選ぶ形に（75 → 107 件）。main spec `layout-shell` に delta を統合 |
 
 ## 経緯の在り処
 
@@ -37,6 +38,7 @@ Change 1〜11 と `fix-misc`・`icon-refresh`・`followup-minors` はすべて�
 | 12 | Issue #39 | `openspec/changes/archive/2026-09-22-fix-misc/tasks.md` 末尾（Minor 1〜5 は `icon-refresh` で対応済み） |
 | 13 | Issue #43 のコメント（最終レビューの結果） | `openspec/changes/archive/2026-09-23-icon-refresh/tasks.md` 末尾（3 件） |
 | 14 | Issue #45 のコメント（最終レビューの結果と裁定） | `openspec/changes/archive/2026-09-23-followup-minors/tasks.md` 末尾（実装時の裁定 7 件と Minor・ponytail 約 25 件） |
+| 15 | Issue #51 のコメント（実装開始時の裁定 2 件、方針変更、最終レビューの結果） | `openspec/changes/archive/2026-09-23-header-nav-icons/tasks.md` 末尾（7 件） |
 
 ## v1 リリース
 
