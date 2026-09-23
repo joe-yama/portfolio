@@ -75,7 +75,13 @@ const INDEXED_KEYS: [
  */
 export function validateCareerParity(ja: Career, en: Career): string[] {
   const errors: string[] = [];
-  for (const key of ['experience', 'certifications', 'achievements', 'patents'] as const) {
+  for (const key of [
+    'highlights',
+    'experience',
+    'certifications',
+    'achievements',
+    'patents',
+  ] as const) {
     if (ja[key].length !== en[key].length) {
       errors.push(`${key} の件数が日英で違う（ja: ${ja[key].length}, en: ${en[key].length}）`);
     }

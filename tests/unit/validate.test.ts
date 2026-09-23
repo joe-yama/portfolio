@@ -134,6 +134,12 @@ describe('validateCareerParity', () => {
     expect(validateCareerParity(base, base)).toEqual([]);
   });
 
+  it('highlights の件数差を報告する', () => {
+    const ja: Career = { ...base, highlights: ['1', '2', '3', '4'] };
+    const en: Career = { ...base, highlights: ['1', '2', '3'] };
+    expect(validateCareerParity(ja, en)).toEqual(['highlights の件数が日英で違う（ja: 4, en: 3）']);
+  });
+
   it('experience / certifications / achievements の件数差を個別に報告する', () => {
     const en: Career = {
       ...base,

@@ -12,7 +12,7 @@
     - 特許 65 発明（うち米国を含む 47 件）
     - AWS 認定 12 資格をすべて取得（2026 年 AWS All Certifications Engineers）
   - en は同じ内容の訳
-- [ ] 1.3 D2: RED: `tests/unit/validate.test.ts` で、`highlights` の件数が日英で違うと `validateCareerParity` がエラー（`highlights` と両方の件数を含む）を返すことを確かめる。GREEN: 件数を見るキーの一覧に足す
+- [x] 1.3 D2: RED: `tests/unit/validate.test.ts` で、`highlights` の件数が日英で違うと `validateCareerParity` がエラー（`highlights` と両方の件数を含む）を返すことを確かめる。GREEN: 件数を見るキーの一覧に足す
 - [ ] 1.4 D3 / D4: RED: `tests/unit/schemas.test.ts` で、`group` を持つ資格が通り、空の `group` は失敗することを確かめる。`tests/unit/validate.test.ts` で、`group` の有無の食い違いと分け方の食い違いがエラー（`certifications` と位置を含む）になり、訳語で名前が違うだけなら通ることを確かめる。GREEN: スキーマと `validateCareerParity` を直し、実データの AWS 認定 12 件に `group`（ja は `AWS 認定`、en は `AWS Certifications`）を付ける。`pnpm build` が通ることで確かめる
 
 ## 2. 経歴ページ
