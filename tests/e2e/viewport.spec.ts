@@ -208,7 +208,50 @@ test('縦並び: 390×844 の /ja/ では代表写真が名前の上にあり、
   );
 });
 
-// --- 1.2 写真の個別ページの初見表示（縦位置） ---------------------------------------------
+// --- 仕事の一行の行頭禁則（最終レビュー I1） ---------------------------------------------
+
+/** 行頭に来てはならない文字（長音と小書きの仮名） */
+const forbiddenLineStarts = 'ーァィゥェォッャュョヮぁぃぅぇぉっゃゅょゎ';
+
+for (const viewport of [
+  { width: 390, height: 844 },
+  { width: 1024, height: 768 },
+]) {
+  test(`行頭禁則: ${viewport.width}×${viewport.height} の /ja/ では仕事の一行の各行が長音や小書きの仮名で始まらない`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(viewport);
+    await page.goto('./ja/');
+    // テキストノードを 1 文字ずつ Range で囲み、top が前の文字より大きくなった文字を行頭とする
+    const lineStarts = await page.locator('main p.headline').evaluate((el) => {
+      const starts: string[] = [];
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      let prevTop = Number.NEGATIVE_INFINITY;
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        const text = node.textContent ?? '';
+        for (let i = 0; i < text.length; i++) {
+          const range = document.createRange();
+          range.setStart(node, i);
+          range.setEnd(node, i + 1);
+          const rect = range.getClientRects()[0];
+          if (!rect) continue;
+          if (rect.top > prevTop + 1) starts.push(text[i] ?? '');
+          prevTop = Math.max(prevTop, rect.top);
+        }
+      }
+      return starts;
+    });
+    expect(lineStarts.length, '仕事の一行の文字が見つからない').toBeGreaterThan(0);
+    for (const [i, ch] of lineStarts.entries()) {
+      expect(
+        forbiddenLineStarts.includes(ch),
+        `仕事の一行の ${i + 1} 行目が禁則文字「${ch}」で始まっている（行頭: ${lineStarts.join(' / ')}）`,
+      ).toBe(false);
+    }
+  });
+}
+
+// --- 1.2 写真の個別ページの初見表示（縦位置）---------------------------------------------
 
 for (const lang of locales) {
   for (const viewport of viewports) {

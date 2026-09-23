@@ -87,6 +87,12 @@ const featured = await getFeaturedPhoto();
     }
   }
 
+  .headline {
+    /* 長音と小書きの仮名の前での改行を禁じる（CSS Text 3）。word-break: auto-phrase や
+       text-wrap: balance を足すと改行位置が動き、strict を外しても e2e の禁則検査が緑のままになる */
+    line-break: strict;
+  }
+
   .links {
     display: flex;
     flex-wrap: wrap;

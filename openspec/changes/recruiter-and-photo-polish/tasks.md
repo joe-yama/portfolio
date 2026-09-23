@@ -75,6 +75,10 @@
     - (i) 10 failed: pages.spec「<path> が表示され lang と hreflang が正しい」の 10 ページすべて（`meta[name="description"]` が tagline になる）
 - [x] 6.2 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
 
+## 7. 最終レビューの修正
+
+- [x] 7.1 最終レビュー I1: ja の headline の行頭禁則（`line-break: strict` ほか）と、その e2e を足す
+
 ## 提案（本 change のスコープ外・後続への申し送り）
 
 - 横並びのトップでも `PhotoPicture` の `sizes` が `78rem` のままで、必要より大きい画像を読み込む（design の Risks）
