@@ -64,14 +64,16 @@ async function assertDisplayRatioMatchesNatural(locator: Locator, label: string)
  * 求める）を下回らないことを確認する。
  * `max(12rem, …)` の下限だけを外す変異（`calc(…)` に置き換える等）は、1280×720 や 1440×900 のような
  * 通常の画面では常に `100svh - Nrem` が正の値になるため検出できない。画面の高さが極端に小さい
- * （1280×400）ときに限って下限が発動するため、この画面で検査する
+ * ときに限って下限が発動するため、その画面で検査する。
+ * 個別ページ（`100svh - 18rem`）は 1280×400 で発動する。トップは 64rem 以上（`100svh - 10rem`）が
+ * 1280×300、64rem 未満（`100svh - 30rem`）が 1023×400 で発動する（1280×400 のトップは 240px で発動しない）
  */
 async function assertPhotoHeightAtLeastFloor(locator: Locator, label: string) {
   const height = await locator.evaluate((img) => img.getBoundingClientRect().height);
   const floorPx = await locator.evaluate(
     () => 12 * Number.parseFloat(getComputedStyle(document.documentElement).fontSize),
   );
-  // 1280×400 では下限がちょうど発動するので等号ぎりぎりになる。サブピクセル丸めの分だけ緩める
+  // 下限が発動する画面では等号ぎりぎりになる。サブピクセル丸めの分だけ緩める
   expect(
     height,
     `${label}: 写真の表示高さが下限（12rem=${floorPx}px）を下回っている（height=${height.toFixed(1)}）`,
@@ -257,6 +259,18 @@ test('回帰: 極端に低い画面でも写真の表示高さは0にならな�
   await waitForImageLoaded(hero);
   await assertPhotoHeightAtLeastFloor(hero, 'トップの代表写真');
 
+  // トップの 2 本の規則それぞれで下限が発動する画面（1280×400 では 400−160=240px で発動しない）
+  for (const [viewport, label] of [
+    [{ width: 1280, height: 300 }, 'トップの代表写真（64rem 以上, 1280x300）'],
+    [{ width: 1023, height: 400 }, 'トップの代表写真（64rem 未満, 1023x400）'],
+  ] as const) {
+    await page.setViewportSize(viewport);
+    await page.goto('./ja/');
+    await waitForImageLoaded(hero);
+    await assertPhotoHeightAtLeastFloor(hero, label);
+  }
+
+  await page.setViewportSize({ width: 1280, height: 400 });
   await page.goto(`./ja/photos/${verticalSlug}/`);
   const figureImg = page.locator('figure picture img');
   await waitForImageLoaded(figureImg);

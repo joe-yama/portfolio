@@ -325,6 +325,8 @@ test.describe('SNS 共有カード', () => {
     await page.goto('./en/');
     const topImage = await page.locator('meta[property="og:image"]').getAttribute('content');
     const topAlt = await page.locator('meta[property="og:image:alt"]').getAttribute('content');
+    // 代替テキストは代表写真の英語の alt（ページ本文の代表写真の alt と同じ）
+    expect(topAlt).toBe(await page.locator('main .hero picture img').getAttribute('alt'));
     for (const path of ['./en/career/', './en/photos/']) {
       await page.goto(path);
       await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
