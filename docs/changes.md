@@ -1,6 +1,6 @@
 # change の履歴
 
-Change 1〜11 と `fix-misc`・`icon-refresh` はすべてマージ・アーカイブ済み。**正本は `openspec/changes/archive/<name>/` と GitHub の Issue / PR** で、この表はその索引。経緯・裁定・後続への提案を追うときは、まず下の「経緯の在り処」を見る。
+Change 1〜11 と `fix-misc`・`icon-refresh`・`followup-minors` はすべてマージ・アーカイブ済み。**正本は `openspec/changes/archive/<name>/` と GitHub の Issue / PR** で、この表はその索引。経緯・裁定・後続への提案を追うときは、まず下の「経緯の在り処」を見る。
 
 | # | change | Issue | PR | 日付 | 要点 |
 |---|---|---|---|---|---|
@@ -19,6 +19,7 @@ Change 1〜11 と `fix-misc`・`icon-refresh` はすべてマージ・アーカ�
 | 11 | `patents-full-retrieval` | #34 | #37 | 2026-09-22 | 特許を**公報単位 51 件から同族単位 65 発明**に作り直し、代表を JP 公報番号に、`countries` を最大 6 か国まで、`filedAt` を同族の優先日に。**掲載名称を公報の正式名称から請求項 1 から起こした短い見出しへ**（PO 指示）。`validateCareerPatents` で `countries[0]` と見出しの長さをビルド検証、`PatentItem.astro` で `<li>` の重複を解消、英語ページのリンクを `/en` に。main spec `content-schema` / `profile-and-career` に delta を統合 |
 | 12 | `fix-misc` | #39 | #40 | 2026-09-22 | ヘッダーの名前の下線除去、トップページ本文の並び替えとドット絵アイコン、経歴の文言とスキルの更新。main spec `profile-and-career` に delta を統合 |
 | 13 | `icon-refresh` | #43 | #46 | 2026-09-23 | 鞄と地球儀のドット絵を描き直し、アイコン取り違えの番人を座標の完全一致に強化、アイコンの対応づけを表示ラベル非依存に（spec 変更なし） |
+| 14 | `followup-minors` | #45 | #48 | 2026-09-23 | Change 7〜11 の申し送りの束。特許の `url` 必須化と公報番号の重複検出、`getCareer` の配線テスト、暦日の年 0001〜0099、入稿コマンドの 1 行中断とスクリプト基準のパス、e2e の対象を写真データから導きステータスも検査（69 → 75 件）。main spec `content-schema` / `profile-and-career` / `photo-pipeline` に delta を統合 |
 
 ## 経緯の在り処
 
@@ -35,6 +36,7 @@ Change 1〜11 と `fix-misc`・`icon-refresh` はすべてマージ・アーカ�
 | 11 | Issue #34 のコメント（レビュー 4 回の結果と裁定 25 件）。掲載する全 65 件の照合表は `openspec/changes/archive/2026-09-22-patents-full-retrieval/research/publications.md`、取得手順と HTML の落とし穴 4 つは同 `research/method.md` | `openspec/changes/archive/2026-09-22-patents-full-retrieval/tasks.md` 末尾（20 件） |
 | 12 | Issue #39 | `openspec/changes/archive/2026-09-22-fix-misc/tasks.md` 末尾（Minor 1〜5 は `icon-refresh` で対応済み） |
 | 13 | Issue #43 のコメント（最終レビューの結果） | `openspec/changes/archive/2026-09-23-icon-refresh/tasks.md` 末尾（3 件） |
+| 14 | Issue #45 のコメント（最終レビューの結果と裁定） | `openspec/changes/archive/2026-09-23-followup-minors/tasks.md` 末尾（実装時の裁定 7 件と Minor・ponytail 約 25 件） |
 
 ## v1 リリース
 
