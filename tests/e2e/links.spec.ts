@@ -129,11 +129,10 @@ for (const lang of ['ja', 'en'] as const) {
       }
     }
 
-    const navGrids = [camera, briefcase, globe];
-    for (let i = 0; i < navGrids.length; i++) {
-      const grid = navGrids[i];
-      if (!grid) throw new Error(`navGrids[${i}] が無い`);
-      expect(await rectCells(navLinks.nth(i))).toEqual(cells(grid));
+    for (const { name, selector, grid } of navIconTable) {
+      const link = page.locator(`main nav.links ${selector}`);
+      await expect(link, name).toHaveCount(1);
+      expect(await rectCells(link), name).toEqual(cells(grid));
     }
 
     const githubLink = contactLinks.filter({ hasText: 'GitHub' });

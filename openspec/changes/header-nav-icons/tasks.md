@@ -12,7 +12,7 @@
 - [x] 2.1 RED: `tests/e2e/links.spec.ts` に、両ロケールの代表ページ（トップ・写真一覧・写真個別・経歴）でヘッダーの Photos / Career / 言語切り替えがそれぞれ camera / briefcase / globe の座標と完全一致する `svg[aria-hidden="true"]` を 1 つだけ持ち、ロゴに `svg` が無いことを確かめるテストを書く。比較は行き先（`href` / `hreflang`）で選ぶ（D3）。失敗を確認する
 - [x] 2.2 RED: 390×844 と 1280×720 で、ヘッダーのアイコン付きリンクの高さがそのリンクの computed `line-height` 以下であることを確かめるテストを書く
 - [x] 2.3 GREEN: `src/components/Header.astro` のナビ 3 リンクに `PixelArt rows={…icon} scale={1}` を文字の前に置き、リンクを `inline-flex` + `align-items: center` + `gap: 0.35em` にする。ロゴとのベースラインの揃いを目視で確かめる
-- [ ] 2.4 既存のトップページの導線アイコンの検査（`links.spec.ts:75-80`）を、`nth(i)` の位置比較から行き先で選ぶ比較に書き換え、2.1 と同じ対応表を使う（`icon-refresh` 申し送り 2）
+- [x] 2.4 既存のトップページの導線アイコンの検査（`links.spec.ts:75-80`）を、`nth(i)` の位置比較から行き先で選ぶ比較に書き換え、2.1 と同じ対応表を使う（`icon-refresh` 申し送り 2）
 
 ## 3. 番人の確認と仕上げ
 
