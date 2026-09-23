@@ -26,8 +26,8 @@ function photo(id: string, over: Partial<Photo> = {}): { id: string; data: Photo
 }
 
 describe('validatePhotos', () => {
-  it('写真が 0 枚なら制約を評価せず問題なしとする', () => {
-    expect(validatePhotos([])).toEqual([]);
+  it('写真が 0 枚なら代表写真が無いことを報告する', () => {
+    expect(validatePhotos([])).toEqual(['featured はちょうど 1 枚にする（現在 0 枚: なし）']);
   });
 
   it('featured が 1 枚、order が一意、URL が規約どおりなら問題なし', () => {

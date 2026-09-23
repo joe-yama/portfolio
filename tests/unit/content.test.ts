@@ -4,16 +4,18 @@ import type { Career } from '../../src/content/schemas';
 // getCareer がビルドの経路（getEntry → 検証）から検証を外したら落ちる番人（design D3）。
 // astro:content を差し替え、日英のデータをテストごとに入れ替える
 const entries = vi.hoisted(() => ({}) as Partial<Record<'ja' | 'en', Career>>);
+// getPhotos の配線の番人（design D3）。写真の一覧もテストから差し替える
+const photoEntries = vi.hoisted(() => ({ list: [] as { id: string; data: unknown }[] }));
 
 vi.mock('astro:content', () => ({
   getEntry: vi.fn(async (_collection: string, id: 'ja' | 'en') => {
     const data = entries[id];
     return data === undefined ? undefined : { id, data };
   }),
-  getCollection: vi.fn(async () => []),
+  getCollection: vi.fn(async () => photoEntries.list),
 }));
 
-import { getCareer } from '../../src/lib/content';
+import { getCareer, getPhotos } from '../../src/lib/content';
 
 type Patent = Career['patents'][number];
 
@@ -54,5 +56,14 @@ describe('getCareer の検証の配線', () => {
   it('日英の件数が違えば例外を投げる（validateCareerParity の配線）', async () => {
     entries.en = career([patent('JP6549500B2')]);
     await expect(getCareer('ja')).rejects.toThrow(/career の内容に問題がある[\s\S]*patents/);
+  });
+});
+
+describe('getPhotos の検証の配線', () => {
+  it('写真が 0 枚ならビルドを止め、代表写真が無いことを示す', async () => {
+    photoEntries.list = [];
+    await expect(getPhotos()).rejects.toThrow(
+      /photos の内容に問題がある[\s\S]*featured[\s\S]*0 枚/,
+    );
   });
 });

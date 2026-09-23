@@ -2,7 +2,7 @@
 import PhotoPicture from '../../components/PhotoPicture.astro';
 import PixelArt from '../../components/pixel/PixelArt.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getPhotos, getProfile } from '../../lib/content';
+import { getFeaturedPhoto, getProfile } from '../../lib/content';
 import { locales, toLocale } from '../../lib/i18n';
 import { camera, github, linkedin } from '../../lib/pixel';
 import { languageSwitch, navLinks, ui } from '../../lib/site';
@@ -18,9 +18,7 @@ const lang = toLocale(Astro.params.lang);
 const base = import.meta.env.BASE_URL;
 const profile = await getProfile(lang);
 const sw = languageSwitch(Astro.url.pathname, lang, base);
-// 代表写真。validatePhotos が「ちょうど 1 枚」を保証しているので、見つからない = 写真が 0 枚
-const featured = (await getPhotos()).find((p) => p.data.featured);
-if (!featured) throw new Error('featured: true の写真が 1 枚も無い');
+const featured = await getFeaturedPhoto();
 ---
 
 <BaseLayout>

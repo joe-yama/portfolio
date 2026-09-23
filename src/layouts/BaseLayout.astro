@@ -4,7 +4,7 @@
 import { Font, getImage } from 'astro:assets';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
-import { getPhotos, getProfile } from '../lib/content';
+import { getFeaturedPhoto, getProfile } from '../lib/content';
 import { defaultLocale, localeFromPath, withBase } from '../lib/i18n';
 import { absoluteUrl, alternateLinks, canonicalUrl, ogLocale } from '../lib/site';
 import '../styles/global.css';
@@ -36,8 +36,7 @@ const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 630;
 let ogImage: { src: string; alt: string } | null = null;
 if (pathLocale) {
-  const featured = (await getPhotos()).find((p) => p.data.featured);
-  if (!featured) throw new Error('featured: true の写真が 1 枚も無い');
+  const featured = await getFeaturedPhoto();
   const img = await getImage({
     src: featured.data.image,
     width: OG_IMAGE_WIDTH,

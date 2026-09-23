@@ -33,3 +33,10 @@ export async function getPhotos(): Promise<PhotoEntry[]> {
   assertValid(validatePhotos(photos), 'photos');
   return photos.sort((a, b) => a.data.order - b.data.order);
 }
+
+/** 代表写真。getPhotos の検証が「ちょうど 1 枚」を保証するので、写真が 0 枚ならそこで止まる */
+export async function getFeaturedPhoto(): Promise<PhotoEntry> {
+  const featured = (await getPhotos()).find((p) => p.data.featured);
+  if (!featured) throw new Error('到達しない: 検証を通った写真に featured が無い');
+  return featured;
+}
