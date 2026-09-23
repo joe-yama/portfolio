@@ -168,9 +168,7 @@ describe('canonicalUrl', () => {
     expect(canonicalUrl('/portfolio/en/career/', 'https://example.com', '/portfolio')).toBe(
       'https://example.com/portfolio/en/career/',
     );
-  });
-
-  it('末尾スラッシュを補い、URL オブジェクトの site も受ける', () => {
+    // 末尾スラッシュを補い、URL オブジェクトの site も受ける
     expect(canonicalUrl('/ja/career', new URL('https://example.com'), '/')).toBe(
       'https://example.com/ja/career/',
     );
