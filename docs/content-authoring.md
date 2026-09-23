@@ -19,6 +19,7 @@
 - **`title` は公報の正式名称ではなく、発明の内容が推測できる短い見出し**（Change 11 の裁定 D12）。正式名称は「情報処理装置、記録媒体および情報処理方法」のような定型で、複数の発明が同じ文字列になり読み手が区別できないため。**日本語 40 文字・英語 90 文字を超えるとビルドが落ちる**
 - 見出しは**代表公報の請求項 1 に書かれていることだけ**で書く。書かれていない効果・用途を足さない（誤った要約は経歴についての誤った主張になる）
 - `countries` の**先頭は `number` の国・地域**にする（`JP…` なら `[JP, …]`）。違うとビルドが落ちる
+- `url` は**代表公報を指す**ようにする。`url` のパスを `/` で区切った要素のどれかが `number` と完全に一致しないとビルドが落ちる（`https://patents.google.com/patent/<number>/ja` の形なら通る。`JP7200645B22` のような前方一致は不可。`followup-minors-3` で追加）
 - 公報の正式名称と、見出しの根拠にした請求項 1 の全文は `openspec/changes/archive/2026-09-22-patents-full-retrieval/research/publications.md` にある（65 件全件）
 - **日本語の名称が暫定なのは 2 件だけ**（JP 代表公報が無い同族）。Change 8 の裁定 D7b はここでほぼ解消した
 - 新しい出願を足すときの調査手順は `openspec/changes/archive/2026-09-22-patents-full-retrieval/research/method.md`（Google Patents の HTML の落とし穴 4 つを含む）
