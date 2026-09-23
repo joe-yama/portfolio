@@ -48,8 +48,8 @@
 
 ## 7. 番人の確認と仕上げ
 
-- [ ] 7.1 変異を当てて 2 章・3 章の新しいテストが落ちることを確かめる（`docs/harness/README.md` の隔離実行の手順）。少なくとも: (a) `generateId` を外す、(b) `validatePhotos` の早期 return を戻す、(c) photo-add の try を外す、(d) `ghFailureMessage` を `message` 全体に戻す、(e) `assertValid` を ja → en の 2 回に戻す、(f) 検証に渡すロケールを入れ替える、(g) 特許 1 件の `url` を別の項目のものに入れ替える、(h) hreflang を `ja-JP` にする
-- [ ] 7.2 畳んだ・整理したテスト（3.2、4.2、4.4、6.1〜6.4）が、整理前と同じ変異で落ちることを確かめる
+- [x] 7.1 変異を当てて 2 章・3 章の新しいテストが落ちることを確かめる（`docs/harness/README.md` の隔離実行の手順）。少なくとも: (a) `generateId` を外す、(b) `validatePhotos` の早期 return を戻す、(c) photo-add の try を外す、(d) `ghFailureMessage` を `message` 全体に戻す、(e) `assertValid` を ja → en の 2 回に戻す、(f) 検証に渡すロケールを入れ替える、(g) 特許 1 件の `url` を別の項目のものに入れ替える、(h) hreflang を `ja-JP` にする
+- [x] 7.2 畳んだ・整理したテスト（3.2、4.2、4.4、6.1〜6.4）が、整理前と同じ変異で落ちることを確かめる
 - [ ] 7.3 `docs/status.md` の「PO 判断として残っている件」から Change 9（375×667、PO 決定: 直さない）と Change 11（見出し 4 件、本 change で対応）の段落を片付ける
 - [ ] 7.4 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
 
@@ -58,3 +58,60 @@
 - 2.1（D2）: 実データで `.` を含む slug の写真を入稿したとき、`getStaticPaths` がそのページを出し、Release の画像の取得まで含めてビルドと配信が通ることを 1 度確かめる（本 change では Release に該当の画像が無く、検証を通ってページの生成に入るところと、`.` を含むディレクトリが静的配信で 200 を返すところまでを確かめた）
 - 4.1（Change 4 の ponytail）: `.org` を `<b>` にする件は見送った。Chromium で計算済みスタイルを測ると `<span class="org">` は `font-weight: 600`、クラスなしの `<b>` は `700` で、見た目が変わる（`<b class="org">` にすると 600 のままだが、要素を変えるだけで CSS は減らない）。`<p class="org">` はブロック要素なので `<b>` にできない。やるなら `.org` を 700 にしてよいかを PO に確かめてから
 - 6.6（H1）: `inferRemoteSize` の重複は「同じ関数の中で 2 回呼ぶ」ものではなく、`PhotoPicture.astro` が呼び出しごとに 1 回呼ぶので、ギャラリー・個別ページ・トップで同じ画像の寸法を別々に読んでいるもの。ビルド時間が問題になったら、`src/lib/photo.ts` などで slug ごとに寸法を覚える仕組みを検討する（本 change ではやらない。ponytail）
+
+## 変異の記録（7.1・7.2、HEAD `be6cbd7`）
+
+手順は `docs/harness/README.md` §7。変異ごとに `git archive <rev>` で新しい複製（scratchpad の `m13/<名前>/exp`）を作り、`pnpm install --frozen-lockfile --offline` の後、対照（変異なし）→ 変異あり の順に同じ複製で回した。対照はすべて緑（unit は `RUN v5.0.1 …/m13/<名前>/exp` と `Tests 313 passed (313)`、e2e は `[build] directory: …/m13/<名前>/exp/dist/` と `114 passed`）。作業ツリーには変異を当てていない。e2e は毎回 `lsof -i :4399` が空であることを確かめて 1 本ずつ回した。
+
+### 7.1（HEAD の複製）
+
+| 変異 | 当てたファイルと変更 | 赤になったテスト名 | 出力の 1 行 |
+|---|---|---|---|
+| (a) | `src/content.config.ts`: photos の `generateId: ({ entry }) => photoIdFromEntry(entry),` の行を消す（キャストを移した今の `content-config.test.ts` の形で） | content-config.test「写真コレクションの id > ファイル名（拡張子を除く）をそのまま id にする」 | `AssertionError: expected undefined to be 'kamo-river-v1.2'` / `Tests 1 failed \| 312 passed (313)` |
+| (b) | `src/lib/validate.ts`: `validatePhotos` の冒頭に `if (entries.length === 0) return [];` | validate.test「写真が 0 枚なら代表写真が無いことを報告する」、content.test「getPhotos の検証の配線 > 写真が 0 枚ならビルドを止め、代表写真が無いことを示す」 | `AssertionError: promise resolved "[]" instead of rejecting` / `Tests 2 failed` |
+| (c) | `scripts/photo-add.ts`: exifr の `try { raw = … } catch { die(…) }` を `raw = …` だけにする | photo-add-cli「画像でないファイルは 1 行で中断し、読み取り部品の内部情報を出さず、Release に触れない」 | `AssertionError: expected [ …(2) ] to deeply equal [ StringMatching{…} ]` / `Tests 1 failed` |
+| (c2) | `scripts/photo-add.ts`: sharp の縮小の try / catch を外す | photo-add-cli「EXIF は読めても画素が壊れた JPEG は、縮小の失敗を 1 行で中断し、sharp の内部情報を出さない」 | `AssertionError: expected [ …(13) ] to deeply equal [ 'photo:add: 画像として読めない: x.jpg' ]` / `Tests 1 failed` |
+| (d) | `src/lib/photo-meta.ts`: `ghFailureMessage` の最後を `message.split('\n')[0]` → `message` | photo-meta.test「ghFailureMessage > stderr が空白だけで message が複数行なら、message の先頭行だけを返す」 | `expected 'Command failed: gh api user\nboom' to be 'Command failed: gh api user'` / `Tests 1 failed` |
+| (d2) | `scripts/photo-add.ts`: login の `.split('\n')[0]` を外す | photo-add-cli「アカウント確認 > gh のアカウント名が複数行でも、中断の理由は 1 行になる」 | `expected [ …(2) ] to have a length of 1 but got 2` / `Tests 1 failed` |
+| (e) | `src/lib/content.ts`: `getCareer` を `assertValid([...parity, ...ja], 'career'); assertValid(en, 'career');` の 2 回に | content.test「ja と en の両方にエラーがあれば、1 つの例外に両方が出る」 | `expected [Function] to throw error matching /ja: number が重複している…/ but got 'career の内容に問題がある:\n- ja: …'` / `Tests 1 failed` |
+| (f) | `src/lib/content.ts`: `validateCareerPatents(ja.data, 'en')` / `(en.data, 'ja')` に入れ替え | content.test「日本語のデータは日本語の上限で検証する」「英語のデータは英語の上限で検証する」ほか重複の 3 件 | `Tests 5 failed \| 308 passed (313)` |
+| (g) | 置き換え。元の変異（`ja.yaml` の JP7200645B2 の `url` を JP7354888B2 のものに）は緑: `114 passed`。e2e が期待値を同じ YAML から読むので、YAML を変えるとページと期待値が一緒に変わり、原理的に赤にならない | — | `114 passed (9.3s)`（変異あり） |
+| (g') | `src/pages/[lang]/career.astro`: `sortPatents(career.patents).map((p, i, all) => (i === 0 && lang === 'ja' ? { ...p, url: all[1].url } : p))` | pages.spec「特許の区画 > /ja/career/ の特許リンクの href と文字列が YAML の url と title に一致する」 | `Error: expect(received).toEqual(expected)` / `1 failed, 113 passed` |
+| (g'') | `src/components/PatentItem.astro`: `{patent.title}` → `{patent.title.slice(0, 20)}` | 同じテストの ja・en の 2 本 | `2 failed, 112 passed` |
+| (h) | `src/lib/site.ts`: `alternateLinks` で ja の hreflang を `ja-JP` に | pages.spec「<10 ページ> が表示され lang と hreflang が正しい」 | `10 failed, 104 passed` |
+| (h2) | `src/lib/site.ts`: en の hreflang の href を en のトップ（`/en/` 以降を切る）に | 同じテストのトップ以外の 8 ページ | `8 failed, 106 passed` |
+| 2.5 | `scripts/photo-add.ts`: `if (!result.ok) die(…)` を消す | photo-add-cli「レンズ情報を持たない JPEG は「レンズ」を挙げて 1 行で中断する」 | `expected 'photo:add: Command failed: gh release…' to match /…レンズ/`（偽の gh は `api` 以外で失敗するので `release view` で止まり、複製の `src/content/photos/` は 2 ファイルのまま） |
+| 2.7-a | `src/lib/theme.ts`: 6 桁の検査 `/^#[0-9a-f]{6}$/i` を `{3,8}` に（抽出を `{3,8}` に戻すのと同じ効果を今の形で） | theme.test「3 桁や 8 桁の色は抽出しない（…）」「6 桁の宣言の後に 3 桁で再宣言されていれば、前の値に戻らず例外にする」 | `expected [Function] to throw an error` / `Tests 2 failed` |
+| 2.7-b | `src/lib/theme.ts`: 値の拾い方を 6 桁だけの `(#[0-9a-fA-F]{6})(?![0-9a-fA-F])` に戻す（a9a7c1c の前） | 同じ 2 件 | `expected … /--bg が 6 桁の 16 進でない: #fff/ but got 'ライト のブロックに --bg が無い'` / `Tests 2 failed` |
+| 3.1 P2 | `src/content/schemas.ts`: `isCalendarDate` の先頭に `if (y < 100) return true;` | schemas.test「takenAt の 0050-02-29 / 0001-02-29 は暦に存在しないので拒否する」「0050-02-29 / 0001-02-29 は暦に存在しないので受け付けない」「年 0000 は 0000-02-29 を受け付け、0000-02-30 は拒否する」 | `expected true to be false` / `Tests 5 failed` |
+| 3.1 引用符 | `src/content/photos/kariya-ferris-wheel.yaml`: `takenAt: "2025-12-06"` → クォートなし | schemas.test「実データの takenAt > … クォートされた文字列で書かれている」 | `kariya-ferris-wheel.yaml の takenAt がクォートされていない: 2025-12-06` |
+| 3.2 順 | `src/lib/validate.ts`: `of INDEXED_KEYS` → `of [...INDEXED_KEYS].reverse()` | validate.test「比較キーが 3 つとも日英で違えば、certifications → achievements → patents の順に報告する」 | `expected [ …(3) ] to deeply equal [ …(3) ]` / `Tests 1 failed` |
+| 3.2 接頭辞 | `src/lib/validate.ts`: `` `${lang}: number が重複` `` → `` `number が重複` `` | validate.test の重複 2 件、content.test の重複 3 件 | `Tests 5 failed` |
+| 3.2 件数 | `src/lib/validate.ts`: 件数差の文言の ja / en の値を入れ替え | validate.test「patents の件数差を報告する」 | `expected [ 'patents の件数が日英で違う（ja: 0, en: 1）' ] to include '…（ja: 1, en: 0）'` |
+| 3.4 | `src/lib/i18n.ts`: `stripBase` の `normalizeBase(base)` → `base` | i18n.test「normalizeBase（stripBase 経由で観測する両端トリム） > base が portfolio / /portfolio / portfolio/ でも同じ base として剥がす」 | `expected '/portfolio/en/' to be '/en/'` / `Tests 3 failed` |
+| 3.3 区画 | 入力の確認（変異ではない）: `ja.yaml` の patents の途中に行頭の `# 区画の途中のコメント` | HEAD では緑（`33 passed`、pages.spec だけ）。3.3 の前（`30def38`）では特許の区画の 8 件が赤（`8 failed, 23 passed`） | 旧パーサーはコメント行で区画を終える |
+
+### 7.2（整理の前後の複製に同じ変異）
+
+| 整理 | 前 → 後のコミット | 変異 | 前 | 後 |
+|---|---|---|---|---|
+| 3.2 `patent()` 集約 | `e4864cc` → HEAD | `validate.ts` の patents の keyOf から filedAt を落とす（`filedAt -`） | 赤 2 件（filedAt 違い・countries 違い） | 赤 3 件（同じ 2 件 + 順の新テスト） |
+| 3.2 | 同上 | keyOf から countries の件数を落とす（`countries - 件`） | 赤 2 件 | 赤 3 件 |
+| 4.2 `hasDay` の畳み | `d78734a` → HEAD | `career.ts` の `hasDay` を常に true | 赤 5 件（`YYYY-MM-DD と YYYY-MM の両方で判定と表示が一致する` を含む） | 赤 5 件（`YYYY-MM-DD なら true、YYYY-MM なら false` を含む） |
+| 4.2 | 同上 | `formatDate` の日を常に `'numeric'`（前: `...(hasDay(date) ? { day: 'numeric' } : {})`、後: `day: hasDay(date) ? 'numeric' : undefined` を `day: 'numeric'` に） | 赤 4 件 | 赤 3 件（畳んだ hasDay のテストが見ていた `formatDate` の 2 つの assertion の分が減った。残る `年月までの日付は ja で 年月` などが同じ形を捕まえる） |
+| 4.2 `desc()` | 同上 | `sortPatents` の filedAt の比較の向きを逆に | 赤 1 件「countries の件数が同じなら filedAt の降順に並べる」 | 赤 1 件（同じ） |
+| 4.2 `desc()` | 同上 | `sortExperience` の向きを逆に | 赤 1 件「from の新しい順に並べる」 | 赤 1 件（同じ） |
+| 4.4 `existsOnCalendar` | `83051bb` → HEAD | `isCalendarDate` の先頭で `return true;` | 赤 9 件 | 赤 9 件（同じ 9 件） |
+| 4.4 | 同上 | YYYY-MM の素通しを外す（前: `if (parts.length === 2) return true;` を消す、後: `d === undefined \|\|` を消す） | 赤 3 件 | 赤 3 件（同じ） |
+| 4.4 enum の言い換え | 同上 | achievements の `kind` を `z.string()` | 赤「careerSchema > achievements の kind は talk / article / award / other のみ」 | 赤「kind の列挙 > careerSchema の achievements[].kind は列挙に無い blog を拒否する」 |
+| 4.4 | 同上 | profile の links の `kind` を `z.string()` | 赤「profileSchema > links は空配列も許すが、kind は列挙のみ」 | 赤「kind の列挙 > profileSchema の links[].kind は列挙に無い mastodon を拒否する」 |
+| 4.4 theme.test の `name` 列 | 同上 | `global.css` の light の `--fg-muted` を `#bbbbbb` | 赤「ライト --fg-muted/--bg は 4.5 以上」 | 赤「light の fgMuted / bg は 4.5 以上」 |
+| 6.3 下限 | `485a9b3` → HEAD（viewport.spec だけ） | `index.astro` の `max(12rem, 100svh - 27rem)` → `calc(100svh - 27rem)` | 赤「極端に低い画面でも写真の表示高さは0にならない」（`height=0.0`） | 赤（同じ） |
+| 6.2 表示比 | 同上 | `global.css` の末尾に `main picture img { width: 100% !important; height: 150px !important; }` | 赤「写真の表示比は元画像の縦横比と一致する」1 本 + 下限 | 赤: 表示比の 6 本（ja・en × 3 画面）+ 下限 |
+| 6.1 + 6.2 ロケール | 同上 | 同じ規則を `html:lang(en)` にだけ当てる | **緑**（14 passed。整理前は ja しか見ていない） | 赤: en の表示比の 3 本 |
+| 6.4 横スクロール | 同上 | `global.css` の末尾に `@media (max-width: 500px) { main { min-width: 600px; } }` | 赤「390×844 で横スクロールが発生しない」+ 幅いっぱい | 赤（同じ 2 件。後は失敗メッセージに scrollWidth / clientWidth が出ない） |
+
+注:
+- 4.4（`a94dbeb`）で形式違反の日付のエラーの組み合わせが変わった（`'2024-10'` を isoDate に渡すと、形式 + 暦 → 形式のみ）。改善で、上の 4.4 の変異の赤の件数は前後で同じ
+- 6.2 で最初に当てた `height: 150px !important` だけの変異は、幅が縦横比から決まって比が保たれる（225×150）ので表示比の検査は前後とも緑、下限と幅いっぱいの検査が赤だった。表示比の番人が弱いのではなく変異が比を崩していなかったので、`width: 100%` を足して当て直した（上の表）
+- 5.3 の確認: cwd をリポジトリの外（scratchpad）にして `<worktree>/node_modules/.bin/playwright test -c <worktree>/playwright.config.ts` を実行した。globalSetup は worktree の `dist/` にビルドし（`[build] directory: <worktree>/dist/`）、preview を起動して teardown が止めた（`Stopped preview server`）が、`tests/e2e/pages.spec.ts:75` の `parsePatents('src/content/career/ja.yaml')` が cwd 相対で `ENOENT` になり、テストは 1 本も走らずに失敗した（exit 1）。Playwright の config / cwd の解決ではなく、テストファイルの相対パスが原因。コードは変えていない（「提案」に記載）
