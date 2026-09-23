@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Career } from '../../src/content/schemas';
+import type { Patent } from '../../src/content/schemas';
 import {
   formatDate,
   formatMonth,
@@ -83,8 +83,6 @@ describe('sortByDateDesc', () => {
     expect(sortByDateDesc(items).map((i) => i.name)).toEqual(['B', 'A']);
   });
 });
-
-type Patent = Career['patents'][number];
 
 function patent(number: string, filedAt: string, countries: string[]): Patent {
   return { number, filedAt, countries, title: 't', url: 'https://example.com/' };
@@ -179,11 +177,9 @@ describe('formatPeriod', () => {
 });
 
 describe('hasDay', () => {
-  it('YYYY-MM-DD と YYYY-MM の両方で判定と表示が一致する', () => {
+  it('YYYY-MM-DD なら true、YYYY-MM なら false', () => {
     expect(hasDay('2024-10-12')).toBe(true);
-    expect(formatDate('2024-10-12', 'ja')).toBe('2024年10月12日');
     expect(hasDay('2024-10')).toBe(false);
-    expect(formatDate('2024-10', 'ja')).toBe('2024年10月');
   });
 });
 

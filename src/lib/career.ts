@@ -1,9 +1,12 @@
 import type { Career } from '../content/schemas';
 import type { Locale } from './i18n';
 
+/** 文字列の降順の比較関数（等しければ 0 で、toSorted の安定ソートが記述順を保つ） */
+const desc = (a: string, b: string) => (b > a ? 1 : b < a ? -1 : 0);
+
 /** 職歴を from の新しい順に並べた新しい配列を返す */
 export function sortExperience(experience: Career['experience']): Career['experience'] {
-  return experience.toSorted((a, b) => (b.from > a.from ? 1 : b.from < a.from ? -1 : 0));
+  return experience.toSorted((a, b) => desc(a.from, b.from));
 }
 
 /** date が日まで含むか（`YYYY-MM-DD`）。`YYYY-MM` なら false（design D9） */
@@ -18,11 +21,7 @@ function dateSortKey(date: string): string {
 
 /** 日付を持つ項目を date の新しい順に並べた新しい配列を返す（資格と実績で共用） */
 export function sortByDateDesc<T extends { date: string }>(items: T[]): T[] {
-  return items.toSorted((a, b) => {
-    const bKey = dateSortKey(b.date);
-    const aKey = dateSortKey(a.date);
-    return bKey > aKey ? 1 : bKey < aKey ? -1 : 0;
-  });
+  return items.toSorted((a, b) => desc(dateSortKey(a.date), dateSortKey(b.date)));
 }
 
 /** 出願国数の降順、同数なら filedAt の新しい順（どちらも同じなら記述順）に並べた新しい配列を返す */
@@ -30,7 +29,7 @@ export function sortPatents(patents: Career['patents']): Career['patents'] {
   return patents.toSorted((a, b) => {
     const byCountryCount = b.countries.length - a.countries.length;
     if (byCountryCount !== 0) return byCountryCount;
-    return b.filedAt > a.filedAt ? 1 : b.filedAt < a.filedAt ? -1 : 0;
+    return desc(a.filedAt, b.filedAt);
   });
 }
 
@@ -38,10 +37,9 @@ export function sortPatents(patents: Career['patents']): Career['patents'] {
 const PATENTS_HEAD_COUNT = 5;
 
 /** 先頭 5 件（head）とそれ以降（rest）に分ける。並び替えは呼び出し側の責務 */
-export function splitPatents(patents: Career['patents']): {
-  head: Career['patents'];
-  rest: Career['patents'];
-} {
+export function splitPatents(
+  patents: Career['patents'],
+): Record<'head' | 'rest', Career['patents']> {
   return { head: patents.slice(0, PATENTS_HEAD_COUNT), rest: patents.slice(PATENTS_HEAD_COUNT) };
 }
 
@@ -85,6 +83,6 @@ export function formatDate(date: string, lang: Locale): string {
   return new Intl.DateTimeFormat(lang, {
     year: 'numeric',
     month: 'long',
-    ...(hasDay(date) ? { day: 'numeric' } : {}),
+    day: hasDay(date) ? 'numeric' : undefined,
   }).format(toLocalDate(date));
 }
