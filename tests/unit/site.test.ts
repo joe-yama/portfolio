@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { briefcase, camera, globe } from '../../src/lib/pixel';
 import {
   alternateLinks,
   canonicalUrl,
@@ -7,7 +8,6 @@ import {
   languageSwitch,
   navLinks,
   ogLocale,
-  pairByIndex,
   photoPath,
   ui,
 } from '../../src/lib/site';
@@ -47,31 +47,25 @@ describe('alternateLinks', () => {
 describe('navLinks', () => {
   it('Photos → Career の順で、そのロケールの下を指す', () => {
     expect(navLinks('ja', '/')).toEqual([
-      { label: 'Photos', href: '/ja/photos/' },
-      { label: 'Career', href: '/ja/career/' },
+      { label: 'Photos', href: '/ja/photos/', icon: camera },
+      { label: 'Career', href: '/ja/career/', icon: briefcase },
     ]);
     expect(navLinks('en', '/')).toEqual([
-      { label: 'Photos', href: '/en/photos/' },
-      { label: 'Career', href: '/en/career/' },
+      { label: 'Photos', href: '/en/photos/', icon: camera },
+      { label: 'Career', href: '/en/career/', icon: briefcase },
     ]);
   });
 });
 
-describe('pairByIndex', () => {
-  it('2 つの配列を同じ位置どうしで対にし、ラベルの文字列に依存しない', () => {
-    const links = [
-      { label: '写真', href: '/a/' },
-      { label: '経歴', href: '/b/' },
-    ];
-    expect(pairByIndex(links, ['A', 'B'])).toEqual([
-      [links[0], 'A'],
-      [links[1], 'B'],
-    ]);
+describe('導線のアイコン（design D1）', () => {
+  it('navLinks の Photos は camera、Career は briefcase を持つ', () => {
+    const byLabel = Object.fromEntries(navLinks('ja', '/').map((l) => [l.label, l.icon]));
+    expect(byLabel).toEqual({ Photos: camera, Career: briefcase });
   });
 
-  it('件数が一致しなければ例外を投げる', () => {
-    expect(() => pairByIndex([1, 2], ['A'])).toThrow(/2.*1/);
-    expect(() => pairByIndex([1], ['A', 'B'])).toThrow(/1.*2/);
+  it('languageSwitch は両ロケールで globe を持つ', () => {
+    expect(languageSwitch('/ja/', 'ja', '/').icon).toBe(globe);
+    expect(languageSwitch('/en/', 'en', '/').icon).toBe(globe);
   });
 });
 
@@ -81,6 +75,7 @@ describe('languageSwitch', () => {
       label: 'English',
       href: '/en/career/',
       hreflang: 'en',
+      icon: globe,
     });
   });
 
@@ -89,6 +84,7 @@ describe('languageSwitch', () => {
       label: '日本語',
       href: '/ja/',
       hreflang: 'ja',
+      icon: globe,
     });
   });
 });

@@ -8,10 +8,16 @@ import {
   otherLocale,
   withBase,
 } from './i18n';
+import { briefcase, camera, globe } from './pixel';
 
 export type AlternateLink = { hreflang: Locale | 'x-default'; href: string };
-export type NavLink = { label: string; href: string };
-export type LanguageSwitch = { label: string; href: string; hreflang: Locale };
+export type NavLink = { label: string; href: string; icon: readonly string[] };
+export type LanguageSwitch = {
+  label: string;
+  href: string;
+  hreflang: Locale;
+  icon: readonly string[];
+};
 
 type UiStrings = {
   languageName: string;
@@ -129,21 +135,9 @@ export function ogLocale(lang: Locale): string {
 
 export function navLinks(lang: Locale, base: string): NavLink[] {
   return [
-    { label: 'Photos', href: photoPath(null, lang, base) },
-    { label: 'Career', href: careerPath(lang, base) },
+    { label: 'Photos', href: photoPath(null, lang, base), icon: camera },
+    { label: 'Career', href: careerPath(lang, base), icon: briefcase },
   ];
-}
-
-/** 2 つの配列を同じ位置どうしで対にする。件数が違えば対応が崩れているので例外を投げる */
-export function pairByIndex<A, B extends {}>(as: readonly A[], bs: readonly B[]): [A, B][] {
-  if (as.length !== bs.length) {
-    throw new Error(`件数が一致しない: ${as.length} 件と ${bs.length} 件`);
-  }
-  return as.map((a, i) => {
-    const b = bs[i];
-    if (b === undefined) throw new Error(`${i} 番目の対応が無い`);
-    return [a, b];
-  });
 }
 
 /** 相手の言語名を表示し、同じページの他言語版へ飛ぶリンク */
@@ -153,5 +147,6 @@ export function languageSwitch(path: string, lang: Locale, base: string): Langua
     label: ui[target].languageName,
     href: alternatePath(path, target, base),
     hreflang: target,
+    icon: globe,
   };
 }
