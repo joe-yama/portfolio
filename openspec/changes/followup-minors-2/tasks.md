@@ -20,7 +20,7 @@
 
 - [x] 3.1 F7 + H-C3: `tests/unit/schemas.test.ts` に年 0001〜0099 の存在しない日（`0050-02-29`、`0001-02-29`）の拒否と年 0000 の扱いの固定を足す。takenAt のクォート検査を単一引用符でも通るようにする
 - [x] 3.2 F5 + F8 + P2 + F4: `tests/unit/validate.test.ts` で、重複エラーの先頭の `ja:` / `en:` を確かめる、`INDEXED_KEYS` のキーをまたいだエラー順を固定する、patents の parity テストで件数も確かめる、特許のリテラル 7 か所を `patent()` に集約する（`patent()` を describe の外に出す）
-- [ ] 3.3 F3 + P4 + H-D3 + F14: `tests/e2e/pages.spec.ts` で、特許リンクの `href` と文字列が YAML の各項目の `url` と `title` に一致することを日英で確かめる。hreflang を完全一致で確かめる。`parsePatents` を `patents:` 区画の終わりまでに限定し（行頭の YAML コメントで区画を終えない、`patentsX:` に一致しない）、`expect(hasTie)` に理由を付け、`locales` を `src/lib/i18n` から import し、`description ?? ''` を整理する
+- [x] 3.3 F3 + P4 + H-D3 + F14: `tests/e2e/pages.spec.ts` で、特許リンクの `href` と文字列が YAML の各項目の `url` と `title` に一致することを日英で確かめる。hreflang を完全一致で確かめる。`parsePatents` を `patents:` 区画の終わりまでに限定し（行頭の YAML コメントで区画を終えない、`patentsX:` に一致しない）、`expect(hasTie)` に理由を付け、`locales` を `src/lib/i18n` から import し、`description ?? ''` を整理する
 - [x] 3.4 H-D1: `tests/unit/i18n.test.ts` の describe「stripBase 経由」が `stripBase` を呼ぶようにする
 
 ## 4. 品質改善（挙動不変）: 実装
