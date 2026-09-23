@@ -1,5 +1,5 @@
-// Task 5 の photo-meta.ts がこのファイルから PLACEHOLDER を読み、そちらは node が直接実行する
-// 経路に乗る。Node の ESM 解決は拡張子を補わないので、ここだけ .ts を明示する（計画の落とし穴 5）
+// photo-meta.ts（入稿コマンドが node で直接実行する経路）がこのファイルを import する。
+// Node の ESM 解決は拡張子を補わないので、相対 import に .ts を付ける
 import { type Career, PHOTO_BASE_URL, type PhotoEntry } from '../content/schemas.ts';
 import type { Locale } from './i18n.ts';
 
