@@ -73,7 +73,7 @@
     - (g) 2 failed: viewport.spec「横並び: 1280×720 の /ja/ では代表写真が文字列の左にあり、本文の幅の半分以上を占める」「横並び: 1024×768 の /en/ では代表写真が名前の左にある」
     - (h) 1 failed: pages.spec「SNS 共有カード > 代表ではない写真の個別ページの共有カードは、その写真から作られる」
     - (i) 10 failed: pages.spec「<path> が表示され lang と hreflang が正しい」の 10 ページすべて（`meta[name="description"]` が tagline になる）
-- [ ] 6.2 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
+- [x] 6.2 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
 
 ## 提案（本 change のスコープ外・後続への申し送り）
 
