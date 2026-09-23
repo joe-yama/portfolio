@@ -18,7 +18,7 @@
 
 ## 3. 番人の確認と仕上げ
 
-- [ ] 3.1 変異を当てて 2.1・2.2・2.4 のテストが落ちることを確かめる（`docs/harness/README.md` の隔離実行の手順）。少なくとも: (a) ヘッダーの Career に camera を渡す、(b) ヘッダーのアイコンを `scale={2}` にする、(c) `navLinks()` の Photos と Career の順を入れ替える（トップの比較が href に結びついていれば、図柄の取り違えは起きず緑のままであることも確かめる）、(d) ロゴに svg を足す、(e) トップ本文の Photos の図柄を取り違える（2.4）、(f) 2.5 の media query を消す、(g) media query の閾値を 20rem にする
-- [ ] 3.2 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
+- [x] 3.1 変異を当てて 2.1・2.2・2.4 のテストが落ちることを確かめる（`docs/harness/README.md` の隔離実行の手順）。少なくとも: (a) ヘッダーの Career に camera を渡す、(b) ヘッダーのアイコンを `scale={2}` にする、(c) `navLinks()` の Photos と Career の順を入れ替える（トップの比較が href に結びついていれば、図柄の取り違えは起きず緑のままであることも確かめる）、(d) ロゴに svg を足す、(e) トップ本文の Photos の図柄を取り違える（2.4）、(f) 2.5 の media query を消す、(g) media query の閾値を 20rem にする
+- [x] 3.2 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
 
 ## 提案（本 change のスコープ外・後続への申し送り）
