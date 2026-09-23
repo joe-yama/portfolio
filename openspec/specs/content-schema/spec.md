@@ -128,6 +128,8 @@
 
 同じ言語のデータの中で `number` が重複してはならない（MUST NOT）。重複がある場合はビルドを失敗させ、エラーに重複した `number` を含めなければならない（MUST）。
 
+`url` は代表公報を指さなければならない（MUST）。`url` のパスを `/` で区切った要素のいずれかが `number` と完全に一致しない場合、ビルドを失敗させ、エラーに該当する `number` と `url` を含めなければならない（MUST）。前方一致（`JP7200645B2` に対する `JP7200645B22`）は一致とみなさない。この検証は日本語・英語の両方のデータに対して行う（MUST）。
+
 #### Scenario: 必須項目が揃った特許
 - **WHEN** `filedAt`、`title`、`number`、`countries`、`url` を持つ特許をビルドする
 - **THEN** ビルドは成功する
@@ -175,6 +177,22 @@
 #### Scenario: 英語の見出しが長すぎる
 - **WHEN** 英語の `title` が 91 文字の特許をビルドする
 - **THEN** ビルドは失敗し、エラーに該当する `number` と文字数が含まれる
+
+#### Scenario: url が代表公報を指す
+- **WHEN** `number` が `JP7200645B2`、`url` が `https://patents.google.com/patent/JP7200645B2/ja` の特許をビルドする
+- **THEN** ビルドは成功する
+
+#### Scenario: url が別の公報を指す
+- **WHEN** `number` が `JP7200645B2`、`url` が `https://patents.google.com/patent/JP7354888B2/ja` の特許をビルドする
+- **THEN** ビルドは失敗し、エラーに `JP7200645B2` と `url` が含まれる
+
+#### Scenario: url の公報番号が前方一致するだけ
+- **WHEN** `number` が `JP7200645B2`、`url` が `https://patents.google.com/patent/JP7200645B22/ja` の特許をビルドする
+- **THEN** ビルドは失敗する
+
+#### Scenario: 英語のデータの url だけが別の公報を指す
+- **WHEN** 日本語のデータの `url` は代表公報を指すが、英語のデータで同じ特許の `url` が別の公報を指す
+- **THEN** ビルドは失敗する
 
 ### Requirement: 写真のデータ構造
 写真は 1 枚につき 1 ファイルで、ファイル名（拡張子を除く）を slug とする。各写真は `image`（URL）、`order`（整数）、`featured`（真偽値）、`takenAt`（日付）、`title` / `location` / `alt`（それぞれ `ja` と `en` の両方を持つ文字列）、`exif`（`camera`、`lens`、`aperture`（数値）、`shutterSpeed`（文字列）、`iso`（整数）の 5 項目すべて）を持たなければならない（MUST）。

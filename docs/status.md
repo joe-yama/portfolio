@@ -1,10 +1,10 @@
 # 現在の状態
 
-最終更新: 2026-09-23（change `followup-minors-2` のマージとアーカイブ時点）。`CLAUDE.md` の索引から参照される。
+最終更新: 2026-09-23（change `followup-minors-3` のマージとアーカイブ時点）。`CLAUDE.md` の索引から参照される。
 
 ## フェーズ
 
-**v1 公開済み**（2026-09-21）。change `followup-minors-2`（Issue #52、PR #55）をマージ・アーカイブ済み（2026-09-23）。**進行中の change は無い。**
+**v1 公開済み**（2026-09-21）。change `followup-minors-3`（Issue #57、PR #58）をマージ・アーカイブ済み（2026-09-23）。**進行中の change は無い。**
 
 2026-09-23 から implementer も Opus で動かす（PO 指示、PR #44。`.claude/rules/review.md`）。
 
@@ -24,8 +24,8 @@
 - **写真はサンプルのまま 2 枚**（差し替えは PO 待ち）。375×667 では写真の高さ上限が発動して本文の幅より狭くなるが、直さない（PO 決定 2026-09-23、Change 9 の件）。写真が 0 枚だと代表写真が無いのでビルドが落ちる（2026-09-23、`followup-minors-2`）
 - **経歴の一部文言・スキルを更新**（2026-09-22、`fix-misc`）。experience 先頭項目の role から「（全社横断）」を削除、bullets を「…開発標準活動を立ち上げリーディング」に変更。skills「クラウド」に「プラットフォームエンジニアリング」追加、「プログラミング言語」を `[Python, Java, Scala, C++, TypeScript]` に置き換え（SQL を除外）、新カテゴリ「言語」（英語を第一言語とするチームのリーディング）を追加。特許の区画見出しを「特許」→「代表的な特許」に変更（区画の構成・折りたたみの挙動は変更なし）
 - **AWS 認定資格 12 件へのバッジロゴ表示は一度実装したが、PO の判断（見た目が良くない）で取り消した**（2026-09-22、`fix-misc`）。詳細と再挑戦時の考慮点は `openspec/changes/archive/2026-09-22-fix-misc/tasks.md` の「提案」
-- **特許の `url` は必須**（2026-09-23、`followup-minors`）。欠けていたり、同じ言語の中で公報番号が重複したりするとビルドが落ちる。特許の見出しはすべてリンクになる（全 65 件が元から `url` を持っていたので見た目は変わらない）
-- **ヘッダーの Photos / Career / 言語切り替えにトップ本文と同じドット絵**（2026-09-23、`header-nav-icons`）。幅 30rem（480px）未満ではヘッダーのアイコンを隠し、ヘッダーを 1 行に保つ（PO 決定。アイコンを付けたままだと 390〜443px でヘッダーが 2 行になる）。アイコンは `navLinks()` / `languageSwitch()` のデータが持ち、トップとヘッダーが同じ対応を使う
+- **特許の `url` は必須**（2026-09-23、`followup-minors`）。欠けていたり、同じ言語の中で公報番号が重複したりするとビルドが落ちる。`url` のパスに `number` が区切りとして入っていない（別の公報を指す）ときもビルドが落ちる（2026-09-23、`followup-minors-3`）。特許の見出しはすべてリンクになる（全 65 件が元から `url` を持っていたので見た目は変わらない）
+- **ヘッダーの Photos / Career / 言語切り替えにトップ本文と同じドット絵**（2026-09-23、`header-nav-icons`）。幅 30rem（480px）未満ではヘッダーのアイコンを隠し、ヘッダーを 1 行に保つ（PO 決定。アイコンを付けたままだと 390〜443px でヘッダーが 2 行になる）。アイコンは `navLinks()` / `languageSwitch()` のデータが持ち、トップとヘッダーが同じ対応を使う。1 行のときロゴとナビの文字のベースラインは 0.5px 以内にそろう（PO 決定。`followup-minors-3` で 1.9px のずれを直した）
 - トップページのドット絵のうち鞄（Career）と地球儀（言語切り替え）を描き直し、アイコン取り違えの番人を座標の完全一致に強化（2026-09-23、`icon-refresh`）
 - トップページ本文最下部を「サイト内導線（Photos/Career/言語切り替え） → 連絡先リンク（GitHub/LinkedIn）」の順に入れ替え、5 リンクにドット絵アイコンを追加（2026-09-22、`fix-misc`。`profile-and-career` spec 改定済み）
 - **経歴のスキルに「コーヒー」を追加**（2026-09-23、PR #42）。スキル表の最終行に `コーヒー: [ハンドドリップ, モカポット, たいてい1日に5杯]` / `Coffee: [Hand drip, Moka pot, Usually five cups a day]` を置き、トップの肩書 "Builder, photographer, coffee lover" のコーヒーを経歴ページで回収した
@@ -46,7 +46,7 @@
 
 1. 写真の追加・差し替え
 2. 独自ドメインへの移行（設計書 §9 の手順で `base` の削除が必要）
-3. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件、Change 10 の 35 件超、Change 11 の 19 件（20 件のうち隔離実行の手順の件は 2026-09-23 に対応済み）、`icon-refresh` の 3 件（各 `openspec/changes/archive/*/tasks.md` の末尾）。**Change 7〜11 の分は `followup-minors` で仕分け・対応済みで、束に入れなかったもの（新機能・PO 判断・写真表示まわり）が残る**。`followup-minors` 自身の申し送り（Minor・ponytail 約 25 件）は `openspec/changes/archive/2026-09-23-followup-minors/tasks.md` の末尾。`header-nav-icons` の申し送り 7 件（30rem の書き方と境界 479px の検査、1280px でナビの文字のベースラインがロゴより 1.8px 上、ヘッダーのリンクの並びを見る e2e が無い、ほか）は `openspec/changes/archive/2026-09-23-header-nav-icons/tasks.md` の末尾。`followup-minors-2` の申し送り 20 件（特許の `url` が別の公報を指す誤りの番人が無い、e2e が cwd 相対で YAML を読む、`.` を含む slug の実データでの確認、pictureSizing の見送り、ほか）は `openspec/changes/archive/2026-09-23-followup-minors-2/tasks.md` の「提案」
+3. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件、Change 10 の 35 件超、Change 11 の 19 件（20 件のうち隔離実行の手順の件は 2026-09-23 に対応済み）、`icon-refresh` の 3 件（各 `openspec/changes/archive/*/tasks.md` の末尾）。**Change 7〜11 の分は `followup-minors` で仕分け・対応済みで、束に入れなかったもの（新機能・PO 判断・写真表示まわり）が残る**。`followup-minors` 自身の申し送り（Minor・ponytail 約 25 件）は `openspec/changes/archive/2026-09-23-followup-minors/tasks.md` の末尾。`header-nav-icons` の申し送り 7 件と `followup-minors-2` の申し送り 20 件は `followup-minors-3` で仕分け・対応済み（対応しなかった件は `openspec/changes/archive/2026-09-23-followup-minors-3/proposal.md` の「含めない」）。`followup-minors-3` 自身の申し送り約 20 件（配信 CSS でメディアクエリが範囲構文に書き換わり design D2 の古い Safari 対策が効かない件の PO 判断、ベースラインの測り方の -0.112px の偏り、pid が取れず失敗したとき preview がポート 4399 に残る、ほか）は `openspec/changes/archive/2026-09-23-followup-minors-3/tasks.md` の「提案」
 4. Change 4・5 の後続への提案と申し送り（各 `openspec/changes/archive/2026-09-21-*/tasks.md` の末尾）
 5. AWS 認定資格のバッジロゴ表示を再検討する場合は、見せ方（サイズ・配置・ドット絵化するか等）から設計し直す（一度実装し PO の判断で取り消し済み）
 

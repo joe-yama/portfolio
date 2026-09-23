@@ -35,7 +35,7 @@
 
 - [x] 5.1 変異を当てて 1〜3 章の新しいテストが落ちることを確かめる（`docs/harness/README.md` の隔離実行の手順）。少なくとも: (a) 1.1 の検査を外す、(b) 完全一致を `includes` にする（前方一致のケースが赤）、(c) ja だけに検査をかける、(d) 2.1 の閾値を 27rem にする（479px が赤）、(e) 2.2 の CSS を戻す、(f) ヘッダーのナビの Photos と Career を入れ替える（2.3 が赤）、(g) 1.2 の throw を外して pid を null にする、(h) 1.3 の比較を先頭行に戻す、(i) 1.4 の削除を外す、(j) 1.5 のドットファイルの除外を外して `.draft.yaml` を置く、(k) `getFeaturedPhoto` が `getPhotos` を通らないようにする
 - [x] 5.2 M19: `tests/e2e/pages.spec.ts` の `parsePatents` が `patentsX:` に一致しないことの対照実験。`ja.yaml` の patents の後に `patentsX:` の区画を足した入力で、今の実装は特許の件数が変わらず、`/^patents:/` に戻すと変わる（赤になる）ことを確かめる
-  - 裁定（コントローラー、2026-09-23）: 書いた形の対照は成り立たなかった。`/^patents:/` も `patents` の直後にコロンを要するので `patentsX:` に一致せず、緑のまま（130 passed）。`patentsX:` に一致する `/^patents/` に変えると特許の件数の検査など 7 件が赤（期待 66 件・実際 65 件）になり、今の実装が `patentsX:` を読まないことはこの対照で確かめた。テストは直さない。記録: `.superpowers/sdd/2026-09-23-followup-minors-3/task-8-9-report.md` §5.2
+  - 裁定（コントローラー、2026-09-23）: 書いた形の対照は成り立たなかった。`/^patents:/` も `patents` の直後にコロンを要するので `patentsX:` に一致せず、緑のまま（130 passed）。`patentsX:` に一致する `/^patents/` に変えると特許の件数の検査など 7 件が赤（期待 66 件・実際 65 件）になり、今の実装が `patentsX:` を読まないことはこの対照で確かめた。テストは直さない。詳細な実行記録は git 管理外の作業ディレクトリにあったので残っていない
 - [x] 5.3 cwd をリポジトリの外にして `<worktree>/node_modules/.bin/playwright test -c <worktree>/playwright.config.ts` を実行し、全件緑になることを確かめる（修正前は `pages.spec.ts:75` の `ENOENT` で落ちることを対照として記録する）
 - [x] 5.4 書き換えたテスト（3.2、4.1、4.2、4.5、4.7）が、書き換え前と同じ変異で落ちることを確かめる
 - [x] 5.5 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
