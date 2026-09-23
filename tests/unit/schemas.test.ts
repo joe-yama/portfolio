@@ -62,6 +62,11 @@ describe('photoSchema', () => {
     expect(photoSchema.safeParse({ ...validPhoto, takenAt: '0050-02-28' }).success).toBe(true);
   });
 
+  // 年 0050 と 0001 は閏年でない。0〜99 年を 1900 年代に読み替える実装だと誤判定しうる
+  it.each(['0050-02-29', '0001-02-29'])('takenAt の %s は暦に存在しないので拒否する', (takenAt) => {
+    expect(photoSchema.safeParse({ ...validPhoto, takenAt }).success).toBe(false);
+  });
+
   it('image が URL でなければ拒否する', () => {
     expect(photoSchema.safeParse({ ...validPhoto, image: '../../assets/x.jpg' }).success).toBe(
       false,
@@ -313,6 +318,18 @@ describe('資格と実績の日付の粒度', () => {
   it('0100-02-29 は閏年ではないので受け付けない', () => {
     expect(certWith('0100-02-29').success).toBe(false);
   });
+
+  // 年 0050 と 0001 は閏年でない
+  it.each(['0050-02-29', '0001-02-29'])('%s は暦に存在しないので受け付けない', (date) => {
+    expect(certWith(date).success).toBe(false);
+  });
+
+  // 年 0000 を拒むかは spec に無い。現状の挙動を固定する（正規表現 \d{4} が受け、
+  // 先発グレゴリオ暦で 0 年は閏年なので 0000-02-29 は暦にある）
+  it('年 0000 は 0000-02-29 を受け付け、0000-02-30 は拒否する', () => {
+    expect(certWith('0000-02-29').success).toBe(true);
+    expect(certWith('0000-02-30').success).toBe(false);
+  });
 });
 
 describe('実データの takenAt', () => {
@@ -328,7 +345,7 @@ describe('実データの takenAt', () => {
       const match = text.match(/^takenAt:\s*(.+)$/m);
       expect(match, `${file} に takenAt が無い`).not.toBeNull();
       expect(
-        match?.[1].trim().startsWith('"'),
+        /^["']/.test(match?.[1].trim() ?? ''),
         `${file} の takenAt がクォートされていない: ${match?.[1]}`,
       ).toBe(true);
     }
