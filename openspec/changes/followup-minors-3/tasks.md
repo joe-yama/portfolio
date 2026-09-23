@@ -45,8 +45,15 @@
 - `src/lib/validate.ts:154` のコメント「includes だと前方一致も通す」が、次の行の配列の `includes` と紛らわしい。「文字列の includes だと」にする（Task 1 レビュー Minor）
 - `src/lib/validate.ts:155` の `new URL` はスキーマを通していない値で例外を投げる。今の呼び出し元はスキーマ済みのデータだけなので、JSDoc に前提を一言足す程度（Task 1 レビュー Minor）
 - `src/lib/validate.ts:155` は `mailto:` のような階層の無い URL でも、パスが `number` と同じなら通る。spec の規則どおりなので記録のみ（Task 1 レビュー Minor）
-- **配信 CSS ではメディアクエリが範囲構文に書き換わる**: Vite 8 が lightningcss（既定ターゲット safari16.4）で縮小するので、`not all and (min-width: 30rem)` は `not all and (width>=30rem)` として配信される（修正前の `max-width: 29.99rem` も `(width<=29.99rem)` になっていた）。design D2 の「古い Safari で規則ごと無視されるので範囲構文を使わない」はビルド後には効いていない。Safari 16.4 未満を支えるなら `build.cssTarget` を足す、支えないなら D2 と `Header.astro` のコメントから Safari の理由を外す。PO 判断（Task 5 レビュー、裁定: 本 change では直さない）
-- `tests/e2e/links.spec.ts:159-160` のベースラインの測り方は canvas の ascent が丸め前の値で、-0.112px の偏りがある。実際のずれが [-0.388, +0.612]px なら緑になる。0×0 の目印をベースラインに置いて測れば偏りは 0（Task 5 レビュー Minor）
-- `tests/e2e/links.spec.ts:159` の `?? el` は不要（テキストノードの親は必ずある）（Task 5 レビュー ponytail）
+- **配信 CSS ではメディアクエリが範囲構文に書き換わる**: Vite 8 が lightningcss（既定ターゲット safari16.4）で縮小するので、`not all and (min-width: 30rem)` は `not all and (width>=30rem)` として配信される（修正前の `max-width: 29.99rem` も `(width<=29.99rem)` になっていた）。design D2 の「古い Safari で規則ごと無視されるので範囲構文を使わない」はビルド後には効いていない。Safari 16.4 未満を支えるなら `build.cssTarget` を足す、支えないなら design D2 から Safari の理由を外す（`Header.astro` のコメントには元から書かれていない）。PO 判断（Task 5 レビュー、裁定: 本 change では直さない）
+- `tests/e2e/links.spec.ts:155-156` のベースラインの測り方は canvas の ascent が丸め前の値で、-0.112px の偏りがある。実際のずれが [-0.388, +0.612]px なら緑になる。0×0 の目印をベースラインに置いて測れば偏りは 0（Task 5 レビュー Minor）
+- `tests/e2e/links.spec.ts:155` の `?? el` は不要（テキストノードの親は必ずある）（Task 5 レビュー ponytail）
 - `tests/e2e/pages.spec.ts` の `parsePatents` のコメントが `patentsX:` を弾く理由を `\s*$` に帰しているが、`\s*$` が実際に弾くのは `patents: []` のような同じ行に値を持つ形。コメントを実態に合わせる（5.2 の裁定）
 - `tests/unit/site.test.ts` の 4.1 の削除で `toBe(globe)` の同一参照の検査が無くなり、`toEqual` の構造比較だけになった。`globe` と同じ中身の別の配列に差し替えても捕まらないが、描画は変わらないので記録のみ（Task 8）
+- `docs/content-authoring.md:18` に特許の `url` の新しい規則（パスを `/` で区切った要素に `number` が無いとビルドが落ちる）が無い。archive のコミットで 1 行足す（最終レビュー Minor）
+- `src/lib/site.ts:23-24` の `CareerSection` の JSDoc が「キーの順が表示を決める」とも読める。実際に順を決めるのは `src/pages/[lang]/career.astro` のテンプレートなので、それを名指しする（単位 C Minor）
+- `tests/e2e/global-setup.ts:117` の「起動中の message は常に `pid N` を含む」は astro 7.3.2 の `status()` に依存する。出典のバージョンを書く（単位 C Minor。前提が崩れても起動後の throw で止まる）
+- `tests/e2e/global-setup.ts:142-147` で pid が取れずに throw すると、起動した preview が共有のポート 4399 に残り、止めるまで他の worktree の e2e が落ちる。throw の前に `astro preview stop` を試す（単位 C Minor）
+- `scripts/photo-add.ts:86-89` は出力が `joe-yama\nother` のとき「joe-yama ではない（joe-yama）」と矛盾して見える（design D5 どおり、記録のみ）。`.trim()` は `gh()` が既に行っているので不要で、変数も 1 つにできる（単位 C・最終レビュー Minor / ponytail）
+- `scripts/photo-add.ts:110, 128-146`: `release view` / `create` / `upload` の失敗で中断したときも `photo-add-*` が tmp に残る（単位 C Minor）
+- `580080c` は中身が文書だけなので種別は `docs:` が妥当だった（履歴は書き換えない。記録のみ）
