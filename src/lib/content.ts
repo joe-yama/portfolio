@@ -17,9 +17,15 @@ export async function getProfile(lang: Locale): Promise<Profile> {
 export async function getCareer(lang: Locale): Promise<Career> {
   const [ja, en] = await Promise.all([getEntry('career', 'ja'), getEntry('career', 'en')]);
   if (!ja || !en) throw new Error('career/ja.yaml と career/en.yaml の両方が必要');
-  assertValid(validateCareerParity(ja.data, en.data), 'career');
-  assertValid(validateCareerPatents(ja.data, 'ja'), 'career/ja');
-  assertValid(validateCareerPatents(en.data, 'en'), 'career/en');
+  // 1 回にまとめて投げる。言語ごとに投げると ja のエラーが en のエラーを隠す（design D4）
+  assertValid(
+    [
+      ...validateCareerParity(ja.data, en.data),
+      ...validateCareerPatents(ja.data, 'ja'),
+      ...validateCareerPatents(en.data, 'en'),
+    ],
+    'career',
+  );
   return lang === 'ja' ? ja.data : en.data;
 }
 
@@ -32,4 +38,11 @@ export async function getPhotos(): Promise<PhotoEntry[]> {
   const photos = entries.map((e) => ({ id: e.id, data: e.data }));
   assertValid(validatePhotos(photos), 'photos');
   return photos.sort((a, b) => a.data.order - b.data.order);
+}
+
+/** 代表写真。getPhotos の検証が「ちょうど 1 枚」を保証するので、写真が 0 枚ならそこで止まる */
+export async function getFeaturedPhoto(): Promise<PhotoEntry> {
+  const featured = (await getPhotos()).find((p) => p.data.featured);
+  if (!featured) throw new Error('到達しない: 検証を通った写真に featured が無い');
+  return featured;
 }

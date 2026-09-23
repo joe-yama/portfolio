@@ -16,31 +16,28 @@ function isCalendarDate(y: number, m: number, d: number): boolean {
   return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
 }
 
+/** `YYYY-MM-DD` なら暦に実在する日か。`YYYY-MM` は月の範囲を正規表現が保証済みなので常に true */
+const existsOnCalendar = (s: string) => {
+  const [y, m, d] = s.split('-').map(Number);
+  return d === undefined || isCalendarDate(y, m, d);
+};
+
 /** YYYY-MM */
 const yearMonth = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'YYYY-MM 形式で書く');
 /** YYYY-MM-DD。暦に存在しない日（2025-02-30 など）は refine で弾く */
 const isoDate = z
   .string()
   .regex(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/, 'YYYY-MM-DD 形式で書く')
-  .refine((s) => {
-    const [y, m, d] = s.split('-').map(Number);
-    return isCalendarDate(y, m, d);
-  }, '暦に存在しない日');
+  .refine(existsOnCalendar, '暦に存在しない日');
 
 /**
  * YYYY-MM または YYYY-MM-DD。資格・実績は分かっている粒度で書く（design D1）。
  * YYYY-MM-DD のときだけ、暦に存在しない日（2025-02-30 など）を refine で弾く
- * （YYYY-MM は月の範囲を正規表現が保証済みなので追加の検査は要らない）
  */
 const datePrecision = z
   .string()
   .regex(/^\d{4}-(0[1-9]|1[0-2])(-(0[1-9]|[12]\d|3[01]))?$/, 'YYYY-MM または YYYY-MM-DD 形式で書く')
-  .refine((s) => {
-    const parts = s.split('-').map(Number);
-    if (parts.length === 2) return true;
-    const [y, m, d] = parts;
-    return isCalendarDate(y, m, d);
-  }, '暦に存在しない日');
+  .refine(existsOnCalendar, '暦に存在しない日');
 
 export const exifSchema = z.object({
   camera: nonEmpty,

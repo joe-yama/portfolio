@@ -32,12 +32,16 @@ function parseTokens(block: string, label: string): Tokens {
   const out = {} as Tokens;
   for (const key of TOKEN_KEYS) {
     const cssName = key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`); // fgMuted → fg-muted
-    const matches = [
-      ...withoutComments.matchAll(new RegExp(`--${cssName}:\\s*(#[0-9a-fA-F]{3,8})`, 'g')),
-    ];
+    // 値は形を問わず拾い、後勝ちの 1 つだけを 6 桁か確かめる。6 桁だけを拾うと、
+    // 後の 3 桁や 8 桁の再宣言を飛ばして描画されない前の値を検算してしまう
+    const matches = [...withoutComments.matchAll(new RegExp(`--${cssName}:\\s*([^;}]+)`, 'g'))];
     const last = matches.at(-1);
     if (!last) throw new Error(`${label} のブロックに --${cssName} が無い`);
-    out[key] = last[1];
+    const value = last[1].trim();
+    if (!/^#[0-9a-f]{6}$/i.test(value)) {
+      throw new Error(`${label} の --${cssName} が 6 桁の 16 進でない: ${value}`);
+    }
+    out[key] = value;
   }
   return out;
 }

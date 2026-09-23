@@ -12,6 +12,15 @@ export type PhotoMeta = {
   iso: number;
 };
 
+/**
+ * 写真データファイルの glob の entry（`<slug>.yaml`）→ コレクションの id。
+ * Astro の既定の id 生成は `.` を消し大文字を小文字にするので、spec の「ファイル名を slug とする」から
+ * ずれる（`kamo-river-v1.2.yaml` → `kamo-river-v12`）。拡張子だけを除く（design D2）
+ */
+export function photoIdFromEntry(entry: string): string {
+  return entry.replace(/\.yaml$/, '');
+}
+
 /** ファイル名（拡張子を除いて kebab-case に）または --slug の値（そのまま）→ slug。使えなければ由来の分かる文言で例外 */
 export function toSlug(fileName: string, slugArg?: string): string {
   if (slugArg !== undefined) {
@@ -125,7 +134,10 @@ export function isReleaseNotFound(error: unknown): boolean {
   return status === 1 && typeof stderr === 'string' && stderr.includes('release not found');
 }
 
-/** execFileSync が投げるエラーから、gh の失敗理由をスタックトレースではない 1 行に整形する */
+/**
+ * execFileSync が投げるエラーから、gh の失敗理由をスタックトレースではない 1 行に整形する。
+ * stderr があればその先頭行、stderr が空なら message の先頭行を使う
+ */
 export function ghFailureMessage(error: unknown): string {
   if (typeof error !== 'object' || error === null) return String(error);
   const { code, stderr, message } = error as {
@@ -135,7 +147,7 @@ export function ghFailureMessage(error: unknown): string {
   };
   if (code === 'ENOENT') return 'gh コマンドが見つからない（未インストール、または PATH に無い）';
   if (typeof stderr === 'string' && stderr.trim() !== '') return stderr.trim().split('\n')[0];
-  return typeof message === 'string' ? message : String(error);
+  return typeof message === 'string' ? message.split('\n')[0] : String(error);
 }
 
 /** YAML の二重引用符スカラーは JSON の文字列と同じ規則なので、JSON.stringify で正しく囲める */

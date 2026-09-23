@@ -32,6 +32,8 @@ html {
 
 body {
   margin: 0;
+  /* ページの最低の高さは dvh（今見えている高さ）。フッターを画面の下端に置くためで、
+     再計算されても写真の大きさは変わらない */
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -72,6 +74,11 @@ h1 {
 
 .muted {
   color: var(--fg-muted);
+}
+
+/* トップと 404 のドット絵の枠 */
+.art {
+  margin-bottom: 1rem;
 }
 
 /*

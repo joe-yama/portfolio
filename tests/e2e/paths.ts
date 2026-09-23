@@ -1,14 +1,15 @@
 import { readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { locales } from '../../src/lib/i18n';
+import { photoIdFromEntry } from '../../src/lib/photo-meta';
 
 // cwd に依存せず、このファイルの位置からリポジトリの写真データを読む
 const photosDir = fileURLToPath(new URL('../../src/content/photos', import.meta.url));
 
-/** 写真の slug（= src/content/photos/<slug>.yaml のファイル名） */
-export const photoSlugs = readdirSync(photosDir)
+/** 写真の slug（= コレクションの id。src/content.config.ts と同じ photoIdFromEntry で導く） */
+const photoSlugs = readdirSync(photosDir)
   .filter((name) => name.endsWith('.yaml'))
-  .map((name) => name.slice(0, -'.yaml'.length))
+  .map(photoIdFromEntry)
   .sort();
 if (photoSlugs.length === 0) throw new Error(`${photosDir} に写真データが無い`);
 

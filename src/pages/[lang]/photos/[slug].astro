@@ -18,9 +18,7 @@ const base = import.meta.env.BASE_URL;
 const photos = await getPhotos();
 const slug = Astro.params.slug;
 if (slug === undefined) throw new Error('slug が無い');
-const photo = photos.find((p) => p.id === slug);
-if (!photo) throw new Error(`写真が無い: ${slug}`);
-const { prev, next } = neighbors(photos, slug);
+const { photo, prev, next } = neighbors(photos, slug);
 const t = ui[lang];
 ---
 
@@ -43,6 +41,8 @@ const t = ui[lang];
 
 <style>
   figure {
+    /* 写真の高さ上限は svh（アドレスバーが出ている最小の高さ）で決める。
+       dvh にするとスクロールでバーが隠れるたびに写真の高さが変わる */
     --photo-max-height: max(12rem, 100svh - 18rem);
     margin: 0;
   }

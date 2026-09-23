@@ -9,6 +9,7 @@ import {
   nextOrder,
   type PhotoMeta,
   parseOrder,
+  photoIdFromEntry,
   renderPhotoYaml,
   toSlug,
 } from '../../src/lib/photo-meta';
@@ -263,5 +264,20 @@ describe('ghFailureMessage', () => {
 
   it('stderr が無ければ message を使う', () => {
     expect(ghFailureMessage({ message: 'boom' })).toBe('boom');
+  });
+
+  it('stderr が空白だけで message が複数行なら、message の先頭行だけを返す', () => {
+    const error = { status: 1, stderr: '  \n', message: 'Command failed: gh api user\nboom' };
+    expect(ghFailureMessage(error)).toBe('Command failed: gh api user');
+  });
+});
+
+describe('photoIdFromEntry', () => {
+  it.each([
+    ['kamo-river-v1.2.yaml', 'kamo-river-v1.2'],
+    ['Kamo.yaml', 'Kamo'],
+    ['kariya-ferris-wheel.yaml', 'kariya-ferris-wheel'],
+  ])('%s → %s（拡張子だけを除き、. や大文字を残す）', (entry, id) => {
+    expect(photoIdFromEntry(entry)).toBe(id);
   });
 });

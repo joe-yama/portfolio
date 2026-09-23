@@ -60,6 +60,22 @@ describe('readTokens', () => {
     const redeclared = css.replace('--line: #8f8f8f;', '--line: #8f8f8f;\n  --line: #f5f5f5;');
     expect(readTokens(redeclared).light.line).toBe('#f5f5f5');
   });
+
+  it('6 桁の宣言の後に 3 桁で再宣言されていれば、前の値に戻らず例外にする', () => {
+    const redeclared = css.replace('--line: #8f8f8f;', '--line: #8f8f8f;\n  --line: #fff;');
+    expect(() => readTokens(redeclared)).toThrow(/--line が 6 桁の 16 進でない: #fff/);
+  });
+
+  it('3 桁や 8 桁の色は抽出しない（輝度計算が 6 桁だけを扱うため）', () => {
+    const cssWithBg = (bg: string) =>
+      `:root { --bg: ${bg}; --fg: #111111; --fg-muted: #5c5c5c; --line: #8f8f8f; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0c0c0c; --fg: #e8e8e8; --fg-muted: #9a9a9a; --line: #606060; } }`;
+    expect(() => readTokens(cssWithBg('#fff'))).toThrow(/--bg が 6 桁の 16 進でない: #fff/);
+    expect(() => readTokens(cssWithBg('#fafafa80'))).toThrow(
+      /--bg が 6 桁の 16 進でない: #fafafa80/,
+    );
+    expect(readTokens(cssWithBg('#fafafa')).light.bg).toBe('#fafafa');
+  });
 });
 
 describe('src/styles/global.css の検算', () => {
@@ -67,15 +83,15 @@ describe('src/styles/global.css の検算', () => {
   const tokens = readTokens(readFileSync(globalCssPath, 'utf-8'));
 
   const cases = [
-    { name: 'ライト --fg/--bg', theme: 'light' as const, key: 'fg' as const, min: 4.5 },
-    { name: 'ライト --fg-muted/--bg', theme: 'light' as const, key: 'fgMuted' as const, min: 4.5 },
-    { name: 'ライト --line/--bg', theme: 'light' as const, key: 'line' as const, min: 3.0 },
-    { name: 'ダーク --fg/--bg', theme: 'dark' as const, key: 'fg' as const, min: 4.5 },
-    { name: 'ダーク --fg-muted/--bg', theme: 'dark' as const, key: 'fgMuted' as const, min: 4.5 },
-    { name: 'ダーク --line/--bg', theme: 'dark' as const, key: 'line' as const, min: 3.0 },
+    { theme: 'light' as const, key: 'fg' as const, min: 4.5 },
+    { theme: 'light' as const, key: 'fgMuted' as const, min: 4.5 },
+    { theme: 'light' as const, key: 'line' as const, min: 3.0 },
+    { theme: 'dark' as const, key: 'fg' as const, min: 4.5 },
+    { theme: 'dark' as const, key: 'fgMuted' as const, min: 4.5 },
+    { theme: 'dark' as const, key: 'line' as const, min: 3.0 },
   ];
 
-  it.each(cases)('$name は $min 以上', ({ theme, key, min }) => {
+  it.each(cases)('$theme の $key / bg は $min 以上', ({ theme, key, min }) => {
     const c = contrast(tokens[theme][key], tokens[theme].bg);
     expect(
       c,

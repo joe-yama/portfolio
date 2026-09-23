@@ -134,7 +134,7 @@ patents:
     filedAt: "2018-12"
     countries: [JP, US, CN]
     url: https://patents.google.com/patent/JP2020093622A/en
-    title: Recognizing an occupant's image to restore vehicle equipment settings in any car
+    title: Recognizing an occupant on camera to restore their settings in the same or another car
   - number: JP7294200B2
     filedAt: "2020-03"
     countries: [JP, US, CN]
@@ -154,7 +154,7 @@ patents:
     filedAt: "2020-02"
     countries: [JP, US, CN]
     url: https://patents.google.com/patent/JP7310636B2/en
-    title: Lowering the reversal-count threshold during side-by-side driving to trigger an action
+    title: Acting when nearby vehicles' relative speed keeps flipping sign, sooner side by side
   - number: JP7318576B2
     filedAt: "2020-03"
     countries: [JP, US, CN]
@@ -324,7 +324,7 @@ patents:
     filedAt: "2023-12"
     countries: [JP, US, CN]
     url: https://patents.google.com/patent/JP2025095979A/en
-    title: A single button that takes a photo on a short press and records video on a long press
+    title: Taking a photo on a short press and recording video on a long press with an in-car camera
   - number: JP2021111156A
     filedAt: "2020-01"
     countries: [JP]

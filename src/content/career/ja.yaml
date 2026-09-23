@@ -154,7 +154,7 @@ patents:
     filedAt: "2020-02"
     countries: [JP, US, CN]
     url: https://patents.google.com/patent/JP7310636B2/ja
-    title: 並走時は閾値を下げ相対速度の反転回数超過で所定処理
+    title: 近接する2台の相対速度が何度も正負反転したら処理を実行、並走時は早めに
   - number: JP7318576B2
     filedAt: "2020-03"
     countries: [JP, US, CN]
@@ -329,7 +329,7 @@ patents:
     filedAt: "2020-01"
     countries: [JP]
     url: https://patents.google.com/patent/JP2021111156A/ja
-    title: 前方車の灯火が見えにくいと車間拡大か通知の少なくとも一方を実施
+    title: 前方車の灯火が見えにくいと判定したら車間を広げるか運転者に通知
   - number: JP2021111155A
     filedAt: "2020-01"
     countries: [JP]

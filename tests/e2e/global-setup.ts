@@ -9,6 +9,10 @@ const POLL_INTERVAL_MS = 500;
 const POLL_TIMEOUT_MS = 60_000;
 const PORT_CHECK_TIMEOUT_MS = 1_000;
 
+// リポジトリの root。preview はプロジェクト root ごとのロックなので、build・preview・
+// status・logs・stop をすべてここで実行し、呼び出し元の cwd に左右されないようにする
+export const ROOT = fileURLToPath(new URL('../..', import.meta.url));
+
 // setup が実際に起動した preview の pid を global-teardown.ts に伝えるマーカー。
 // globalSetup と globalTeardown は別のモジュール評価になりうるため、
 // モジュールスコープの変数ではなくファイル（.astro/ 配下。git 管理外）で受け渡す。
@@ -38,16 +42,33 @@ function parsePreviewMessage(output: string): string | null {
   }
 }
 
-function parsePreviewPid(output: string): number | null {
+/** status --json の出力から動作中の preview の pid を取り出す。動いていなければ null。 */
+export function parsePreviewPid(output: string): number | null {
   const match = parsePreviewMessage(output)?.match(/pid (\d+)/);
   return match?.[1] ? Number(match[1]) : null;
 }
 
+/** 今動いている preview の pid。動いていない・判定できないときは null（setup と teardown で共用） */
+export function currentPreviewPid(): number | null {
+  try {
+    return parsePreviewPid(
+      execSync('pnpm exec astro preview status --json', { cwd: ROOT, encoding: 'utf-8' }),
+    );
+  } catch {
+    return null;
+  }
+}
+
 // 同じプロジェクト root の preview が別ポートで動いていると --port が無視されて 60 秒待つので、
-// 先に落とす補助チェック。別 root・別プロセスの占有は isPortOccupied が見る（レビュー C1）
+// 先に落とす補助チェック。別 root・別プロセスの占有は isPortOccupied が見る（レビュー C1）。
+// `astro preview status` は起動の有無によらず exit 0 で終わるので、終了コードではなく
+// `--json` の `message` を見る
 function isPreviewAlreadyRunning(): boolean {
   try {
-    const output = execSync('pnpm exec astro preview status --json', { encoding: 'utf-8' });
+    const output = execSync('pnpm exec astro preview status --json', {
+      cwd: ROOT,
+      encoding: 'utf-8',
+    });
     return parsePreviewMessage(output) !== null;
   } catch {
     return false;
@@ -95,7 +116,7 @@ async function waitForServerReady(): Promise<void> {
 
   let logs: string;
   try {
-    logs = execSync('pnpm exec astro preview logs', { encoding: 'utf-8' });
+    logs = execSync('pnpm exec astro preview logs', { cwd: ROOT, encoding: 'utf-8' });
   } catch (error) {
     logs = error instanceof Error ? error.message : String(error);
   }
@@ -113,7 +134,7 @@ export default async function globalSetup(): Promise<void> {
     );
   }
 
-  execSync('pnpm build', { stdio: 'inherit' });
+  execSync('pnpm build', { cwd: ROOT, stdio: 'inherit' });
   // astro preview は CI（非対話端末）では前景実行になり execSync がブロックする。
   // --background を明示してバックグラウンドプロセスとして起動し、
   // 起動コマンドが戻った後は HTTP でポーリングして起動完了を待つ。
@@ -122,14 +143,14 @@ export default async function globalSetup(): Promise<void> {
   // 拒否される問題への対処（仮説。macOS では localhost が 127.0.0.1 に
   // 解決されるためローカルでは再現しない）。
   execSync(`pnpm exec astro preview --port ${PORT} --host 127.0.0.1 --background`, {
+    cwd: ROOT,
     stdio: 'inherit',
   });
 
   // 起動した preview 自身の pid と、この実行の runId を記録する（teardown が
   // 「今動いている preview の pid」かつ「自分がこの実行で書いたマーカーか」の
   // 両方を照合するため。レビュー C2 / I1）。
-  const statusOutput = execSync('pnpm exec astro preview status --json', { encoding: 'utf-8' });
-  const pid = parsePreviewPid(statusOutput);
+  const pid = currentPreviewPid();
   const runId = randomUUID();
   process.env[RUN_ID_ENV] = runId;
   mkdirSync(dirname(STARTED_MARKER), { recursive: true });

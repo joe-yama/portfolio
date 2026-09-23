@@ -1,23 +1,6 @@
 import { execSync } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
-import { RUN_ID_ENV, STARTED_MARKER } from './global-setup';
-
-/** 今動いている preview の pid。動いていない・判定できないときは null。 */
-function currentPreviewPid(): number | null {
-  let output: string;
-  try {
-    output = execSync('pnpm exec astro preview status --json', { encoding: 'utf-8' });
-  } catch {
-    return null;
-  }
-  try {
-    const { message } = JSON.parse(output.trim()) as { message?: unknown };
-    const match = typeof message === 'string' ? message.match(/pid (\d+)/) : null;
-    return match?.[1] ? Number(match[1]) : null;
-  } catch {
-    return null;
-  }
-}
+import { currentPreviewPid, ROOT, RUN_ID_ENV, STARTED_MARKER } from './global-setup';
 
 export default function globalTeardown(): void {
   // globalSetup が「既に別の配信サーバーが動いている」ため例外を投げた実行では、
@@ -52,5 +35,5 @@ export default function globalTeardown(): void {
   if (startedPid === null || startedPid !== currentPreviewPid()) return;
 
   rmSync(STARTED_MARKER);
-  execSync('pnpm exec astro preview stop', { stdio: 'inherit' });
+  execSync('pnpm exec astro preview stop', { cwd: ROOT, stdio: 'inherit' });
 }

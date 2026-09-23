@@ -1,15 +1,21 @@
 import { readFileSync } from 'node:fs';
 import { expect, type Page, test } from '@playwright/test';
+import { type Locale, locales } from '../../src/lib/i18n';
 import { ui } from '../../src/lib/site';
 import { pagePaths } from './paths';
 
-const locales = ['ja', 'en'] as const;
-
-type PatentSummary = { number: string; filedAt: string; countries: string[] };
+type PatentSummary = {
+  number: string;
+  filedAt: string;
+  countries: string[];
+  url: string;
+  title: string;
+};
 
 /**
- * career/{lang}.yaml の patents: ブロックから number / filedAt / countries だけを雑に取り出す。
- * 件数と並び替えの検算専用なので本格的な YAML パーサーは要らない。
+ * career/{lang}.yaml の patents: ブロックから number / filedAt / countries / url / title だけを
+ * 雑に取り出す。件数・並び替え・リンクの検算専用なので本格的な YAML パーサーは要らない
+ * （url と title はクォートなしで書く前提）。
  * `yaml` パッケージは pnpm の直接依存に無く（astro の内部依存の phantom dependency）、
  * トップレベルから import できないため使わない
  */
@@ -19,9 +25,10 @@ function parsePatents(yamlPath: string): PatentSummary[] {
   let current: Partial<PatentSummary> | null = null;
   let inPatents = false;
   for (const line of text.split('\n')) {
-    // 行頭が空白でない行はトップレベルのキー。patents: の区画の中だけを読む
-    if (/^\S/.test(line)) {
-      inPatents = line.startsWith('patents:');
+    // 行頭が空白でも # でもない行はトップレベルのキー。patents: の区画の中だけを読む
+    // （行頭の YAML コメントでは区画を終えない。patentsX: のようなキーには一致させない）
+    if (/^[^\s#]/.test(line)) {
+      inPatents = /^patents:\s*$/.test(line);
       continue;
     }
     if (!inPatents) continue;
@@ -36,6 +43,10 @@ function parsePatents(yamlPath: string): PatentSummary[] {
     if (filedAtMatch) current.filedAt = filedAtMatch[1];
     const countriesMatch = line.match(/^ {4}countries: \[(.+)\]$/);
     if (countriesMatch) current.countries = countriesMatch[1].split(',').map((s) => s.trim());
+    const urlMatch = line.match(/^ {4}url: (.+)$/);
+    if (urlMatch) current.url = urlMatch[1];
+    const titleMatch = line.match(/^ {4}title: (.+)$/);
+    if (titleMatch) current.title = titleMatch[1];
   }
   if (current) patents.push(current as PatentSummary);
   return patents;
@@ -51,7 +62,7 @@ function sortBySortOrder(patents: PatentSummary[]): PatentSummary[] {
 }
 
 /** src/lib/career.ts の formatMonth と同じ規則を、e2e から独立に計算する（YAML の filedAt から導く） */
-function formatMonth(value: string, lang: 'ja' | 'en'): string {
+function formatMonth(value: string, lang: Locale): string {
   const [year, month] = value.split('-').map(Number);
   if (year === undefined || month === undefined) throw new Error(`日付の形式が違う: ${value}`);
   return new Intl.DateTimeFormat(lang, {
@@ -60,7 +71,11 @@ function formatMonth(value: string, lang: 'ja' | 'en'): string {
   }).format(new Date(year, month - 1, 1));
 }
 
-const patents = parsePatents('src/content/career/ja.yaml');
+const patentsByLang: Record<Locale, PatentSummary[]> = {
+  ja: parsePatents('src/content/career/ja.yaml'),
+  en: parsePatents('src/content/career/en.yaml'),
+};
+const patents = patentsByLang.ja;
 /** 特許の一覧で、操作なしに見せる先頭の件数（spec。src/lib/career.ts の PATENTS_HEAD_COUNT と同じ値） */
 const PATENTS_HEAD_COUNT = 5;
 const patentsTotal = patents.length;
@@ -89,9 +104,12 @@ for (const path of pagePaths) {
         ls.map((l) => [l.getAttribute('hreflang') ?? '', l.getAttribute('href') ?? '']),
       ),
     );
-    expect(hreflangHrefs.ja).toMatch(/^https:\/\/joe-yama\.github\.io\/portfolio\/ja\//);
-    expect(hreflangHrefs.en).toMatch(/^https:\/\/joe-yama\.github\.io\/portfolio\/en\//);
-    expect(hreflangHrefs['x-default']).toBe(hreflangHrefs.ja);
+    const rest = path.slice(3); // 'ja/career/' → 'career/'
+    expect(hreflangHrefs).toEqual({
+      ja: `https://joe-yama.github.io/portfolio/ja/${rest}`,
+      en: `https://joe-yama.github.io/portfolio/en/${rest}`,
+      'x-default': `https://joe-yama.github.io/portfolio/ja/${rest}`,
+    });
 
     const canonical = page.locator('link[rel="canonical"]');
     await expect(canonical).toHaveCount(1);
@@ -142,12 +160,13 @@ test.describe('SNS 共有カード', () => {
       if (canonical === null) throw new Error(`${path} に canonical が無い`);
       const title = await page.title();
       const description = await page.locator('meta[name="description"]').getAttribute('content');
+      if (description === null) throw new Error(`${path} に description が無い`);
 
       await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', canonical);
       await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', title);
       await expect(page.locator('meta[property="og:description"]')).toHaveAttribute(
         'content',
-        description ?? '',
+        description,
       );
     });
 
@@ -183,7 +202,7 @@ test('写真は picture として出力される', async ({ page }) => {
 test.describe('特許の区画', () => {
   const heading = { ja: '特許', en: 'Patents' } as const;
 
-  function patentsSection(page: Page, lang: (typeof locales)[number]) {
+  function patentsSection(page: Page, lang: Locale) {
     return page.locator('section', { has: page.locator('h2', { hasText: heading[lang] }) });
   }
 
@@ -219,12 +238,38 @@ test.describe('特許の区画', () => {
     });
   }
 
+  for (const lang of locales) {
+    test(`/${lang}/career/ の特許リンクの href と文字列が YAML の url と title に一致する`, async ({
+      page,
+    }) => {
+      await page.goto(`./${lang}/career/`);
+      // PatentItem の <span> は 出願年月 / 公報番号 / 出願国 の順。2 つ目が公報番号
+      const links = await patentsSection(page, lang)
+        .locator('li')
+        .evaluateAll((lis) =>
+          lis.map((li) => ({
+            number: li.querySelectorAll('span')[1]?.textContent?.trim() ?? '',
+            href: li.querySelector('a')?.getAttribute('href') ?? '',
+            title: li.querySelector('a')?.textContent?.trim() ?? '',
+          })),
+        );
+      const expected = patentsByLang[lang].map(({ number, url, title }) => ({
+        number,
+        href: url,
+        title,
+      }));
+      expect(links.toSorted((a, b) => a.number.localeCompare(b.number))).toEqual(
+        expected.toSorted((a, b) => a.number.localeCompare(b.number)),
+      );
+    });
+  }
+
   test('特許は出願国数が多い順、同数なら出願年月が新しい順に並ぶ', async ({ page }) => {
     // タイブレークを確かめられるデータであること（国数が同じで出願年月が違う組がある）
     const hasTie = patents.some((a) =>
       patents.some((b) => a.countries.length === b.countries.length && a.filedAt !== b.filedAt),
     );
-    expect(hasTie).toBe(true);
+    expect(hasTie, '国数が同じで出願年月が違う組が無いと、タイブレークを確かめられない').toBe(true);
 
     await page.goto('./ja/career/');
     const section = patentsSection(page, 'ja');
