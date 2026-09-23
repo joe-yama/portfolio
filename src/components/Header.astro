@@ -1,9 +1,11 @@
 ---
 // ヘッダー 1 行: 左にロゴ（profile.name → そのロケールのトップ）、右に Photos / Career と
 // 言語切り替え（相手の言語名 → 同じページの他言語版）。狭い画面では折り返すだけで
-// 開閉メニューは作らない（JavaScript ゼロ。設計書 §4）
+// 開閉メニューは作らない（JavaScript ゼロ。設計書 §4）。Photos / Career / 言語切り替えには
+// トップ本文と同じドット絵を添える（アイコンは導線のデータが持つ）
 import type { Locale } from '../lib/i18n';
 import { homePath, languageSwitch, navLinks } from '../lib/site';
+import PixelArt from './pixel/PixelArt.astro';
 
 interface Props {
   lang: Locale;
@@ -30,8 +32,14 @@ const sw = languageSwitch(path, lang, base);
   {
     showNav && (
       <nav>
-        {navLinks(lang, base).map((link) => <a href={link.href}>{link.label}</a>)}
+        {navLinks(lang, base).map((link) => (
+          <a href={link.href}>
+            <PixelArt rows={link.icon} scale={1} />
+            {link.label}
+          </a>
+        ))}
         <a href={sw.href} hreflang={sw.hreflang} lang={sw.hreflang}>
+          <PixelArt rows={sw.icon} scale={1} />
           {sw.label}
         </a>
       </nav>
@@ -57,5 +65,10 @@ const sw = languageSwitch(path, lang, base);
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem 1.25rem;
+  }
+  nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
   }
 </style>
