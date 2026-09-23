@@ -157,19 +157,25 @@ for (const lang of locales) {
 
 // --- 1.3 回帰の番人（現状でも通るはず） --------------------------------------------------
 
-test('回帰: 写真の表示比は元画像の縦横比と一致する（トップと個別ページ）', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
+for (const lang of locales) {
+  for (const viewport of [...viewports, { width: 390, height: 844 }]) {
+    test(`回帰: 写真の表示比は元画像の縦横比と一致する（トップと個別ページ, ${lang}, ${viewport.width}x${viewport.height}）`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(viewport);
 
-  await page.goto('./ja/');
-  const hero = page.locator('main .hero picture img');
-  await waitForImageLoaded(hero);
-  await assertDisplayRatioMatchesNatural(hero, 'トップの代表写真');
+      await page.goto(`./${lang}/`);
+      const hero = page.locator('main .hero picture img');
+      await waitForImageLoaded(hero);
+      await assertDisplayRatioMatchesNatural(hero, 'トップの代表写真');
 
-  await page.goto(`./ja/photos/${verticalSlug}/`);
-  const figureImg = page.locator('figure picture img');
-  await waitForImageLoaded(figureImg);
-  await assertDisplayRatioMatchesNatural(figureImg, '個別ページの写真');
-});
+      await page.goto(`./${lang}/photos/${verticalSlug}/`);
+      const figureImg = page.locator('figure picture img');
+      await waitForImageLoaded(figureImg);
+      await assertDisplayRatioMatchesNatural(figureImg, '個別ページの写真');
+    });
+  }
+}
 
 test('回帰: 極端に低い画面でも写真の表示高さは0にならない（トップと個別ページ）', async ({
   page,
