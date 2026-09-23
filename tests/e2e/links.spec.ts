@@ -83,7 +83,7 @@ for (const path of pagePaths) {
 }
 
 for (const viewport of [
-  { width: 390, height: 844 },
+  { width: 480, height: 844 },
   { width: 1280, height: 720 },
 ]) {
   test(`${viewport.width}×${viewport.height} でヘッダーのアイコン付きリンクが文字の行より高くならない`, async ({
@@ -102,6 +102,41 @@ for (const viewport of [
       expect(height).toBeLessThanOrEqual(lineHeight);
     }
   });
+}
+
+for (const { width, iconsVisible } of [
+  { width: 390, iconsVisible: false },
+  { width: 480, iconsVisible: true },
+]) {
+  for (const path of pagePaths) {
+    test(`${width}×844 の ${path} でヘッダーのアイコンは${iconsVisible ? '表示され' : '隠れ'}、ロゴとナビが同じ行に並ぶ`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 844 });
+      await page.goto(path);
+      const links = page.locator('header nav a');
+      await expect(links).toHaveCount(3);
+      for (const link of await links.all()) {
+        const svg = link.locator('svg');
+        await expect(svg).toHaveCount(1);
+        if (iconsVisible) await expect(svg).toBeVisible();
+        else await expect(svg).toBeHidden();
+      }
+      // 同じ行 = 各ナビのリンクの box がロゴの box と縦に重なる（2 行になるとナビはロゴの下に来る）
+      const logo = await page.locator('header .logo').evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        return { top: r.top, bottom: r.bottom };
+      });
+      for (const link of await links.all()) {
+        const box = await link.evaluate((el) => {
+          const r = el.getBoundingClientRect();
+          return { top: r.top, bottom: r.bottom };
+        });
+        expect(box.top).toBeLessThan(logo.bottom);
+        expect(box.bottom).toBeGreaterThan(logo.top);
+      }
+    });
+  }
 }
 
 for (const lang of ['ja', 'en'] as const) {

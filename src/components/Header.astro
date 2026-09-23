@@ -71,4 +71,11 @@ const sw = languageSwitch(path, lang, base);
     align-items: center;
     gap: 0.35em;
   }
+  /* 30rem 未満ではアイコンを隠してヘッダーを 1 行に保つ（design D2 追補）。
+     svg は子コンポーネント PixelArt の要素でこのスコープの属性が付かないので :global で届かせる */
+  @media (max-width: 29.99rem) {
+    nav :global(svg) {
+      display: none;
+    }
+  }
 </style>
