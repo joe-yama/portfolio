@@ -1,7 +1,8 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
 import { type Locale, locales, toLocale } from '../../src/lib/i18n';
+import { photoIdFromEntry } from '../../src/lib/photo-meta';
 import { ui } from '../../src/lib/site';
 import { pagePaths } from './paths';
 
@@ -145,6 +146,18 @@ function parseProfileLine(lang: Locale, key: string): string {
   throw new Error(`${path} に ${key}: の行が無い`);
 }
 
+/**
+ * 代表ではない写真の slug。src/content/photos/*.yaml（ドットファイルを除く。paths.ts と同じ）のうち
+ * `featured: true` の行を持たないものの先頭（ファイル名の順）
+ */
+const photosDir = fileURLToPath(new URL('../../src/content/photos', import.meta.url));
+const nonFeaturedFile = readdirSync(photosDir)
+  .filter((name) => name.endsWith('.yaml') && !name.startsWith('.'))
+  .sort()
+  .find((name) => !/^featured: true$/m.test(readFileSync(`${photosDir}/${name}`, 'utf8')));
+if (!nonFeaturedFile) throw new Error(`${photosDir} に代表ではない写真が無い`);
+const nonFeaturedSlug = photoIdFromEntry(nonFeaturedFile);
+
 const patentsByLang: Record<Locale, PatentSummary[]> = {
   ja: parsePatents(careerYaml('ja')),
   en: parsePatents(careerYaml('en')),
@@ -278,6 +291,52 @@ test.describe('SNS 共有カード', () => {
       expect(response.status()).toBe(200);
     });
   }
+
+  test('代表ではない写真の個別ページの共有カードは、その写真から作られる', async ({ page }) => {
+    await page.goto('./ja/');
+    const topImage = await page.locator('meta[property="og:image"]').getAttribute('content');
+    await page.goto(`./ja/photos/${nonFeaturedSlug}/`);
+    const og = page.locator('meta[property="og:image"]');
+    const ogImage = await og.getAttribute('content');
+    expect(ogImage).toBeTruthy();
+    expect(ogImage).not.toBe(topImage);
+    // 代替テキストはページ本文のその写真の alt と同じ（写真データの alt.ja）
+    const alt = await page.locator('figure picture img').getAttribute('alt');
+    await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute(
+      'content',
+      alt ?? '',
+    );
+    const response = await page.request.get(new URL(ogImage ?? '').pathname);
+    expect(response.status()).toBe(200);
+    // 画像そのものが 1200×630 であること（meta の値だけでなく実物を見る）
+    const size = await page.evaluate(
+      async (src) => {
+        const img = new Image();
+        img.src = src;
+        await img.decode();
+        return [img.naturalWidth, img.naturalHeight];
+      },
+      new URL(ogImage ?? '').pathname,
+    );
+    expect(size).toEqual([1200, 630]);
+  });
+
+  test('写真以外のページの共有カードは、トップと同じ代表写真から作られる', async ({ page }) => {
+    await page.goto('./en/');
+    const topImage = await page.locator('meta[property="og:image"]').getAttribute('content');
+    const topAlt = await page.locator('meta[property="og:image:alt"]').getAttribute('content');
+    for (const path of ['./en/career/', './en/photos/']) {
+      await page.goto(path);
+      await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+        'content',
+        topImage ?? '',
+      );
+      await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute(
+        'content',
+        topAlt ?? '',
+      );
+    }
+  });
 });
 
 test('言語切り替えは同じページの他言語版へ飛ぶ', async ({ page }) => {
