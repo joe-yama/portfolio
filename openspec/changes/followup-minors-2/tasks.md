@@ -14,7 +14,7 @@
 - [x] 2.4 F11 / D5: RED: stderr が空白だけで `message` が複数行のとき、`ghFailureMessage` が 1 行を返すテスト。GREEN: 先頭行だけを使う（login も同様）
 - [x] 2.5 F9: photo-add-cli のテストで PATH を偽の gh のディレクトリだけにし、`afterAll` で一時ディレクトリを消し、`--slug a/b` のケースを足す
 - [x] 2.6 R2 + F6 / D4: RED: ja と en の両方にエラーがあるとき 1 つの例外に両方が出るテスト、`getCareer('ja')` の成功、検証のロケールの入れ替えで落ちるテスト（41〜90 文字の日本語 title）。GREEN: `assertValid` を 1 回にまとめる。content.test の未使用の `getCollection` モック、通らない `undefined` 分岐、自前の `Patent` 型を整理する
-- [ ] 2.7 H-C1: RED: 3 桁の色（`#fff` など）が抽出されたとき、輝度計算が正しく扱うか、抽出の時点で拒まれるテスト。GREEN: 正規表現を 6 桁に揃える（`global.css` の色はすべて 6 桁であることを確認してから）
+- [x] 2.7 H-C1: RED: 3 桁の色（`#fff` など）が抽出されたとき、輝度計算が正しく扱うか、抽出の時点で拒まれるテスト。GREEN: 正規表現を 6 桁に揃える（`global.css` の色はすべて 6 桁であることを確認してから）
 
 ## 3. 番人の穴
 

@@ -33,7 +33,9 @@ function parseTokens(block: string, label: string): Tokens {
   for (const key of TOKEN_KEYS) {
     const cssName = key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`); // fgMuted → fg-muted
     const matches = [
-      ...withoutComments.matchAll(new RegExp(`--${cssName}:\\s*(#[0-9a-fA-F]{3,8})`, 'g')),
+      ...withoutComments.matchAll(
+        new RegExp(`--${cssName}:\\s*(#[0-9a-fA-F]{6})(?![0-9a-fA-F])`, 'g'),
+      ),
     ];
     const last = matches.at(-1);
     if (!last) throw new Error(`${label} のブロックに --${cssName} が無い`);
