@@ -27,7 +27,7 @@
 - [x] 4.2 H6: `tests/e2e/links.spec.ts` の同じ行の判定の `getBoundingClientRect` の evaluate 2 か所を `boundingBox()` にする
 - [x] 4.3 H7: `src/lib/site.ts` の `CareerSection` の JSDoc を「ui.careerSections のキーの順は pages.spec が見出しの順と比べる」の趣旨に直す
 - [x] 4.4 M7: `tests/unit/theme.test.ts` のテスト名「3 桁や 8 桁の色は抽出しない」を、今の挙動（抽出の時点で拒む）に合わせる
-- [ ] 4.5 M8: `tests/unit/content.test.ts` の「ja と en の両方にエラーがあれば…」の正規表現を、ja と en の並び順に依存しない形にする（各エラーを別々に確かめる）
+- [x] 4.5 M8: `tests/unit/content.test.ts` の「ja と en の両方にエラーがあれば…」の正規表現を、ja と en の並び順に依存しない形にする（各エラーを別々に確かめる）
 - [ ] 4.6 M10: `src/content/schemas.ts` の `existsOnCalendar` の JSDoc を「日が無ければ（`YYYY-MM`）常に true」の実際に合わせる
 - [ ] 4.7 M12: `tests/unit/schemas.test.ts` の enum の `it.each` で `value` と `parse` の中のリテラルが二重になっているのを 1 つにする
 

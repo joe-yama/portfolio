@@ -60,9 +60,12 @@ describe('getCareer の検証の配線', () => {
   it('ja と en の両方にエラーがあれば、1 つの例外に両方が出る', async () => {
     entries.ja = career([patent('JP6549500B2'), patent('JP6549500B2')]);
     entries.en = career([patent('JP7200645B2'), patent('JP7200645B2')]);
-    await expect(getCareer('ja')).rejects.toThrow(
-      /ja: number が重複している（number: JP6549500B2）[\s\S]*en: number が重複している（number: JP7200645B2）/,
-    );
+    const error = await getCareer('ja').catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(Error);
+    const { message } = error as Error;
+    expect(message).toMatch(/^career の内容に問題がある/);
+    expect(message).toContain('ja: number が重複している（number: JP6549500B2）');
+    expect(message).toContain('en: number が重複している（number: JP7200645B2）');
   });
 
   it('整合したデータなら日本語のデータも返す', async () => {
