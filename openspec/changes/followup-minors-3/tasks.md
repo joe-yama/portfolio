@@ -1,0 +1,59 @@
+# Tasks
+
+出典の記号: **H<n>** は `archive/2026-09-23-header-nav-icons/tasks.md` の「提案」の n 番目、**M<n>** は `archive/2026-09-23-followup-minors-2/tasks.md` の「提案」の n 番目（箇条書きの上から数える）。対応しない件（M1・M2・M3・M15・M16・M20）は proposal の「含めない」を参照。M11 と M18 は同じ件。
+
+## 1. 番人と壊れる入力（先に RED を書く）
+
+- [x] 1.1 M9 / D1: RED: `tests/unit/validate.test.ts` に、`url` が別の公報を指す・公報番号が前方一致するだけ・英語のデータだけが誤る の 3 ケースで `validateCareerPatents` がエラー（`number` と `url` を含む）を返すこと、代表公報を指す `url` では返さないことを足す。GREEN: `src/lib/validate.ts` に検査を足し、冒頭のコメントの検査一覧も更新する。`pnpm test` と `pnpm build`（実データ 130 件が通る）で確かめる
+- [x] 1.2 M11 + M18 + M12 の一部 / D4: `tests/e2e/global-setup.ts` で起動後の pid が `null` なら throw する。`parsePreviewPid` の export を外し、`status --json` の `execSync` を 1 か所にまとめる（まとめられない理由があれば報告に書く）。`pnpm e2e` が緑のままであることで確かめる
+- [x] 1.3 M17 / D5: RED: `tests/unit/photo-add-cli.test.ts` で偽の `gh` が `joe-yama\nother` を返すとき、1 行の理由で中断し Release に触れないことを確かめる。GREEN: `scripts/photo-add.ts` の login の比較を出力全体（`trim()` 後）で行い、`die` の文言にだけ先頭行を使う
+- [x] 1.4 M6 / D5: RED: `TMPDIR` を一時ディレクトリに向け、画素が壊れた JPEG を入稿したあとその中に `photo-add-*` が残らないことを確かめる。GREEN: sharp の catch で作業ディレクトリを消してから `die` する
+- [x] 1.5 M13 + M4 / D3: `tests/e2e/pages.spec.ts` の YAML の読み込みと `tests/e2e/sitemap.spec.ts` の `dist` を `import.meta.url` 起点にする。`tests/e2e/paths.ts` の写真ファイルの一覧から `.` で始まる名前を除く。cwd をリポジトリの外にして `playwright test -c <worktree>/playwright.config.ts` が通ることで確かめる（5.3）
+
+## 2. ヘッダー
+
+- [x] 2.1 H1 + H2 / D2: `tests/e2e/links.spec.ts` のアイコンを隠す側の幅に 479px を足す。`src/components/Header.astro` のメディアクエリを `not all and (min-width: 30rem)` にする。`pnpm e2e` で 390 / 479 / 480px の検査が緑であることを確かめる
+- [x] 2.2 H3 / D2: RED: `tests/e2e/links.spec.ts` に、1280×720 と 480×844 で ロゴとナビの 3 つのリンクの文字のベースラインの差が 0.5px 以内であることの検査を足し（測り方は design D2）、修正前は 1280px で 1.8px 前後の差で赤になることを確かめる。GREEN: `Header.astro` の CSS を直す。既存の「行が高くならない」と 2.1 の検査が緑のままであることを確かめる
+- [x] 2.3 H4: `tests/e2e/links.spec.ts` に、ja と en のページそれぞれ 1 つで `header a` の href が「ロゴ → Photos → Career → 言語切り替え」の順であることの検査を足す
+
+## 3. テストの穴
+
+- [x] 3.1 M5: `tests/unit/content.test.ts` に、写真が 0 枚のとき `getFeaturedPhoto` が代表写真の不足で失敗するケースを足す（`getPhotos` の検証を通ることの番人）。`photoEntries.list` を `beforeEach` で空に戻す
+- [x] 3.2 M14: `tests/e2e/viewport.spec.ts` の横スクロールの検査を、`scrollWidth - clientWidth` を `toBeLessThanOrEqual(0)` で比べる形にして、失敗時に値が出るようにする。トップと個別ページの 2 重書きを 1 つのループにする
+
+## 4. 整理（挙動不変）
+
+- [x] 4.1 H5: `tests/unit/site.test.ts` の describe「導線のアイコン（design D1）」が navLinks / languageSwitch の `toEqual` と同じ主張であることを確かめ、重複なら消す（重複していない主張があれば残し、報告に書く）
+- [x] 4.2 H6: `tests/e2e/links.spec.ts` の同じ行の判定の `getBoundingClientRect` の evaluate 2 か所を `boundingBox()` にする
+- [x] 4.3 H7: `src/lib/site.ts` の `CareerSection` の JSDoc を「ui.careerSections のキーの順は pages.spec が見出しの順と比べる」の趣旨に直す
+- [x] 4.4 M7: `tests/unit/theme.test.ts` のテスト名「3 桁や 8 桁の色は抽出しない」を、今の挙動（抽出の時点で拒む）に合わせる
+- [x] 4.5 M8: `tests/unit/content.test.ts` の「ja と en の両方にエラーがあれば…」の正規表現を、ja と en の並び順に依存しない形にする（各エラーを別々に確かめる）
+- [x] 4.6 M10: `src/content/schemas.ts` の `existsOnCalendar` の JSDoc を「日が無ければ（`YYYY-MM`）常に true」の実際に合わせる
+- [x] 4.7 M12: `tests/unit/schemas.test.ts` の enum の `it.each` で `value` と `parse` の中のリテラルが二重になっているのを 1 つにする
+
+## 5. 番人の確認と仕上げ
+
+- [x] 5.1 変異を当てて 1〜3 章の新しいテストが落ちることを確かめる（`docs/harness/README.md` の隔離実行の手順）。少なくとも: (a) 1.1 の検査を外す、(b) 完全一致を `includes` にする（前方一致のケースが赤）、(c) ja だけに検査をかける、(d) 2.1 の閾値を 27rem にする（479px が赤）、(e) 2.2 の CSS を戻す、(f) ヘッダーのナビの Photos と Career を入れ替える（2.3 が赤）、(g) 1.2 の throw を外して pid を null にする、(h) 1.3 の比較を先頭行に戻す、(i) 1.4 の削除を外す、(j) 1.5 のドットファイルの除外を外して `.draft.yaml` を置く、(k) `getFeaturedPhoto` が `getPhotos` を通らないようにする
+- [x] 5.2 M19: `tests/e2e/pages.spec.ts` の `parsePatents` が `patentsX:` に一致しないことの対照実験。`ja.yaml` の patents の後に `patentsX:` の区画を足した入力で、今の実装は特許の件数が変わらず、`/^patents:/` に戻すと変わる（赤になる）ことを確かめる
+  - 裁定（コントローラー、2026-09-23）: 書いた形の対照は成り立たなかった。`/^patents:/` も `patents` の直後にコロンを要するので `patentsX:` に一致せず、緑のまま（130 passed）。`patentsX:` に一致する `/^patents/` に変えると特許の件数の検査など 7 件が赤（期待 66 件・実際 65 件）になり、今の実装が `patentsX:` を読まないことはこの対照で確かめた。テストは直さない。記録: `.superpowers/sdd/2026-09-23-followup-minors-3/task-8-9-report.md` §5.2
+- [x] 5.3 cwd をリポジトリの外にして `<worktree>/node_modules/.bin/playwright test -c <worktree>/playwright.config.ts` を実行し、全件緑になることを確かめる（修正前は `pages.spec.ts:75` の `ENOENT` で落ちることを対照として記録する）
+- [x] 5.4 書き換えたテスト（3.2、4.1、4.2、4.5、4.7）が、書き換え前と同じ変異で落ちることを確かめる
+- [x] 5.5 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
+
+## 提案（本 change のスコープ外・後続への申し送り）
+
+- `src/lib/validate.ts:154` のコメント「includes だと前方一致も通す」が、次の行の配列の `includes` と紛らわしい。「文字列の includes だと」にする（Task 1 レビュー Minor）
+- `src/lib/validate.ts:155` の `new URL` はスキーマを通していない値で例外を投げる。今の呼び出し元はスキーマ済みのデータだけなので、JSDoc に前提を一言足す程度（Task 1 レビュー Minor）
+- `src/lib/validate.ts:155` は `mailto:` のような階層の無い URL でも、パスが `number` と同じなら通る。spec の規則どおりなので記録のみ（Task 1 レビュー Minor）
+- **配信 CSS ではメディアクエリが範囲構文に書き換わる**: Vite 8 が lightningcss（既定ターゲット safari16.4）で縮小するので、`not all and (min-width: 30rem)` は `not all and (width>=30rem)` として配信される（修正前の `max-width: 29.99rem` も `(width<=29.99rem)` になっていた）。design D2 の「古い Safari で規則ごと無視されるので範囲構文を使わない」はビルド後には効いていない。Safari 16.4 未満を支えるなら `build.cssTarget` を足す、支えないなら design D2 から Safari の理由を外す（`Header.astro` のコメントには元から書かれていない）。PO 判断（Task 5 レビュー、裁定: 本 change では直さない）
+- `tests/e2e/links.spec.ts:155-156` のベースラインの測り方は canvas の ascent が丸め前の値で、-0.112px の偏りがある。実際のずれが [-0.388, +0.612]px なら緑になる。0×0 の目印をベースラインに置いて測れば偏りは 0（Task 5 レビュー Minor）
+- `tests/e2e/links.spec.ts:155` の `?? el` は不要（テキストノードの親は必ずある）（Task 5 レビュー ponytail）
+- `tests/e2e/pages.spec.ts` の `parsePatents` のコメントが `patentsX:` を弾く理由を `\s*$` に帰しているが、`\s*$` が実際に弾くのは `patents: []` のような同じ行に値を持つ形。コメントを実態に合わせる（5.2 の裁定）
+- `tests/unit/site.test.ts` の 4.1 の削除で `toBe(globe)` の同一参照の検査が無くなり、`toEqual` の構造比較だけになった。`globe` と同じ中身の別の配列に差し替えても捕まらないが、描画は変わらないので記録のみ（Task 8）
+- `docs/content-authoring.md:18` に特許の `url` の新しい規則（パスを `/` で区切った要素に `number` が無いとビルドが落ちる）が無い。archive のコミットで 1 行足す（最終レビュー Minor）
+- `src/lib/site.ts:23-24` の `CareerSection` の JSDoc が「キーの順が表示を決める」とも読める。実際に順を決めるのは `src/pages/[lang]/career.astro` のテンプレートなので、それを名指しする（単位 C Minor）
+- `tests/e2e/global-setup.ts:117` の「起動中の message は常に `pid N` を含む」は astro 7.3.2 の `status()` に依存する。出典のバージョンを書く（単位 C Minor。前提が崩れても起動後の throw で止まる）
+- `tests/e2e/global-setup.ts:142-147` で pid が取れずに throw すると、起動した preview が共有のポート 4399 に残り、止めるまで他の worktree の e2e が落ちる。throw の前に `astro preview stop` を試す（単位 C Minor）
+- `scripts/photo-add.ts:86-89` は出力が `joe-yama\nother` のとき「joe-yama ではない（joe-yama）」と矛盾して見える（design D5 どおり、記録のみ）。`.trim()` は `gh()` が既に行っているので不要で、変数も 1 つにできる（単位 C・最終レビュー Minor / ponytail）
+- `scripts/photo-add.ts:110, 128-146`: `release view` / `create` / `upload` の失敗で中断したときも `photo-add-*` が tmp に残る（単位 C Minor）
+- `580080c` は中身が文書だけなので種別は `docs:` が妥当だった（履歴は書き換えない。記録のみ）

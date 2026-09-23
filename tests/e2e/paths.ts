@@ -6,9 +6,9 @@ import { photoIdFromEntry } from '../../src/lib/photo-meta';
 // cwd に依存せず、このファイルの位置からリポジトリの写真データを読む
 const photosDir = fileURLToPath(new URL('../../src/content/photos', import.meta.url));
 
-/** 写真の slug（= コレクションの id。src/content.config.ts と同じ photoIdFromEntry で導く） */
+/** 写真の slug（= コレクションの id。src/content.config.ts と同じ photoIdFromEntry で導く）。Astro の glob `*.yaml` はドットファイルに一致しないので、同じく除く */
 const photoSlugs = readdirSync(photosDir)
-  .filter((name) => name.endsWith('.yaml'))
+  .filter((name) => name.endsWith('.yaml') && !name.startsWith('.'))
   .map(photoIdFromEntry)
   .sort();
 if (photoSlugs.length === 0) throw new Error(`${photosDir} に写真データが無い`);

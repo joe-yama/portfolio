@@ -106,6 +106,7 @@ for (const viewport of [
 
 for (const { width, iconsVisible } of [
   { width: 390, iconsVisible: false },
+  { width: 479, iconsVisible: false },
   { width: 480, iconsVisible: true },
 ]) {
   for (const path of pagePaths) {
@@ -123,20 +124,90 @@ for (const { width, iconsVisible } of [
         else await expect(svg).toBeHidden();
       }
       // 同じ行 = 各ナビのリンクの box がロゴの box と縦に重なる（2 行になるとナビはロゴの下に来る）
-      const logo = await page.locator('header .logo').evaluate((el) => {
-        const r = el.getBoundingClientRect();
-        return { top: r.top, bottom: r.bottom };
-      });
+      const logo = await page.locator('header .logo').boundingBox();
+      if (!logo) throw new Error('ロゴが表示されていない');
       for (const link of await links.all()) {
-        const box = await link.evaluate((el) => {
-          const r = el.getBoundingClientRect();
-          return { top: r.top, bottom: r.bottom };
-        });
-        expect(box.top).toBeLessThan(logo.bottom);
-        expect(box.bottom).toBeGreaterThan(logo.top);
+        const box = await link.boundingBox();
+        if (!box) throw new Error('リンクが表示されていない');
+        expect(box.y).toBeLessThan(logo.y + logo.height);
+        expect(box.y + box.height).toBeGreaterThan(logo.y);
       }
     });
   }
+}
+
+/**
+ * 要素の最初の空でないテキストノードの文字のベースライン（viewport 基準の y）。
+ * Range の矩形の上端は行の内容領域の上端（= ベースライン − ascent）なので、
+ * その要素の計算済みフォントで測った fontBoundingBoxAscent を足す（design D2）
+ */
+function textBaseline(link: Locator): Promise<number> {
+  return link.evaluate((el) => {
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let node = walker.nextNode();
+    while (node && !node.textContent?.trim()) node = walker.nextNode();
+    if (!node) throw new Error('テキストが無い');
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    const top = range.getBoundingClientRect().top;
+    const context = document.createElement('canvas').getContext('2d');
+    if (!context) throw new Error('canvas が使えない');
+    context.font = getComputedStyle(node.parentElement ?? el).font;
+    return top + context.measureText('x').fontBoundingBoxAscent;
+  });
+}
+
+for (const viewport of [
+  { width: 1280, height: 720 },
+  { width: 480, height: 844 },
+]) {
+  for (const path of ['ja/', 'en/']) {
+    test(`${viewport.width}×${viewport.height} の ${path} でロゴとナビの文字のベースラインがそろう`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(viewport);
+      await page.goto(path);
+      await page.evaluate(() => document.fonts.ready);
+      const logo = await textBaseline(page.locator('header .logo'));
+      const links = page.locator('header nav a');
+      await expect(links).toHaveCount(3);
+      for (const link of await links.all()) {
+        const name = await link.textContent();
+        expect(Math.abs((await textBaseline(link)) - logo), name ?? '').toBeLessThanOrEqual(0.5);
+      }
+    });
+  }
+}
+
+for (const { path, expected } of [
+  {
+    path: 'ja/career/',
+    expected: [
+      '/portfolio/ja/',
+      '/portfolio/ja/photos/',
+      '/portfolio/ja/career/',
+      '/portfolio/en/career/',
+    ],
+  },
+  {
+    path: 'en/',
+    expected: [
+      '/portfolio/en/',
+      '/portfolio/en/photos/',
+      '/portfolio/en/career/',
+      '/portfolio/ja/',
+    ],
+  },
+]) {
+  test(`${path} のヘッダーのリンクはロゴ → Photos → Career → 言語切り替えの順`, async ({
+    page,
+  }) => {
+    await page.goto(path);
+    const hrefs = await page
+      .locator('header a')
+      .evaluateAll((links) => links.map((a) => a.getAttribute('href')));
+    expect(hrefs).toEqual(expected);
+  });
 }
 
 for (const lang of ['ja', 'en'] as const) {

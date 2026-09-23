@@ -12,7 +12,7 @@ vi.mock('astro:content', () => ({
   getCollection: vi.fn(async () => photoEntries.list),
 }));
 
-import { getCareer, getPhotos } from '../../src/lib/content';
+import { getCareer, getFeaturedPhoto, getPhotos } from '../../src/lib/content';
 
 function patent(number: string): Patent {
   return {
@@ -20,7 +20,7 @@ function patent(number: string): Patent {
     title: 't',
     number,
     countries: ['JP'],
-    url: 'https://example.com/',
+    url: `https://patents.google.com/patent/${number}/ja`,
   };
 }
 
@@ -60,9 +60,12 @@ describe('getCareer の検証の配線', () => {
   it('ja と en の両方にエラーがあれば、1 つの例外に両方が出る', async () => {
     entries.ja = career([patent('JP6549500B2'), patent('JP6549500B2')]);
     entries.en = career([patent('JP7200645B2'), patent('JP7200645B2')]);
-    await expect(getCareer('ja')).rejects.toThrow(
-      /ja: number が重複している（number: JP6549500B2）[\s\S]*en: number が重複している（number: JP7200645B2）/,
-    );
+    const error = await getCareer('ja').catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(Error);
+    const { message } = error as Error;
+    expect(message).toMatch(/^career の内容に問題がある/);
+    expect(message).toContain('ja: number が重複している（number: JP6549500B2）');
+    expect(message).toContain('en: number が重複している（number: JP7200645B2）');
   });
 
   it('整合したデータなら日本語のデータも返す', async () => {
@@ -89,9 +92,20 @@ describe('getCareer の検証の配線', () => {
 });
 
 describe('getPhotos の検証の配線', () => {
-  it('写真が 0 枚ならビルドを止め、代表写真が無いことを示す', async () => {
+  beforeEach(() => {
     photoEntries.list = [];
+  });
+
+  it('写真が 0 枚ならビルドを止め、代表写真が無いことを示す', async () => {
     await expect(getPhotos()).rejects.toThrow(
+      /photos の内容に問題がある[\s\S]*featured[\s\S]*0 枚/,
+    );
+  });
+
+  // getFeaturedPhoto が getPhotos（検証）を通らず getCollection を直接読むと、
+  // 別の文言で落ちるか undefined を返す
+  it('getFeaturedPhoto も写真が 0 枚なら同じ検証で止まる', async () => {
+    await expect(getFeaturedPhoto()).rejects.toThrow(
       /photos の内容に問題がある[\s\S]*featured[\s\S]*0 枚/,
     );
   });

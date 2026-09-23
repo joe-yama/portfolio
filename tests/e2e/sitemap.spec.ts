@@ -1,8 +1,11 @@
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 
 const PUBLIC_PREFIX = 'https://joe-yama.github.io/portfolio/';
+// cwd に依存せず、このファイルの位置から dist を解決する
+const dist = fileURLToPath(new URL('../../dist', import.meta.url));
 
 /** dist の下から index.html を探し、末尾スラッシュ付きの相対パスにして返す */
 function builtPages(dir: string, prefix: string): string[] {
@@ -15,7 +18,7 @@ function builtPages(dir: string, prefix: string): string[] {
 /** ビルド出力のうちロケール接頭辞を持つページ。サイトマップに載るべき集合 */
 function expectedLocs(): string[] {
   return ['ja', 'en']
-    .flatMap((lang) => builtPages(join('dist', lang), `${lang}/`))
+    .flatMap((lang) => builtPages(join(dist, lang), `${lang}/`))
     .map((path) => `${PUBLIC_PREFIX}${path}`);
 }
 

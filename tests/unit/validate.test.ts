@@ -26,12 +26,13 @@ function photo(id: string, over: Partial<Photo> = {}): { id: string; data: Photo
 }
 
 function patent(over: Partial<Patent> = {}): Patent {
+  const number = over.number ?? 'JP6549500B2';
   return {
     filedAt: '2021-03',
     title: 't',
-    number: 'JP6549500B2',
+    number,
     countries: ['JP', 'CN', 'US'],
-    url: 'https://example.com/',
+    url: `https://patents.google.com/patent/${number}/ja`,
     ...over,
   };
 }
@@ -386,6 +387,40 @@ describe('validateCareerPatents', () => {
       'ja',
     );
     expect(errors).toEqual([]);
+  });
+
+  it('url が代表公報を指していればエラーにしない', () => {
+    const p = patent({
+      number: 'JP7200645B2',
+      url: 'https://patents.google.com/patent/JP7200645B2/ja',
+    });
+    expect(validateCareerPatents(career([p]), 'ja')).toEqual([]);
+  });
+
+  it('url が別の公報を指していれば、number と url を含むエラーを返す', () => {
+    const url = 'https://patents.google.com/patent/JP7354888B2/ja';
+    const errors = validateCareerPatents(career([patent({ number: 'JP7200645B2', url })]), 'ja');
+    expect(errors).toEqual([
+      `ja: url が代表公報を指していない（number: JP7200645B2, url: ${url}）`,
+    ]);
+  });
+
+  it('url の公報番号が前方一致するだけならエラーにする', () => {
+    const url = 'https://patents.google.com/patent/JP7200645B22/ja';
+    const errors = validateCareerPatents(career([patent({ number: 'JP7200645B2', url })]), 'ja');
+    expect(errors).toEqual([
+      `ja: url が代表公報を指していない（number: JP7200645B2, url: ${url}）`,
+    ]);
+  });
+
+  it('英語のデータだけ url が別の公報を指していても捕まえる', () => {
+    const ja = career([patent({ number: 'JP7200645B2' })]);
+    const url = 'https://patents.google.com/patent/JP7354888B2/en';
+    const en = career([patent({ number: 'JP7200645B2', url })]);
+    expect(validateCareerPatents(ja, 'ja')).toEqual([]);
+    expect(validateCareerPatents(en, 'en')).toEqual([
+      `en: url が代表公報を指していない（number: JP7200645B2, url: ${url}）`,
+    ]);
   });
 });
 

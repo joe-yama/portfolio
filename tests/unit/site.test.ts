@@ -57,18 +57,6 @@ describe('navLinks', () => {
   });
 });
 
-describe('導線のアイコン（design D1）', () => {
-  it('navLinks の Photos は camera、Career は briefcase を持つ', () => {
-    const byLabel = Object.fromEntries(navLinks('ja', '/').map((l) => [l.label, l.icon]));
-    expect(byLabel).toEqual({ Photos: camera, Career: briefcase });
-  });
-
-  it('languageSwitch は両ロケールで globe を持つ', () => {
-    expect(languageSwitch('/ja/', 'ja', '/').icon).toBe(globe);
-    expect(languageSwitch('/en/', 'en', '/').icon).toBe(globe);
-  });
-});
-
 describe('languageSwitch', () => {
   it('日本語ページでは English を表示し、同じページの英語版へ', () => {
     expect(languageSwitch('/ja/career/', 'ja', '/')).toEqual({

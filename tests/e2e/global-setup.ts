@@ -43,7 +43,7 @@ function parsePreviewMessage(output: string): string | null {
 }
 
 /** status --json の出力から動作中の preview の pid を取り出す。動いていなければ null。 */
-export function parsePreviewPid(output: string): number | null {
+function parsePreviewPid(output: string): number | null {
   const match = parsePreviewMessage(output)?.match(/pid (\d+)/);
   return match?.[1] ? Number(match[1]) : null;
 }
@@ -56,22 +56,6 @@ export function currentPreviewPid(): number | null {
     );
   } catch {
     return null;
-  }
-}
-
-// 同じプロジェクト root の preview が別ポートで動いていると --port が無視されて 60 秒待つので、
-// 先に落とす補助チェック。別 root・別プロセスの占有は isPortOccupied が見る（レビュー C1）。
-// `astro preview status` は起動の有無によらず exit 0 で終わるので、終了コードではなく
-// `--json` の `message` を見る
-function isPreviewAlreadyRunning(): boolean {
-  try {
-    const output = execSync('pnpm exec astro preview status --json', {
-      cwd: ROOT,
-      encoding: 'utf-8',
-    });
-    return parsePreviewMessage(output) !== null;
-  } catch {
-    return false;
   }
 }
 
@@ -127,7 +111,11 @@ async function waitForServerReady(): Promise<void> {
 }
 
 export default async function globalSetup(): Promise<void> {
-  if (isPreviewAlreadyRunning() || (await isPortOccupied())) {
+  // 同じプロジェクト root の preview が別ポートで動いていると --port が無視されて 60 秒待つので、
+  // 先に落とす補助チェック。別 root・別プロセスの占有は isPortOccupied が見る（レビュー C1）。
+  // `astro preview status` は起動の有無によらず exit 0 で終わるので、終了コードではなく
+  // `--json` の `message` を見る（起動中の message は常に `pid N` を含む）
+  if (currentPreviewPid() !== null || (await isPortOccupied())) {
     throw new Error(
       '既に別の配信サーバーが動いている。このリポジトリの dist とは限らないため、' +
         '検査を開始せずに終了する。`pnpm exec astro preview stop` で停止してから再実行すること。',
@@ -151,6 +139,12 @@ export default async function globalSetup(): Promise<void> {
   // 「今動いている preview の pid」かつ「自分がこの実行で書いたマーカーか」の
   // 両方を照合するため。レビュー C2 / I1）。
   const pid = currentPreviewPid();
+  if (pid === null) {
+    throw new Error(
+      'astro preview を起動したが pid を取得できなかった。teardown が止められないので検査を始めない。' +
+        '`pnpm exec astro preview stop` で停止してから再実行すること。',
+    );
+  }
   const runId = randomUUID();
   process.env[RUN_ID_ENV] = runId;
   mkdirSync(dirname(STARTED_MARKER), { recursive: true });

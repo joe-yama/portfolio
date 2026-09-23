@@ -124,6 +124,7 @@ const PATENT_TITLE_MAX_LENGTH: Record<Locale, number> = { ja: 40, en: 90 };
  * - number が重複しないこと
  * - countries の先頭が number の先頭 2 文字（代表公報の国）と一致すること
  * - title の長さが言語ごとの上限（コードポイント単位）を超えないこと
+ * - url のパスを / で区切った要素のどれかが number と完全に一致すること（代表公報を指すこと）
  */
 export function validateCareerPatents(career: Career, lang: Locale): string[] {
   const errors: string[] = [];
@@ -147,6 +148,13 @@ export function validateCareerPatents(career: Career, lang: Locale): string[] {
     if (length > maxLength) {
       errors.push(
         `${lang}: title が長すぎる（number: ${patent.number}, ${length} 文字、上限 ${maxLength} 文字）`,
+      );
+    }
+
+    // 区切りの完全一致で見る。includes だと JP7200645B22 のような前方一致も通してしまう（design D1）
+    if (!new URL(patent.url).pathname.split('/').includes(patent.number)) {
+      errors.push(
+        `${lang}: url が代表公報を指していない（number: ${patent.number}, url: ${patent.url}）`,
       );
     }
   }

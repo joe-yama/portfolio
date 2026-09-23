@@ -229,22 +229,19 @@ test('回帰: ギャラリーのサムネイルの表示幅はグリッドの列
 
 test('回帰: 390×844 で横スクロールが発生しない（トップと個別ページ）', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-
-  await page.goto('./ja/');
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
-    ),
-    'トップページ: 横スクロールが発生している',
-  ).toBe(true);
-
-  await page.goto(`./ja/photos/${verticalSlug}/`);
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
-    ),
-    '個別ページ: 横スクロールが発生している',
-  ).toBe(true);
+  for (const [label, path] of [
+    ['トップページ', './ja/'],
+    ['個別ページ', `./ja/photos/${verticalSlug}/`],
+  ] as const) {
+    await page.goto(path);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(
+      overflow,
+      `${label}: 横スクロールが発生している（scrollWidth − clientWidth）`,
+    ).toBeLessThanOrEqual(0);
+  }
 });
 
 test('回帰: 390×844 で写真は本文の幅いっぱいに表示される（トップと個別ページ）', async ({
