@@ -124,17 +124,13 @@ for (const { width, iconsVisible } of [
         else await expect(svg).toBeHidden();
       }
       // 同じ行 = 各ナビのリンクの box がロゴの box と縦に重なる（2 行になるとナビはロゴの下に来る）
-      const logo = await page.locator('header .logo').evaluate((el) => {
-        const r = el.getBoundingClientRect();
-        return { top: r.top, bottom: r.bottom };
-      });
+      const logo = await page.locator('header .logo').boundingBox();
+      if (!logo) throw new Error('ロゴが表示されていない');
       for (const link of await links.all()) {
-        const box = await link.evaluate((el) => {
-          const r = el.getBoundingClientRect();
-          return { top: r.top, bottom: r.bottom };
-        });
-        expect(box.top).toBeLessThan(logo.bottom);
-        expect(box.bottom).toBeGreaterThan(logo.top);
+        const box = await link.boundingBox();
+        if (!box) throw new Error('リンクが表示されていない');
+        expect(box.y).toBeLessThan(logo.y + logo.height);
+        expect(box.y + box.height).toBeGreaterThan(logo.y);
       }
     });
   }
