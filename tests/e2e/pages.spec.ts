@@ -130,6 +130,21 @@ function parseCertifications(yamlPath: string): CertSummary[] {
 const careerYaml = (lang: Locale) =>
   fileURLToPath(new URL(`../../src/content/career/${lang}.yaml`, import.meta.url));
 
+/**
+ * profile/{lang}.yaml のトップレベルの 1 行（`^<key>: (.+)$`）の値を取り出す。
+ * headline と tagline はクォートなしの 1 行で書く前提
+ */
+function parseProfileLine(lang: Locale, key: string): string {
+  const path = fileURLToPath(new URL(`../../src/content/profile/${lang}.yaml`, import.meta.url));
+  const text = readFileSync(path, 'utf8');
+  const pattern = new RegExp(`^${key}: (.+)$`);
+  for (const line of text.split('\n')) {
+    const match = line.match(pattern);
+    if (match?.[1] !== undefined) return match[1];
+  }
+  throw new Error(`${path} に ${key}: の行が無い`);
+}
+
 const patentsByLang: Record<Locale, PatentSummary[]> = {
   ja: parsePatents(careerYaml('ja')),
   en: parsePatents(careerYaml('en')),
@@ -193,6 +208,22 @@ for (const path of pagePaths) {
       'content',
       '630',
     );
+  });
+}
+
+for (const lang of locales) {
+  test(`/${lang}/ で名前の次に仕事の一行、その次に肩書が現れる`, async ({ page }) => {
+    await page.goto(`./${lang}/`);
+    const h1 = page.locator('main h1');
+    await expect(h1).toHaveCount(1);
+    const siblings = await h1.evaluate((el) => [
+      el.nextElementSibling?.textContent,
+      el.nextElementSibling?.nextElementSibling?.textContent,
+    ]);
+    expect(siblings).toEqual([
+      parseProfileLine(lang, 'headline'),
+      parseProfileLine(lang, 'tagline'),
+    ]);
   });
 }
 

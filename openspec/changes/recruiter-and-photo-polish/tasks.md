@@ -33,7 +33,7 @@
 
 ## 3. トップページ
 
-- [ ] 3.1 D1: `src/pages/[lang]/index.astro` の `h1` の直後に `headline` を出す。RED → GREEN: `tests/e2e/pages.spec.ts` で、両ロケールで名前の次に `headline`、その次に `tagline` が現れることを確かめる
+- [x] 3.1 D1: `src/pages/[lang]/index.astro` の `h1` の直後に `headline` を出す。RED → GREEN: `tests/e2e/pages.spec.ts` で、両ロケールで名前の次に `headline`、その次に `tagline` が現れることを確かめる
 - [ ] 3.2 D5: RED: `tests/e2e/viewport.spec.ts` に、spec「広い画面でのトップページの横並び」の 4 つの Scenario（1280×720、1024×768、1023×768、390×844）を足し、今の実装では 1280 と 1024 の検査が赤になることを確かめる。初見表示の既存の検査に「仕事の一行」と 1024×768 を足す。GREEN: `index.astro` の構造と CSS を design D5 のとおりに直す。既存の初見表示・写真の縦横比・横スクロールの検査が緑のままであることを確かめる
 
 ## 4. メタデータと共有カード
