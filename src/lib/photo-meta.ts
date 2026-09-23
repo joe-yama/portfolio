@@ -134,7 +134,10 @@ export function isReleaseNotFound(error: unknown): boolean {
   return status === 1 && typeof stderr === 'string' && stderr.includes('release not found');
 }
 
-/** execFileSync が投げるエラーから、gh の失敗理由をスタックトレースではない 1 行に整形する */
+/**
+ * execFileSync が投げるエラーから、gh の失敗理由をスタックトレースではない 1 行に整形する。
+ * stderr があればその先頭行、stderr が空なら message の先頭行を使う
+ */
 export function ghFailureMessage(error: unknown): string {
   if (typeof error !== 'object' || error === null) return String(error);
   const { code, stderr, message } = error as {
@@ -144,7 +147,7 @@ export function ghFailureMessage(error: unknown): string {
   };
   if (code === 'ENOENT') return 'gh コマンドが見つからない（未インストール、または PATH に無い）';
   if (typeof stderr === 'string' && stderr.trim() !== '') return stderr.trim().split('\n')[0];
-  return typeof message === 'string' ? message : String(error);
+  return typeof message === 'string' ? message.split('\n')[0] : String(error);
 }
 
 /** YAML の二重引用符スカラーは JSON の文字列と同じ規則なので、JSON.stringify で正しく囲める */

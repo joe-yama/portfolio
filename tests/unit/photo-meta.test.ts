@@ -265,6 +265,11 @@ describe('ghFailureMessage', () => {
   it('stderr が無ければ message を使う', () => {
     expect(ghFailureMessage({ message: 'boom' })).toBe('boom');
   });
+
+  it('stderr が空白だけで message が複数行なら、message の先頭行だけを返す', () => {
+    const error = { status: 1, stderr: '  \n', message: 'Command failed: gh api user\nboom' };
+    expect(ghFailureMessage(error)).toBe('Command failed: gh api user');
+  });
 });
 
 describe('photoIdFromEntry', () => {

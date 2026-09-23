@@ -75,6 +75,15 @@ describe('pnpm photo:add の引数の誤り', () => {
   });
 });
 
+describe('pnpm photo:add のアカウント確認', () => {
+  it('gh のアカウント名が複数行でも、中断の理由は 1 行になる', () => {
+    const r = runPhotoAdd(['x.jpg'], { login: 'someone\nextra' });
+    expect(r.status).toBe(1);
+    expect(r.lines).toHaveLength(1);
+    expect(r.lines[0]).toMatch(/^photo:add: gh のアカウントが joe-yama ではない（someone）/);
+  });
+});
+
 describe('pnpm photo:add の画像の読み取り', () => {
   it('画像でないファイルは 1 行で中断し、読み取り部品の内部情報を出さず、Release に触れない', () => {
     const r = runPhotoAdd(['x.jpg'], { file: 'hello\n' });
