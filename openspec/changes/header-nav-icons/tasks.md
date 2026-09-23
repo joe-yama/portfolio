@@ -4,7 +4,7 @@
 
 - [x] 1.1 RED: `tests/unit/site.test.ts` で、`navLinks()` の Photos が `camera`、Career が `briefcase`、`languageSwitch()` が `globe` を `icon` に持つことを確かめるテストを書き、失敗を確認する。`pairByIndex` の describe は消す
 - [x] 1.2 GREEN: `src/lib/site.ts` の `NavLink` / `LanguageSwitch` に `icon` を足し、`navLinks()` / `languageSwitch()` が返すようにする。`pairByIndex` を消す。`index.astro` を `link.icon` / `sw.icon` で描くように変え、`navIcons` を消す（トップの見た目は変わらない）
-- [ ] 1.3 `UiStrings.careerSections` を `Record<CareerSection, string>` にする（D4、挙動不変）
+- [x] 1.3 `UiStrings.careerSections` を `Record<CareerSection, string>` にする（D4、挙動不変）
 - [ ] 1.4 `tests/unit/site.test.ts` の canonicalUrl のテストの畳み込み（「URL オブジェクトも受ける」を既存のケースに寄せる。Change 7 の ponytail D8）
 
 ## 2. ヘッダーのアイコン（D2、spec「ナビのアイコン」「アイコンで行が高くならない」）

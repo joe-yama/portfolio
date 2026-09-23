@@ -19,6 +19,9 @@ export type LanguageSwitch = {
   icon: readonly string[];
 };
 
+/** 経歴ページの区画。ui.careerSections のキー（順は pages.spec が見出しの順と比べる） */
+export type CareerSection = 'experience' | 'skills' | 'certifications' | 'achievements' | 'patents';
+
 type UiStrings = {
   languageName: string;
   notFound: string;
@@ -28,13 +31,7 @@ type UiStrings = {
   nextPhoto: string;
   siteNav: string;
   photoNav: string;
-  careerSections: {
-    experience: string;
-    skills: string;
-    certifications: string;
-    achievements: string;
-    patents: string;
-  };
+  careerSections: Record<CareerSection, string>;
   achievementKind: Record<AchievementKind, string>;
   /** 特許の折りたたみの見出し。n は折りたたまれている件数 */
   morePatents: (n: number) => string;
