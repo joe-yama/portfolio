@@ -76,18 +76,22 @@ async function assertNoHorizontalScroll(page: Page, label: string) {
 }
 
 /**
- * 写真の表示高さが下限（design.md D2 の `max(12rem, …)` の 12rem = 192px）を下回らないことを確認する。
+ * 写真の表示高さが下限（design.md D2 の `max(12rem, …)` の 12rem。px は root の font-size から
+ * 求める）を下回らないことを確認する。
  * `max(12rem, …)` の下限だけを外す変異（`calc(…)` に置き換える等）は、1280×720 や 1440×900 のような
  * 通常の画面では常に `100svh - Nrem` が正の値になるため検出できない。画面の高さが極端に小さい
  * （1280×400）ときに限って下限が発動するため、この画面で検査する
  */
 async function assertPhotoHeightAtLeastFloor(locator: Locator, label: string) {
   const height = await locator.evaluate((img) => img.getBoundingClientRect().height);
-  const floorPx = 192; // 12rem（既定の 16px/rem 換算）
+  const floorPx = await locator.evaluate(
+    () => 12 * Number.parseFloat(getComputedStyle(document.documentElement).fontSize),
+  );
+  // 1280×400 では下限がちょうど発動するので等号ぎりぎりになる。サブピクセル丸めの分だけ緩める
   expect(
     height,
-    `${label}: 写真の表示高さが下限（12rem=192px）を下回っている（height=${height.toFixed(1)}）`,
-  ).toBeGreaterThanOrEqual(floorPx);
+    `${label}: 写真の表示高さが下限（12rem=${floorPx}px）を下回っている（height=${height.toFixed(1)}）`,
+  ).toBeGreaterThanOrEqual(floorPx - 0.5);
 }
 
 /**
