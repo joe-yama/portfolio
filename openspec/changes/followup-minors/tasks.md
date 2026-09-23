@@ -7,9 +7,9 @@
 - [x] 1.1 特許の `url` を必須にする（`src/content/schemas.ts` の特許スキーマ）。`PatentItem.astro` の `patent.url ? … : …` を常にリンクに。関係する単体テスト・e2e（`tests/e2e/pages.spec.ts` の「url を持つ項目だけがリンク」は日英リンク比較テストと重複しているので、「すべての見出しがリンク」の 1 本に置き換える）を spec delta（content-schema / profile-and-career）に合わせる。`docs/content-authoring.md:18` に `url` が必須であることを書き足す
 - [x] 1.2 `validateCareerPatents` に言語ごとの `number` 重複検出を足す（エラーに `number` を含める）。`lang` 引数を `Locale` 型にする（`src/lib/validate.ts:126-147`）
 - [x] 1.3 `getCareer`（`src/lib/content.ts`）の検証の配線を守る単体テスト: `astro:content` を `vi.mock` し、公報番号が重複したデータで例外になることを確かめる（design D3。効かなければ「提案」に記録）
-- [x] 1.4 `validate.ts` の比較ループ（`:59-116`、certifications / achievements / patents / skills）を `[key, keyOf]` の表に一本化する（挙動不変）
-- [x] 1.5 `isCalendarDate`（`src/content/schemas.ts:12-15`）を `Date.UTC` ベースにして年 0001〜0099 の誤判定を直す（テストを先に）
-- [x] 1.6 `src/lib/theme.ts` の `TOKEN_NAMES` 恒等写像と未使用の `export type Tokens` を削る。`ogLocale`（`src/lib/site.ts:124-126`）を `locales` から導く
+- [x] 1.4 `validate.ts` の比較ループ（`:59-116`、certifications / achievements / patents / skills）を `[key, keyOf]` の表に一本化する（挙動不変）→ 裁定: skills は形が違うので表に含めない（「提案」の実装時の裁定）
+- [x] 1.5 `isCalendarDate`（`src/content/schemas.ts:12-15`）を `Date.UTC` ベースにして年 0001〜0099 の誤判定を直す（テストを先に）→ 裁定: `Date.UTC` も年 0〜99 を読み替えるので `setUTCFullYear` を使った（「提案」の実装時の裁定）
+- [x] 1.6 `src/lib/theme.ts` の `TOKEN_NAMES` 恒等写像と未使用の `export type Tokens` を削る。`ogLocale`（`src/lib/site.ts:124-126`）を `locales` から導く → 裁定: `Record<Locale, string>` の表にした（ロケールを足すと型エラーで気づける）
 - [x] 1.7 `src/lib/career.ts`: `splitPatents<T>` の不要なジェネリックを外し、`sortPatents` の JSDoc を整理。`tests/unit/career.test.ts:86-138` の共有可変フィクスチャ・`title:'t'`・6 件 / 12 件の重複テストを整理する
 - [x] 1.8 `src/pages/[lang]/career.astro:42,108`: `ui[lang].present` と `career.patents.length` の参照を他区画と同じ派生変数の書き方に揃える（挙動不変）
 
@@ -54,6 +54,7 @@
 - 1.5: `Date.UTC` も年 0〜99 を 1900 年代に読み替える（実測）ため、`setUTCFullYear(y, m - 1, d)` を使った
 - 2.3: 単体テストは置かず、隔離複製で別の cwd から実行して前後を実測した（単体テストだと作業ツリーの `src/content/photos` と `node_modules/.astro/assets` を書き換える）
 - 3.2: 404 ページも a11y / network の対象に残し、`expectedStatus` で 404 ページだけ 404 を期待する
+- 1.6: `ogLocale` は `locales` から文字列を組み立てず、`OG_LOCALES: Record<Locale, string>` の表にした（`ja_JP` / `en_US` は機械的に導けない。ロケールを足すと型エラーになる）
 - 3.4: `isPreviewAlreadyRunning` の補助チェックは消さず短くした（消すと別ポートの同 root preview で 60 秒待って落ちる）
 - `pnpm photo:add` 経由で出る pnpm 自身の `ELIFECYCLE` 行は、spec の「1 行で中断」に数えない（スクリプトの外の出力で、変更前から同じ）
 
@@ -81,3 +82,7 @@ e2e（単位 3）
 - `tests/e2e/paths.ts`: slug をファイル名そのまま作っており、Astro の glob loader の決め方（slug 化、`slug` キー）とずれうる（前提をコメントに書く）。`photoSlugs` の `export` はどこからも使われていない
 - `tests/e2e/viewport.spec.ts:10` の写真の slug が直書きのまま（本 change では触らないファイル）
 - `tests/e2e/global-teardown.ts` の `currentPreviewPid` は `global-setup.ts` の `parsePreviewPid` と同じ処理（export して使い回せる）
+
+ブランチ全体のレビュー
+- `src/lib/validate.ts:1-2` の冒頭コメント（「Task 5 の」「ここだけ .ts を明示する」）が古い。`./i18n.ts` の import も増えたので、このファイルの相対 import には型だけの import も含めて `.ts` を付ける、に書き換える
+- `specs/content-schema/spec.md` は要求の改名を REMOVED + ADDED で書いたため、archive すると要求が spec の末尾に移る（内容は正しい）。RENAMED + MODIFIED で書けば位置が保たれる
