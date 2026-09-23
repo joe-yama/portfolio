@@ -9,6 +9,10 @@ const POLL_INTERVAL_MS = 500;
 const POLL_TIMEOUT_MS = 60_000;
 const PORT_CHECK_TIMEOUT_MS = 1_000;
 
+// リポジトリの root。preview はプロジェクト root ごとのロックなので、build・preview・
+// status・logs・stop をすべてここで実行し、呼び出し元の cwd に左右されないようにする
+export const ROOT = fileURLToPath(new URL('../..', import.meta.url));
+
 // setup が実際に起動した preview の pid を global-teardown.ts に伝えるマーカー。
 // globalSetup と globalTeardown は別のモジュール評価になりうるため、
 // モジュールスコープの変数ではなくファイル（.astro/ 配下。git 管理外）で受け渡す。
@@ -48,7 +52,7 @@ export function parsePreviewPid(output: string): number | null {
 export function currentPreviewPid(): number | null {
   try {
     return parsePreviewPid(
-      execSync('pnpm exec astro preview status --json', { encoding: 'utf-8' }),
+      execSync('pnpm exec astro preview status --json', { cwd: ROOT, encoding: 'utf-8' }),
     );
   } catch {
     return null;
@@ -61,7 +65,10 @@ export function currentPreviewPid(): number | null {
 // `--json` の `message` を見る
 function isPreviewAlreadyRunning(): boolean {
   try {
-    const output = execSync('pnpm exec astro preview status --json', { encoding: 'utf-8' });
+    const output = execSync('pnpm exec astro preview status --json', {
+      cwd: ROOT,
+      encoding: 'utf-8',
+    });
     return parsePreviewMessage(output) !== null;
   } catch {
     return false;
@@ -109,7 +116,7 @@ async function waitForServerReady(): Promise<void> {
 
   let logs: string;
   try {
-    logs = execSync('pnpm exec astro preview logs', { encoding: 'utf-8' });
+    logs = execSync('pnpm exec astro preview logs', { cwd: ROOT, encoding: 'utf-8' });
   } catch (error) {
     logs = error instanceof Error ? error.message : String(error);
   }
@@ -127,7 +134,7 @@ export default async function globalSetup(): Promise<void> {
     );
   }
 
-  execSync('pnpm build', { stdio: 'inherit' });
+  execSync('pnpm build', { cwd: ROOT, stdio: 'inherit' });
   // astro preview は CI（非対話端末）では前景実行になり execSync がブロックする。
   // --background を明示してバックグラウンドプロセスとして起動し、
   // 起動コマンドが戻った後は HTTP でポーリングして起動完了を待つ。
@@ -136,6 +143,7 @@ export default async function globalSetup(): Promise<void> {
   // 拒否される問題への対処（仮説。macOS では localhost が 127.0.0.1 に
   // 解決されるためローカルでは再現しない）。
   execSync(`pnpm exec astro preview --port ${PORT} --host 127.0.0.1 --background`, {
+    cwd: ROOT,
     stdio: 'inherit',
   });
 

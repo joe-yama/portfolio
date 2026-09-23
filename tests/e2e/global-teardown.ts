@@ -1,6 +1,6 @@
 import { execSync } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
-import { currentPreviewPid, RUN_ID_ENV, STARTED_MARKER } from './global-setup';
+import { currentPreviewPid, ROOT, RUN_ID_ENV, STARTED_MARKER } from './global-setup';
 
 export default function globalTeardown(): void {
   // globalSetup が「既に別の配信サーバーが動いている」ため例外を投げた実行では、
@@ -35,5 +35,5 @@ export default function globalTeardown(): void {
   if (startedPid === null || startedPid !== currentPreviewPid()) return;
 
   rmSync(STARTED_MARKER);
-  execSync('pnpm exec astro preview stop', { stdio: 'inherit' });
+  execSync('pnpm exec astro preview stop', { cwd: ROOT, stdio: 'inherit' });
 }
