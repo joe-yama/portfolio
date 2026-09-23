@@ -16,9 +16,11 @@ afterAll(() => {
 
 /**
  * 一時ディレクトリを cwd にして pnpm photo:add 相当を実行する。gh は偽物で、
- * 呼ばれたら gh.log に引数を書き（= GitHub への問い合わせが起きた印）、login を出す。
+ * 呼ばれたら gh.log に引数を書き（= GitHub への問い合わせが起きた印）、api にだけ login を出して成功する。
+ * それ以外（release view / create / upload）は失敗させ、画像の読み取りが退行しても
+ * 本物の src/content/photos/ に YAML が書かれないようにする。
  * PATH は偽の gh のディレクトリだけにして、本物の gh に落ちないようにする。
- * login は printf '%b' で出すので、\n を含めれば複数行になる
+ * login はシングルクォートでそのまま埋め込むので、改行を含めれば複数行になる
  */
 function runPhotoAdd(
   args: string[],
@@ -28,7 +30,10 @@ function runPhotoAdd(
   dirs.push(dir);
   const ghLog = join(dir, 'gh.log');
   const gh = join(dir, 'gh');
-  writeFileSync(gh, `#!/bin/sh\necho "$*" >> '${ghLog}'\nprintf '%b\\n' '${login}'\n`);
+  writeFileSync(
+    gh,
+    `#!/bin/sh\necho "$*" >> '${ghLog}'\ncase "$1" in\n  api) printf '%s\\n' '${login}' ;;\n  *) exit 1 ;;\nesac\n`,
+  );
   chmodSync(gh, 0o755);
   writeFileSync(join(dir, 'x.jpg'), file);
   const result = spawnSync(process.execPath, [SCRIPT, ...args], {
@@ -81,6 +86,7 @@ describe('pnpm photo:add のアカウント確認', () => {
     expect(r.status).toBe(1);
     expect(r.lines).toHaveLength(1);
     expect(r.lines[0]).toMatch(/^photo:add: gh のアカウントが joe-yama ではない（someone）/);
+    expect(r.ghCalls).toEqual(['api user --jq .login']);
   });
 });
 
@@ -91,6 +97,32 @@ describe('pnpm photo:add の画像の読み取り', () => {
     expect(r.lines).toEqual([expect.stringMatching(/^photo:add: 画像として読めない: x\.jpg$/)]);
     expect(r.stderr).not.toMatch(/^\s+at /m);
     expect(r.stderr).not.toMatch(/exifr|sharp|node_modules/);
+    expect(r.ghCalls).toEqual(['api user --jq .login']);
+  });
+
+  it('EXIF は読めても画素が壊れた JPEG は、縮小の失敗を 1 行で中断し、sharp の内部情報を出さない', async () => {
+    const full = await sharp({
+      create: { width: 8, height: 8, channels: 3, background: '#888888' },
+    })
+      .withExif({
+        IFD0: { Make: 'FUJIFILM', Model: 'X-T5' },
+        IFD2: {
+          LensModel: 'XF23mm',
+          FNumber: '28/10',
+          ExposureTime: '1/250',
+          ISOSpeedRatings: '200',
+          DateTimeOriginal: '2025:01:02 03:04:05',
+        },
+      })
+      .jpeg()
+      .toBuffer();
+    // SOS（FF DA）の直後 4 バイトで切る。EXIF（APP1）は残り、画素のデータが欠ける
+    const sos = full.indexOf(Buffer.from([0xff, 0xda]));
+    const r = runPhotoAdd(['x.jpg'], { file: full.subarray(0, sos + 4) });
+    expect(r.status).toBe(1);
+    expect(r.lines).toEqual(['photo:add: 画像として読めない: x.jpg']);
+    expect(r.stderr).not.toMatch(/sharp|vips|node_modules/i);
+    expect(r.stderr).not.toMatch(/^\s+at /m);
     expect(r.ghCalls).toEqual(['api user --jq .login']);
   });
 
