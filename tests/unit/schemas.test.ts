@@ -62,7 +62,7 @@ describe('photoSchema', () => {
     expect(photoSchema.safeParse({ ...validPhoto, takenAt: '0050-02-28' }).success).toBe(true);
   });
 
-  // 年 0050 と 0001 は閏年でない。0〜99 年を 1900 年代に読み替える実装だと誤判定しうる
+  // 年 0050 と 0001 は閏年でない。0〜99 年だけを特別扱いする分岐を足したときの退行を止める（裁定 P2）
   it.each(['0050-02-29', '0001-02-29'])('takenAt の %s は暦に存在しないので拒否する', (takenAt) => {
     expect(photoSchema.safeParse({ ...validPhoto, takenAt }).success).toBe(false);
   });
