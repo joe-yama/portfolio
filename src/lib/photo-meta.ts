@@ -12,6 +12,15 @@ export type PhotoMeta = {
   iso: number;
 };
 
+/**
+ * 写真データファイルの glob の entry（`<slug>.yaml`）→ コレクションの id。
+ * Astro の既定の id 生成は `.` を消し大文字を小文字にするので、spec の「ファイル名を slug とする」から
+ * ずれる（`kamo-river-v1.2.yaml` → `kamo-river-v12`）。拡張子だけを除く（design D2）
+ */
+export function photoIdFromEntry(entry: string): string {
+  return entry.replace(/\.yaml$/, '');
+}
+
 /** ファイル名（拡張子を除いて kebab-case に）または --slug の値（そのまま）→ slug。使えなければ由来の分かる文言で例外 */
 export function toSlug(fileName: string, slugArg?: string): string {
   if (slugArg !== undefined) {

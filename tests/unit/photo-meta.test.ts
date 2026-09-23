@@ -9,6 +9,7 @@ import {
   nextOrder,
   type PhotoMeta,
   parseOrder,
+  photoIdFromEntry,
   renderPhotoYaml,
   toSlug,
 } from '../../src/lib/photo-meta';
@@ -263,5 +264,15 @@ describe('ghFailureMessage', () => {
 
   it('stderr が無ければ message を使う', () => {
     expect(ghFailureMessage({ message: 'boom' })).toBe('boom');
+  });
+});
+
+describe('photoIdFromEntry', () => {
+  it.each([
+    ['kamo-river-v1.2.yaml', 'kamo-river-v1.2'],
+    ['Kamo.yaml', 'Kamo'],
+    ['kariya-ferris-wheel.yaml', 'kariya-ferris-wheel'],
+  ])('%s → %s（拡張子だけを除き、. や大文字を残す）', (entry, id) => {
+    expect(photoIdFromEntry(entry)).toBe(id);
   });
 });
