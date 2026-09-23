@@ -31,13 +31,9 @@ async function assertBottomsWithinViewport(page: Page, selector: string, label: 
 
 /** 画像の読み込み完了（naturalWidth > 0）を待つ。待たずに測ると naturalWidth が 0 になる */
 async function waitForImageLoaded(locator: Locator) {
-  await locator.evaluate((img) => {
-    const el = img as HTMLImageElement;
-    if (el.complete && el.naturalWidth > 0) return;
-    return new Promise<void>((resolve) => {
-      el.addEventListener('load', () => resolve(), { once: true });
-    });
-  });
+  await expect
+    .poll(() => locator.evaluate((img) => (img as HTMLImageElement).naturalWidth))
+    .toBeGreaterThan(0);
 }
 
 /** 表示上の縦横比（getBoundingClientRect）が元画像の縦横比（naturalWidth/naturalHeight）と一致することを確認する */
@@ -57,22 +53,8 @@ async function assertDisplayRatioMatchesNatural(locator: Locator, label: string)
   const relativeError = Math.abs(displayRatio - naturalRatio) / naturalRatio;
   expect(
     relativeError,
-    `${label}: 表示比 ${displayRatio.toFixed(3)}（${measured.width.toFixed(1)}x${measured.height.toFixed(1)}）が` +
-      `元画像の比 ${naturalRatio.toFixed(3)}（${measured.naturalWidth}x${measured.naturalHeight}）と一致しない` +
-      '（引き伸ばしまたは切り取りが疑われる）',
+    `${label}: 表示比 ${displayRatio.toFixed(3)}（${measured.width.toFixed(1)}x${measured.height.toFixed(1)}）が元画像の比 ${naturalRatio.toFixed(3)}（${measured.naturalWidth}x${measured.naturalHeight}）と一致しない（引き伸ばしまたは切り取りが疑われる）`,
   ).toBeLessThanOrEqual(tolerance);
-}
-
-/** 横スクロールが発生していないことを確認する */
-async function assertNoHorizontalScroll(page: Page, label: string) {
-  const { scrollWidth, clientWidth } = await page.evaluate(() => ({
-    scrollWidth: document.documentElement.scrollWidth,
-    clientWidth: document.documentElement.clientWidth,
-  }));
-  expect(
-    scrollWidth,
-    `${label}: 横スクロールが発生している（scrollWidth=${scrollWidth}, clientWidth=${clientWidth}）`,
-  ).toBeLessThanOrEqual(clientWidth);
 }
 
 /**
@@ -249,10 +231,20 @@ test('回帰: 390×844 で横スクロールが発生しない（トップと個
   await page.setViewportSize({ width: 390, height: 844 });
 
   await page.goto('./ja/');
-  await assertNoHorizontalScroll(page, 'トップページ');
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+    ),
+    'トップページ: 横スクロールが発生している',
+  ).toBe(true);
 
   await page.goto(`./ja/photos/${verticalSlug}/`);
-  await assertNoHorizontalScroll(page, '個別ページ');
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+    ),
+    '個別ページ: 横スクロールが発生している',
+  ).toBe(true);
 });
 
 test('回帰: 390×844 で写真は本文の幅いっぱいに表示される（トップと個別ページ）', async ({

@@ -41,7 +41,7 @@
 - [x] 6.1 F16 + C4: `tests/e2e/viewport.spec.ts` の写真の slug の直書きと `locales` の重複を、`paths.ts` と `src/lib/i18n` から導く
 - [x] 6.2 C3: 縦横比の検査を両ロケール・主要ビューポートに広げる
 - [x] 6.3 C6: `floorPx = 192` が 1280×400 で等号ぎりぎりになる件。root の font-size から導いた値で比較する
-- [ ] 6.4 C7: ponytail（`waitForImageLoaded` を `expect.poll` に、`assertNoHorizontalScroll` を畳む、失敗メッセージを 1 行に）
+- [x] 6.4 C7: ponytail（`waitForImageLoaded` を `expect.poll` に、`assertNoHorizontalScroll` を畳む、失敗メッセージを 1 行に）
 - [ ] 6.5 C5: `index.astro` と `[slug].astro` の高さ上限の式、`global.css` の `100dvh` に、svh と dvh を使い分ける意図のコメントを足す
 - [ ] 6.6 H1: `PhotoPicture` の pictureSizing と `eager` → `priority`、`[slug].astro` の `neighbors` の戻り値、`photo.ts` の `Set` のラップと `inferRemoteSize` の重複を整理する
 - [ ] 6.7 H2: `.art` の CSS が index と 404 に重複している件を `global.css` に寄せる
