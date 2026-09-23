@@ -4,7 +4,7 @@
 
 ## 1. 特許の見出し（D1）
 
-- [ ] 1.1 `src/content/career/ja.yaml` と `en.yaml` の 5 行を design D1 の文言に書き換え、`pnpm test` と `pnpm build` が通ること（見出しの長さの検証を含む）を確かめる
+- [x] 1.1 `src/content/career/ja.yaml` と `en.yaml` の 5 行を design D1 の文言に書き換え、`pnpm test` と `pnpm build` が通ること（見出しの長さの検証を含む）を確かめる
 
 ## 2. 壊れる入力（先に RED を書く）
 
