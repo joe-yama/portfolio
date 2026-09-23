@@ -48,7 +48,7 @@
 
 ## 5. 文書
 
-- [ ] 5.1 `docs/content-authoring.md` に `headline`、`highlights`（1〜4 件、日英で件数をそろえる）、資格の `group`（日英で付け方をそろえる）の書き方を足す
+- [x] 5.1 `docs/content-authoring.md` に `headline`、`highlights`（1〜4 件、日英で件数をそろえる）、資格の `group`（日英で付け方をそろえる）の書き方を足す
 
 ## 6. 番人の確認と仕上げ
 
