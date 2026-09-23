@@ -183,6 +183,37 @@ for (const viewport of [
   }
 }
 
+for (const { path, expected } of [
+  {
+    path: 'ja/career/',
+    expected: [
+      '/portfolio/ja/',
+      '/portfolio/ja/photos/',
+      '/portfolio/ja/career/',
+      '/portfolio/en/career/',
+    ],
+  },
+  {
+    path: 'en/',
+    expected: [
+      '/portfolio/en/',
+      '/portfolio/en/photos/',
+      '/portfolio/en/career/',
+      '/portfolio/ja/',
+    ],
+  },
+]) {
+  test(`${path} のヘッダーのリンクはロゴ → Photos → Career → 言語切り替えの順`, async ({
+    page,
+  }) => {
+    await page.goto(path);
+    const hrefs = await page
+      .locator('header a')
+      .evaluateAll((links) => links.map((a) => a.getAttribute('href')));
+    expect(hrefs).toEqual(expected);
+  });
+}
+
 for (const lang of ['ja', 'en'] as const) {
   test(`本文最下部はサイト内導線が先、連絡先リンクが最も下で、各リンクにドット絵アイコンが付く（${lang}）`, async ({
     page,
