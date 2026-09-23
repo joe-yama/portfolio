@@ -76,6 +76,11 @@ h1 {
   color: var(--fg-muted);
 }
 
+/* トップと 404 のドット絵の枠 */
+.art {
+  margin-bottom: 1rem;
+}
+
 /*
   視覚的には隠すがスクリーンリーダーには読ませる。axe の page-has-heading-one 対応
   （見出しでページ全体の見出し構造を示す。gallery と 404 はキャプション無しの構成なので

@@ -44,7 +44,7 @@
 - [x] 6.4 C7: ponytail（`waitForImageLoaded` を `expect.poll` に、`assertNoHorizontalScroll` を畳む、失敗メッセージを 1 行に）
 - [x] 6.5 C5: `index.astro` と `[slug].astro` の高さ上限の式、`global.css` の `100dvh` に、svh と dvh を使い分ける意図のコメントを足す
 - [x] 6.6 H1: `PhotoPicture` の pictureSizing と `eager` → `priority`、`[slug].astro` の `neighbors` の戻り値、`photo.ts` の `Set` のラップと `inferRemoteSize` の重複を整理する
-- [ ] 6.7 H2: `.art` の CSS が index と 404 に重複している件を `global.css` に寄せる
+- [x] 6.7 H2: `.art` の CSS が index と 404 に重複している件を `global.css` に寄せる
 
 ## 7. 番人の確認と仕上げ
 
