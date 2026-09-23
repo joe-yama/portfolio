@@ -212,6 +212,14 @@ describe('ui の経歴ページの文字列', () => {
     expect(ui.en.morePatents(46)).toBe('Show 46 more');
   });
 
+  it('まとめた資格の見出しが件数を埋めて返る（ja、design D3）', () => {
+    expect(ui.ja.certGroupCount('AWS 認定', 12)).toBe('AWS 認定（12 件）');
+  });
+
+  it('まとめた資格の見出しが件数を埋めて返る（en、design D3）', () => {
+    expect(ui.en.certGroupCount('AWS Certifications', 12)).toBe('AWS Certifications (12)');
+  });
+
   it('在職中の表記（present）が両ロケールにある（design D10）', () => {
     expect(ui.ja.present).toBe('現在');
     expect(ui.en.present).toBe('Present');

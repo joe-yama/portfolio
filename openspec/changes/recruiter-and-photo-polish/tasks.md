@@ -17,7 +17,7 @@
 
 ## 2. 経歴ページ
 
-- [ ] 2.1 D3: RED: `tests/unit/career.test.ts` で `groupCertifications` を確かめる。見るのは次の 4 点
+- [x] 2.1 D3: RED: `tests/unit/career.test.ts` で `groupCertifications` を確かめる。見るのは次の 4 点
   - spec の「まとめた項目の位置」の並び（A → グループ → B）
   - グループの中が新しい順になること
   - `group` を持たない資格はそのまま残ること

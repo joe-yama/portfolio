@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import type { Patent } from '../../src/content/schemas';
 import {
   formatDate,
+  formatGroupPeriod,
   formatMonth,
   formatPeriod,
+  groupCertifications,
   hasDay,
   sortByDateDesc,
   sortExperience,
@@ -222,5 +224,52 @@ describe('負のオフセットの環境でのタイムゾーン退行の検出'
       if (saved === undefined) delete process.env.TZ;
       else process.env.TZ = saved;
     }
+  });
+});
+
+describe('groupCertifications', () => {
+  const a = { date: '2026-05', name: 'A' };
+  const aws1 = { date: '2025-10', name: 'AWS 1', group: 'AWS 認定' };
+  const aws2 = { date: '2025-04', name: 'AWS 2', group: 'AWS 認定' };
+  const b = { date: '2020-07', name: 'B' };
+
+  it('グループは最も新しい資格の位置に 1 項目で置かれ、前後の資格はそのまま残る', () => {
+    const result = groupCertifications([a, aws1, aws2, b]);
+    expect(result).toEqual([
+      { kind: 'single', item: a },
+      { kind: 'group', name: 'AWS 認定', items: [aws1, aws2] },
+      { kind: 'single', item: b },
+    ]);
+  });
+
+  it('グループの間に別の資格が挟まっても、グループの中は新しい順にまとまる', () => {
+    const result = groupCertifications([aws1, a, aws2]);
+    expect(result).toEqual([
+      { kind: 'group', name: 'AWS 認定', items: [aws1, aws2] },
+      { kind: 'single', item: a },
+    ]);
+  });
+
+  it('group を持たない資格だけなら、すべて single のまま順を保つ', () => {
+    expect(groupCertifications([a, b])).toEqual([
+      { kind: 'single', item: a },
+      { kind: 'single', item: b },
+    ]);
+  });
+});
+
+describe('formatGroupPeriod', () => {
+  const items = [{ date: '2025-10' }, { date: '2025-09' }, { date: '2025-04' }];
+
+  it('ja は 古い – 新しい', () => {
+    expect(formatGroupPeriod(items, 'ja')).toBe('2025年4月 – 2025年10月');
+  });
+
+  it('en は 古い – 新しい', () => {
+    expect(formatGroupPeriod(items, 'en')).toBe('April 2025 – October 2025');
+  });
+
+  it('同じ月だけのグループは 1 つだけ出し、– を含まない', () => {
+    expect(formatGroupPeriod([{ date: '2025-10' }, { date: '2025-10' }], 'ja')).toBe('2025年10月');
   });
 });
