@@ -28,7 +28,7 @@
 - [x] 4.1 F1: `career.astro` の `ui[lang].morePatents` を他と同じく派生変数にする。`.org` を `<b>` にする（Change 4 の ponytail、任意。見た目が変わらないことを確かめられた場合だけ）
 - [x] 4.2 F2 + D5 + H-D2: `src/lib/career.ts` の降順比較 3 か所を `desc()` に、`formatDate` の条件付きスプレッドを 1 行に、`splitPatents` の型を短く。career.test の自前の `Patent` 型を schemas.ts の export に、`hasDay` テストの重複と TZ ブロックに紛れた 2 テストを整理する
 - [x] 4.3 F18: `src/lib/validate.ts` 冒頭の古いコメントを現状に合わせる
-- [ ] 4.4 H-C4: `src/content/schemas.ts` の `isoDate` と `datePrecision` の refine の重複を 1 つに、theme.test の `name` 列を消す。schemas.test の enum の言い換え（H-D2）を整理する
+- [x] 4.4 H-C4: `src/content/schemas.ts` の `isoDate` と `datePrecision` の refine の重複を 1 つに、theme.test の `name` 列を消す。schemas.test の enum の言い換え（H-D2）を整理する
 
 ## 5. 品質改善（挙動不変）: e2e の基盤
 

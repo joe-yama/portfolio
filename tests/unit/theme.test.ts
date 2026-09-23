@@ -76,15 +76,15 @@ describe('src/styles/global.css の検算', () => {
   const tokens = readTokens(readFileSync(globalCssPath, 'utf-8'));
 
   const cases = [
-    { name: 'ライト --fg/--bg', theme: 'light' as const, key: 'fg' as const, min: 4.5 },
-    { name: 'ライト --fg-muted/--bg', theme: 'light' as const, key: 'fgMuted' as const, min: 4.5 },
-    { name: 'ライト --line/--bg', theme: 'light' as const, key: 'line' as const, min: 3.0 },
-    { name: 'ダーク --fg/--bg', theme: 'dark' as const, key: 'fg' as const, min: 4.5 },
-    { name: 'ダーク --fg-muted/--bg', theme: 'dark' as const, key: 'fgMuted' as const, min: 4.5 },
-    { name: 'ダーク --line/--bg', theme: 'dark' as const, key: 'line' as const, min: 3.0 },
+    { theme: 'light' as const, key: 'fg' as const, min: 4.5 },
+    { theme: 'light' as const, key: 'fgMuted' as const, min: 4.5 },
+    { theme: 'light' as const, key: 'line' as const, min: 3.0 },
+    { theme: 'dark' as const, key: 'fg' as const, min: 4.5 },
+    { theme: 'dark' as const, key: 'fgMuted' as const, min: 4.5 },
+    { theme: 'dark' as const, key: 'line' as const, min: 3.0 },
   ];
 
-  it.each(cases)('$name は $min 以上', ({ theme, key, min }) => {
+  it.each(cases)('$theme の $key / bg は $min 以上', ({ theme, key, min }) => {
     const c = contrast(tokens[theme][key], tokens[theme].bg);
     expect(
       c,

@@ -162,11 +162,6 @@ describe('careerSchema', () => {
     expect(careerSchema.safeParse({ ...validCareer, experience: [withNullTo] }).success).toBe(true);
   });
 
-  it('achievements の kind は talk / article / award / other のみ', () => {
-    const bad = { ...validCareer.achievements[0], kind: 'blog' };
-    expect(careerSchema.safeParse({ ...validCareer, achievements: [bad] }).success).toBe(false);
-  });
-
   it('achievementKindSchema が talk / article / award / other の 4 つを持つ（site.ts と二重定義しないための正本）', () => {
     expect(achievementKindSchema.options).toEqual(['talk', 'article', 'award', 'other']);
   });
@@ -190,31 +185,54 @@ describe('careerSchema', () => {
   });
 });
 
-describe('profileSchema', () => {
-  const validProfile = {
-    name: 'joe-yama',
-    tagline: '写真を撮るソフトウェアエンジニア',
-    links: [
-      { label: 'GitHub', url: 'https://github.com/joe-yama', kind: 'github' },
-      { label: 'Email', url: 'mailto:hello@example.com', kind: 'email' },
-    ],
-  };
+const validProfile = {
+  name: 'joe-yama',
+  tagline: '写真を撮るソフトウェアエンジニア',
+  links: [
+    { label: 'GitHub', url: 'https://github.com/joe-yama', kind: 'github' },
+    { label: 'Email', url: 'mailto:hello@example.com', kind: 'email' },
+  ],
+};
 
+describe('profileSchema', () => {
   it('正しいプロフィールを受け付ける（mailto も URL として許す）', () => {
     expect(profileSchema.safeParse(validProfile).success).toBe(true);
   });
 
   // spec は links[] の件数を制約しない（Ruling 12）。brief 由来の「1 件以上」は外し、
-  // links: [] は成功、kind は列挙のみという期待値にする。
-  it('links は空配列も許すが、kind は列挙のみ', () => {
+  // links: [] は成功、kind は列挙のみという期待値にする（kind は下の「kind の列挙」で見る）。
+  it('links は空配列も許す', () => {
     expect(profileSchema.safeParse({ ...validProfile, links: [] }).success).toBe(true);
-    const bad = { ...validProfile.links[0], kind: 'mastodon' };
-    expect(profileSchema.safeParse({ ...validProfile, links: [bad] }).success).toBe(false);
   });
 
   it('tagline を欠くと失敗する', () => {
     const { tagline: _omit, ...rest } = validProfile;
     expect(profileSchema.safeParse(rest).success).toBe(false);
+  });
+});
+
+describe('kind の列挙', () => {
+  it.each([
+    {
+      field: 'careerSchema の achievements[].kind',
+      value: 'blog',
+      parse: () =>
+        careerSchema.safeParse({
+          ...validCareer,
+          achievements: [{ ...validCareer.achievements[0], kind: 'blog' }],
+        }),
+    },
+    {
+      field: 'profileSchema の links[].kind',
+      value: 'mastodon',
+      parse: () =>
+        profileSchema.safeParse({
+          ...validProfile,
+          links: [{ ...validProfile.links[0], kind: 'mastodon' }],
+        }),
+    },
+  ])('$field は列挙に無い $value を拒否する', ({ parse }) => {
+    expect(parse().success).toBe(false);
   });
 });
 
