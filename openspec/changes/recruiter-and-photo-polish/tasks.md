@@ -82,3 +82,12 @@
 ## 提案（本 change のスコープ外・後続への申し送り）
 
 - 横並びのトップでも `PhotoPicture` の `sizes` が `78rem` のままで、必要より大きい画像を読み込む（design の Risks）
+- 経歴ページの束ねた資格の行で、外側の `li` の黒丸と `summary` の三角が二重に出る。特許用の `details { margin-top: 0.5rem }` が効いてグループの上だけ 8px 空き、文字の開始位置が隣の行より約 17px 右にずれる（`li > details { margin-top: 0 }` と、黒丸か三角のどちらかを消せば直る）
+- 幅 390 で束ねた資格の `summary` が折り返すと、2 行目が三角の左端から始まる
+- e2e の `parseCertifications` は 1 件が `  - date:` で始まる前提、`parseHighlights` はクォートを外さない（JSDoc に前提を書くか、クォートを外す）
+- `formatGroupPeriod([])` は TypeError になる（呼び出し元の `groupCertifications` は空のグループを作らないので今は起きない）
+- `validate.test.ts` の「資格の件数が違うときは group の突き合わせまで進まない」は ja < en の向きだけで、件数のガードを外しても緑（ja > en だと TypeError）。逆向きのケースを足す
+- 1280px 以上では `main` の max-width で写真が 729.6×486.4 に固定され、1920×1080 以上では画面の下半分が空く。「写真主役」を進めるならトップだけ `main` を広げる（global.css に触るので別 change）
+- 64rem 未満の縦並びの初見表示（30rem の見積もり）を守る e2e が無い
+- `og:image:alt` の検査は本文の alt と比べているので、両方が同じロケールへずれると見逃す。写真の個別ページの `og:image` のオリジンも確かめていない
+- ponytail: pages.spec の代表でない写真の slug を写真のディレクトリから導く処理は定数 1 行にできる。`.highlights` の margin は `section` と 1 ブロックにまとめられる。資格 1 件分のマークアップが career.astro の 2 か所にある
