@@ -52,7 +52,7 @@
 
 ## 6. 番人の確認と仕上げ
 
-- [ ] 6.1 変異を当てて、新しいテストが落ちることを確かめる（`docs/harness/README.md` の隔離実行の手順）。当てる変異は少なくとも次の 9 つ
+- [x] 6.1 変異を当てて、新しいテストが落ちることを確かめる（`docs/harness/README.md` の隔離実行の手順）。当てる変異は少なくとも次の 9 つ
   - (a) `headline` を任意にする
   - (b) `highlights` の上限を外す
   - (c) 件数の検査から `highlights` を外す
@@ -62,6 +62,17 @@
   - (g) 64rem のメディアクエリを外す（横並びの検査が赤）
   - (h) `ogPhoto` を無視して常に代表写真を使う
   - (i) `description` を `tagline` に戻す
+  - 結果（隔離複製、変異ごとに対照 → 同じ複製に変異 → 変異入りで作り直した複製の 3 回。`RUN` / `[build] directory` の行が複製を指すことを確認）
+    - 対照: 単体は 6 本とも `Tests 343 passed (343)`、e2e は 3 本とも `146 passed`
+    - (a) 1 failed: schemas.test「profileSchema > headline を欠くと失敗し、エラーの path に headline が入る」
+    - (b) 1 failed: schemas.test「careerSchema > highlights が 5 件なら失敗する」
+    - (c) 1 failed: validate.test「validateCareerParity > highlights の件数差を報告する」
+    - (d) 1 failed: validate.test「validateCareerParity > group の分け方が日英で違えば、食い違う位置を報告する」
+    - (e) 1 failed: career.test「groupCertifications > グループの間に別の資格が挟まっても、グループの中は新しい順にまとまる」
+    - (f) 1 failed: career.test「formatGroupPeriod > 同じ月だけのグループは 1 つだけ出し、– を含まない」
+    - (g) 2 failed: viewport.spec「横並び: 1280×720 の /ja/ では代表写真が文字列の左にあり、本文の幅の半分以上を占める」「横並び: 1024×768 の /en/ では代表写真が名前の左にある」
+    - (h) 1 failed: pages.spec「SNS 共有カード > 代表ではない写真の個別ページの共有カードは、その写真から作られる」
+    - (i) 10 failed: pages.spec「<path> が表示され lang と hreflang が正しい」の 10 ページすべて（`meta[name="description"]` が tagline になる）
 - [ ] 6.2 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
 
 ## 提案（本 change のスコープ外・後続への申し送り）
