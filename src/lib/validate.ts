@@ -100,6 +100,23 @@ export function validateCareerParity(ja: Career, en: Career): string[] {
     }
   }
 
+  // group は訳語になるので名前では比べず、各言語で「その group が最初に出てきた位置」に
+  // 置き換えて比べる。有無の食い違いと分け方の食い違いを 1 回の比較で見られる（design D4）
+  if (ja.certifications.length === en.certifications.length) {
+    const firstIndexes = (career: Career) =>
+      career.certifications.map((c) =>
+        c.group === undefined ? -1 : career.certifications.findIndex((d) => d.group === c.group),
+      );
+    const [jaIndexes, enIndexes] = [firstIndexes(ja), firstIndexes(en)];
+    const index = jaIndexes.findIndex((v, i) => v !== enIndexes[i]);
+    if (index !== -1) {
+      const name = (c: Career) => c.certifications[index].group ?? 'なし';
+      errors.push(
+        `certifications の ${index + 1} 番目の group の付き方が日英で違う（ja: ${name(ja)}, en: ${name(en)}）`,
+      );
+    }
+  }
+
   // skills は配列ではなくカテゴリ名から項目への対応。カテゴリ名は訳語になるので
   // キーでは対応づけられず、表示側（career.astro）と同じ Object.entries の順で対応づける
   const jaSkills = Object.entries(ja.skills);

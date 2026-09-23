@@ -160,6 +160,21 @@ describe('careerSchema', () => {
     expect(careerSchema.safeParse({ ...validCareer, highlights: [''] }).success).toBe(false);
   });
 
+  it('group を持つ資格と持たない資格が混ざっても成功する', () => {
+    const certifications = [
+      { date: '2025-10', name: 'AWS Certified Security - Specialty', group: 'AWS 認定' },
+      { date: '2020-07', name: 'Licensed Scrum Master' },
+    ];
+    const result = careerSchema.safeParse({ ...validCareer, certifications });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.certifications[0].group).toBe('AWS 認定');
+  });
+
+  it.each(['', '  '])('資格の group が空（%j）なら失敗する', (group) => {
+    const certifications = [{ date: '2025-10', name: 'x', group }];
+    expect(careerSchema.safeParse({ ...validCareer, certifications }).success).toBe(false);
+  });
+
   it('experience の bullets は最大 5', () => {
     const six = { ...validCareer.experience[0], bullets: ['1', '2', '3', '4', '5', '6'] };
     expect(careerSchema.safeParse({ ...validCareer, experience: [six] }).success).toBe(false);

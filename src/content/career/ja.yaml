@@ -39,28 +39,40 @@ certifications:
     name: TOEIC Listening & Reading 900点
   - date: "2025-10"
     name: AWS Certified AI Practitioner
+    group: AWS 認定
   - date: "2025-10"
     name: AWS Certified CloudOps Engineer - Associate
+    group: AWS 認定
   - date: "2025-10"
     name: AWS Certified Data Engineer - Associate
+    group: AWS 認定
   - date: "2025-10"
     name: AWS Certified Developer - Associate
+    group: AWS 認定
   - date: "2025-10"
     name: AWS Certified DevOps Engineer - Professional
+    group: AWS 認定
   - date: "2025-10"
     name: AWS Certified Machine Learning Engineer - Associate
+    group: AWS 認定
   - date: "2025-10"
     name: AWS Certified Advanced Networking - Specialty
+    group: AWS 認定
   - date: "2025-10"
     name: AWS Certified Security - Specialty
+    group: AWS 認定
   - date: "2025-10"
     name: AWS Certified Machine Learning - Specialty
+    group: AWS 認定
   - date: "2025-09"
     name: AWS Certified Cloud Practitioner
+    group: AWS 認定
   - date: "2025-04"
     name: AWS Certified Solutions Architect - Professional
+    group: AWS 認定
   - date: "2025-04"
     name: AWS Certified Solutions Architect - Associate
+    group: AWS 認定
   - date: "2020-07"
     name: Licensed Scrum Master (Scrum Inc.)
 achievements:
