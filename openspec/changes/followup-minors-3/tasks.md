@@ -37,6 +37,6 @@
 - [ ] 5.2 M19: `tests/e2e/pages.spec.ts` の `parsePatents` が `patentsX:` に一致しないことの対照実験。`ja.yaml` の patents の後に `patentsX:` の区画を足した入力で、今の実装は特許の件数が変わらず、`/^patents:/` に戻すと変わる（赤になる）ことを確かめる
 - [x] 5.3 cwd をリポジトリの外にして `<worktree>/node_modules/.bin/playwright test -c <worktree>/playwright.config.ts` を実行し、全件緑になることを確かめる（修正前は `pages.spec.ts:75` の `ENOENT` で落ちることを対照として記録する）
 - [x] 5.4 書き換えたテスト（3.2、4.1、4.2、4.5、4.7）が、書き換え前と同じ変異で落ちることを確かめる
-- [ ] 5.5 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
+- [x] 5.5 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
 
 ## 提案（本 change のスコープ外・後続への申し送り）
