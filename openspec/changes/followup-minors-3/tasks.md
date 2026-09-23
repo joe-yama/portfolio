@@ -5,7 +5,7 @@
 ## 1. 番人と壊れる入力（先に RED を書く）
 
 - [x] 1.1 M9 / D1: RED: `tests/unit/validate.test.ts` に、`url` が別の公報を指す・公報番号が前方一致するだけ・英語のデータだけが誤る の 3 ケースで `validateCareerPatents` がエラー（`number` と `url` を含む）を返すこと、代表公報を指す `url` では返さないことを足す。GREEN: `src/lib/validate.ts` に検査を足し、冒頭のコメントの検査一覧も更新する。`pnpm test` と `pnpm build`（実データ 130 件が通る）で確かめる
-- [ ] 1.2 M11 + M18 + M12 の一部 / D4: `tests/e2e/global-setup.ts` で起動後の pid が `null` なら throw する。`parsePreviewPid` の export を外し、`status --json` の `execSync` を 1 か所にまとめる（まとめられない理由があれば報告に書く）。`pnpm e2e` が緑のままであることで確かめる
+- [x] 1.2 M11 + M18 + M12 の一部 / D4: `tests/e2e/global-setup.ts` で起動後の pid が `null` なら throw する。`parsePreviewPid` の export を外し、`status --json` の `execSync` を 1 か所にまとめる（まとめられない理由があれば報告に書く）。`pnpm e2e` が緑のままであることで確かめる
 - [x] 1.3 M17 / D5: RED: `tests/unit/photo-add-cli.test.ts` で偽の `gh` が `joe-yama\nother` を返すとき、1 行の理由で中断し Release に触れないことを確かめる。GREEN: `scripts/photo-add.ts` の login の比較を出力全体（`trim()` 後）で行い、`die` の文言にだけ先頭行を使う
 - [x] 1.4 M6 / D5: RED: `TMPDIR` を一時ディレクトリに向け、画素が壊れた JPEG を入稿したあとその中に `photo-add-*` が残らないことを確かめる。GREEN: sharp の catch で作業ディレクトリを消してから `die` する
 - [ ] 1.5 M13 + M4 / D3: `tests/e2e/pages.spec.ts` の YAML の読み込みと `tests/e2e/sitemap.spec.ts` の `dist` を `import.meta.url` 起点にする。`tests/e2e/paths.ts` の写真ファイルの一覧から `.` で始まる名前を除く。cwd をリポジトリの外にして `playwright test -c <worktree>/playwright.config.ts` が通ることで確かめる（5.3）
