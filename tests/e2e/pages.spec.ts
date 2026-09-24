@@ -2,7 +2,6 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
 import { type Locale, locales, toLocale } from '../../src/lib/i18n';
-import { photoIdFromEntry } from '../../src/lib/photo-meta';
 import { ui } from '../../src/lib/site';
 import { pagePaths } from './paths';
 
@@ -149,16 +148,12 @@ function parseProfileLine(lang: Locale, key: string): string {
 }
 
 /**
- * 代表ではない写真の slug。src/content/photos/*.yaml（ドットファイルを除く。paths.ts と同じ）のうち
- * `featured: true` の行を持たないものの先頭（ファイル名の順）
+ * 代表ではない写真の slug（viewport.spec の verticalSlug と同じ写真）。代表写真に変わると
+ * 「その写真から作られる」の検査の og:image がトップと同じになって落ちるので、気づける
  */
+const nonFeaturedSlug = 'kariya-ferris-wheel';
+
 const photosDir = fileURLToPath(new URL('../../src/content/photos', import.meta.url));
-const nonFeaturedFile = readdirSync(photosDir)
-  .filter((name) => name.endsWith('.yaml') && !name.startsWith('.'))
-  .sort()
-  .find((name) => !/^featured: true$/m.test(readFileSync(`${photosDir}/${name}`, 'utf8')));
-if (!nonFeaturedFile) throw new Error(`${photosDir} に代表ではない写真が無い`);
-const nonFeaturedSlug = photoIdFromEntry(nonFeaturedFile);
 
 /**
  * 代表写真（`featured: true` の行を持つ YAML）の alt.en。alt の値は二重引用符で書く前提
