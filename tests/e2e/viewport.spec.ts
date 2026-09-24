@@ -240,6 +240,39 @@ test('トップ以外: 1920 幅の /ja/career/ では main の幅が 80rem の�
   expect(Math.abs(width - 80 * rem), `main の幅 ${width} が 80rem ではない`).toBeLessThanOrEqual(1);
 });
 
+test.describe('横並びの代表写真の読み込む大きさ（design D8）', () => {
+  // 候補の選び方は devicePixelRatio に依存するので 1 に固定する
+  test.use({ deviceScaleFactor: 1 });
+
+  test('1280×720 の /ja/ では代表写真に srcset の 1200w の候補が選ばれる', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto('./ja/');
+    const hero = page.locator('main .hero picture img');
+    await waitForImageLoaded(hero);
+    // <source> が avif / webp なので、currentSrc を含む srcset（source か img）から幅の記述子を得る
+    const chosen = await hero.evaluate((img) => {
+      const el = img as HTMLImageElement;
+      const picture = el.closest('picture');
+      if (!picture) throw new Error('picture が見つからない');
+      const srcsets = [...picture.querySelectorAll('source, img')].map(
+        (node) => node.getAttribute('srcset') ?? '',
+      );
+      for (const srcset of srcsets) {
+        for (const candidate of srcset.split(',')) {
+          const [url, descriptor] = candidate.trim().split(/\s+/);
+          if (url && new URL(url, document.baseURI).href === el.currentSrc) {
+            return { currentSrc: el.currentSrc, descriptor: descriptor ?? '' };
+          }
+        }
+      }
+      return { currentSrc: el.currentSrc, descriptor: '' };
+    });
+    expect(chosen.descriptor, `選ばれた候補（${chosen.currentSrc}）が 1200w ではない`).toBe(
+      '1200w',
+    );
+  });
+});
+
 test('縦並び: 1023×768 の /ja/ では代表写真が名前の上にある', async ({ page }) => {
   await page.setViewportSize({ width: 1023, height: 768 });
   await page.goto('./ja/');

@@ -19,11 +19,15 @@ const base = import.meta.env.BASE_URL;
 const profile = await getProfile(lang);
 const sw = languageSwitch(Astro.url.pathname, lang, base);
 const featured = await getFeaturedPhoto();
+// 64rem 以上は横並びの列の幅（本文の左右の余白 2rem と列の間 2rem を引いた幅の 3/5。design D8）
+const heroSizes = '(min-width: 64rem) calc((100vw - 4rem) * 0.6), calc(100vw - 2rem)';
 ---
 
 <BaseLayout>
   <div class="top">
-    <div class="hero"><PhotoPicture photo={featured} lang={lang} variant="full" priority /></div>
+    <div class="hero">
+      <PhotoPicture photo={featured} lang={lang} variant="full" priority sizes={heroSizes} />
+    </div>
     <div class="intro">
       <div class="art"><PixelArt rows={camera} /></div>
       <h1>{profile.name}</h1>
