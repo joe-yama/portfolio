@@ -60,6 +60,11 @@ const featured = await getFeaturedPhoto();
 </BaseLayout>
 
 <style>
+  /* トップだけ本文の幅の上限を外す（design D7）。左右の余白は main の 1rem のまま */
+  :global(main):has(> .top) {
+    max-width: none;
+  }
+
   .hero {
     /* 写真の高さ上限は svh（アドレスバーが出ている最小の高さ）で決める。
        dvh にするとスクロールでバーが隠れるたびに写真の高さが変わる。

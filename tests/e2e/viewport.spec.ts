@@ -184,6 +184,62 @@ test('横並び: 1024×768 の /en/ では代表写真が名前の左にある',
   expect(heroRect.right).toBeLessThan(rects[0]?.left ?? Number.NaN);
 });
 
+/** root の font-size から求めた 1rem の px */
+const remPx = (page: Page) =>
+  page.evaluate(() => Number.parseFloat(getComputedStyle(document.documentElement).fontSize));
+
+test('横並び: 1920×1080 の /ja/ では本文の幅に上限が無く、代表写真の左端がロゴの左端とそろう', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto('./ja/');
+  const hero = page.locator('main .hero picture img');
+  await waitForImageLoaded(hero);
+  const rem = await remPx(page);
+  const measured = await page.evaluate(() => {
+    const main = document.querySelector('main');
+    const logo = document.querySelector('header .logo');
+    const img = document.querySelector('main .hero picture img');
+    if (!main || !logo || !img) throw new Error('main / ロゴ / 代表写真が見つからない');
+    const style = getComputedStyle(main);
+    const r = img.getBoundingClientRect();
+    return {
+      viewportWidth: document.documentElement.clientWidth,
+      innerHeight: window.innerHeight,
+      contentWidth:
+        main.clientWidth -
+        Number.parseFloat(style.paddingLeft) -
+        Number.parseFloat(style.paddingRight),
+      logoLeft: logo.getBoundingClientRect().left,
+      heroLeft: r.left,
+      heroWidth: r.width,
+      heroBottom: r.bottom,
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+  expect(
+    Math.abs(measured.contentWidth - (measured.viewportWidth - 2 * rem)),
+    `本文の幅 ${measured.contentWidth} が画面の幅 ${measured.viewportWidth} − 2rem と一致しない`,
+  ).toBeLessThanOrEqual(1);
+  expect(
+    Math.abs(measured.heroLeft - measured.logoLeft),
+    `代表写真の左端 ${measured.heroLeft} がロゴの左端 ${measured.logoLeft} とそろわない`,
+  ).toBeLessThanOrEqual(1);
+  expect(measured.heroWidth, '代表写真の幅が 1000px に満たない').toBeGreaterThanOrEqual(1000);
+  expect(measured.heroBottom, '代表写真の下端が画面外にはみ出している').toBeLessThanOrEqual(
+    measured.innerHeight,
+  );
+  expect(measured.overflow, '横スクロールが発生している').toBeLessThanOrEqual(0);
+});
+
+test('トップ以外: 1920 幅の /ja/career/ では main の幅が 80rem のまま', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto('./ja/career/');
+  const rem = await remPx(page);
+  const width = await page.locator('main').evaluate((el) => el.getBoundingClientRect().width);
+  expect(Math.abs(width - 80 * rem), `main の幅 ${width} が 80rem ではない`).toBeLessThanOrEqual(1);
+});
+
 test('縦並び: 1023×768 の /ja/ では代表写真が名前の上にある', async ({ page }) => {
   await page.setViewportSize({ width: 1023, height: 768 });
   await page.goto('./ja/');
