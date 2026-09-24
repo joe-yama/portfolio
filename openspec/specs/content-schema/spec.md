@@ -22,7 +22,7 @@
 - **THEN** ビルドは失敗する
 
 ### Requirement: 経歴のデータ構造
-経歴は言語ごとに 1 件存在し、`experience`（職歴の配列）、`skills`（カテゴリ名から名前の配列への対応）、`certifications`（資格の配列）、`achievements`（実績の配列）、`patents`（特許の配列）を持たなければならない（MUST）。職歴は `from`（日付）、`to`（日付、または在職中を表す `null`）、`organization`、`role`、`bullets`（要点。最大 5 件）を持たなければならない（MUST）。資格は `date`、`name`、任意の `url` を持ち、実績はさらに `kind`（`talk` / `article` / `award` / `other`）を持たなければならない（MUST）。
+経歴は言語ごとに 1 件存在し、`highlights`（経歴の要約。空でない文字列の配列で 1〜4 件）、`experience`（職歴の配列）、`skills`（カテゴリ名から名前の配列への対応）、`certifications`（資格の配列）、`achievements`（実績の配列）、`patents`（特許の配列）を持たなければならない（MUST）。職歴は `from`（日付）、`to`（日付、または在職中を表す `null`）、`organization`、`role`、`bullets`（要点。最大 5 件）を持たなければならない（MUST）。資格は `date`、`name`、任意の `url`、任意の `group`（束ねて表示するためのグループ名。空でない文字列）を持ち、実績はさらに `kind`（`talk` / `article` / `award` / `other`）を持たなければならない（MUST）。
 
 資格と実績の `date` は、年月まで（`YYYY-MM`）と年月日まで（`YYYY-MM-DD`）のどちらでも書けなければならない（MUST）。どちらの形式でもない値はビルドを失敗させなければならない（MUST）。同じ配列の中で 2 つの形式が混ざってよい（MAY）。
 
@@ -78,10 +78,32 @@
 - **WHEN** `skills` に `2024` というカテゴリ名を持つ経歴をビルドする
 - **THEN** ビルドは失敗し、カテゴリ名が数字だけであることを示すエラーを出す
 
+#### Scenario: highlights が欠けた経歴
+- **WHEN** `highlights` を持たない経歴をビルドする
+- **THEN** ビルドは失敗し、欠けている項目名を含むエラーを出す
+
+#### Scenario: highlights の件数
+- **WHEN** `highlights` が 0 件、または 5 件の経歴をビルドする
+- **THEN** ビルドは失敗する
+
+#### Scenario: highlights が 4 件
+- **WHEN** `highlights` が 4 件の経歴をビルドする
+- **THEN** ビルドは成功する
+
+#### Scenario: group を持つ資格
+- **WHEN** `group` が `AWS 認定` の資格と、`group` を持たない資格が混ざった経歴をビルドする
+- **THEN** ビルドは成功する
+
+#### Scenario: 空の group
+- **WHEN** `group` が空文字列の資格をビルドする
+- **THEN** ビルドは失敗する
+
 ### Requirement: 経歴の日英の件数一致
-`experience`、`certifications`、`achievements`、`patents` の件数は、日本語版と英語版で一致しなければならない（MUST）。`skills` は、カテゴリの数と、並び順で対応する各カテゴリの項目数が、日本語版と英語版で一致しなければならない（MUST）。カテゴリ名そのものは言語ごとに異なってよい（`言語` と `Languages` のように訳語になる）。一致しない場合はビルドを失敗させ、どの配列が何件対何件か（`skills` では何番目のカテゴリか）を示さなければならない（MUST）。
+`highlights`、`experience`、`certifications`、`achievements`、`patents` の件数は、日本語版と英語版で一致しなければならない（MUST）。`skills` は、カテゴリの数と、並び順で対応する各カテゴリの項目数が、日本語版と英語版で一致しなければならない（MUST）。カテゴリ名そのものは言語ごとに異なってよい（`言語` と `Languages` のように訳語になる）。一致しない場合はビルドを失敗させ、どの配列が何件対何件か（`skills` では何番目のカテゴリか）を示さなければならない（MUST）。
 
 表示は日付などの比較キーによる安定ソートで並ぶため、日英の項目は書かれた位置で対応づく。したがって、日本語版と英語版で同じ位置にある項目は、並び替えの比較キーが一致しなければならない（MUST）。比較キーは `certifications` と `achievements` では `date`、`patents` では `countries` の件数と `filedAt` の組とする。一致しない場合はビルドを失敗させ、どの配列の何番目の項目が、どの値とどの値で食い違っているかを示さなければならない（MUST）。
+
+資格の `group` は言語ごとに訳語になってよい（`AWS 認定` と `AWS Certifications`）が、付き方は日本語版と英語版で一致しなければならない（MUST）。すなわち、同じ位置の資格は `group` の有無が一致し、かつ、日本語版で同じ `group` を持つ位置の組は、英語版でも同じ `group` を持ち、日本語版で異なる `group` を持つ位置の組は、英語版でも異なる `group` を持たなければならない（MUST）。一致しない場合はビルドを失敗させ、何番目の資格かを示さなければならない（MUST）。
 
 #### Scenario: 件数が一致する
 - **WHEN** 日英とも `experience` 3 件、`certifications` 1 件、`achievements` 2 件、`patents` 4 件、`skills` 2 カテゴリ（項目数はカテゴリごとに 3 件と 1 件）でビルドする
@@ -118,6 +140,22 @@
 #### Scenario: 同じ位置の日付が一致する
 - **WHEN** 日英の `certifications` が同じ順に並び、各位置の `date` が一致した状態でビルドする
 - **THEN** 名前が訳語で違っていてもビルドは成功する
+
+#### Scenario: highlights の件数が一致しない
+- **WHEN** 日本語版の `highlights` が 4 件、英語版が 3 件でビルドする
+- **THEN** ビルドは失敗し、エラーに `highlights` と両方の件数が含まれる
+
+#### Scenario: group の有無が食い違う
+- **WHEN** 日英とも `certifications` が 3 件で、2 番目の資格が日本語版だけ `group` を持つ状態でビルドする
+- **THEN** ビルドは失敗し、エラーに `certifications` と 2 番目であることが含まれる
+
+#### Scenario: group の分け方が食い違う
+- **WHEN** 日本語版の 1・2 番目の資格が同じ `group` を持ち、英語版の 1・2 番目が異なる `group` を持つ状態でビルドする
+- **THEN** ビルドは失敗し、エラーに `certifications` と食い違う位置が含まれる
+
+#### Scenario: group 名が訳語で違う
+- **WHEN** 日本語版の `group` が `AWS 認定`、英語版の同じ位置の `group` が `AWS Certifications` でビルドする
+- **THEN** ビルドは成功する
 
 ### Requirement: 特許のデータ構造と公報番号の一意性
 特許は 1 つの発明につき 1 件とし、同じ発明の各国出願（同族）をまとめて 1 件として扱う。各特許は `filedAt`（`YYYY-MM` 形式の出願年月。同族のうち最も早い出願の年月）、`title`（その言語で、発明の内容が推測できる短い見出し）、`number`（代表となる公報番号）、`countries`（出願国・地域のコードの配列。1 件以上）、`url`（公報の外部ページを指す URL 形式）を持たなければならない（MUST）。`countries` の先頭は `number` が属する国・地域とする（MUST）。
