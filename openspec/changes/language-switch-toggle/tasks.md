@@ -15,7 +15,7 @@
   - 1280×720 と 390×844 で、まとまりの computed `border-left-width` が 1px 以上
 
   既存の検査表 `navIconTable` の言語切り替えの行と、名前が「English」「日本語」であることの検査は、この検査に置き換える。失敗を確認する
-- [x] 2.2 RED: 同じファイルで、`/ja/` と `/en/` の本文の導線（`nav[aria-label]`）の言語切り替えに、2.1 と同じ検査（区切り線を除く）を当てる。本文のまとまりに境界線が無いことも確かめる。本文の導線の並びが Photos → Career → 言語切り替えの順であることも確かめる。失敗を確認する
+- [x] 2.2 RED: 同じファイルで、`/ja/` と `/en/` の本文の導線（`nav[aria-label]`）の言語切り替えに、2.1 と同じ検査（区切り線を除く）を当てる。本文のまとまりに境界線が無いことも確かめる。本文の導線の並びが Photos → Career → 言語切り替えの順であることも確かめる。失敗を確認する（4 で撤回。PO 決定 2026-09-25）
 - [x] 2.3 GREEN: `src/components/Header.astro` と `src/pages/[lang]/index.astro` を D2 のマークアップにし、ヘッダーのまとまりにだけ区切り線を付ける。`pnpm e2e` で 2.1・2.2 と、既存の「狭い画面ではヘッダーのアイコンを隠す」（390px・479px で 1 行）・「境界の幅では 1 行のままアイコンを出す」・「アイコンで行が高くならない」（まとまりも対象に足す）・「狭い画面」（320px）が緑になることを確かめる。390px で 1 行に収まらなければ design の Risks の手順に従う
 - [x] 2.4 既存のベースラインの検査（ロゴとナビの文字の差が 0.5px 以内）の対象に `JA` と `EN` の両項目を足し、1280×720 と 480×844 の両ロケールで緑になることを確かめる
 
@@ -28,10 +28,17 @@
   - (d) 並びを表示中の言語が先頭に来る形にする
   - (e) 地球儀を `EN` のリンクの中に戻す
   - (f) ヘッダーの区切り線を消す
-  - (g) 本文にも区切り線を付ける
+  - (g) 本文にも区切り線を付ける（4 で撤回。本文から言語切り替えが無くなるので対象が無い）
   - (h) グループの `aria-label` を両ロケールで同じ文言にする
   - (i) 表示中の項目にだけ `vertical-align: top` を付けてベースラインをずらす（flex アイテムには vertical-align が効かないので position: relative; top: 1px で当てた）
 - [x] 3.2 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
+
+## 4. トップ本文から言語切り替えを外す（PO 決定 2026-09-25、design D3・D4、`profile-and-career` の spec）
+
+- [ ] 4.1 RED: `tests/e2e/links.spec.ts` の本文の導線の test を、`/ja/` と `/en/` で本文の導線（`main nav.links`）の直下の要素が Photos → Career の 2 つだけで、`[hreflang]` と `[role="group"]` が 0 件であることを確かめる形に直す。Photos と Career のアイコン（図柄の完全一致）と、連絡先リンクより上にあることの検査は残す。2.2 の検査（本文のまとまりへの `expectLangSwitch` と境界線なし）はこの検査に置き換える。失敗を確認する
+- [ ] 4.2 GREEN: `src/pages/[lang]/index.astro` から言語切り替えのマークアップ・`.lang-switch` の CSS・`languageSwitch` の import と呼び出しを消す。`pnpm e2e` で 4.1 と、トップの横並び・初見表示・a11y の検査が緑になることを確かめる
+- [ ] 4.3 変異を当てて 4.1 が落ちることを確かめる（隔離実行）: (a) 本文に言語切り替えのまとまりを戻す、(b) 本文に相手の言語へのリンク（`a[hreflang]`）だけを戻す
+- [ ] 4.4 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
 
 ## 提案（本 change のスコープ外・後続への申し送り）
 
@@ -50,5 +57,5 @@
 
 **ponytail**
 - `Header.astro` の `nav a :global(svg)` と `.lang-switch :global(svg)` の `align-self: center` を `nav :global(svg)` 1 つにまとめる
-- `links.spec.ts` の本文の導線の検査で `navIconTable[0]` / `[1]` を手で並べている箇所を `navIconTable.map` にする
-- main（#61）の取り込み後、`tests/e2e/viewport.spec.ts` の横並びの検査（`main nav.links a`）は、言語切り替えのまとまりのうち相手の言語のリンクしか測らない（地球儀と表示中の項目は測らない）。同じ行にあるので主張は保たれるが、セレクタに `main nav.links [role="group"]` を足せば元どおりまとまり全体を測れる
+- `links.spec.ts` の本文の導線の検査で `navIconTable[0]` / `[1]` を手で並べている箇所を `navIconTable.map` にする（4 で解消の見込み。本文の検査を書き直すため）
+- main（#61）の取り込み後、`tests/e2e/viewport.spec.ts` の横並びの検査（`main nav.links a`）は、言語切り替えのまとまりのうち相手の言語のリンクしか測らない（地球儀と表示中の項目は測らない）。同じ行にあるので主張は保たれるが、セレクタに `main nav.links [role="group"]` を足せば元どおりまとまり全体を測れる（4 で解消。本文から言語切り替えが無くなる）
