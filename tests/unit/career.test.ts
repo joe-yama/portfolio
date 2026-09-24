@@ -279,8 +279,11 @@ describe('formatGroupPeriod', () => {
   });
 
   it('空の配列は型で受け付けない（8.5(e)。pnpm typecheck が見る）', () => {
-    // @ts-expect-error 空でない配列だけを受ける
-    expect(() => formatGroupPeriod([], 'ja')).toThrow();
+    // 主張は型だけ。実行時の壊れ方は仕様にしないので、呼び出しは実行しない
+    const call = () =>
+      // @ts-expect-error 空でない配列だけを受ける
+      formatGroupPeriod([], 'ja');
+    expectTypeOf(call).toBeFunction();
   });
 });
 
