@@ -39,13 +39,72 @@ function rectCells(link: Locator): Promise<Cell[]> {
 
 /**
  * サイト内導線の行き先 → アイコン（design D3）。並び順ではなく行き先で選ぶ。
- * /ja/photos/ では言語切り替えの href も /photos/ で終わるので、Photos と Career は hreflang を除く
+ * /ja/photos/ では言語切り替えの href も /photos/ で終わるので、hreflang を持つものを除く。
+ * 言語切り替えはリンクではなくまとまり（role=group）なので、expectLangSwitch で別に確かめる
  */
 const navIconTable = [
   { name: 'Photos', selector: 'a[href$="/photos/"]:not([hreflang])', grid: camera },
   { name: 'Career', selector: 'a[href$="/career/"]:not([hreflang])', grid: briefcase },
-  { name: '言語切り替え', selector: 'a[hreflang]', grid: globe },
 ] as const;
+
+/** まとまりの名前（spec「言語切り替えのグループ名」） */
+const groupName = { ja: '言語', en: 'Language' } as const;
+
+/** path（baseURL からの相対）の他言語版の href。ページのパスは /<lang>/... の形 */
+function alternateHref(path: string, target: 'ja' | 'en'): string {
+  return `${base}${target}/${path.slice(3)}`;
+}
+
+/**
+ * 言語切り替えのまとまり 1 つを確かめる（spec「表示中の言語はリンクにしない」「ナビのアイコン」ほか）。
+ * scope はヘッダーか本文の導線。区切り線はヘッダーと本文で違うので呼び出し側で見る
+ */
+async function expectLangSwitch(scope: Locator, path: string): Promise<Locator> {
+  const lang = path.startsWith('ja/') ? 'ja' : 'en';
+  const other = lang === 'ja' ? 'en' : 'ja';
+  const group = scope.getByRole('group', { name: groupName[lang], exact: true });
+  await expect(group).toHaveCount(1);
+
+  // 並びは JA / EN で固定（地球儀を除く直下の要素の文字）
+  const texts = await group
+    .locator(':scope > :not(svg)')
+    .evaluateAll((els) => els.map((el) => el.textContent?.trim()));
+  expect(texts).toEqual(['JA', '/', 'EN']);
+  // 区切りの「/」は支援技術から隠す（design D2）
+  await expect(group.locator(':scope > [aria-hidden="true"]:not(svg)')).toHaveText('/');
+
+  // 表示中の項目: a ではなく、aria-current="true"、lang が自分、太字
+  const current = group.locator(':scope > [aria-current]');
+  await expect(current).toHaveCount(1);
+  await expect(current).toHaveText(lang.toUpperCase());
+  await expect(current).toHaveAttribute('aria-current', 'true');
+  await expect(current).toHaveAttribute('lang', lang);
+  await expect(current).not.toHaveJSProperty('tagName', 'A');
+  const weight = await current.evaluate((el) => Number(getComputedStyle(el).fontWeight));
+  expect(weight).toBeGreaterThanOrEqual(700);
+
+  // もう一方: a で、hreflang と lang が相手、href が同じページの他言語版、aria-current なし
+  const link = group.locator(':scope > a');
+  await expect(link).toHaveCount(1);
+  await expect(link).toHaveText(other.toUpperCase());
+  await expect(link).toHaveAttribute('hreflang', other);
+  await expect(link).toHaveAttribute('lang', other);
+  await expect(link).toHaveAttribute('href', alternateHref(path, other));
+  await expect(link).not.toHaveAttribute('aria-current');
+
+  // 地球儀はまとまりの直下に 1 つだけで、項目の中には無い
+  await expect(group.locator('svg')).toHaveCount(1);
+  const globeSvg = group.locator(':scope > svg');
+  await expect(globeSvg).toHaveCount(1);
+  await expect(globeSvg).toHaveAttribute('aria-hidden', 'true');
+  expect(await rectCells(group)).toEqual(cells(globe));
+  return group;
+}
+
+/** 要素の computed の左の境界線の幅（px） */
+function borderLeft(el: Locator): Promise<number> {
+  return el.evaluate((e) => Number.parseFloat(getComputedStyle(e).borderLeftWidth));
+}
 
 test('ヘッダーロゴリンクに下線が無く、引き続きリンクとして機能する', async ({ page }) => {
   await page.goto('ja/');
@@ -74,12 +133,27 @@ for (const path of pagePaths) {
       expect(await rectCells(link), name).toEqual(cells(grid));
     }
     await expect(page.locator('header .logo svg')).toHaveCount(0);
-
-    const expected = path.startsWith('ja/') ? 'English' : '日本語';
-    await expect(nav.locator('a[hreflang]')).toHaveAccessibleName(expected);
     await expect(nav.locator(navIconTable[0].selector)).toHaveAccessibleName('Photos');
     await expect(nav.locator(navIconTable[1].selector)).toHaveAccessibleName('Career');
+    await expectLangSwitch(page.locator('header'), path);
   });
+}
+
+for (const viewport of [
+  { width: 1280, height: 720 },
+  { width: 390, height: 844 },
+]) {
+  for (const path of ['ja/', 'en/']) {
+    test(`${viewport.width}×${viewport.height} の ${path} でヘッダーの言語切り替えの左に区切り線がある`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(viewport);
+      await page.goto(path);
+      const group = page.locator('header').getByRole('group');
+      await expect(group).toHaveCount(1);
+      expect(await borderLeft(group)).toBeGreaterThanOrEqual(1);
+    });
+  }
 }
 
 for (const viewport of [
@@ -91,10 +165,10 @@ for (const viewport of [
   }) => {
     await page.setViewportSize(viewport);
     await page.goto('ja/');
-    const links = page.locator('header nav a');
-    await expect(links).toHaveCount(3);
-    for (const link of await links.all()) {
-      const { height, lineHeight } = await link.evaluate((el) => ({
+    const items = page.locator('header nav > *');
+    await expect(items).toHaveCount(3);
+    for (const item of await items.all()) {
+      const { height, lineHeight } = await item.evaluate((el) => ({
         height: el.getBoundingClientRect().height,
         lineHeight: Number.parseFloat(getComputedStyle(el).lineHeight),
       }));
@@ -115,25 +189,44 @@ for (const { width, iconsVisible } of [
     }) => {
       await page.setViewportSize({ width, height: 844 });
       await page.goto(path);
-      const links = page.locator('header nav a');
-      await expect(links).toHaveCount(3);
-      for (const link of await links.all()) {
-        const svg = link.locator('svg');
-        await expect(svg).toHaveCount(1);
+      const icons = page.locator('header nav svg');
+      await expect(icons).toHaveCount(3);
+      for (const svg of await icons.all()) {
         if (iconsVisible) await expect(svg).toBeVisible();
         else await expect(svg).toBeHidden();
       }
-      // 同じ行 = 各ナビのリンクの box がロゴの box と縦に重なる（2 行になるとナビはロゴの下に来る）
+      // 同じ行 = ナビの直下の各要素（Photos・Career・言語切り替え）の box がロゴの box と縦に重なる
       const logo = await page.locator('header .logo').boundingBox();
       if (!logo) throw new Error('ロゴが表示されていない');
-      for (const link of await links.all()) {
-        const box = await link.boundingBox();
-        if (!box) throw new Error('リンクが表示されていない');
+      for (const item of await page.locator('header nav > *').all()) {
+        const box = await item.boundingBox();
+        if (!box) throw new Error('ナビの要素が表示されていない');
         expect(box.y).toBeLessThan(logo.y + logo.height);
         expect(box.y + box.height).toBeGreaterThan(logo.y);
       }
     });
   }
+}
+
+for (const path of ['ja/', 'en/', 'ja/career/', 'en/career/']) {
+  test(`320×640 の ${path} でロゴ・Photos・Career・JA・EN が表示され、横スクロールが出ない`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await page.goto(path);
+    const header = page.locator('header');
+    await expect(header.locator('.logo')).toBeVisible();
+    for (const name of ['Photos', 'Career']) {
+      await expect(header.getByRole('link', { name, exact: true })).toBeVisible();
+    }
+    for (const text of ['JA', 'EN']) {
+      await expect(header.getByRole('group').getByText(text, { exact: true })).toBeVisible();
+    }
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
 }
 
 /**
@@ -211,22 +304,31 @@ for (const { path, expected } of [
 }
 
 for (const lang of ['ja', 'en'] as const) {
-  test(`本文最下部はサイト内導線が先、連絡先リンクが最も下で、各リンクにドット絵アイコンが付く（${lang}）`, async ({
+  test(`本文最下部はサイト内導線が先、連絡先リンクが最も下で、各導線にドット絵アイコンが付く（${lang}）`, async ({
     page,
   }) => {
     await page.goto(`${lang}/`);
 
-    const navLinks = page.locator('main nav.links a');
+    const nav = page.locator('main nav.links');
     const contactLinks = page.locator('main ul.links li a');
-
-    await expect(navLinks).toHaveCount(3);
+    await expect(nav.locator('a')).toHaveCount(3);
     await expect(contactLinks).toHaveCount(2);
 
-    const navTop = await navLinks.first().evaluate((el) => el.getBoundingClientRect().top);
+    const navTop = await nav.evaluate((el) => el.getBoundingClientRect().top);
     const contactTop = await contactLinks.first().evaluate((el) => el.getBoundingClientRect().top);
     expect(navTop).toBeLessThan(contactTop);
 
-    for (const locator of [navLinks, contactLinks]) {
+    // 並びは Photos → Career → 言語切り替え
+    const order = await nav
+      .locator(':scope > *')
+      .evaluateAll((els) => els.map((el) => el.getAttribute('role') ?? el.getAttribute('href')));
+    expect(order).toEqual([`${base}${lang}/photos/`, `${base}${lang}/career/`, 'group']);
+
+    for (const locator of [
+      nav.locator(navIconTable[0].selector),
+      nav.locator(navIconTable[1].selector),
+      contactLinks,
+    ]) {
       const count = await locator.count();
       for (let i = 0; i < count; i++) {
         const svg = locator.nth(i).locator('svg[aria-hidden="true"]');
@@ -236,10 +338,14 @@ for (const lang of ['ja', 'en'] as const) {
     }
 
     for (const { name, selector, grid } of navIconTable) {
-      const link = page.locator(`main nav.links ${selector}`);
+      const link = nav.locator(selector);
       await expect(link, name).toHaveCount(1);
       expect(await rectCells(link), name).toEqual(cells(grid));
     }
+
+    const group = await expectLangSwitch(nav, `${lang}/`);
+    await expect(group.locator(':scope > svg')).toHaveAttribute('viewBox', '0 0 16 16');
+    expect(await borderLeft(group)).toBe(0);
 
     const githubLink = contactLinks.filter({ hasText: 'GitHub' });
     const linkedinLink = contactLinks.filter({ hasText: 'LinkedIn' });

@@ -34,10 +34,23 @@ const featured = await getFeaturedPhoto();
         {link.label}
       </a>
     ))}
-    <a href={sw.href} hreflang={sw.hreflang} lang={sw.hreflang}>
+    <span class="lang-switch" role="group" aria-label={sw.label}>
       <PixelArt rows={sw.icon} scale={1} />
-      {sw.label}
-    </a>
+      {sw.items.map((item, i) => (
+        <Fragment>
+          {i > 0 && <span aria-hidden="true">/</span>}
+          {item.href ? (
+            <a href={item.href} hreflang={item.lang} lang={item.lang}>
+              {item.label}
+            </a>
+          ) : (
+            <span lang={item.lang} aria-current="true">
+              {item.label}
+            </span>
+          )}
+        </Fragment>
+      ))}
+    </span>
   </nav>
 
   <ul class="links">
@@ -76,5 +89,18 @@ const featured = await getFeaturedPhoto();
     display: flex;
     align-items: center;
     gap: 0.35em;
+  }
+
+  /* 言語切り替え（design D2）。ヘッダーと違い区切り線は付けない */
+  .lang-switch {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35em;
+  }
+  .lang-switch :global(svg) {
+    align-self: center;
+  }
+  .lang-switch [aria-current] {
+    font-weight: 700;
   }
 </style>

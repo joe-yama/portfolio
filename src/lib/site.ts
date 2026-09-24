@@ -5,18 +5,17 @@ import {
   type Locale,
   localeFromPath,
   locales,
-  otherLocale,
   withBase,
 } from './i18n';
 import { briefcase, camera, globe } from './pixel';
 
 export type AlternateLink = { hreflang: Locale | 'x-default'; href: string };
 export type NavLink = { label: string; href: string; icon: readonly string[] };
+/** 言語切り替えのまとまり（design D1）。表示中の言語の項目だけ href を持たない */
 export type LanguageSwitch = {
   label: string;
-  href: string;
-  hreflang: Locale;
   icon: readonly string[];
+  items: { lang: Locale; label: string; href?: string }[];
 };
 
 /**
@@ -26,7 +25,8 @@ export type LanguageSwitch = {
 export type CareerSection = 'experience' | 'skills' | 'certifications' | 'achievements' | 'patents';
 
 type UiStrings = {
-  languageName: string;
+  /** 言語切り替えのまとまりの支援技術向けの名前 */
+  languageSwitch: string;
   notFound: string;
   backToTop: string;
   backToGallery: string;
@@ -45,7 +45,7 @@ type UiStrings = {
 /** 画面に出す文字列。ナビの「Photos」「Career」は両言語とも英字なので navLinks に直接書く */
 export const ui: Record<Locale, UiStrings> = {
   ja: {
-    languageName: '日本語',
+    languageSwitch: '言語',
     notFound: 'ページが見つかりません',
     backToTop: '日本語のトップへ',
     backToGallery: '写真一覧へ',
@@ -65,7 +65,7 @@ export const ui: Record<Locale, UiStrings> = {
     present: '現在',
   },
   en: {
-    languageName: 'English',
+    languageSwitch: 'Language',
     notFound: 'Page not found',
     backToTop: 'Go to the English top',
     backToGallery: 'Back to photos',
@@ -140,13 +140,14 @@ export function navLinks(lang: Locale, base: string): NavLink[] {
   ];
 }
 
-/** 相手の言語名を表示し、同じページの他言語版へ飛ぶリンク */
+/** JA / EN を locales の順に並べたまとまり。相手の言語だけが同じページの他言語版へのリンク */
 export function languageSwitch(path: string, lang: Locale, base: string): LanguageSwitch {
-  const target = otherLocale(lang);
   return {
-    label: ui[target].languageName,
-    href: alternatePath(path, target, base),
-    hreflang: target,
+    label: ui[lang].languageSwitch,
     icon: globe,
+    items: locales.map((l) => {
+      const item = { lang: l, label: l.toUpperCase() };
+      return l === lang ? item : { ...item, href: alternatePath(path, l, base) };
+    }),
   };
 }

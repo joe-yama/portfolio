@@ -58,22 +58,31 @@ describe('navLinks', () => {
 });
 
 describe('languageSwitch', () => {
-  it('日本語ページでは English を表示し、同じページの英語版へ', () => {
+  it('日本語ページでは JA / EN を並べ、EN だけが同じページの英語版へ', () => {
     expect(languageSwitch('/ja/career/', 'ja', '/')).toEqual({
-      label: 'English',
-      href: '/en/career/',
-      hreflang: 'en',
+      label: '言語',
       icon: globe,
+      items: [
+        { lang: 'ja', label: 'JA' },
+        { lang: 'en', label: 'EN', href: '/en/career/' },
+      ],
     });
   });
 
-  it('英語ページでは 日本語 を表示し、同じページの日本語版へ', () => {
+  it('英語ページでも並びは JA / EN で、JA だけが同じページの日本語版へ', () => {
     expect(languageSwitch('/en/', 'en', '/')).toEqual({
-      label: '日本語',
-      href: '/ja/',
-      hreflang: 'ja',
+      label: 'Language',
       icon: globe,
+      items: [
+        { lang: 'ja', label: 'JA', href: '/ja/' },
+        { lang: 'en', label: 'EN' },
+      ],
     });
+  });
+
+  it('表示中の言語の項目は href のキーを持たない', () => {
+    const [ja] = languageSwitch('/ja/', 'ja', '/').items;
+    expect(ja).not.toHaveProperty('href');
   });
 });
 
@@ -98,7 +107,10 @@ describe('base 付きのパス生成', () => {
   });
 
   it('languageSwitch は base を保つ', () => {
-    expect(languageSwitch('/portfolio/ja/career/', 'ja', base).href).toBe('/portfolio/en/career/');
+    expect(languageSwitch('/portfolio/ja/career/', 'ja', base).items).toEqual([
+      { lang: 'ja', label: 'JA' },
+      { lang: 'en', label: 'EN', href: '/portfolio/en/career/' },
+    ]);
   });
 
   it('alternateLinks は base 込みの絶対 URL を返す', () => {
@@ -134,6 +146,8 @@ describe('ui の写真まわりの文言', () => {
     expect(ui.en.siteNav).toBe('Site navigation');
     expect(ui.ja.photoNav).toBe('前後の写真');
     expect(ui.en.photoNav).toBe('Photo navigation');
+    expect(ui.ja.languageSwitch).toBe('言語');
+    expect(ui.en.languageSwitch).toBe('Language');
   });
 });
 
