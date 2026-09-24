@@ -51,3 +51,4 @@
 **ponytail**
 - `Header.astro` の `nav a :global(svg)` と `.lang-switch :global(svg)` の `align-self: center` を `nav :global(svg)` 1 つにまとめる
 - `links.spec.ts` の本文の導線の検査で `navIconTable[0]` / `[1]` を手で並べている箇所を `navIconTable.map` にする
+- main（#61）の取り込み後、`tests/e2e/viewport.spec.ts` の横並びの検査（`main nav.links a`）は、言語切り替えのまとまりのうち相手の言語のリンクしか測らない（地球儀と表示中の項目は測らない）。同じ行にあるので主張は保たれるが、セレクタに `main nav.links [role="group"]` を足せば元どおりまとまり全体を測れる
