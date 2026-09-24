@@ -89,7 +89,14 @@ PR #61 の作成後、PO が (1) 仕事の一行（A1）をやめる、(2) 下�
 - [x] 8.4 束ねた資格の行の見た目（design D9。PO 指示 2026-09-24 で差し替え）。束ねた項目の 1 行目は他の資格と同じ普通の行（黒丸 + 期間 · グループ名（件数））にし、開閉の三角と `ui[lang].showAllCerts(n)`（ja `全 N 件を表示`、en `Show all N`）の `summary` を次の行の頭に置く。RED: `pages.spec.ts` で、(a) 1024 幅の `/ja/career/` の資格の区画の直下の `li` どうしで、1 行目の文字の上端の送りがそろう（束ねた項目の 1 行目の上端と前後の行の間隔が ±1px）、(b) 束ねた項目の `summary` は 1 行目より下の行にあり、その box の左端（三角を含む）が 1 行目の文字（日付）の左端と ±1px でそろい、文字列は `ui[lang].showAllCerts(件数)`（件数は YAML の group を持つ資格の数から導く）、(c) 1 行目の文字列（期間 · グループ名（件数））は `summary` の外にあり、`certGroupCount` の表記と期間を含む（既存の束ねの検査を li の 1 行目を見る形に直す）、(d) 390 幅で 1 行目が折り返したとき、2 行目の左端が 1 行目の文字の左端とそろう、を確かめ、赤を確かめる。既存の「開く前は内訳が 0 件、開くと 12 件が新しい順」は `summary` をクリックする形のまま残す。GREEN: `career.astro` のマークアップと `ui` の `showAllCerts`
 - [x] 8.5 番人の穴を塞ぐ: (a) `validate.test.ts` に資格の件数が ja > en の向きのケースを足す、(b) e2e の `parseHighlights` がクォートを外し、`parseCertifications` の前提（1 件は `  - date:` で始まる）を JSDoc に書く、(c) `/en/` ほかの `og:image:alt` を YAML の代表写真の `alt.en` と直接比べ、写真の個別ページの `og:image` も同一オリジンかを見る、(d) 1023×768 の `/ja/` と `/en/` で、縦並びのトップの初見表示（写真・名前・肩書・導線・連絡先の下端 ≤ 画面の下端）を確かめる e2e を足す、(e) `CertificationEntry` の group の `items` を空でない配列の型（`[Certification, ...Certification[]]`）にし、`formatGroupPeriod` も空でない配列だけを受ける型にする
 - [x] 8.6 ponytail: (a) `pages.spec.ts` の代表でない写真の slug を定数 `'kariya-ferris-wheel'` にする、(b) `.highlights` の margin を `section` と 1 つの規則にまとめる、(c) 資格 1 件分のマークアップを `src/components/CertItem.astro`（`PatentItem.astro` と同じ形）にまとめ、single と内訳の両方から使う
-- [ ] 8.7 変異を当てて、8.2〜8.5 の新しい番人が落ちることを確かめる（隔離実行）。少なくとも: 8.2 の `:has` の規則を外す、8.3 の `sizes` を渡さない、8.4 の CSS を外す、8.5(a) の件数のガードを外す、8.5(d) の 64rem 未満の上限を 20rem にする、8.1 の description を `profile.name` にする
+- [x] 8.7 変異を当てて、8.2〜8.5 の新しい番人が落ちることを確かめる（隔離実行）。少なくとも: 8.2 の `:has` の規則を外す、8.3 の `sizes` を渡さない、8.4 の CSS を外す、8.5(a) の件数のガードを外す、8.5(d) の 64rem 未満の上限を 20rem にする、8.1 の description を `profile.name` にする
+  - 結果（2026-09-24、HEAD 6ec77ff の git archive → scratchpad の複製に install --offline。各変異とも 対照 / 変異 / 変異入りで作り直した複製、の 3 回。e2e は `[build] directory:`、vitest は `RUN` の行が複製を指すことを確認）
+  - 8.2 `:has(> .top)` の規則を外す: 対照 1 passed → 1 failed / 作り直し 1 failed（1920×1080 の本文の幅 1248 ≠ 1888）
+  - 8.3 `sizes={heroSizes}` を渡さない: 対照 1 passed → 1 failed / 作り直し 1 failed（`1800w` が選ばれる）
+  - 8.4 の変異は PO 指示の新しい形に合わせ「`details` を 1 行目の前に移す」に読み替えた（CSS を足していないため）: 対照 10 passed → 3 failed / 作り直し 3 failed（(a) 送り 36.6 ≠ 3、(b) summary が 1 行目より上。(d) の 390 幅は緑のまま＝この変異では 1 行目の折り返しが崩れないため）
+  - 8.5(a) 件数のガードを `if (true)` にする: 対照 48 passed → 2 failed / 作り直し 2 failed（新しい ja > en のケースと既存の件数差のケースが TypeError）
+  - 8.5(d) 64rem 未満の上限を `100svh - 20rem` にする: 対照 2 passed → 2 failed / 作り直し 2 failed（1023×768 の ja・en で連絡先リンクの下端 845.8 > 768）
+  - 8.1 description を `profile.name` にする: 対照 10 passed → 10 failed / 作り直し 10 failed（description が `Josuke Yamane`）
 - [ ] 8.8 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
 
 ## 提案（本 change のスコープ外・後続への申し送り）
