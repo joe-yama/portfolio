@@ -27,7 +27,6 @@ const featured = await getFeaturedPhoto();
     <div class="intro">
       <div class="art"><PixelArt rows={camera} /></div>
       <h1>{profile.name}</h1>
-      <p class="headline">{profile.headline}</p>
       <p class="muted">{profile.tagline}</p>
 
       <nav class="links" aria-label={ui[lang].siteNav}>
@@ -64,9 +63,9 @@ const featured = await getFeaturedPhoto();
   .hero {
     /* 写真の高さ上限は svh（アドレスバーが出ている最小の高さ）で決める。
        dvh にするとスクロールでバーが隠れるたびに写真の高さが変わる。
-       30rem は写真の下に並ぶ文字列（ドット絵・名前・仕事の一行・肩書・導線・連絡先）と
+       27rem は写真の下に並ぶ文字列（ドット絵・名前・肩書・導線・連絡先）と
        ヘッダー・main の余白の見積もりに、2rem の余裕を足したもの */
-    --photo-max-height: max(12rem, 100svh - 30rem);
+    --photo-max-height: max(12rem, 100svh - 27rem);
     margin-bottom: 2rem;
   }
 
@@ -85,12 +84,6 @@ const featured = await getFeaturedPhoto();
       --photo-max-height: max(12rem, 100svh - 10rem);
       margin-bottom: 0;
     }
-  }
-
-  .headline {
-    /* 長音と小書きの仮名の前での改行を禁じる（CSS Text 3）。word-break: auto-phrase や
-       text-wrap: balance を足すと改行位置が動き、strict を外しても e2e の禁則検査が緑のままになる */
-    line-break: strict;
   }
 
   .links {

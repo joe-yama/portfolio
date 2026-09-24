@@ -133,7 +133,7 @@ const careerYaml = (lang: Locale) =>
 
 /**
  * profile/{lang}.yaml のトップレベルの 1 行（`^<key>: (.+)$`）の値を取り出す。
- * headline と tagline はクォートなしの 1 行で書く前提
+ * tagline はクォートなしの 1 行で書く前提
  */
 function parseProfileLine(lang: Locale, key: string): string {
   const path = fileURLToPath(new URL(`../../src/content/profile/${lang}.yaml`, import.meta.url));
@@ -202,10 +202,10 @@ for (const path of pagePaths) {
     await expect(canonical).toHaveCount(1);
     await expect(canonical).toHaveAttribute('href', `https://joe-yama.github.io/portfolio/${path}`);
     await expect(page.locator('meta[name="description"]')).toHaveCount(1);
-    // description は仕事の一行（og:description との一致は「SNS 共有カード」の検査が見る）
+    // description はプロフィールの tagline（og:description との一致は「SNS 共有カード」の検査が見る）
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       'content',
-      parseProfileLine(toLocale(lang), 'headline'),
+      parseProfileLine(toLocale(lang), 'tagline'),
     );
 
     await expect(page.locator('meta[property^="og:"]')).toHaveCount(10);
@@ -230,18 +230,12 @@ for (const path of pagePaths) {
 }
 
 for (const lang of locales) {
-  test(`/${lang}/ で名前の次に仕事の一行、その次に肩書が現れる`, async ({ page }) => {
+  test(`/${lang}/ で名前の次に肩書が現れる`, async ({ page }) => {
     await page.goto(`./${lang}/`);
     const h1 = page.locator('main h1');
     await expect(h1).toHaveCount(1);
-    const siblings = await h1.evaluate((el) => [
-      el.nextElementSibling?.textContent,
-      el.nextElementSibling?.nextElementSibling?.textContent,
-    ]);
-    expect(siblings).toEqual([
-      parseProfileLine(lang, 'headline'),
-      parseProfileLine(lang, 'tagline'),
-    ]);
+    const next = await h1.evaluate((el) => el.nextElementSibling?.textContent);
+    expect(next).toBe(parseProfileLine(lang, 'tagline'));
   });
 }
 

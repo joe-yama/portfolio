@@ -119,7 +119,6 @@ export type Career = z.infer<typeof careerSchema>;
 
 export const profileSchema = z.object({
   name: nonEmpty,
-  headline: nonEmpty,
   tagline: nonEmpty,
   links: z.array(
     z.object({

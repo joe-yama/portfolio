@@ -66,7 +66,7 @@ async function assertDisplayRatioMatchesNatural(locator: Locator, label: string)
  * 通常の画面では常に `100svh - Nrem` が正の値になるため検出できない。画面の高さが極端に小さい
  * ときに限って下限が発動するため、その画面で検査する。
  * 個別ページ（`100svh - 18rem`）は 1280×400 で発動する。トップは 64rem 以上（`100svh - 10rem`）が
- * 1280×300、64rem 未満（`100svh - 30rem`）が 1023×400 で発動する（1280×400 のトップは 240px で発動しない）
+ * 1280×300、64rem 未満（`100svh - 27rem`）が 1023×400 で発動する（1280×400 のトップは 240px で発動しない）
  */
 async function assertPhotoHeightAtLeastFloor(locator: Locator, label: string) {
   const height = await locator.evaluate((img) => img.getBoundingClientRect().height);
@@ -119,7 +119,6 @@ for (const lang of locales) {
 
       await assertBottomsWithinViewport(page, 'main .hero picture img', '代表写真');
       await assertBottomsWithinViewport(page, 'main h1', '名前');
-      await assertBottomsWithinViewport(page, 'main p.headline', '仕事の一行');
       await assertBottomsWithinViewport(page, 'main .intro > p.muted', '肩書');
       await assertBottomsWithinViewport(page, 'main ul.links li a', '連絡先リンク');
       await assertBottomsWithinViewport(page, 'main nav.links a', 'サイト内導線');
@@ -130,8 +129,7 @@ for (const lang of locales) {
 // --- トップページの横並び（64rem 以上で写真を左、文字列を右） ------------------------------
 
 /** 横並びで写真の右に来る文字列 */
-const introTextSelector =
-  'main h1, main p.headline, main .intro > p.muted, main nav.links a, main ul.links a';
+const introTextSelector = 'main h1, main .intro > p.muted, main nav.links a, main ul.links a';
 
 /** 代表写真と、セレクタに一致する要素それぞれの getBoundingClientRect を測る */
 async function measureHeroAnd(page: Page, selector: string) {
@@ -207,49 +205,6 @@ test('縦並び: 390×844 の /ja/ では代表写真が名前の上にあり、
     0,
   );
 });
-
-// --- 仕事の一行の行頭禁則（最終レビュー I1） ---------------------------------------------
-
-/** 行頭に来てはならない文字（長音と小書きの仮名） */
-const forbiddenLineStarts = 'ーァィゥェォッャュョヮぁぃぅぇぉっゃゅょゎ';
-
-for (const viewport of [
-  { width: 390, height: 844 },
-  { width: 1024, height: 768 },
-]) {
-  test(`行頭禁則: ${viewport.width}×${viewport.height} の /ja/ では仕事の一行の各行が長音や小書きの仮名で始まらない`, async ({
-    page,
-  }) => {
-    await page.setViewportSize(viewport);
-    await page.goto('./ja/');
-    // テキストノードを 1 文字ずつ Range で囲み、top が前の文字より大きくなった文字を行頭とする
-    const lineStarts = await page.locator('main p.headline').evaluate((el) => {
-      const starts: string[] = [];
-      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-      let prevTop = Number.NEGATIVE_INFINITY;
-      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-        const text = node.textContent ?? '';
-        for (let i = 0; i < text.length; i++) {
-          const range = document.createRange();
-          range.setStart(node, i);
-          range.setEnd(node, i + 1);
-          const rect = range.getClientRects()[0];
-          if (!rect) continue;
-          if (rect.top > prevTop + 1) starts.push(text[i] ?? '');
-          prevTop = Math.max(prevTop, rect.top);
-        }
-      }
-      return starts;
-    });
-    expect(lineStarts.length, '仕事の一行の文字が見つからない').toBeGreaterThan(0);
-    for (const [i, ch] of lineStarts.entries()) {
-      expect(
-        forbiddenLineStarts.includes(ch),
-        `仕事の一行の ${i + 1} 行目が禁則文字「${ch}」で始まっている（行頭: ${lineStarts.join(' / ')}）`,
-      ).toBe(false);
-    }
-  });
-}
 
 // --- 1.2 写真の個別ページの初見表示（縦位置）---------------------------------------------
 

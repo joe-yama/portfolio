@@ -9,7 +9,6 @@
 - 資格と実績の `date` は**分かっている粒度で書く**（`YYYY-MM` か `YYYY-MM-DD`）。日を `-01` に丸めない。年月までの日付は並び順ではその月の 1 日として扱われ、同じ位置になる項目は記述順を保つ
 - `highlights` は経歴ページの `Career` 見出しの直下に出る要約。**1〜4 件で、日英の件数が一致しないとビルドが落ちる**。文言は手で書く（職歴の bullets から自動では作らない）
 - 資格の `group` は任意。同じ `group` の資格は経歴ページで 1 行（期間 · グループ名（件数））にまとまり、開くと内訳が見える。**名前は訳語でよい（`AWS 認定` / `AWS Certifications`）が、付け方（どの位置の資格にどのグループを付けるか）は日英でそろえないとビルドが落ちる**。空文字列は不可
-- プロフィールの `headline` は必須。トップの名前の直下と、全ページの `<meta name="description">`（共有カードの説明も同じ）に使われる。`tagline` はトップの `headline` の下にだけ出る
 
 検証は `validateCareerParity`（`skills` / `patents` を含む）。**`certifications` / `achievements` / `patents` は、同じ位置（記述順）の項目どうしで比較キー（`date` / `filedAt` / `countries` の件数など）が日英で食い違っているとビルドが落ちる**（`followup-hardening` で追加）。
 
