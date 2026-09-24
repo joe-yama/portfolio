@@ -6,6 +6,8 @@ const viewports = [
   { width: 1280, height: 720 },
   { width: 1440, height: 900 },
 ];
+/** トップの初見表示は、横並びの境目（64rem = 1024px）と、その 1px 下の縦並びでも確かめる */
+const topViewports = [...viewports, { width: 1024, height: 768 }, { width: 1023, height: 768 }];
 /**
  * 縦位置の写真。design.md D2 のプロトタイプ実測もこの写真（1248×1872）を使っている。
  * 縦位置かどうかは YAML に無いので slug の一覧から導けない
@@ -62,14 +64,16 @@ async function assertDisplayRatioMatchesNatural(locator: Locator, label: string)
  * 求める）を下回らないことを確認する。
  * `max(12rem, …)` の下限だけを外す変異（`calc(…)` に置き換える等）は、1280×720 や 1440×900 のような
  * 通常の画面では常に `100svh - Nrem` が正の値になるため検出できない。画面の高さが極端に小さい
- * （1280×400）ときに限って下限が発動するため、この画面で検査する
+ * ときに限って下限が発動するため、その画面で検査する。
+ * 個別ページ（`100svh - 18rem`）は 1280×400 で発動する。トップは 64rem 以上（`100svh - 10rem`）が
+ * 1280×300、64rem 未満（`100svh - 27rem`）が 1023×400 で発動する（1280×400 のトップは 240px で発動しない）
  */
 async function assertPhotoHeightAtLeastFloor(locator: Locator, label: string) {
   const height = await locator.evaluate((img) => img.getBoundingClientRect().height);
   const floorPx = await locator.evaluate(
     () => 12 * Number.parseFloat(getComputedStyle(document.documentElement).fontSize),
   );
-  // 1280×400 では下限がちょうど発動するので等号ぎりぎりになる。サブピクセル丸めの分だけ緩める
+  // 下限が発動する画面では等号ぎりぎりになる。サブピクセル丸めの分だけ緩める
   expect(
     height,
     `${label}: 写真の表示高さが下限（12rem=${floorPx}px）を下回っている（height=${height.toFixed(1)}）`,
@@ -105,7 +109,7 @@ async function assertPhotoFillsMainContentWidth(page: Page, selector: string, la
 // --- 1.1 トップページの初見表示 ---------------------------------------------------------
 
 for (const lang of locales) {
-  for (const viewport of viewports) {
+  for (const viewport of topViewports) {
     test(`トップページの初見表示（${lang}, ${viewport.width}x${viewport.height}）`, async ({
       page,
     }) => {
@@ -114,15 +118,205 @@ for (const lang of locales) {
       await waitForImageLoaded(page.locator('main .hero picture img'));
 
       await assertBottomsWithinViewport(page, 'main .hero picture img', '代表写真');
-      await assertBottomsWithinViewport(page, 'main > h1', '名前');
-      await assertBottomsWithinViewport(page, 'main > p.muted', '肩書');
+      await assertBottomsWithinViewport(page, 'main h1', '名前');
+      await assertBottomsWithinViewport(page, 'main .intro > p.muted', '肩書');
       await assertBottomsWithinViewport(page, 'main ul.links li a', '連絡先リンク');
       await assertBottomsWithinViewport(page, 'main nav.links a', 'サイト内導線');
     });
   }
 }
 
-// --- 1.2 写真の個別ページの初見表示（縦位置） ---------------------------------------------
+// --- トップページの横並び（64rem 以上で写真を左、文字列を右） ------------------------------
+
+/** 横並びで写真の右に来る文字列 */
+const introTextSelector = 'main h1, main .intro > p.muted, main nav.links a, main ul.links a';
+
+/** 代表写真と、セレクタに一致する要素それぞれの getBoundingClientRect を測る */
+async function measureHeroAnd(page: Page, selector: string) {
+  const hero = page.locator('main .hero picture img');
+  await waitForImageLoaded(hero);
+  const heroRect = await hero.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return { right: r.right, bottom: r.bottom, width: r.width };
+  });
+  const rects = await page.locator(selector).evaluateAll((els) =>
+    els.map((el) => {
+      const r = el.getBoundingClientRect();
+      return { left: r.left, top: r.top };
+    }),
+  );
+  expect(rects.length, `要素が見つからない（${selector}）`).toBeGreaterThan(0);
+  return { heroRect, rects };
+}
+
+test('横並び: 1280×720 の /ja/ では代表写真が文字列の左にあり、本文の幅の半分以上を占める', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto('./ja/');
+  const { heroRect, rects } = await measureHeroAnd(page, introTextSelector);
+  for (const [i, rect] of rects.entries()) {
+    expect(
+      heroRect.right,
+      `代表写真の右端（${heroRect.right.toFixed(1)}）が文字列[${i}] の左端（${rect.left.toFixed(1)}）より左にない`,
+    ).toBeLessThan(rect.left);
+  }
+  const contentWidth = await page.evaluate(() => {
+    const main = document.querySelector('main');
+    if (!main) throw new Error('main が見つからない');
+    const style = getComputedStyle(main);
+    return (
+      main.clientWidth -
+      Number.parseFloat(style.paddingLeft) -
+      Number.parseFloat(style.paddingRight)
+    );
+  });
+  expect(
+    heroRect.width,
+    `代表写真の幅 ${heroRect.width.toFixed(1)} が本文の幅 ${contentWidth.toFixed(1)} の半分に満たない`,
+  ).toBeGreaterThanOrEqual(contentWidth / 2);
+});
+
+test('横並び: 1024×768 の /en/ では代表写真が名前の左にある', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.goto('./en/');
+  const { heroRect, rects } = await measureHeroAnd(page, 'main h1');
+  expect(heroRect.right).toBeLessThan(rects[0]?.left ?? Number.NaN);
+});
+
+/** root の font-size から求めた 1rem の px */
+const remPx = (page: Page) =>
+  page.evaluate(() => Number.parseFloat(getComputedStyle(document.documentElement).fontSize));
+
+test('横並び: 1920×1080 の /ja/ では本文の幅に上限が無く、代表写真の左端がロゴの左端とそろう', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto('./ja/');
+  const hero = page.locator('main .hero picture img');
+  await waitForImageLoaded(hero);
+  const rem = await remPx(page);
+  const measured = await page.evaluate(() => {
+    const main = document.querySelector('main');
+    const logo = document.querySelector('header .logo');
+    const img = document.querySelector('main .hero picture img');
+    if (!main || !logo || !img) throw new Error('main / ロゴ / 代表写真が見つからない');
+    const style = getComputedStyle(main);
+    const r = img.getBoundingClientRect();
+    return {
+      viewportWidth: document.documentElement.clientWidth,
+      innerHeight: window.innerHeight,
+      contentWidth:
+        main.clientWidth -
+        Number.parseFloat(style.paddingLeft) -
+        Number.parseFloat(style.paddingRight),
+      logoLeft: logo.getBoundingClientRect().left,
+      heroLeft: r.left,
+      heroWidth: r.width,
+      heroBottom: r.bottom,
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+  expect(
+    Math.abs(measured.contentWidth - (measured.viewportWidth - 2 * rem)),
+    `本文の幅 ${measured.contentWidth} が画面の幅 ${measured.viewportWidth} − 2rem と一致しない`,
+  ).toBeLessThanOrEqual(1);
+  expect(
+    Math.abs(measured.heroLeft - measured.logoLeft),
+    `代表写真の左端 ${measured.heroLeft} がロゴの左端 ${measured.logoLeft} とそろわない`,
+  ).toBeLessThanOrEqual(1);
+  expect(measured.heroWidth, '代表写真の幅が 1000px に満たない').toBeGreaterThanOrEqual(1000);
+  expect(measured.heroBottom, '代表写真の下端が画面外にはみ出している').toBeLessThanOrEqual(
+    measured.innerHeight,
+  );
+  expect(measured.overflow, '横スクロールが発生している').toBeLessThanOrEqual(0);
+});
+
+test('横並び: 高さの上限が列の幅より先に効く 1366×650 の /ja/ でも、代表写真の左端がロゴの左端とそろう', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1366, height: 650 });
+  await page.goto('./ja/');
+  await waitForImageLoaded(page.locator('main .hero picture img'));
+  const { heroLeft, logoLeft } = await page.evaluate(() => {
+    const logo = document.querySelector('header .logo');
+    const img = document.querySelector('main .hero picture img');
+    if (!logo || !img) throw new Error('ロゴ / 代表写真が見つからない');
+    return {
+      heroLeft: img.getBoundingClientRect().left,
+      logoLeft: logo.getBoundingClientRect().left,
+    };
+  });
+  expect(
+    Math.abs(heroLeft - logoLeft),
+    `代表写真の左端 ${heroLeft} がロゴの左端 ${logoLeft} とそろわない`,
+  ).toBeLessThanOrEqual(1);
+});
+
+test('トップ以外: 1920 幅の /ja/career/ では main の幅が 80rem のまま', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto('./ja/career/');
+  const rem = await remPx(page);
+  const width = await page.locator('main').evaluate((el) => el.getBoundingClientRect().width);
+  expect(Math.abs(width - 80 * rem), `main の幅 ${width} が 80rem ではない`).toBeLessThanOrEqual(1);
+});
+
+test.describe('横並びの代表写真の読み込む大きさ（design D8）', () => {
+  // 候補の選び方は devicePixelRatio に依存するので 1 に固定する
+  test.use({ deviceScaleFactor: 1 });
+
+  test('1280×720 の /ja/ では代表写真に srcset の 1200w の候補が選ばれる', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto('./ja/');
+    const hero = page.locator('main .hero picture img');
+    await waitForImageLoaded(hero);
+    // <source> が avif / webp なので、currentSrc を含む srcset（source か img）から幅の記述子を得る
+    const chosen = await hero.evaluate((img) => {
+      const el = img as HTMLImageElement;
+      const picture = el.closest('picture');
+      if (!picture) throw new Error('picture が見つからない');
+      const srcsets = [...picture.querySelectorAll('source, img')].map(
+        (node) => node.getAttribute('srcset') ?? '',
+      );
+      for (const srcset of srcsets) {
+        for (const candidate of srcset.split(',')) {
+          const [url, descriptor] = candidate.trim().split(/\s+/);
+          if (url && new URL(url, document.baseURI).href === el.currentSrc) {
+            return { currentSrc: el.currentSrc, descriptor: descriptor ?? '' };
+          }
+        }
+      }
+      return { currentSrc: el.currentSrc, descriptor: '' };
+    });
+    expect(chosen.descriptor, `選ばれた候補（${chosen.currentSrc}）が 1200w ではない`).toBe(
+      '1200w',
+    );
+  });
+});
+
+test('縦並び: 1023×768 の /ja/ では代表写真が名前の上にある', async ({ page }) => {
+  await page.setViewportSize({ width: 1023, height: 768 });
+  await page.goto('./ja/');
+  const { heroRect, rects } = await measureHeroAnd(page, 'main h1');
+  expect(heroRect.bottom).toBeLessThanOrEqual(rects[0]?.top ?? Number.NaN);
+});
+
+test('縦並び: 390×844 の /ja/ では代表写真が名前の上にあり、横スクロールが出ない', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./ja/');
+  const { heroRect, rects } = await measureHeroAnd(page, 'main h1');
+  expect(heroRect.bottom).toBeLessThanOrEqual(rects[0]?.top ?? Number.NaN);
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow, '横スクロールが発生している（scrollWidth − clientWidth）').toBeLessThanOrEqual(
+    0,
+  );
+});
+
+// --- 1.2 写真の個別ページの初見表示（縦位置）---------------------------------------------
 
 for (const lang of locales) {
   for (const viewport of viewports) {
@@ -173,6 +367,18 @@ test('回帰: 極端に低い画面でも写真の表示高さは0にならな�
   await waitForImageLoaded(hero);
   await assertPhotoHeightAtLeastFloor(hero, 'トップの代表写真');
 
+  // トップの 2 本の規則それぞれで下限が発動する画面（1280×400 では 400−160=240px で発動しない）
+  for (const [viewport, label] of [
+    [{ width: 1280, height: 300 }, 'トップの代表写真（64rem 以上, 1280x300）'],
+    [{ width: 1023, height: 400 }, 'トップの代表写真（64rem 未満, 1023x400）'],
+  ] as const) {
+    await page.setViewportSize(viewport);
+    await page.goto('./ja/');
+    await waitForImageLoaded(hero);
+    await assertPhotoHeightAtLeastFloor(hero, label);
+  }
+
+  await page.setViewportSize({ width: 1280, height: 400 });
   await page.goto(`./ja/photos/${verticalSlug}/`);
   const figureImg = page.locator('figure picture img');
   await waitForImageLoaded(figureImg);

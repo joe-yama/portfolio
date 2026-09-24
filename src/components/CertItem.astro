@@ -1,0 +1,20 @@
+---
+// 資格 1 件分の <li>。career.astro には束ねない資格用とまとめた項目の内訳用の 2 か所で
+// 同じマークアップが必要になるため、ここに切り出して片方だけ直す事故を防ぐ（PatentItem と同じ形）
+import type { Career } from '../content/schemas';
+import { formatDate } from '../lib/career';
+import type { Locale } from '../lib/i18n';
+
+interface Props {
+  item: Career['certifications'][number];
+  lang: Locale;
+}
+
+const { item, lang } = Astro.props;
+---
+
+<li>
+  <span class="muted">{formatDate(item.date, lang)}</span>
+  {' · '}
+  {item.url ? <a href={item.url}>{item.name}</a> : item.name}
+</li>

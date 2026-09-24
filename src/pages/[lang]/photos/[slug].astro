@@ -22,7 +22,7 @@ const { photo, prev, next } = neighbors(photos, slug);
 const t = ui[lang];
 ---
 
-<BaseLayout title={photo.data.title[lang]}>
+<BaseLayout title={photo.data.title[lang]} ogPhoto={photo}>
   <figure>
     <PhotoPicture photo={photo} lang={lang} variant="full" />
     <figcaption>
