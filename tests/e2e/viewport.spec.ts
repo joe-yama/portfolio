@@ -232,6 +232,27 @@ test('横並び: 1920×1080 の /ja/ では本文の幅に上限が無く、代�
   expect(measured.overflow, '横スクロールが発生している').toBeLessThanOrEqual(0);
 });
 
+test('横並び: 高さの上限が列の幅より先に効く 1366×650 の /ja/ でも、代表写真の左端がロゴの左端とそろう', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1366, height: 650 });
+  await page.goto('./ja/');
+  await waitForImageLoaded(page.locator('main .hero picture img'));
+  const { heroLeft, logoLeft } = await page.evaluate(() => {
+    const logo = document.querySelector('header .logo');
+    const img = document.querySelector('main .hero picture img');
+    if (!logo || !img) throw new Error('ロゴ / 代表写真が見つからない');
+    return {
+      heroLeft: img.getBoundingClientRect().left,
+      logoLeft: logo.getBoundingClientRect().left,
+    };
+  });
+  expect(
+    Math.abs(heroLeft - logoLeft),
+    `代表写真の左端 ${heroLeft} がロゴの左端 ${logoLeft} とそろわない`,
+  ).toBeLessThanOrEqual(1);
+});
+
 test('トップ以外: 1920 幅の /ja/career/ では main の幅が 80rem のまま', async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
   await page.goto('./ja/career/');

@@ -93,6 +93,13 @@ const heroSizes = '(min-width: 64rem) calc((100vw - 4rem) * 0.6), calc(100vw - 2
       --photo-max-height: max(12rem, 100svh - 10rem);
       margin-bottom: 0;
     }
+
+    /* 高さの上限が列の幅より先に効くと、PhotoPicture の margin-inline: auto で写真が列の中央に
+       寄り、左端がロゴの左端からずれる。列の左端に寄せる（spec「広い画面でのトップページの横並び」）。
+       PhotoPicture の `picture :global(img.full)` より詳細度を上げるため img.full まで書く */
+    .hero :global(img.full) {
+      margin-inline: 0;
+    }
   }
 
   .links {

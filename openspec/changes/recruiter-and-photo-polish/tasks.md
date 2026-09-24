@@ -98,6 +98,7 @@ PR #61 の作成後、PO が (1) 仕事の一行（A1）をやめる、(2) 下�
   - 8.5(d) 64rem 未満の上限を `100svh - 20rem` にする: 対照 2 passed → 2 failed / 作り直し 2 failed（1023×768 の ja・en で連絡先リンクの下端 845.8 > 768）
   - 8.1 description を `profile.name` にする: 対照 10 passed → 10 failed / 作り直し 10 failed（description が `Josuke Yamane`）
 - [x] 8.8 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
+- [x] 8.9 Task 8 のレビューの修正（I1 写真の左端のずれ、M1 束ねた項目の間隔、M2〜M4）
 
 ## 提案（本 change のスコープ外・後続への申し送り）
 
