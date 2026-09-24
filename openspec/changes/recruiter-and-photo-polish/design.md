@@ -14,7 +14,7 @@
 
 **Goals:**
 
-- データの追加（`headline`・`highlights`・`group`）は、既存のスキーマと日英の検査の形に沿わせ、新しい仕組みを作らない
+- データの追加（`highlights`・`group`）は、既存のスキーマと日英の検査の形に沿わせ、新しい仕組みを作らない
 - 横並びは `index.astro` の CSS だけで行い、`PhotoPicture` の仕組み（`--photo-max-height`）を再利用する
 
 **Non-Goals:**
@@ -24,7 +24,9 @@
 
 ## Decisions
 
-### D1 `headline` はプロフィールの必須項目にし、description もこれにする
+### D1 `headline` はプロフィールの必須項目にし、description もこれにする（取り下げ。PO 決定 2026-09-24）
+
+実装後に PO が仕事の一行をやめると決めた。`headline` はスキーマ・YAML・表示から消し、description は `tagline` のままにする。以下は当初の決定の記録。
 
 `profileSchema` に `headline: nonEmpty` を足す。`tagline` は残す。
 
@@ -64,15 +66,14 @@
 
 ### D5 横並びは `index.astro` の CSS グリッドで行う
 
-- 本文を `<div class="top">` で包み、写真（`.hero`）と文字列（`.intro`。ドット絵・`h1`・`headline`・`tagline`・導線・連絡先）の 2 つの子にする
+- 本文を `<div class="top">` で包み、写真（`.hero`）と文字列（`.intro`。ドット絵・`h1`・`tagline`・導線・連絡先）の 2 つの子にする
 - `@media (min-width: 64rem)` で `.top` を `grid-template-columns: 3fr 2fr`、`align-items: center`、`gap: 2rem` にする。64rem 未満では今の縦並び（ブロック）のまま
 - 同じメディアクエリの中で、`.hero` の `--photo-max-height` を `calc(100svh - 10rem)` に上書きし、`margin-bottom` を 0 にする。10rem の内訳は、ヘッダー（約 4rem）と `main` の上下の余白（2rem × 2）に、2rem の余裕を足したもの。横並びでは写真の下に文字が来ないので、27rem の見積もりは要らない
-- `headline` は `h1` の直後の `<p>` に置く。`tagline` は今までどおり `.muted` で淡い色にし、`headline` は本文の色にする
 - メディアクエリは `min-width` で書く。範囲構文は使わない（`header-nav-icons` の design D2 と同じ理由。配信される CSS では書き換わることが分かっている。`followup-minors-3` の提案を参照）
 - 検討した別の案: flex で並べる。3:2 の比率と縦方向の中央ぞろえは、grid なら 2 行で書けるので採らない
 - 実装時の裁定（2026-09-24）: 上の本文と実装が違う点が 2 つある
   - 64rem 以上の上限は `calc(100svh - 10rem)` ではなく `max(12rem, 100svh - 10rem)` にした。理由: photo-pipeline spec の「画面の高さが極端に小さい場合でも 0 になってはならない」が 64rem 以上にも掛かるため。番人は viewport.spec の 1280×300 の計測
-  - 64rem 未満の上限を `100svh - 27rem` から `100svh - 30rem` にした。理由: 仕事の一行が写真の下に 1 行増え、27rem のままだと 1023×768 で連絡先が 7.4px 画面からはみ出す（Change 9 の「写真の下の要素が増えると 27rem が足りなくなる」の想定どおりの保守）。proposal の「64rem 未満のトップの見た目の変更は含めない」は並び方の話で、仕事の一行を足すこと自体が 64rem 未満の見た目を変える。代償: 1023px 以下の横長の画面で写真の上限が 48px 低い。番人は viewport.spec の 1023×400 の計測（下限）で、30rem の見積もり自体を守る e2e は無い
+  - ~~64rem 未満の上限を `100svh - 27rem` から `100svh - 30rem` にした~~ → 仕事の一行を取り下げたので 27rem に戻す（2026-09-24）。30rem は一行が写真の下に 1 行増えた分の対処だった
 
 ### D6 共有カードの写真は `BaseLayout` の引数で受け取る
 
@@ -82,12 +83,28 @@
 - `photos/[slug].astro` だけが `ogPhoto={photo}` を渡す
 - 縦位置の写真は中央で横長に切り抜かれ、上下が切れる。SNS はカードを 1.91:1 前後で表示するので、余白を足して縮めるより、切り抜くほうが見栄えがよいと判断した（PO の承認は brainstorming の設計で得ている）
 
+### D7 トップだけ本文の幅の上限を外す（PO 決定 2026-09-24）
+
+- `index.astro` のスタイルで `:global(main):has(> .top)` の `max-width` を `none` にする。`global.css` の `main` の規則と、トップ以外のページの幅は変えない
+- 左右の余白は `main` の既存の `padding: 2rem 1rem` のまま。ヘッダーも左右 1rem なので、代表写真の左端はロゴの左端にそろう
+- 写真の大きさは列の幅（本文の幅 × 3/5）と高さの上限（`100svh - 10rem`）の小さいほうで決まる。1920×1080 で約 1110×740px、2560×1440 で約 1500×1000px
+- 検討した別の案: 上限を 120rem にする（2560px 以上で左右が空く）。PO が上限を外す案を選んだ
+
+### D8 横並びの代表写真の `sizes` を列の幅に合わせる
+
+- `PhotoPicture` の `full` の `sizes` は `(min-width: 80rem) 78rem, calc(100vw - 2rem)` で、横並びの列の幅（約 60%）より大きい候補を読み込む。D7 で本文の幅の上限が無くなるので、78rem という値もトップでは合わなくなる
+- トップの代表写真だけ、列の幅を表す `sizes` を渡せるようにする（`PhotoPicture` に任意の `sizes` を足す）。値は `(min-width: 64rem) calc((100vw - 4rem) * 0.6), calc(100vw - 2rem)`（本文の左右の余白 2rem と列の間 2rem を引いた幅の 3/5）
+- 写真の個別ページとギャラリーは変えない
+
+### D9 束ねた資格の行の見た目
+
+- 束ねた項目の外側の `li` の黒丸を消し、`summary` の三角を黒丸の位置（行の外側）に置く。文字の開始位置が隣の行とそろい、折り返した 2 行目も 1 行目の文字の頭にそろう
+- 特許の区画の `details { margin-top: 0.5rem }` を束ねた項目に効かせない（行の間隔を他の行とそろえる）
+
 ## Risks / Trade-offs
 
-- [横並びでも `PhotoPicture` の `sizes` が `(min-width: 80rem) 78rem` のままなので、ブラウザは列の幅（約 60%）より大きい候補を選ぶ] → 表示は変わらず、転送量が増えるだけ。写真は 2 枚しか無く、初見表示の速さの要求も無いので見送る。後続の提案に回す
+- [横並びでも `PhotoPicture` の `sizes` が `(min-width: 80rem) 78rem` のままなので、ブラウザは列の幅（約 60%）より大きい候補を選ぶ] → D8 で対処する（PO 指示 2026-09-24 で提案から繰り上げ）
 - [10rem の見積もりがヘッダーの実際の高さとずれると、写真の下端が画面から出る] → 1280×720・1440×900・1024×768 の初見表示を e2e で検査する（spec の Scenario）
-- [`headline` を必須にしたので、既存のスキーマのテストの見本データが通らなくなる] → テストの見本データにも `headline` を足す。これは期待値の書き換えではなく、入力の更新にあたる
-- [description を headline にすると、検索結果の説明文から "photographer" などの語が消える] → PO が承認した設計どおり。`tagline` はトップのページ本文に残る
 
 ## Migration Plan
 

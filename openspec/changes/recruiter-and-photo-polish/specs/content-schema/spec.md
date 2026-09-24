@@ -2,25 +2,6 @@
 
 ## MODIFIED Requirements
 
-### Requirement: プロフィールのデータ構造
-プロフィールは言語ごとに 1 件（`ja` と `en`）存在し、`name`（名前）、`headline`（仕事を表す一行）、`tagline`（一行紹介）、`links`（連絡先リンクの配列）を持たなければならない（MUST）。各リンクは `label`、`url`（URL 形式）、`kind`（`github` / `email` / `x` / `linkedin` / `other` のいずれか）を持たなければならない（MUST）。
-
-#### Scenario: 必須項目が揃ったプロフィール
-- **WHEN** `name`、`headline`、`tagline`、`links` を持ち、各リンクが `label` / `url` / `kind` を持つプロフィールをビルドする
-- **THEN** ビルドは成功し、ページに `name` が出力される
-
-#### Scenario: 必須項目が欠けたプロフィール
-- **WHEN** `tagline` が無いプロフィールをビルドする
-- **THEN** ビルドは失敗し、欠けている項目名を含むエラーを出す
-
-#### Scenario: 未知のリンク種別
-- **WHEN** リンクの `kind` に `mastodon` を指定してビルドする
-- **THEN** ビルドは失敗する
-
-#### Scenario: headline が欠けたプロフィール
-- **WHEN** `headline` が無い、または空文字列のプロフィールをビルドする
-- **THEN** ビルドは失敗し、エラーに `headline` が含まれる
-
 ### Requirement: 経歴のデータ構造
 経歴は言語ごとに 1 件存在し、`highlights`（経歴の要約。空でない文字列の配列で 1〜4 件）、`experience`（職歴の配列）、`skills`（カテゴリ名から名前の配列への対応）、`certifications`（資格の配列）、`achievements`（実績の配列）、`patents`（特許の配列）を持たなければならない（MUST）。職歴は `from`（日付）、`to`（日付、または在職中を表す `null`）、`organization`、`role`、`bullets`（要点。最大 5 件）を持たなければならない（MUST）。資格は `date`、`name`、任意の `url`、任意の `group`（束ねて表示するためのグループ名。空でない文字列）を持ち、実績はさらに `kind`（`talk` / `article` / `award` / `other`）を持たなければならない（MUST）。
 

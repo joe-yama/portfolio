@@ -79,16 +79,19 @@
 
 - [x] 7.1 最終レビュー I1: ja の headline の行頭禁則（`line-break: strict`）と、その e2e を足す
 
+## 8. PO 指示 2026-09-24（仕事の一行の取り下げと、提案の繰り上げ）
+
+PR #61 の作成後、PO が (1) 仕事の一行（A1）をやめる、(2) 下の「提案」をこの PR で対応する、(3) トップの本文の幅の上限を外す、と決めた。1.1・3.1・4.1・7.1 のチェックは実装の履歴として残し、8.1 で取り消す。
+
+- [ ] 8.1 A1 の取り下げ（design D1）: `headline` をスキーマ・`src/content/profile/{ja,en}.yaml`・`index.astro`（`p.headline` と `line-break: strict`）・`docs/content-authoring.md` から消し、`BaseLayout` の description を `profile.tagline` に戻す。64rem 未満の `.hero` の上限を `100svh - 27rem` に戻す（D5）。headline を前提にしたテスト（スキーマの headline の検査、トップの名前 → headline → tagline の並び、description = headline、行頭禁則の 2 本、初見表示と横並びの `p.headline`）は spec から要求が消えたので、description の検査は `tagline` と一致する形に、並びの検査は名前の次が `tagline` の形にする。`pnpm test` / `pnpm e2e` が緑
+- [ ] 8.2 トップの本文の幅の上限を外す（design D7、spec「広い画面でのトップページの横並び」の 2 つの Scenario）。RED: `viewport.spec.ts` に 1920×1080 の `/ja/`（`main` の本文の幅 = 画面の幅 − 2rem、写真の左端 = ヘッダーのロゴの左端 ±1px、写真の幅 ≥ 1000px、写真の下端 ≤ 画面の下端、横スクロール無し）と、1920 幅の `/ja/career/`（`main` の幅 = 80rem）を足し、前者が赤を確かめる。GREEN: `index.astro` に `:global(main):has(> .top) { max-width: none; }`
+- [ ] 8.3 横並びの代表写真の `sizes`（design D8）。RED: 1280×720・devicePixelRatio 1 の `/ja/` で、代表写真の `currentSrc` が `srcset` の `1200w` の候補であることを確かめ、赤を確かめる（今は 78rem = 1248px から 1800w を選ぶ）。GREEN: `PhotoPicture` に任意の `sizes` を足し、`index.astro` から `(min-width: 64rem) calc((100vw - 4rem) * 0.6), calc(100vw - 2rem)` を渡す。写真の個別ページとギャラリーの `sizes` は変えない
+- [ ] 8.4 束ねた資格の行の見た目（design D9）。RED: `pages.spec.ts` で、1024 幅の `/ja/career/` の資格の区画について (a) 直下の `li` どうしの間隔がそろう（±1px）、(b) `summary` の文字の左端が隣の `li` の文字の左端とそろう（±1px）、(c) 390 幅で `summary` が 2 行に折り返したとき、2 行目の左端が 1 行目の文字の左端とそろう、を確かめ、赤を確かめる。GREEN: `career.astro` の CSS
+- [ ] 8.5 番人の穴を塞ぐ: (a) `validate.test.ts` に資格の件数が ja > en の向きのケースを足す、(b) e2e の `parseHighlights` がクォートを外し、`parseCertifications` の前提（1 件は `  - date:` で始まる）を JSDoc に書く、(c) `/en/` ほかの `og:image:alt` を YAML の代表写真の `alt.en` と直接比べ、写真の個別ページの `og:image` も同一オリジンかを見る、(d) 1023×768 の `/ja/` と `/en/` で、縦並びのトップの初見表示（写真・名前・肩書・導線・連絡先の下端 ≤ 画面の下端）を確かめる e2e を足す、(e) `CertificationEntry` の group の `items` を空でない配列の型（`[Certification, ...Certification[]]`）にし、`formatGroupPeriod` も空でない配列だけを受ける型にする
+- [ ] 8.6 ponytail: (a) `pages.spec.ts` の代表でない写真の slug を定数 `'kariya-ferris-wheel'` にする、(b) `.highlights` の margin を `section` と 1 つの規則にまとめる、(c) 資格 1 件分のマークアップを `src/components/CertItem.astro`（`PatentItem.astro` と同じ形）にまとめ、single と内訳の両方から使う
+- [ ] 8.7 変異を当てて、8.2〜8.5 の新しい番人が落ちることを確かめる（隔離実行）。少なくとも: 8.2 の `:has` の規則を外す、8.3 の `sizes` を渡さない、8.4 の CSS を外す、8.5(a) の件数のガードを外す、8.5(d) の 64rem 未満の上限を 20rem にする、8.1 の description を `profile.name` にする
+- [ ] 8.8 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
+
 ## 提案（本 change のスコープ外・後続への申し送り）
 
-- 横並びのトップでも `PhotoPicture` の `sizes` が `78rem` のままで、必要より大きい画像を読み込む（design の Risks）
-- 経歴ページの束ねた資格の行で、外側の `li` の黒丸と `summary` の三角が二重に出る。特許用の `details { margin-top: 0.5rem }` が効いてグループの上だけ 8px 空き、文字の開始位置が隣の行より約 17px 右にずれる（`li > details { margin-top: 0 }` と、黒丸か三角のどちらかを消せば直る）
-- 幅 390 で束ねた資格の `summary` が折り返すと、2 行目が三角の左端から始まる
-- e2e の `parseCertifications` は 1 件が `  - date:` で始まる前提、`parseHighlights` はクォートを外さない（JSDoc に前提を書くか、クォートを外す）
-- `formatGroupPeriod([])` は TypeError になる（呼び出し元の `groupCertifications` は空のグループを作らないので今は起きない）
-- `validate.test.ts` の「資格の件数が違うときは group の突き合わせまで進まない」は ja < en の向きだけで、件数のガードを外しても緑（ja > en だと TypeError）。逆向きのケースを足す
-- 1280px 以上では `main` の max-width で写真が 729.6×486.4 に固定され、1920×1080 以上では画面の下半分が空く。「写真主役」を進めるならトップだけ `main` を広げる（global.css に触るので別 change）
-- 64rem 未満の縦並びの初見表示（30rem の見積もり）を守る e2e が無い
-- `og:image:alt` の検査は本文の alt と比べているので、両方が同じロケールへずれると見逃す。写真の個別ページの `og:image` のオリジンも確かめていない
-- ponytail: pages.spec の代表でない写真の slug を写真のディレクトリから導く処理は定数 1 行にできる。`.highlights` の margin は `section` と 1 ブロックにまとめられる。資格 1 件分のマークアップが career.astro の 2 か所にある
-- 390 で ja の headline が『プロダク / トオーナー』と語の途中で折り返す（行頭禁則は `line-break: strict` で対処済み）。直すなら `text-wrap: balance` と `word-break: auto-phrase` を足し、番人を computed style（`lineBreak === 'strict'`）と文節の頭（2 行目が『つくる』で始まる）の 2 本に分ける。PO 判断
+- （2026-09-24 の PO 指示で、それまでの提案 11 件は 8. に繰り上げた。仕事の一行の折り返しの件は A1 の取り下げで不要になった）
