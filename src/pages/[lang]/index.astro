@@ -19,61 +19,100 @@ const base = import.meta.env.BASE_URL;
 const profile = await getProfile(lang);
 const sw = languageSwitch(Astro.url.pathname, lang, base);
 const featured = await getFeaturedPhoto();
+// 64rem 以上は横並びの列の幅（本文の左右の余白 2rem と列の間 2rem を引いた幅の 3/5。design D8）
+const heroSizes = '(min-width: 64rem) calc((100vw - 4rem) * 0.6), calc(100vw - 2rem)';
 ---
 
 <BaseLayout>
-  <div class="hero"><PhotoPicture photo={featured} lang={lang} variant="full" priority /></div>
-  <div class="art"><PixelArt rows={camera} /></div>
-  <h1>{profile.name}</h1>
-  <p class="muted">{profile.tagline}</p>
+  <div class="top">
+    <div class="hero">
+      <PhotoPicture photo={featured} lang={lang} variant="full" priority sizes={heroSizes} />
+    </div>
+    <div class="intro">
+      <div class="art"><PixelArt rows={camera} /></div>
+      <h1>{profile.name}</h1>
+      <p class="muted">{profile.tagline}</p>
 
-  <nav class="links" aria-label={ui[lang].siteNav}>
-    {navLinks(lang, base).map((link) => (
-      <a href={link.href}>
-        <PixelArt rows={link.icon} scale={1} />
-        {link.label}
-      </a>
-    ))}
-    <span class="lang-switch" role="group" aria-label={sw.label}>
-      <PixelArt rows={sw.icon} scale={1} />
-      {sw.items.map((item, i) => (
-        <Fragment>
-          {i > 0 && <span aria-hidden="true">/</span>}
-          {item.href ? (
-            <a href={item.href} hreflang={item.lang} lang={item.lang}>
-              {item.label}
-            </a>
-          ) : (
-            <span lang={item.lang} aria-current="true">
-              {item.label}
-            </span>
-          )}
-        </Fragment>
-      ))}
-    </span>
-  </nav>
-
-  <ul class="links">
-    {profile.links.map((link) => {
-      const icon = contactIcons[link.kind];
-      return (
-        <li>
-          <a href={link.url}>
-            {icon && <PixelArt rows={icon} scale={1} />}
+      <nav class="links" aria-label={ui[lang].siteNav}>
+        {navLinks(lang, base).map((link) => (
+          <a href={link.href}>
+            <PixelArt rows={link.icon} scale={1} />
             {link.label}
           </a>
-        </li>
-      );
-    })}
-  </ul>
+        ))}
+        <span class="lang-switch" role="group" aria-label={sw.label}>
+          <PixelArt rows={sw.icon} scale={1} />
+          {sw.items.map((item, i) => (
+            <Fragment>
+              {i > 0 && <span aria-hidden="true">/</span>}
+              {item.href ? (
+                <a href={item.href} hreflang={item.lang} lang={item.lang}>
+                  {item.label}
+                </a>
+              ) : (
+                <span lang={item.lang} aria-current="true">
+                  {item.label}
+                </span>
+              )}
+            </Fragment>
+          ))}
+        </span>
+      </nav>
+
+      <ul class="links">
+        {profile.links.map((link) => {
+          const icon = contactIcons[link.kind];
+          return (
+            <li>
+              <a href={link.url}>
+                {icon && <PixelArt rows={icon} scale={1} />}
+                {link.label}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </div>
 </BaseLayout>
 
 <style>
+  /* トップだけ本文の幅の上限を外す（design D7）。左右の余白は main の 1rem のまま */
+  :global(main):has(> .top) {
+    max-width: none;
+  }
+
   .hero {
     /* 写真の高さ上限は svh（アドレスバーが出ている最小の高さ）で決める。
-       dvh にするとスクロールでバーが隠れるたびに写真の高さが変わる */
+       dvh にするとスクロールでバーが隠れるたびに写真の高さが変わる。
+       27rem は写真の下に並ぶ文字列（ドット絵・名前・肩書・導線・連絡先）と
+       ヘッダー・main の余白の見積もりに、2rem の余裕を足したもの */
     --photo-max-height: max(12rem, 100svh - 27rem);
     margin-bottom: 2rem;
+  }
+
+  /* 64rem 以上では写真を左、文字列を右に並べる（design D5）。範囲構文は使わない */
+  @media (min-width: 64rem) {
+    .top {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .hero {
+      /* 写真の下に文字が来ないので、ヘッダー（約 4rem）と main の上下の余白（2rem × 2）に
+         2rem の余裕を足した 10rem だけを引く */
+      --photo-max-height: max(12rem, 100svh - 10rem);
+      margin-bottom: 0;
+    }
+
+    /* 高さの上限が列の幅より先に効くと、PhotoPicture の margin-inline: auto で写真が列の中央に
+       寄り、左端がロゴの左端からずれる。列の左端に寄せる（spec「広い画面でのトップページの横並び」）。
+       PhotoPicture の `picture :global(img.full)` より詳細度を上げるため img.full まで書く */
+    .hero :global(img.full) {
+      margin-inline: 0;
+    }
   }
 
   .links {

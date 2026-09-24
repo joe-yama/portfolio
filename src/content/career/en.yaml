@@ -1,3 +1,8 @@
+highlights:
+  - Product owner of a connected-car data platform (10M+ vehicles in 20+ countries)
+  - Leading engineering standardization for 100+ engineers
+  - Inventor on 65 patent families (47 including US filings)
+  - Holder of all 12 AWS Certifications (2026 AWS All Certifications Engineers)
 experience:
   - from: "2025-04"
     organization: Toyota Motor Corporation
@@ -34,28 +39,40 @@ certifications:
     name: "TOEIC Listening & Reading: 900"
   - date: "2025-10"
     name: AWS Certified AI Practitioner
+    group: AWS Certifications
   - date: "2025-10"
     name: AWS Certified CloudOps Engineer - Associate
+    group: AWS Certifications
   - date: "2025-10"
     name: AWS Certified Data Engineer - Associate
+    group: AWS Certifications
   - date: "2025-10"
     name: AWS Certified Developer - Associate
+    group: AWS Certifications
   - date: "2025-10"
     name: AWS Certified DevOps Engineer - Professional
+    group: AWS Certifications
   - date: "2025-10"
     name: AWS Certified Machine Learning Engineer - Associate
+    group: AWS Certifications
   - date: "2025-10"
     name: AWS Certified Advanced Networking - Specialty
+    group: AWS Certifications
   - date: "2025-10"
     name: AWS Certified Security - Specialty
+    group: AWS Certifications
   - date: "2025-10"
     name: AWS Certified Machine Learning - Specialty
+    group: AWS Certifications
   - date: "2025-09"
     name: AWS Certified Cloud Practitioner
+    group: AWS Certifications
   - date: "2025-04"
     name: AWS Certified Solutions Architect - Professional
+    group: AWS Certifications
   - date: "2025-04"
     name: AWS Certified Solutions Architect - Associate
+    group: AWS Certifications
   - date: "2020-07"
     name: Licensed Scrum Master (Scrum Inc.)
 achievements:

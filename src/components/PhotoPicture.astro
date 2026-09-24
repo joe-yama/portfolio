@@ -11,9 +11,11 @@ interface Props {
   variant: 'grid' | 'full';
   /** トップの代表写真だけ true。loading=eager + fetchpriority=high になる */
   priority?: boolean;
+  /** 用途の既定の sizes を置き換える。トップの横並びの代表写真だけが列の幅を渡す（design D8） */
+  sizes?: string;
 }
 
-const { photo, lang, variant, priority = false } = Astro.props;
+const { photo, lang, variant, priority = false, sizes } = Astro.props;
 
 // 設計書 §6 の表。sizes は自分で渡す（image.layout を設定していないので自動生成されない）
 const preset = {
@@ -42,7 +44,7 @@ const widths = [...preset.widths.filter((w) => w < width), width];
   width={width}
   height={height}
   widths={widths}
-  sizes={preset.sizes}
+  sizes={sizes ?? preset.sizes}
   formats={['avif', 'webp']}
   fallbackFormat="jpeg"
   priority={priority}

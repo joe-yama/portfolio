@@ -25,7 +25,14 @@ function patent(number: string): Patent {
 }
 
 function career(patents: Patent[]): Career {
-  return { experience: [], skills: {}, certifications: [], achievements: [], patents };
+  return {
+    highlights: ['h'],
+    experience: [],
+    skills: {},
+    certifications: [],
+    achievements: [],
+    patents,
+  };
 }
 
 describe('getCareer の検証の配線', () => {

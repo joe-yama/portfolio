@@ -4,6 +4,7 @@
 import { Font, getImage } from 'astro:assets';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import type { PhotoEntry } from '../content/schemas';
 import { getFeaturedPhoto, getProfile } from '../lib/content';
 import { defaultLocale, localeFromPath, withBase } from '../lib/i18n';
 import { absoluteUrl, alternateLinks, canonicalUrl, ogLocale } from '../lib/site';
@@ -13,9 +14,11 @@ interface Props {
   /** ページ名。省略時はトップ扱いで名前のみ */
   title?: string;
   showNav?: boolean;
+  /** 共有カードに使う写真。写真の個別ページだけが渡す。省略時は代表写真（design D6） */
+  ogPhoto?: PhotoEntry;
 }
 
-const { title, showNav } = Astro.props;
+const { title, showNav, ogPhoto } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const path = Astro.url.pathname;
 // lang は URL から導く。接頭辞の無いページ（404）は既定ロケール
@@ -36,15 +39,15 @@ const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 630;
 let ogImage: { src: string; alt: string } | null = null;
 if (pathLocale) {
-  const featured = await getFeaturedPhoto();
+  const cardPhoto = ogPhoto ?? (await getFeaturedPhoto());
   const img = await getImage({
-    src: featured.data.image,
+    src: cardPhoto.data.image,
     width: OG_IMAGE_WIDTH,
     height: OG_IMAGE_HEIGHT,
     fit: 'cover',
     format: 'jpeg',
   });
-  ogImage = { src: absoluteUrl(img.src, Astro.site), alt: featured.data.alt[lang] };
+  ogImage = { src: absoluteUrl(img.src, Astro.site), alt: cardPhoto.data.alt[lang] };
 }
 ---
 

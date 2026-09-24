@@ -122,6 +122,7 @@ describe('validatePhotos', () => {
 
 describe('validateCareerParity', () => {
   const base: Career = {
+    highlights: ['h'],
     experience: [{ from: '2020-04', organization: 'o', role: 'r', bullets: [] }],
     skills: { lang: ['ts'] },
     certifications: [{ date: '2023-06-01', name: 'c' }],
@@ -131,6 +132,73 @@ describe('validateCareerParity', () => {
 
   it('件数が一致すれば問題なし', () => {
     expect(validateCareerParity(base, base)).toEqual([]);
+  });
+
+  it('highlights の件数差を報告する', () => {
+    const ja: Career = { ...base, highlights: ['1', '2', '3', '4'] };
+    const en: Career = { ...base, highlights: ['1', '2', '3'] };
+    expect(validateCareerParity(ja, en)).toEqual(['highlights の件数が日英で違う（ja: 4, en: 3）']);
+  });
+
+  const cert = (date: string, group?: string) => ({ date, name: 'n', ...(group && { group }) });
+
+  it('同じ位置の資格の group の有無が日英で違えば、何番目かを報告する', () => {
+    const ja: Career = {
+      ...base,
+      certifications: [cert('2025-10'), cert('2025-10', 'AWS 認定'), cert('2020-07')],
+    };
+    const en: Career = {
+      ...base,
+      certifications: [cert('2025-10'), cert('2025-10'), cert('2020-07')],
+    };
+    expect(validateCareerParity(ja, en)).toEqual([
+      'certifications の 2 番目の group の付き方が日英で違う（ja: AWS 認定, en: なし）',
+    ]);
+  });
+
+  it('group の分け方が日英で違えば、食い違う位置を報告する', () => {
+    const ja: Career = {
+      ...base,
+      certifications: [cert('2025-10', 'AWS 認定'), cert('2025-04', 'AWS 認定')],
+    };
+    const en: Career = {
+      ...base,
+      certifications: [cert('2025-10', 'AWS'), cert('2025-04', 'Azure')],
+    };
+    expect(validateCareerParity(ja, en)).toEqual([
+      'certifications の 2 番目の group の付き方が日英で違う（ja: AWS 認定, en: Azure）',
+    ]);
+  });
+
+  it('group 名が訳語で違うだけなら問題なし', () => {
+    const ja: Career = {
+      ...base,
+      certifications: [cert('2025-10', 'AWS 認定'), cert('2025-04', 'AWS 認定'), cert('2020-07')],
+    };
+    const en: Career = {
+      ...base,
+      certifications: [
+        cert('2025-10', 'AWS Certifications'),
+        cert('2025-04', 'AWS Certifications'),
+        cert('2020-07'),
+      ],
+    };
+    expect(validateCareerParity(ja, en)).toEqual([]);
+  });
+
+  it('資格の件数が違うときは group の突き合わせまで進まない', () => {
+    const en: Career = { ...base, certifications: [...base.certifications, cert('2020-07', 'X')] };
+    expect(validateCareerParity(base, en)).toEqual([
+      'certifications の件数が日英で違う（ja: 1, en: 2）',
+    ]);
+  });
+
+  it('資格の件数が ja のほうが多いときも group の突き合わせまで進まない', () => {
+    // en > ja の向きでは、ガードを外しても ja の長さ分しか比べないので緑のまま。逆向きで塞ぐ
+    const ja: Career = { ...base, certifications: [...base.certifications, cert('2020-07', 'X')] };
+    expect(validateCareerParity(ja, base)).toEqual([
+      'certifications の件数が日英で違う（ja: 2, en: 1）',
+    ]);
   });
 
   it('experience / certifications / achievements の件数差を個別に報告する', () => {
@@ -300,6 +368,7 @@ describe('validateCareerParity', () => {
 describe('validateCareerPatents', () => {
   function career(patents: Patent[]): Career {
     return {
+      highlights: ['h'],
       experience: [],
       skills: {},
       certifications: [],
