@@ -31,6 +31,6 @@
   - (g) 本文にも区切り線を付ける
   - (h) グループの `aria-label` を両ロケールで同じ文言にする
   - (i) 表示中の項目にだけ `vertical-align: top` を付けてベースラインをずらす（flex アイテムには vertical-align が効かないので position: relative; top: 1px で当てた）
-- [ ] 3.2 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
+- [x] 3.2 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
 
 ## 提案（本 change のスコープ外・後続への申し送り）
