@@ -262,11 +262,14 @@ for (const viewport of [
       await page.goto(path);
       await page.evaluate(() => document.fonts.ready);
       const logo = await textBaseline(page.locator('header .logo'));
-      const links = page.locator('header nav a');
-      await expect(links).toHaveCount(3);
-      for (const link of await links.all()) {
-        const name = await link.textContent();
-        expect(Math.abs((await textBaseline(link)) - logo), name ?? '').toBeLessThanOrEqual(0.5);
+      // Photos・Career と、言語切り替えの JA・EN（spec「ロゴとナビの文字のベースラインがそろう」）
+      const texts = page.locator(
+        'header nav > a, header nav [role="group"] > a, header nav [role="group"] > [aria-current]',
+      );
+      await expect(texts).toHaveCount(4);
+      for (const text of await texts.all()) {
+        const name = await text.textContent();
+        expect(Math.abs((await textBaseline(text)) - logo), name ?? '').toBeLessThanOrEqual(0.5);
       }
     });
   }
