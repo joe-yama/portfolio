@@ -34,3 +34,20 @@
 - [x] 3.2 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
 
 ## 提案（本 change のスコープ外・後続への申し送り）
+
+ブランチ全体のレビュー（Approved、Critical / Important 0）の Minor・ponytail と、PO の判断が要る件。
+
+**PO の判断**
+- 擬似太字がほぼ見えない: 1280px・DPR 1 で `font-weight` 700 と 400 の画素差は約 0.66%。表示中の言語は実質、下線の有無で区別されている（spec の computed 700 は満たす）。太字は PO の選んだ見た目なので実装では代えていない
+- 区切り線の左右の余白の差: Career → 区切り線が 20px（nav の gap 1.25rem）、区切り線 → 地球儀が 12px（`padding-left: 0.75rem`）。1.25rem では 390×844 の全ページでヘッダーが 2 行になったため詰めた（design Risks の手順）。そろえるには nav の gap を変える必要がある
+- 390px の余裕は 3.81px。`profile.name` が 1 文字増えるとヘッダーが 2 行になる（375px は変更前から 2 行）
+
+**Minor**
+- `src/components/Header.astro:4` のコメントが 100 字を超える（Biome は frontmatter を見ない）
+- `tests/e2e/links.spec.ts` の 320px の検査がトップと経歴の 4 ページだけ。`pagePaths` に広げる
+- 区切り線の検査が `border-left-width` だけで、`border-left-color: transparent` の変異では落ちない。`border-left-style` と色も見る
+- 390・479・480px の検査が「各リンクに svg 1 つ」から「svg が合計 3 つ」になった（要素ごとの検査は既定の画面幅の別の test が全ページで見ている）
+
+**ponytail**
+- `Header.astro` の `nav a :global(svg)` と `.lang-switch :global(svg)` の `align-self: center` を `nav :global(svg)` 1 つにまとめる
+- `links.spec.ts` の本文の導線の検査で `navIconTable[0]` / `[1]` を手で並べている箇所を `navIconTable.map` にする
