@@ -21,7 +21,7 @@
 
 ## 3. 番人の確認と仕上げ
 
-- [ ] 3.1 変異を当てて 2.1・2.2・2.4 のテストが落ちることを確かめる（`docs/harness/README.md` の隔離実行の手順）。少なくとも次の変異を当てる
+- [x] 3.1 変異を当てて 2.1・2.2・2.4 のテストが落ちることを確かめる（`docs/harness/README.md` の隔離実行の手順）。少なくとも次の変異を当てる
   - (a) 表示中の言語もリンクにする
   - (b) `aria-current` を外す
   - (c) 太字を外す
@@ -30,7 +30,7 @@
   - (f) ヘッダーの区切り線を消す
   - (g) 本文にも区切り線を付ける
   - (h) グループの `aria-label` を両ロケールで同じ文言にする
-  - (i) 表示中の項目にだけ `vertical-align: top` を付けてベースラインをずらす
+  - (i) 表示中の項目にだけ `vertical-align: top` を付けてベースラインをずらす（flex アイテムには vertical-align が効かないので position: relative; top: 1px で当てた）
 - [ ] 3.2 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
 
 ## 提案（本 change のスコープ外・後続への申し送り）
