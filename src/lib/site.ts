@@ -40,6 +40,8 @@ type UiStrings = {
   morePatents: (n: number) => string;
   /** まとめた資格の見出しの件数の表記（design D3） */
   certGroupCount: (name: string, n: number) => string;
+  /** まとめた資格の内訳を開く操作の文言。n はグループの件数（design D9） */
+  showAllCerts: (n: number) => string;
   /** 在職中（to が無い）の終わりの表記（design D10） */
   present: string;
 };
@@ -65,6 +67,7 @@ export const ui: Record<Locale, UiStrings> = {
     achievementKind: { talk: '登壇', article: '執筆', award: '受賞', other: 'その他' },
     morePatents: (n) => `さらに ${n} 件を表示`,
     certGroupCount: (name, n) => `${name}（${n} 件）`,
+    showAllCerts: (n) => `全 ${n} 件を表示`,
     present: '現在',
   },
   en: {
@@ -86,6 +89,7 @@ export const ui: Record<Locale, UiStrings> = {
     achievementKind: { talk: 'Talk', article: 'Article', award: 'Award', other: 'Other' },
     morePatents: (n) => `Show ${n} more`,
     certGroupCount: (name, n) => `${name} (${n})`,
+    showAllCerts: (n) => `Show all ${n}`,
     present: 'Present',
   },
 };

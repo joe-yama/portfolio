@@ -52,7 +52,7 @@
 
 - 期間の文字列は `formatDate(最古, lang)` と `formatDate(最新, lang)` を ` – ` でつなぐ。両者が同じ文字列なら 1 つだけにする。区切りは `formatPeriod` と同じ ` – `（en ダッシュの前後に空白）
 - 件数の表記は `ui[lang]` に関数 `certGroupCount(name, n)` として置く。ja は `${name}（${n} 件）`、en は `${name} (${n})`。特許の `morePatents` と同じ置き方
-- 表示: `<li><details><summary>{期間} · {件数の表記}</summary><ul>…内訳…</ul></details></li>`。`<details>` は `<li>` の中に置けるので、HTML として正しい。特許の区画の `<details>` が `<ul>` の兄弟になっていて `<ul>` を 2 つに分けているのとは違い、ここでは `<ul>` を分けない
+- 表示: `<li><details><summary>{期間} · {件数の表記}</summary><ul>…内訳…</ul></details></li>`（D9 で差し替え。期間と件数の表記は `summary` の外の 1 行目に出す）。`<details>` は `<li>` の中に置けるので、HTML として正しい。特許の区画の `<details>` が `<ul>` の兄弟になっていて `<ul>` を 2 つに分けているのとは違い、ここでは `<ul>` を分けない
 - 検討した別の案: YAML で入れ子にして、グループの下に資格を並べる。日英の一致の検査と日付の並べ替えが入れ子に対応する必要があり、既存の `sortByDateDesc` も `INDEXED_KEYS` もそのまま使えなくなるので採らない
 
 ### D4 `group` の日英の一致は「分け方が同じ」ことを見る
@@ -98,8 +98,12 @@
 
 ### D9 束ねた資格の行の見た目
 
-- 束ねた項目の外側の `li` の黒丸を消し、`summary` の三角を黒丸の位置（行の外側）に置く。文字の開始位置が隣の行とそろい、折り返した 2 行目も 1 行目の文字の頭にそろう
-- 特許の区画の `details { margin-top: 0.5rem }` を束ねた項目に効かせない（行の間隔を他の行とそろえる）
+PO 指示 2026-09-24 で差し替え。
+
+- 束ねた項目の 1 行目は、他の資格の行と同じ普通の行にする。外側の `li` の黒丸は既定のまま、本文は `{期間} · {グループ名（件数）}`。この行は `summary` ではなく `li` の本文
+- 開閉の三角は次の行の頭に置き、三角の後ろに `ui[lang].showAllCerts(n)`（ja `全 N 件を表示`、en `Show all N`。特許の `morePatents` と同じ置き方）を出す。マークアップは `<li><span class="muted">{期間}</span>{' · '}{certGroupCount(name, n)}<details><summary>{showAllCerts(n)}</summary><ul>…内訳…</ul></details></li>`
+- `details` は `li` の中のブロックなので、`summary` の box の左端は `li` の本文の左端（1 行目の日付の左端）にそろい、1 行目が折り返しても 2 行目は同じ左端から始まる。CSS は足さない。特許用の `details { margin-top: 0.5rem }` は 1 行目と三角の行の間にだけ効き、`li` どうしの送りは変えない
+- 検討した別の案: 外側の `li` の黒丸を消し、`summary` の三角を黒丸の位置（行の外側）に置く（当初の D9）。PO が 1 行目を普通の行にする案を選んだ
 
 ## Risks / Trade-offs
 

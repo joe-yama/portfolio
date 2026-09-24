@@ -562,9 +562,18 @@ test.describe('経歴ページの要約と資格の束ね', () => {
       await expect(items).toHaveCount(ungroupedCount + 1);
       const groupItems = items.filter({ has: page.locator('details') });
       await expect(groupItems).toHaveCount(1);
+      // 期間とグループ名（件数）は summary の外（li の 1 行目）にある
+      const firstLine = await groupItems.evaluate((li) =>
+        [...li.childNodes]
+          .filter((node) => !(node instanceof Element && node.tagName === 'DETAILS'))
+          .map((node) => node.textContent)
+          .join(''),
+      );
+      expect(firstLine).toContain(period);
+      expect(firstLine).toContain(ui[lang].certGroupCount(groupName, grouped.length));
       const summary = groupItems.locator('summary');
-      await expect(summary).toContainText(period);
-      await expect(summary).toContainText(ui[lang].certGroupCount(groupName, grouped.length));
+      await expect(summary).not.toContainText(period);
+      await expect(summary).not.toContainText(ui[lang].certGroupCount(groupName, grouped.length));
     });
 
     test(`/${lang}/career/ で資格のグループの summary を押すと 12 件が新しい順に見える`, async ({
@@ -583,4 +592,119 @@ test.describe('経歴ページの要約と資格の束ね', () => {
       expect(names).toEqual(groupedDesc.map((c) => c.name));
     });
   }
+
+  // --- 束ねた項目の行の見た目（design D9、PO 指示 2026-09-24） ---
+
+  /**
+   * 資格の区画の直下の li それぞれについて、1 行目（li の本文。details の外）の各行の先頭の
+   * 文字の上端・左端・下端と、li の下端、束ねた項目の summary の box を測る。
+   * 文字の位置は、空白でない文字を 1 文字ずつ Range で囲み、top が変わった文字を行の先頭とする
+   */
+  async function measureCertRows(page: Page, lang: Locale) {
+    return certSection(page, lang)
+      .locator(':scope > ul')
+      .evaluate((ul) => {
+        const lines = (li: Element) => {
+          const result: { top: number; left: number; bottom: number }[] = [];
+          let prevTop = Number.NEGATIVE_INFINITY;
+          const walker = document.createTreeWalker(li, NodeFilter.SHOW_TEXT, {
+            acceptNode: (node) =>
+              node.parentElement?.closest('details')
+                ? NodeFilter.FILTER_REJECT
+                : NodeFilter.FILTER_ACCEPT,
+          });
+          for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+            const text = node.textContent ?? '';
+            for (let i = 0; i < text.length; i++) {
+              if (/\s/.test(text[i] ?? '')) continue;
+              const range = document.createRange();
+              range.setStart(node, i);
+              range.setEnd(node, i + 1);
+              const rect = range.getBoundingClientRect();
+              if (rect.top > prevTop + 1) {
+                result.push({ top: rect.top, left: rect.left, bottom: rect.bottom });
+              }
+              prevTop = Math.max(prevTop, rect.top);
+            }
+          }
+          return result;
+        };
+        return [...ul.children].map((li) => {
+          const summary = li.querySelector(':scope > details > summary');
+          const s = summary?.getBoundingClientRect();
+          return {
+            bottom: li.getBoundingClientRect().bottom,
+            lines: lines(li),
+            summary: s ? { top: s.top, left: s.left, text: summary?.textContent?.trim() } : null,
+          };
+        });
+      });
+  }
+
+  test('1024 幅の /ja/career/ で資格の直下の li の 1 行目の上端の送りがそろう', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await page.goto('./ja/career/');
+    const rows = await measureCertRows(page, 'ja');
+    expect(rows.length).toBeGreaterThan(2);
+    expect(
+      rows.findIndex((row) => row.summary !== null),
+      '束ねた項目が先頭にあると、その前の行との送りを比べられない',
+    ).toBeGreaterThan(0);
+    // 前の li の下端から、次の li の 1 行目の文字の上端までの距離。複数行の li があっても比べられる
+    const gaps = rows
+      .slice(1)
+      .map((row, i) => (row.lines[0]?.top ?? Number.NaN) - (rows[i]?.bottom ?? Number.NaN));
+    const first = gaps[0] ?? Number.NaN;
+    for (const [i, gap] of gaps.entries()) {
+      expect(
+        Math.abs(gap - first),
+        `${i + 2} 番目の li の 1 行目の上端の送り ${gap} が先頭の送り ${first} とそろわない（${gaps.join(', ')}）`,
+      ).toBeLessThanOrEqual(1);
+    }
+  });
+
+  for (const lang of locales) {
+    const groupedCount = parseCertifications(careerYaml(lang)).filter(
+      (c) => c.group !== undefined,
+    ).length;
+
+    test(`1024 幅の /${lang}/career/ で束ねた項目の summary は 1 行目の下にあり、左端が日付の左端とそろう`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1024, height: 768 });
+      await page.goto(`./${lang}/career/`);
+      const group = (await measureCertRows(page, lang)).find((row) => row.summary !== null);
+      if (!group?.summary) throw new Error('束ねた項目が無い');
+      const line1 = group.lines[0];
+      if (!line1) throw new Error('束ねた項目の 1 行目の文字が無い');
+      const lastLine = group.lines[group.lines.length - 1] ?? line1;
+      expect(
+        group.summary.top,
+        `summary の上端 ${group.summary.top} が 1 行目の下端 ${lastLine.bottom} より上にある`,
+      ).toBeGreaterThanOrEqual(lastLine.bottom - 1);
+      expect(
+        Math.abs(group.summary.left - line1.left),
+        `summary の左端 ${group.summary.left} が 1 行目の文字の左端 ${line1.left} とそろわない`,
+      ).toBeLessThanOrEqual(1);
+      expect(group.summary.text).toBe(ui[lang].showAllCerts(groupedCount));
+    });
+  }
+
+  test('390 幅の /en/career/ で束ねた項目の 1 行目が折り返したとき、2 行目の左端が 1 行目の文字の左端とそろう', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('./en/career/');
+    const group = (await measureCertRows(page, 'en')).find((row) => row.summary !== null);
+    const lines = group?.lines ?? [];
+    // 折り返していないと 2 行目を比べられない（データが短くなったのに緑、を防ぐ）
+    expect(lines.length, '1 行目が 390 幅で折り返していない').toBeGreaterThanOrEqual(2);
+    const [line1, line2] = lines;
+    expect(
+      Math.abs((line2?.left ?? Number.NaN) - (line1?.left ?? Number.NaN)),
+      `2 行目の左端 ${line2?.left} が 1 行目の文字の左端 ${line1?.left} とそろわない`,
+    ).toBeLessThanOrEqual(1);
+  });
 });

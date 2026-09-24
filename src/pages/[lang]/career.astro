@@ -31,6 +31,7 @@ const experience = sortExperience(career.experience);
 const skillEntries = Object.entries(career.skills);
 const certEntries = groupCertifications(sortByDateDesc(career.certifications));
 const certGroupCount = ui[lang].certGroupCount;
+const showAllCerts = ui[lang].showAllCerts;
 const achievements = sortByDateDesc(career.achievements);
 const patents = sortPatents(career.patents);
 const { head: patentsHead, rest: patentsRest } = splitPatents(patents);
@@ -91,12 +92,11 @@ const { head: patentsHead, rest: patentsRest } = splitPatents(patents);
               </li>
             ) : (
               <li>
+                <span class="muted">{formatGroupPeriod(entry.items, lang)}</span>
+                {' · '}
+                {certGroupCount(entry.name, entry.items.length)}
                 <details>
-                  <summary>
-                    <span class="muted">{formatGroupPeriod(entry.items, lang)}</span>
-                    {' · '}
-                    {certGroupCount(entry.name, entry.items.length)}
-                  </summary>
+                  <summary>{showAllCerts(entry.items.length)}</summary>
                   <ul>
                     {entry.items.map((item) => (
                       <li>
