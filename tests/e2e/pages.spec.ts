@@ -646,8 +646,10 @@ test.describe('経歴ページの要約と資格の束ね', () => {
         return [...ul.children].map((li) => {
           const summary = li.querySelector(':scope > details > summary');
           const s = summary?.getBoundingClientRect();
+          const r = li.getBoundingClientRect();
           return {
-            bottom: li.getBoundingClientRect().bottom,
+            top: r.top,
+            bottom: r.bottom,
             lines: lines(li),
             summary: s ? { top: s.top, left: s.left, text: summary?.textContent?.trim() } : null,
           };
@@ -705,6 +707,26 @@ test.describe('経歴ページの要約と資格の束ね', () => {
       expect(group.summary.text).toBe(ui[lang].showAllCerts(groupedCount));
     });
   }
+
+  test('1024 幅の /ja/career/ で束ねた項目の 1 行目から summary までの送りが、普通の行どうしの送りと同じ', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await page.goto('./ja/career/');
+    const rows = await measureCertRows(page, 'ja');
+    const groupIndex = rows.findIndex((row) => row.summary !== null);
+    const group = rows[groupIndex];
+    const previous = rows[groupIndex - 1];
+    if (!group?.summary || !previous) throw new Error('束ねた項目か、その前の行が無い');
+    // 前の行（1 行の普通の資格）の上端から束ねた項目の上端までが、普通の行どうしの送り
+    expect(previous.lines, '前の行が 1 行でないと送りの基準にならない').toHaveLength(1);
+    const pitch = group.top - previous.top;
+    const toSummary = group.summary.top - group.top;
+    expect(
+      Math.abs(toSummary - pitch),
+      `1 行目の上端から summary の上端まで ${toSummary} が普通の行どうしの送り ${pitch} と違う`,
+    ).toBeLessThanOrEqual(1);
+  });
 
   test('390 幅の /en/career/ で束ねた項目の 1 行目が折り返したとき、2 行目の左端が 1 行目の文字の左端とそろう', async ({
     page,

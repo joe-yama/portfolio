@@ -172,4 +172,8 @@ const { head: patentsHead, rest: patentsRest } = splitPatents(patents);
   details {
     margin-top: 0.5rem;
   }
+  /* 束ねた資格の details は 1 行目の次の行に続けて置く（特許の details は section の直下なので対象外） */
+  li > details {
+    margin-top: 0;
+  }
 </style>
