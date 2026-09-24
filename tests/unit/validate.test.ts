@@ -193,6 +193,14 @@ describe('validateCareerParity', () => {
     ]);
   });
 
+  it('資格の件数が ja のほうが多いときも group の突き合わせまで進まない', () => {
+    // en > ja の向きでは、ガードを外しても ja の長さ分しか比べないので緑のまま。逆向きで塞ぐ
+    const ja: Career = { ...base, certifications: [...base.certifications, cert('2020-07', 'X')] };
+    expect(validateCareerParity(ja, base)).toEqual([
+      'certifications の件数が日英で違う（ja: 2, en: 1）',
+    ]);
+  });
+
   it('experience / certifications / achievements の件数差を個別に報告する', () => {
     const en: Career = {
       ...base,

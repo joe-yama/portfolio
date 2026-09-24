@@ -73,7 +73,10 @@ function formatMonth(value: string, lang: Locale): string {
   }).format(new Date(year, month - 1, 1));
 }
 
-/** career/{lang}.yaml の highlights: の各行（`  - ` の後ろ）を記述順に取り出す */
+/** 前後の " を外す（YAML のクォートを使った値のため） */
+const unquote = (value: string) => value.replace(/^"(.*)"$/, '$1');
+
+/** career/{lang}.yaml の highlights: の各行（`  - ` の後ろ。前後の " は外す）を記述順に取り出す */
 function parseHighlights(yamlPath: string): string[] {
   const text = readFileSync(yamlPath, 'utf8');
   const highlights: string[] = [];
@@ -86,19 +89,18 @@ function parseHighlights(yamlPath: string): string[] {
     }
     if (!inHighlights) continue;
     const itemMatch = line.match(/^ {2}- (.+)$/);
-    if (itemMatch) highlights.push(itemMatch[1]);
+    if (itemMatch) highlights.push(unquote(itemMatch[1]));
   }
   return highlights;
 }
 
 type CertSummary = { date: string; name: string; group?: string };
 
-/** 前後の " を外す（YAML のクォートを使った値のため） */
-const unquote = (value: string) => value.replace(/^"(.*)"$/, '$1');
-
 /**
  * certifications: の区画から date / name / group を取り出す。
- * `  - date: "2025-10"` で 1 件が始まり、`    name: ...`（前後の " は外す）と `    group: ...` が続く
+ * `  - date: "2025-10"` で 1 件が始まり、`    name: ...`（前後の " は外す）と `    group: ...` が続く。
+ * 前提: 1 件は必ず `  - date:` の行で始まる（date を各項目の先頭のキーに書く）。`  - name:` で
+ * 始まる項目は区切りとして認識されず、前の項目の name を上書きする
  */
 function parseCertifications(yamlPath: string): CertSummary[] {
   const text = readFileSync(yamlPath, 'utf8');
@@ -157,6 +159,20 @@ const nonFeaturedFile = readdirSync(photosDir)
   .find((name) => !/^featured: true$/m.test(readFileSync(`${photosDir}/${name}`, 'utf8')));
 if (!nonFeaturedFile) throw new Error(`${photosDir} に代表ではない写真が無い`);
 const nonFeaturedSlug = photoIdFromEntry(nonFeaturedFile);
+
+/**
+ * 代表写真（`featured: true` の行を持つ YAML）の alt.en。alt の値は二重引用符で書く前提
+ * （1 行の `{ ja: "…", en: "…" }` でも、複数行に分けた形でも読める）
+ */
+const featuredAltEn = (() => {
+  const file = readdirSync(photosDir)
+    .filter((name) => name.endsWith('.yaml') && !name.startsWith('.'))
+    .find((name) => /^featured: true$/m.test(readFileSync(`${photosDir}/${name}`, 'utf8')));
+  if (!file) throw new Error(`${photosDir} に代表写真が無い`);
+  const match = readFileSync(`${photosDir}/${file}`, 'utf8').match(/^alt:[\s\S]*?\ben: "([^"]*)"/m);
+  if (!match?.[1]) throw new Error(`${file} の alt.en が読めない`);
+  return match[1];
+})();
 
 const patentsByLang: Record<Locale, PatentSummary[]> = {
   ja: parsePatents(careerYaml('ja')),
@@ -293,6 +309,8 @@ test.describe('SNS 共有カード', () => {
     const og = page.locator('meta[property="og:image"]');
     const ogImage = await og.getAttribute('content');
     expect(ogImage).toBeTruthy();
+    // 外部ホストの画像を直接参照してはならない（MUST NOT）ので、オリジンを固定する
+    expect(new URL(ogImage ?? '').origin).toBe('https://joe-yama.github.io');
     expect(ogImage).not.toBe(topImage);
     // 代替テキストはページ本文のその写真の alt と同じ（写真データの alt.ja）
     const alt = await page.locator('figure picture img').getAttribute('alt');
@@ -319,7 +337,8 @@ test.describe('SNS 共有カード', () => {
     await page.goto('./en/');
     const topImage = await page.locator('meta[property="og:image"]').getAttribute('content');
     const topAlt = await page.locator('meta[property="og:image:alt"]').getAttribute('content');
-    // 代替テキストは代表写真の英語の alt（ページ本文の代表写真の alt と同じ）
+    // 代替テキストは代表写真の英語の alt（YAML の alt.en。ページ本文の代表写真の alt とも同じ）
+    expect(topAlt).toBe(featuredAltEn);
     expect(topAlt).toBe(await page.locator('main .hero picture img').getAttribute('alt'));
     for (const path of ['./en/career/', './en/photos/']) {
       await page.goto(path);

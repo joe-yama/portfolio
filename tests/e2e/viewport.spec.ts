@@ -6,8 +6,8 @@ const viewports = [
   { width: 1280, height: 720 },
   { width: 1440, height: 900 },
 ];
-/** トップの初見表示は、横並びの境目（64rem = 1024px）でも確かめる */
-const topViewports = [...viewports, { width: 1024, height: 768 }];
+/** トップの初見表示は、横並びの境目（64rem = 1024px）と、その 1px 下の縦並びでも確かめる */
+const topViewports = [...viewports, { width: 1024, height: 768 }, { width: 1023, height: 768 }];
 /**
  * 縦位置の写真。design.md D2 のプロトタイプ実測もこの写真（1248×1872）を使っている。
  * 縦位置かどうかは YAML に無いので slug の一覧から導けない

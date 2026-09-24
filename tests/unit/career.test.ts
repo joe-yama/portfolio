@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest';
-import type { Patent } from '../../src/content/schemas';
+import { describe, expect, expectTypeOf, it } from 'vitest';
+import type { Career, Patent } from '../../src/content/schemas';
 import {
+  type CertificationEntry,
   formatDate,
   formatGroupPeriod,
   formatMonth,
@@ -259,7 +260,11 @@ describe('groupCertifications', () => {
 });
 
 describe('formatGroupPeriod', () => {
-  const items = [{ date: '2025-10' }, { date: '2025-09' }, { date: '2025-04' }];
+  const items: [{ date: string }, ...{ date: string }[]] = [
+    { date: '2025-10' },
+    { date: '2025-09' },
+    { date: '2025-04' },
+  ];
 
   it('ja は 古い – 新しい', () => {
     expect(formatGroupPeriod(items, 'ja')).toBe('2025年4月 – 2025年10月');
@@ -271,5 +276,19 @@ describe('formatGroupPeriod', () => {
 
   it('同じ月だけのグループは 1 つだけ出し、– を含まない', () => {
     expect(formatGroupPeriod([{ date: '2025-10' }, { date: '2025-10' }], 'ja')).toBe('2025年10月');
+  });
+
+  it('空の配列は型で受け付けない（8.5(e)。pnpm typecheck が見る）', () => {
+    // @ts-expect-error 空でない配列だけを受ける
+    expect(() => formatGroupPeriod([], 'ja')).toThrow();
+  });
+});
+
+describe('CertificationEntry', () => {
+  it('group の items は空でない配列の型（8.5(e)。pnpm typecheck が見る）', () => {
+    type Certification = Career['certifications'][number];
+    expectTypeOf<Extract<CertificationEntry, { kind: 'group' }>['items']>().toEqualTypeOf<
+      [Certification, ...Certification[]]
+    >();
   });
 });

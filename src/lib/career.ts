@@ -89,9 +89,12 @@ export function formatDate(date: string, lang: Locale): string {
 
 type Certification = Career['certifications'][number];
 
+/** 空でない配列。まとめた資格は必ず 1 件以上ある */
+type NonEmpty<T> = [T, ...T[]];
+
 export type CertificationEntry =
   | { kind: 'single'; item: Certification }
-  | { kind: 'group'; name: string; items: Certification[] };
+  | { kind: 'group'; name: string; items: NonEmpty<Certification> };
 
 /**
  * 同じ group の資格を 1 項目にまとめる（design D3）。入力は sortByDateDesc 済みなので、
@@ -99,7 +102,7 @@ export type CertificationEntry =
  */
 export function groupCertifications(sorted: Certification[]): CertificationEntry[] {
   const entries: CertificationEntry[] = [];
-  const groups = new Map<string, Certification[]>();
+  const groups = new Map<string, NonEmpty<Certification>>();
   for (const item of sorted) {
     if (item.group === undefined) {
       entries.push({ kind: 'single', item });
@@ -109,7 +112,7 @@ export function groupCertifications(sorted: Certification[]): CertificationEntry
     if (items) {
       items.push(item);
     } else {
-      const created = [item];
+      const created: NonEmpty<Certification> = [item];
       groups.set(item.group, created);
       entries.push({ kind: 'group', name: item.group, items: created });
     }
@@ -118,7 +121,7 @@ export function groupCertifications(sorted: Certification[]): CertificationEntry
 }
 
 /** まとめた資格の期間。items は新しい順。ja: `2025年4月 – 2025年10月`、同じ表記なら 1 つだけ */
-export function formatGroupPeriod(items: { date: string }[], lang: Locale): string {
+export function formatGroupPeriod(items: NonEmpty<{ date: string }>, lang: Locale): string {
   const newest = formatDate(items[0].date, lang);
   const oldest = formatDate(items[items.length - 1].date, lang);
   return oldest === newest ? newest : `${oldest} – ${newest}`;
