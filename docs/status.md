@@ -6,7 +6,7 @@
 
 **v1 公開済み**（2026-09-21）。change `language-switch-toggle`（Issue #62、PR #63）をマージ・アーカイブ済み（2026-09-25）。**進行中の change は無い。**
 
-2026-09-23 から implementer も Opus で動かす（PO 指示、PR #44。`.claude/rules/review.md`）。
+2026-09-23 から implementer も Opus で動かす（PO 指示、PR #44。2026-09-25 からは harness:implementer / harness:reviewer）。
 
 ## 公開先（PO 決定 2026-09-21）
 
