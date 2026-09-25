@@ -10,13 +10,23 @@ permissions:
   contents: read
 
 jobs:
+  # The job name `check` is the required status check of the ruleset
+  # (docs/harness/ruleset.json). Renaming it blocks every merge.
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6 # package.json の packageManager を読む
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Context budget (AGENTS.md + CLAUDE.md + .claude/rules <= 16000 bytes)
+        run: |
+          bytes=$(cat AGENTS.md CLAUDE.md .claude/rules/*.md | wc -c)
+          echo "context bytes: $bytes"
+          test "$bytes" -le 16000
+      # The first change adds the stack's setup, lint, typecheck, test and build steps here.
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0 (reads packageManager in package.json)
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .node-version
           cache: pnpm
