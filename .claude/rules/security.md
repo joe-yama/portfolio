@@ -1,20 +1,9 @@
-# セキュリティのルール
+# Security rules
 
-`.env` と `~/.ssh` / `~/.aws` / `~/.gnupg` / `~/.config/op` へのアクセス、`curl | sh` 形式の実行は permissions と hook がブロックする（`docs/harness/hooks.md`）。ここに書くのは hook が守れないこと。
+Hooks and permissions block `.env` files, credential directories (`~/.ssh`, `~/.aws`, `~/.gnupg`, `~/.config/op`, `~/.config/gh`) and `curl | sh`. These rules cover what hooks cannot.
 
-## 秘密情報
-
-- API キー・トークン・パスワード・接続文字列は環境変数から読む。コード・テスト・ドキュメントにハードコードしない。
-- 共有が必要な変数名は `.env.example` に値なしで記載する（`.env.*` の deny が効くため、作成・更新は PO が行う）。
-- ログや会話に秘密情報を出力しない。エラーメッセージに含まれていたら伏せて報告する。
-
-## 外部送信
-
-- ソースコード・仕様・ユーザーデータをリポジトリ外の第三者サービスに送らない。
-- 許可される外部通信: パッケージレジストリ（npm / PyPI）、GitHub、公式ドキュメントの取得。
-- それ以外の外部 API 呼び出しは、用途と送信内容を PO に説明して承認を得る。
-
-## 依存関係
-
-- 新しい依存を追加するときは、用途・ライセンス・メンテナンス状況を 1 行ずつ添えて PO に提示する。
-- インストールは公式レジストリからのみ。`pnpm install` は `--frozen-lockfile` 付きだけが自動で、lockfile を変える install は PO の確認に回る。
+- API keys, tokens, passwords and connection strings come from environment variables. Never hard-code them in code, tests or docs.
+- Shared variable names go in `.env.example` without values; the PO creates and updates it.
+- Never print secrets in logs or the conversation. If an error message contains one, redact it in the report.
+- Do not send source code, specs or user data to third-party services. Allowed outbound traffic: package registries, GitHub, official documentation. Any other external API needs the PO's approval after explaining what is sent and why.
+- Every new dependency is presented to the PO with one line each on purpose, license and maintenance status. Install only from official registries. Only lockfile-preserving installs run automatically; anything that changes the lockfile goes to the PO.

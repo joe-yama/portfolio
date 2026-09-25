@@ -1,10 +1,8 @@
-# テストのルール
+# Testing rules
 
-- テストなしのコミットは禁止。実装コードの変更には対応するテストの追加・更新を必ず含める。
-- RED → GREEN → REFACTOR の順を守る。先に失敗するテストを書き、失敗を確認してから実装する。
-- テストが失敗した状態で「完了」と報告しない。テスト結果は実行コマンドと出力を添えて示す。
-- **テストの削除・skip・期待値の書き換えでテストを通すことは禁止。** 仕様が変わった場合は OpenSpec の spec を先に更新する。
-- 番人を書いたら、変異を当てて落ちることを確かめる（`docs/harness/lessons.md`）。
-- レビュー / QA は実装したコンテキストと別のサブエージェントが行う。UI は reviewer 自身が Playwright MCP で HTTP の URL を操作して確認する（`.claude/rules/review.md`）。
-
-テストコマンドは `CLAUDE.md`「技術スタックとコマンド」、hook が何を自動実行するかは `docs/harness/hooks.md`。
+- No commit of implementation code without the matching new or updated tests.
+- Red → green → refactor: write the failing test first, watch it fail for the expected reason, then implement.
+- Never make tests pass by deleting, skipping or weakening them. If the specified behavior changes, update the OpenSpec spec first.
+- Never report "done" with a failing test. Show the command and its output.
+- A test written to guard a behavior must be proven with a mutation check (break the behavior, watch the test fail) — `harness:mutation-check`.
+- Review and QA are done by a subagent with a context separate from the implementer's. UI is checked by the reviewer driving the running app over HTTP.

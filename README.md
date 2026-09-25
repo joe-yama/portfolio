@@ -6,9 +6,9 @@ Claude Code を Agent、人間を PO とする開発ハーネス上で進める�
 ## ドキュメント
 
 - `docs/HANDOFF.md` — ハーネス構築の引き継ぎと標準ワークフロー
-- `docs/harness/` — 導入したハーネス部品の記録（README / hooks）
+- `docs/harness/` — 導入したハーネス部品の記録（README / lessons / ruleset）
 - `openspec/` — 仕様・変更提案（OpenSpec）
-- `CLAUDE.md` — Agent 向けの運用ルール
+- `AGENTS.md` — Agent 向けの運用ルール（`CLAUDE.md` は Claude Code 固有分）
 
 ## ライセンス
 

@@ -1,12 +1,16 @@
-# secrets
 .env
 .env.*
 !.env.example
+.claude/settings.local.json
+.claude/worktrees/
+.playwright-mcp/
+.superpowers/
+.DS_Store
+
+# portfolio: dependencies / build / tooling
 *.pem
 *.key
 secrets/
-
-# dependencies / build
 node_modules/
 dist/
 build/
@@ -14,19 +18,8 @@ coverage/
 .venv/
 __pycache__/
 .astro/
-
-# tooling
-.DS_Store
 *.log
 npm-debug.log*
-.playwright-mcp/
 test-results/
 playwright-report/
-
-# Claude Code local-only settings
-.claude/settings.local.json
-
-# Agent の作業用（git 管理外）
-.claude/worktrees/
 .worktrees/
-.superpowers/

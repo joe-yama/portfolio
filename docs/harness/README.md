@@ -1,5 +1,7 @@
 # ハーネス構築の記録
 
+2026-09-25 から、ハーネスは配布版 agentic-harness に移した（ブランチ fix/adopt-agentic-harness、設計 docs/superpowers/specs/2026-09-25-adopt-agentic-harness-design.md）。§2 と §6 以降は移行前の実測記録。
+
 - 構築日: 2026-09-17
 - 実施者: Claude Code（Fable 5.1）。手順は `docs/HANDOFF.md` セクション 3
 - 環境: macOS (Darwin 25.5.0), Node v26.8.2, npm 11.19.1, git 2.55.0
@@ -8,17 +10,18 @@
 
 | 層 | 部品 | バージョン | 導入場所 / 方法 |
 |---|---|---|---|
-| 実行規律 | Superpowers | 6.3.0（`superpowers@claude-plugins-official`） | ユーザースコープのプラグイン。公式マーケットプレイス経由で既に導入済みだったため再導入なし |
+| 実行規律 | Superpowers | 6.4.1（`superpowers@claude-plugins-official`。導入時 2026-09-17 は 6.3.0） | `harness@agentic-harness` の依存として、プロジェクトの `.claude/settings.json` の `enabledPlugins` で有効。ユーザースコープのプラグインとしても入っている |
 | 仕様・変更管理 | OpenSpec CLI | 1.13.1（`@fission-ai/openspec`） | `npm install -g` → `openspec init --tools claude --language ja`。`openspec/` と `/opsx:*` コマンド 6 個を生成 |
 | 仕様・変更管理 | OpenSpec スキル 6 個 | v1.13.1 にピン留め（`Fission-AI/OpenSpec` の `skills/`） | PO 指示により `gh skill install Fission-AI/OpenSpec skills/<name> --agent claude-code --scope project --pin v1.13.1` で導入（init 生成物を置き換え）。`gh skill list` で管理 |
-| UI 検証 | Playwright MCP | @playwright/mcp 0.0.81（Playwright 1.64.0-alpha-2026-09-14）。`.mcp.json` は `@latest` 指定なので実行時のバージョンは変動する（2026-09-20 時点の実体は 0.0.82） | `.mcp.json`（プロジェクトスコープ）。`--headless --isolated --output-dir .playwright-mcp` |
+| UI 検証 | Playwright MCP | @playwright/mcp 0.0.82（`.mcp.json` で固定。2026-09-25 までは `@latest` 指定で、導入時の実体は 0.0.81 / Playwright 1.64.0-alpha-2026-09-14） | `.mcp.json`（プロジェクトスコープ）。`--headless --isolated --output-dir .playwright-mcp` |
 | ブラウザ | Chromium | build 1228（`~/Library/Caches/ms-playwright`） | 既存のキャッシュを利用。追加インストールなし |
-| 運用ルール | CLAUDE.md + `.claude/rules/` | — | rules 5 ファイル（testing / git / security / scope / review） |
-| 強制 | Hooks | — | `.claude/settings.json` + `.claude/hooks/*.sh`。詳細は `hooks.md` |
-| 強制 | コンテキスト予算の番人 | — | `tests/unit/context-budget.test.ts`（2026-09-22 追加）。`CLAUDE.md` + `.claude/rules/*.md` の合計を **20,000 B** に制限する。`pnpm test` に乗るので Stop hook と CI（required check `check`）の両方で効く。上限を上げるときは理由をコミットメッセージに残す |
+| 配布版ハーネス | agentic-harness | v0.2.0（`.copier-answers.yml` と `.claude/settings.json` の `extraKnownMarketplaces` で固定） | Copier テンプレート（AGENTS.md・CLAUDE.md・`.claude/rules/`・settings・CI・Dependabot・PR テンプレート）+ プロジェクトスコープのプラグイン `harness@agentic-harness`。更新は `harness:adopt`「Updating」 |
+| 運用ルール | AGENTS.md + CLAUDE.md + `.claude/rules/` | — | テンプレート本文（英語）+ 末尾の「Portfolio specifics」（日本語）。rules は 4 ファイル（git / scope / security / testing）。レビューの手順は `harness:review-loop` |
+| 強制 | Hooks | — | プラグインの `guard` / `ask-gate` / `lint-on-edit` / `test-on-stop`。`HARNESS_LINT_CMD` / `HARNESS_TEST_CMD` を `.claude/settings.json` の `env` から読む。挙動は agentic-harness の README |
+| 強制 | コンテキスト予算の番人 | — | CI の job `check` の手順。`AGENTS.md` + `CLAUDE.md` + `.claude/rules/*.md` の合計を **16,000 B** に制限する（2026-09-22〜09-25 は `tests/unit/context-budget.test.ts` で 20,000 B） |
 | 権限・隔離 | permissions + sandbox | — | `.claude/settings.json`（下記「4. 権限設定」） |
 | 作業記憶（任意） | Beads | 未導入 | PO 判断待ち（HANDOFF 6.） |
-| 役割別サブエージェント | `.claude/agents/implementer.md`（Opus。2026-09-23 に Sonnet から変更）、`.claude/agents/reviewer.md`（Opus） | — | 2026-09-17 PO 指示。実装と別コンテキストで敵対的 + ponytail 観点のレビュー。モデルと実装の立て直し条件は `.claude/rules/review.md` |
+| 役割別サブエージェント | `harness:implementer`、`harness:reviewer`（どちらも Opus） | — | プラグインが提供。dispatch は `model: "opus"` を明示する |
 
 ### openspec/ の構成
 
@@ -36,6 +39,7 @@ Claude Code 向けコマンド（デフォルトプロファイル）: `/opsx:ex
 `openspec update` を実行すると CLI が同じディレクトリを init 版で上書きし、`gh skill` のメタデータ（`github-*`）が消えて `gh skill list` の出所が `-` に戻る。
 CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `openspec update`（コマンド更新）→ `gh skill install ... --pin v<ver> --force`（スキル再導入）」の順に行う。
 拡張プロファイルのスキル（`openspec-new-change`, `openspec-continue-change`, `openspec-ff-change`, `openspec-verify-change`, `openspec-bulk-archive-change`, `openspec-onboard`）も同じリポジトリの `skills/` から個別に導入できる。
+superpowers のスキルはプロジェクトに置かず、プラグインの依存 superpowers@claude-plugins-official から使う。
 
 ## 2. 動作確認結果
 
@@ -59,36 +63,37 @@ CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `ope
 - **npm グローバル**: `/opt/homebrew` と `~/.npm/_cacache` は書き込み不可。npm は「root 所有ファイル」と誤報するが実際はサンドボックス起因（所有者は全て joe）
 - **git 署名**: `commit.gpgsign=true` + 1Password `op-ssh-sign`。エージェントソケットへの接続がサンドボックスで拒否されるため、`git commit` は単体コマンド（`excludedCommands` 対象）として実行するか、サンドボックス外で行う
 - **Playwright MCP**: `file:` プロトコル不可。スクリーンショットは `filename` を渡すとサーバーの cwd 基準で保存される（`--output-dir` は自動命名時のみ）。UI 検証は `pnpm build && pnpm preview` で HTTP 配信する（`http://127.0.0.1:4321/`。停止は `pnpm exec astro preview stop`）。preview の疎通確認は `curl`（ask 対象）ではなく `browser_navigate` で行う
-- **gh の複数アカウント**: `gh auth status` には github.com の joe-yama と職場アカウント、および社内 GitHub Enterprise が登録されている。2026-09-17 時点で有効だったのは職場アカウントで、joe-yama のトークンは失効していた（PO が `gh auth login -h github.com -w` で再認証し `gh auth switch -h github.com -u joe-yama` で切り替え済み）。Agent は `gh` で書き込む前に `gh api user --jq .login` を確認する（`.claude/rules/git.md`）
-- **サブエージェントへの MCP ツールの受け渡し**（2026-09-20、change `harness-ui-review` で実測）: `.claude/agents/*.md` の `tools:` に `mcp__<server>__<tool>` を列挙すれば MCP ツールはサブエージェントに渡る。ただし **agent 定義の変更は実行中のセッションには反映されない**。同一セッションで編集して dispatch すると、セッション開始時の定義で起動し `No such tool available: mcp__playwright__browser_navigate` になる（Change 2 の失敗の原因はこれ）。定義を変えたらセッションを開き直す。検証は 4 回の dispatch で行った: 同一セッション ❌ 2 回 / 新しいセッション（`claude -p`）✅ 2 回（1 回目は `browser_navigate` だけを列挙した試験、2 回目は 11 個の最終形で navigate / snapshot / evaluate / emulate_media / console_messages を実呼び出しし、ヘッダー 4 リンクの href とダーク時の body 背景色を取得）。内訳は Issue #6 の 1.2 と 3.1。公式ドキュメント（code.claude.com/docs/en/sub-agents）によれば `tools:` を省略すると MCP 込みで全継承になる（これは未実測）。reviewer には MCP ツールを 11 個だけ列挙する方針で、列挙の実体は `.claude/agents/reviewer.md` の `tools:` を正とする。なお `tools:` に書いても渡らないツールがある。`claude -p` で起こしたセッションの `Glob` / `Grep` がそうで（`Glob is not available in this session` と返る）、セッションの構成しだいで使えるツールは変わる。`.mcp.json` は `@playwright/mcp@latest` を指しているので、`reviewer.md` に列挙したツール名は上流のリネームで使えなくなることがある。reviewer が `No such tool available` を報告したら、まず `@playwright/mcp` の README で現行のツール名を確認する
+- **gh の複数アカウント**: `gh auth status` には github.com の joe-yama と職場アカウント、および社内 GitHub Enterprise が登録されている。2026-09-17 時点で有効だったのは職場アカウントで、joe-yama のトークンは失効していた（PO が `gh auth login -h github.com -w` で再認証し `gh auth switch -h github.com -u joe-yama` で切り替え済み）。Agent は `gh` で書き込む前に `gh api user --jq .login` を確認する（`AGENTS.md`「Pitfalls」）
+- **サブエージェントへの MCP ツールの受け渡し**（2026-09-20、change `harness-ui-review` で実測）: `.claude/agents/*.md` の `tools:` に `mcp__<server>__<tool>` を列挙すれば MCP ツールはサブエージェントに渡る。ただし **agent 定義の変更は実行中のセッションには反映されない**。同一セッションで編集して dispatch すると、セッション開始時の定義で起動し `No such tool available: mcp__playwright__browser_navigate` になる（Change 2 の失敗の原因はこれ）。定義を変えたらセッションを開き直す。検証は 4 回の dispatch で行った: 同一セッション ❌ 2 回 / 新しいセッション（`claude -p`）✅ 2 回（1 回目は `browser_navigate` だけを列挙した試験、2 回目は 11 個の最終形で navigate / snapshot / evaluate / emulate_media / console_messages を実呼び出しし、ヘッダー 4 リンクの href とダーク時の body 背景色を取得）。内訳は Issue #6 の 1.2 と 3.1。公式ドキュメント（code.claude.com/docs/en/sub-agents）によれば `tools:` を省略すると MCP 込みで全継承になる（これは未実測）。reviewer には MCP ツールを 11 個だけ列挙する方針で、列挙の実体は `harness:reviewer`（プラグインの `agents/reviewer.md`）の `tools:` を正とする。なお `tools:` に書いても渡らないツールがある。`claude -p` で起こしたセッションの `Glob` / `Grep` がそうで（`Glob is not available in this session` と返る）、セッションの構成しだいで使えるツールは変わる。`.mcp.json` は `@playwright/mcp@0.0.82` に固定しているので、版を上げると `reviewer.md` に列挙したツール名が上流のリネームで使えなくなることがある。reviewer が `No such tool available` を報告したら、まず `@playwright/mcp` の README で現行のツール名を確認する
 - **Playwright MCP の保存先**: `browser_run_code_unsafe` で（Change 2 の実測。`browser_take_screenshot` も同じ挙動と見られる）相対パスを指定すると、worktree で作業していてもファイルは**メインリポジトリの root** に落ちる。保存先は絶対パスで指定する
 - **worktree セッションの Bash ガード**: `EnterWorktree` で worktree に分離されたセッションでは、**git を含むコマンドのうち「worktree の中に留まると検証できない形」が拒否される**。2026-09-20 の実測: `for f in a b; do echo $f; done; git log --oneline -1 | sed -n '1p'` は `This session is isolated in the worktree ..., but this command names git in a form too complex to verify that it stays inside the worktree. Refusing to run it` で拒否。一方 `git status --short && echo ok`、`git log --oneline -1 | cat`、git を含まない `for` ループ、`sed ... && grep ...` は通った。Change 2 では `sed ... && git ...` と git という語を含む heredoc が拒否されている。同じ worktree を cwd とするサブエージェントのセッションには、この制限はかからない（レビュアーが同じ形を実行できた）。迷ったら git は 1 コマンドずつ実行する
-- **`.claude/` 配下の書き分け**: `.claude/agents/` `.claude/rules/` と `CLAUDE.md` は Write / Edit ツールで編集できる。`.claude/settings.json` と `.claude/hooks/` は auto mode の分類器が拒否する（§4 の注意）。サンドボックス内の Bash からはさらに `.claude/skills/` と `.mcp.json` も書き込めない
+- **`.claude/` 配下の書き分け**: `.claude/rules/` と `CLAUDE.md` は Write / Edit ツールで編集できる。`.claude/settings.json` は auto mode の分類器が拒否する（§4 の注意）。サンドボックス内の Bash からはさらに `.claude/skills/` と `.mcp.json` も書き込めない
 - **コミット署名の現状**: このマシンでは `.claude/settings.local.json` がサンドボックスを無効にしているため、1Password SSH 署名付きの `git commit` はそのまま通る（2026-09-20 確認）。サンドボックスを戻すときは §5 の未検証項目を先に確かめる
 
-## 4. 権限設定（PO 承認 2026-09-20）
+## 4. 権限設定（PO 承認 2026-09-20、agentic-harness への移行 2026-09-25）
 
 方針: HANDOFF 3-8 の既定「読み取り・テスト実行は自動、push・削除・外部通信は確認」から始め、2026-09-20 に承認プロンプトの実測（§6）をもとに「個人リポジトリの feature / fix ブランチへの push、Issue / PR の作成とコメント、lockfile 固定の install、worktree の後片付け」を自動にした。
 ルールは deny → ask → allow の順で評価され、出所も具体性も順序を変えない（公式 permissions）。ユーザー全体の `~/.claude/settings.json` の `ask` はプロジェクトの `allow` に勝つので、プロジェクトで自動化する操作はユーザー設定の `ask` から外し、「個人リポジトリ以外は確認」の判定はユーザー設定の hook（`~/.claude/permission-gate.sh`）が担う。hook は締める方向（ask / deny）にしか効かない。
 
 | 区分 | 内容 |
 |---|---|
-| allow（自動） | Read / Glob / Grep、読み取り系 git（status, log, diff, show, branch, worktree list）、`git add` / `git commit` / **`git push`** / **`git worktree remove`**、`pnpm test` / `pnpm lint|typecheck|build|preview|e2e`、`pnpm exec biome` / `pnpm exec playwright test`、**`pnpm install --frozen-lockfile`**、`gh api user`、`gh issue list|view|**create**|comment`、**`gh pr create`**、`gh release view|list`、`openspec`、Playwright MCP の全ツール |
-| deny（禁止） | `.env` / `.env.*` の Read と Edit、`~/.ssh` `~/.aws` `~/.gnupg` `~/.config/op` の Read、`git push --force` 系、`git reset --hard`、`git clean`、`sudo` |
-| ask（毎回確認） | `rm`、`curl` / `wget`、`gh pr merge`、`gh repo create`、`gh issue close|edit`、`gh release create|upload|delete-asset`、`pnpm add` / `pnpm publish` |
-| hook で ask（`.claude/hooks/ask-gate.sh`） | main への push、リモートブランチの削除、`--all` / `--mirror`、`git worktree remove --force`、`--frozen-lockfile` の無い `pnpm install` |
+| allow（自動） | Read / Glob / Grep、読み取り系 git（status, log, diff, show, branch, worktree list）と `git fetch`、`git add` / `git commit` / **`git push`** / **`git worktree remove`**、`pnpm test` / `pnpm lint|typecheck|build|preview|e2e`（`pnpm run` の同形も）、`pnpm exec biome` / `pnpm exec playwright test`、**`pnpm install --frozen-lockfile`**、`gh api user --jq .login`、`gh issue list|view|**create**|comment`、**`gh pr create`**、`gh pr view|checks`、`gh run list|view|watch`、`gh release view|list`、`openspec`、Playwright MCP の全ツール |
+| deny（禁止） | `.env` / `.env.*` の Read と Edit（`.env.example` は例外）、`~/.ssh` `~/.aws` `~/.gnupg` `~/.config/op` `~/.config/gh` の Read、`git push --force` 系、`git reset --hard`、`git clean`、`sudo` |
+| ask（毎回確認） | `rm`、`curl` / `wget`、`gh pr merge`、`gh repo create|delete`、`gh issue close|edit`、`gh release create|upload|delete-asset`、`gh workflow run`、`pnpm publish` |
+| hook で ask（プラグインの ask-gate） | main への push、リモートブランチの削除、`--all` / `--mirror`、`git worktree remove --force`、lockfile を変える install（pnpm / npm / yarn / bun / uv / pip / cargo） |
 | hook で ask（`~/.claude/permission-gate.sh`、ユーザー設定） | origin が joe-yama 配下でないリポジトリでの `git push`。`gh issue create|comment` / `gh pr create` で、対象リポジトリ（`--repo` か origin）が joe-yama 配下でない、または `gh api user` の login が joe-yama でないとき |
-| env | `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` を空にして agent teams を無効化する（サブエージェントは Agent ツールの通常サブエージェントとして動く。teammate の完了通知が 1 通ごとにコントローラーのターンになっていたため。§6）。`MCP_TIMEOUT` はユーザー設定と同値を再掲（プロジェクトの `env` がユーザーの `env` を丸ごと置き換える場合に備える） |
-| sandbox | 設定上は有効（`autoAllowBashIfSandboxed`、`excludedCommands: git, gh`、Google Fonts を含む許可ドメイン、`allowLocalBinding`）だが、このマシンでは `.claude/settings.local.json`（gitignore 済み）が無効化している。有効に戻したときの動作は**未検証**: 1Password 署名（`git` は sandbox 外で動く想定）、ビルド時の Google Fonts 取得、Playwright MCP |
+| env | `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS: "0"` で agent teams を無効化する（サブエージェントは Agent ツールの通常サブエージェントとして動く。teammate の完了通知が 1 通ごとにコントローラーのターンになっていたため。§6）。`HARNESS_*`（`HARNESS_PROTECTED_BRANCHES` / `HARNESS_LINT_CMD` / `HARNESS_TEST_CMD`）はプラグインの hook が読む。`MCP_TIMEOUT` はユーザー設定と同値を再掲（プロジェクトの `env` がユーザーの `env` を丸ごと置き換える場合に備える） |
+| sandbox | 設定上は有効（`autoAllowBashIfSandboxed`、`excludedCommands: git, git *, gh, gh *`、`filesystem.denyRead`（`~/.ssh` `~/.aws` `~/.gnupg` `~/.config/op` `~/.config/gh`）、Google Fonts を含む許可ドメイン、`allowLocalBinding`）だが、このマシンでは `.claude/settings.local.json`（gitignore 済み）が無効化している。有効に戻したときの動作は**未検証**: 1Password 署名（`git` は sandbox 外で動く想定）、ビルド時の Google Fonts 取得、Playwright MCP |
 | MCP | `.mcp.json` の `playwright` を自動承認（`enabledMcpjsonServers`） |
 
 ユーザー設定側で 2026-09-20 に `ask` から外したもの: `Bash(git push:*)`、`Bash(gh pr create:*)`、`Bash(gh issue create:*)`、`Bash(gh issue comment:*)`（バックアップは `~/.claude/settings.json.bak-autonomy-*`、hook のバックアップは `~/.claude/permission-gate.sh.bak-autonomy-*`）。職場リポジトリでは hook が origin と login を見て確認に回すので、従来どおりプロンプトが出る。
 
 注意:
 
-- `.env.*` の deny は `.env.example` にも当たる（ユーザー設定側の既存ルール）。`.env.example` の作成・更新は PO が手で行うか、ルールを `Read(.env.local)` 等の列挙に変える
-- `.claude/settings.json` と `.claude/hooks/` への Write は auto mode の分類器が「Self-Modification」として拒否する（2026-09-20 実測。プロンプトではなく拒否）。Agent は完成版を scratchpad に置き、PO が `!` の `cp` で配置するか、manual mode に切り替えて承認する
+- プロジェクトの deny には 2026-09-25 から `.env.example` の例外（`Read(!.env.example)` / `Edit(!.env.example)`）が入った。ユーザー設定側の `.env.*` の deny は変わらず `.env.example` にも当たるので、`.env.example` の作成・更新は PO が手で行う（`.claude/rules/security.md`）
+- `.claude/settings.json` への Write は auto mode の分類器が「Self-Modification」として拒否する（2026-09-20 実測。プロンプトではなく拒否）。Agent は完成版を scratchpad に置き、PO が `!` の `cp` で配置するか、manual mode に切り替えて承認する
 - 無人実行は `claude -p --permission-mode auto --permission-prompts none --max-turns N`（プロンプトになる操作は拒否して進む）。sandbox を戻す場合は上の未検証 3 点を先に確かめる
+- GitHub 上の ruleset の実物の名前は `main` で、`docs/harness/ruleset.json` の `"name": "default-branch"` とは違う。このファイルで貼り直すと 2 つ目の ruleset ができる
 
 ### bypass permissions での無人実行の実測（2026-09-21、v1 リリース）
 
@@ -116,6 +121,7 @@ CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `ope
 4. OpenSpec プロファイルをデフォルト（core）にした。拡張ワークフロー（`/opsx:ff` 等）が必要になったら追加
 5. 技術スタック導入時のハーネス更新は change `project-foundation` で実施済み（2026-09-18）: testing.md のコマンド節（2026-09-22 に CLAUDE.md へ統合）、hooks の `detect_lint()` → `pnpm exec biome check --error-on-warnings --no-errors-on-unmatched <file>`、`detect_test()` → `pnpm test`、CLAUDE.md のコマンド表
 6. agent teams 無効化（`env`）が次のセッションで効いているか: `ListAgents` の表示が Teammates ではなく Subagents になり、`~/.claude/projects/.../<session>/subagents/*.meta.json` の `taskKind` が `in_process_teammate` でなければ効いている
+7. `.claude/settings.json` の整形がテンプレートの出力と食い違っている: `claude plugin install --scope project` が Claude Code の書き出し形式（2 スペース、キーの並べ替え、依存の superpowers を `enabledPlugins` に追加）で書き直した（コミット 47bfa76、PO 決定 2026-09-25）。テンプレート側は agentic-harness v0.2.1 で直す。次の `copier update` では settings.json の衝突を解く
 
 ## 6. 承認プロンプトとターン数の実測（2026-09-20）
 
