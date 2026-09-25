@@ -1,8 +1,8 @@
-# スコープのルール
+# Scope rules
 
-- 実装するのは OpenSpec の change（`openspec/changes/<name>/`）にある `tasks.md` の項目だけ。
-- spec に書かれていない機能・オプション・「あると便利」な改善は追加しない。気づいたら tasks の末尾や PO への報告に「提案」として書く。
-- スコープを変えたい場合は実装ではなく `/opsx:propose` で新しい change を起こし、PO の承認を得る。
-- 実装中に spec の矛盾や不足を見つけたら、勝手に解釈せず PO に質問する（ブロッカー扱い）。
-- brainstorming と proposal の承認前にアプリケーションコードを書かない。
-- 既存コードのリファクタリングは、対象 change のタスクに含まれる範囲に限る。
+- Implement only the items in the change's `tasks.md` (`openspec/changes/<name>/`).
+- No features, options or "nice to have" improvements the spec does not ask for. Write them under "Proposals" at the end of `tasks.md` or in the report to the PO.
+- Scope changes go through a new `/opsx:propose`, not through implementation.
+- A contradiction or gap in the spec found during implementation: rule by the spec where one reading is clearly intended and record the ruling; where every reading is a guess, it is a blocker — ask the PO.
+- No application code before the design and the proposal are approved.
+- Refactor existing code only within what the change's tasks cover.

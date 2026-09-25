@@ -1,0 +1,13 @@
+# Changes here will be overwritten by Copier; do not edit manually.
+_commit: harness--v0.2.0
+_src_path: gh:joe-yama/agentic-harness
+default_branch: main
+github_owner: joe-yama
+lint_cmd: pnpm exec biome check --error-on-warnings --no-errors-on-unmatched
+lint_pattern: ''
+project_name: portfolio
+project_summary: 'The PO''s personal business-card site for recruiters: a career and
+    photo portfolio in Japanese and English, with a minimal, photo-first design.'
+test_cmd: pnpm test
+ui_review: true
+work_language: ja

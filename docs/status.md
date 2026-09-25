@@ -66,3 +66,15 @@
 ## 未決事項
 
 `docs/HANDOFF.md` §6 と `docs/harness/README.md` §5。影響する時点で PO に確認する。
+
+## Harness versions
+
+`harness:adopt` が埋め、ハーネスを更新するたびに直す。
+
+| Component | Version |
+|---|---|
+| agentic-harness | |
+| Superpowers | |
+| OpenSpec CLI / skills | |
+| Claude Code | |
+| adopt §8 の確認 | |
