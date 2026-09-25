@@ -37,7 +37,7 @@
 
 - [x] 4.1 RED: `tests/e2e/links.spec.ts` の本文の導線の test を、`/ja/` と `/en/` で本文の導線（`main nav.links`）の直下の要素が Photos → Career の 2 つだけで、`[hreflang]` と `[role="group"]` が 0 件であることを確かめる形に直す。Photos と Career のアイコン（図柄の完全一致）と、連絡先リンクより上にあることの検査は残す。2.2 の検査（本文のまとまりへの `expectLangSwitch` と境界線なし）はこの検査に置き換える。失敗を確認する
 - [x] 4.2 GREEN: `src/pages/[lang]/index.astro` から言語切り替えのマークアップ・`.lang-switch` の CSS・`languageSwitch` の import と呼び出しを消す。`pnpm e2e` で 4.1 と、トップの横並び・初見表示・a11y の検査が緑になることを確かめる
-- [ ] 4.3 変異を当てて 4.1 が落ちることを確かめる（隔離実行）: (a) 本文に言語切り替えのまとまりを戻す、(b) 本文に相手の言語へのリンク（`a[hreflang]`）だけを戻す
+- [x] 4.3 変異を当てて 4.1 が落ちることを確かめる（隔離実行）: (a) 本文に言語切り替えのまとまりを戻す、(b) 本文に相手の言語へのリンク（`a[hreflang]`）だけを戻す
 - [ ] 4.4 `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` をすべて実行し、コマンドと出力を報告に添える
 
 ## 提案（本 change のスコープ外・後続への申し送り）
