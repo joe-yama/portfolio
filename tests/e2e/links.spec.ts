@@ -314,41 +314,35 @@ for (const lang of ['ja', 'en'] as const) {
 
     const nav = page.locator('main nav.links');
     const contactLinks = page.locator('main ul.links li a');
-    await expect(nav.locator('a')).toHaveCount(3);
+    await expect(nav.locator('a')).toHaveCount(2);
     await expect(contactLinks).toHaveCount(2);
 
     const navTop = await nav.evaluate((el) => el.getBoundingClientRect().top);
     const contactTop = await contactLinks.first().evaluate((el) => el.getBoundingClientRect().top);
     expect(navTop).toBeLessThan(contactTop);
 
-    // 並びは Photos → Career → 言語切り替え
+    // 並びは Photos → Career の 2 つだけ。言語切り替えはヘッダーにだけ置く（PO 決定 2026-09-25）
     const order = await nav
       .locator(':scope > *')
-      .evaluateAll((els) => els.map((el) => el.getAttribute('role') ?? el.getAttribute('href')));
-    expect(order).toEqual([`${base}${lang}/photos/`, `${base}${lang}/career/`, 'group']);
-
-    for (const locator of [
-      nav.locator(navIconTable[0].selector),
-      nav.locator(navIconTable[1].selector),
-      contactLinks,
-    ]) {
-      const count = await locator.count();
-      for (let i = 0; i < count; i++) {
-        const svg = locator.nth(i).locator('svg[aria-hidden="true"]');
-        await expect(svg).toHaveCount(1);
-        await expect(svg).toHaveAttribute('viewBox', '0 0 16 16');
-      }
-    }
+      .evaluateAll((els) => els.map((el) => el.getAttribute('href')));
+    expect(order).toEqual([`${base}${lang}/photos/`, `${base}${lang}/career/`]);
+    await expect(nav.locator('[hreflang]')).toHaveCount(0);
+    await expect(nav.locator('[role="group"]')).toHaveCount(0);
 
     for (const { name, selector, grid } of navIconTable) {
       const link = nav.locator(selector);
       await expect(link, name).toHaveCount(1);
+      const svg = link.locator('svg[aria-hidden="true"]');
+      await expect(svg, name).toHaveCount(1);
+      await expect(svg, name).toHaveAttribute('viewBox', '0 0 16 16');
       expect(await rectCells(link), name).toEqual(cells(grid));
     }
 
-    const group = await expectLangSwitch(nav, `${lang}/`);
-    await expect(group.locator(':scope > svg')).toHaveAttribute('viewBox', '0 0 16 16');
-    expect(await borderLeft(group)).toBe(0);
+    for (const link of await contactLinks.all()) {
+      const svg = link.locator('svg[aria-hidden="true"]');
+      await expect(svg).toHaveCount(1);
+      await expect(svg).toHaveAttribute('viewBox', '0 0 16 16');
+    }
 
     const githubLink = contactLinks.filter({ hasText: 'GitHub' });
     const linkedinLink = contactLinks.filter({ hasText: 'LinkedIn' });
