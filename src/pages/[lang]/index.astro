@@ -5,7 +5,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getFeaturedPhoto, getProfile } from '../../lib/content';
 import { locales, toLocale } from '../../lib/i18n';
 import { camera, github, linkedin } from '../../lib/pixel';
-import { languageSwitch, navLinks, ui } from '../../lib/site';
+import { navLinks, ui } from '../../lib/site';
 
 /** 連絡先リンクの kind に対応するドット絵。github/linkedin 以外は spec 通りアイコンなし */
 const contactIcons: Partial<Record<string, readonly string[]>> = { github, linkedin };
@@ -17,7 +17,6 @@ export function getStaticPaths() {
 const lang = toLocale(Astro.params.lang);
 const base = import.meta.env.BASE_URL;
 const profile = await getProfile(lang);
-const sw = languageSwitch(Astro.url.pathname, lang, base);
 const featured = await getFeaturedPhoto();
 // 64rem 以上は横並びの列の幅（本文の左右の余白 2rem と列の間 2rem を引いた幅の 3/5。design D8）
 const heroSizes = '(min-width: 64rem) calc((100vw - 4rem) * 0.6), calc(100vw - 2rem)';
@@ -40,10 +39,6 @@ const heroSizes = '(min-width: 64rem) calc((100vw - 4rem) * 0.6), calc(100vw - 2
             {link.label}
           </a>
         ))}
-        <a href={sw.href} hreflang={sw.hreflang} lang={sw.hreflang}>
-          <PixelArt rows={sw.icon} scale={1} />
-          {sw.label}
-        </a>
       </nav>
 
       <ul class="links">
