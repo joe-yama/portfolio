@@ -7,8 +7,3 @@ Hooks and permissions block `.env` files, credential directories (`~/.ssh`, `~/.
 - Never print secrets in logs or the conversation. If an error message contains one, redact it in the report.
 - Do not send source code, specs or user data to third-party services. Allowed outbound traffic: package registries, GitHub, official documentation. Any other external API needs the PO's approval after explaining what is sent and why.
 - Every new dependency is presented to the PO with one line each on purpose, license and maintenance status. Install only from official registries. Only lockfile-preserving installs run automatically; anything that changes the lockfile goes to the PO.
-
-## Portfolio specifics（portfolio 固有）
-
-- `.env.example` は `.env.*` の deny の例外だが、ユーザー設定側の deny が当たるので作成・更新は PO が行う
-- `pnpm install` は `--frozen-lockfile` 付きだけが自動。lockfile を変える install（`pnpm add` を含む）は ask-gate が PO の確認に回す

@@ -23,5 +23,4 @@
 
 ## Portfolio specifics（portfolio 固有）
 
-- メッセージは日本語。署名は 1Password SSH をそのまま使う
-- ハーネス（`.claude/`、`docs/harness/`、AGENTS.md、CLAUDE.md）とドキュメントだけの変更は、change と Issue を作らず `fix/<説明>` ブランチの PR で行う（PR #8 の前例）
+- 署名は 1Password SSH をそのまま使う

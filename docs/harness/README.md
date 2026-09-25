@@ -10,7 +10,7 @@
 
 | 層 | 部品 | バージョン | 導入場所 / 方法 |
 |---|---|---|---|
-| 実行規律 | Superpowers | 6.3.0（`superpowers@claude-plugins-official`） | ユーザースコープのプラグイン。公式マーケットプレイス経由で既に導入済みだったため再導入なし |
+| 実行規律 | Superpowers | 6.4.1（`superpowers@claude-plugins-official`。導入時 2026-09-17 は 6.3.0） | `harness@agentic-harness` の依存として、プロジェクトの `.claude/settings.json` の `enabledPlugins` で有効。ユーザースコープのプラグインとしても入っている |
 | 仕様・変更管理 | OpenSpec CLI | 1.13.1（`@fission-ai/openspec`） | `npm install -g` → `openspec init --tools claude --language ja`。`openspec/` と `/opsx:*` コマンド 6 個を生成 |
 | 仕様・変更管理 | OpenSpec スキル 6 個 | v1.13.1 にピン留め（`Fission-AI/OpenSpec` の `skills/`） | PO 指示により `gh skill install Fission-AI/OpenSpec skills/<name> --agent claude-code --scope project --pin v1.13.1` で導入（init 生成物を置き換え）。`gh skill list` で管理 |
 | UI 検証 | Playwright MCP | @playwright/mcp 0.0.82（`.mcp.json` で固定。2026-09-25 までは `@latest` 指定で、導入時の実体は 0.0.81 / Playwright 1.64.0-alpha-2026-09-14） | `.mcp.json`（プロジェクトスコープ）。`--headless --isolated --output-dir .playwright-mcp` |
@@ -70,7 +70,7 @@ superpowers のスキルはプロジェクトに置かず、プラグインの�
 - **`.claude/` 配下の書き分け**: `.claude/rules/` と `CLAUDE.md` は Write / Edit ツールで編集できる。`.claude/settings.json` は auto mode の分類器が拒否する（§4 の注意）。サンドボックス内の Bash からはさらに `.claude/skills/` と `.mcp.json` も書き込めない
 - **コミット署名の現状**: このマシンでは `.claude/settings.local.json` がサンドボックスを無効にしているため、1Password SSH 署名付きの `git commit` はそのまま通る（2026-09-20 確認）。サンドボックスを戻すときは §5 の未検証項目を先に確かめる
 
-## 4. 権限設定（PO 承認 2026-09-20）
+## 4. 権限設定（PO 承認 2026-09-20、agentic-harness への移行 2026-09-25）
 
 方針: HANDOFF 3-8 の既定「読み取り・テスト実行は自動、push・削除・外部通信は確認」から始め、2026-09-20 に承認プロンプトの実測（§6）をもとに「個人リポジトリの feature / fix ブランチへの push、Issue / PR の作成とコメント、lockfile 固定の install、worktree の後片付け」を自動にした。
 ルールは deny → ask → allow の順で評価され、出所も具体性も順序を変えない（公式 permissions）。ユーザー全体の `~/.claude/settings.json` の `ask` はプロジェクトの `allow` に勝つので、プロジェクトで自動化する操作はユーザー設定の `ask` から外し、「個人リポジトリ以外は確認」の判定はユーザー設定の hook（`~/.claude/permission-gate.sh`）が担う。hook は締める方向（ask / deny）にしか効かない。
@@ -93,6 +93,7 @@ superpowers のスキルはプロジェクトに置かず、プラグインの�
 - プロジェクトの deny には 2026-09-25 から `.env.example` の例外（`Read(!.env.example)` / `Edit(!.env.example)`）が入った。ユーザー設定側の `.env.*` の deny は変わらず `.env.example` にも当たるので、`.env.example` の作成・更新は PO が手で行う（`.claude/rules/security.md`）
 - `.claude/settings.json` への Write は auto mode の分類器が「Self-Modification」として拒否する（2026-09-20 実測。プロンプトではなく拒否）。Agent は完成版を scratchpad に置き、PO が `!` の `cp` で配置するか、manual mode に切り替えて承認する
 - 無人実行は `claude -p --permission-mode auto --permission-prompts none --max-turns N`（プロンプトになる操作は拒否して進む）。sandbox を戻す場合は上の未検証 3 点を先に確かめる
+- GitHub 上の ruleset の実物の名前は `main` で、`docs/harness/ruleset.json` の `"name": "default-branch"` とは違う。このファイルで貼り直すと 2 つ目の ruleset ができる
 
 ### bypass permissions での無人実行の実測（2026-09-21、v1 リリース）
 
@@ -120,6 +121,7 @@ superpowers のスキルはプロジェクトに置かず、プラグインの�
 4. OpenSpec プロファイルをデフォルト（core）にした。拡張ワークフロー（`/opsx:ff` 等）が必要になったら追加
 5. 技術スタック導入時のハーネス更新は change `project-foundation` で実施済み（2026-09-18）: testing.md のコマンド節（2026-09-22 に CLAUDE.md へ統合）、hooks の `detect_lint()` → `pnpm exec biome check --error-on-warnings --no-errors-on-unmatched <file>`、`detect_test()` → `pnpm test`、CLAUDE.md のコマンド表
 6. agent teams 無効化（`env`）が次のセッションで効いているか: `ListAgents` の表示が Teammates ではなく Subagents になり、`~/.claude/projects/.../<session>/subagents/*.meta.json` の `taskKind` が `in_process_teammate` でなければ効いている
+7. `.claude/settings.json` の整形がテンプレートの出力と食い違っている: `claude plugin install --scope project` が Claude Code の書き出し形式（2 スペース、キーの並べ替え、依存の superpowers を `enabledPlugins` に追加）で書き直した（コミット 47bfa76、PO 決定 2026-09-25）。テンプレート側は agentic-harness v0.2.1 で直す。次の `copier update` では settings.json の衝突を解く
 
 ## 6. 承認プロンプトとターン数の実測（2026-09-20）
 
