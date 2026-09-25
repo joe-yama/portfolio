@@ -1,10 +1,10 @@
 # 現在の状態
 
-最終更新: 2026-09-25（change `recruiter-and-photo-polish` のマージとアーカイブ時点）。`CLAUDE.md` の索引から参照される。
+最終更新: 2026-09-25（change `language-switch-toggle` のマージとアーカイブ時点）。`CLAUDE.md` の索引から参照される。
 
 ## フェーズ
 
-**v1 公開済み**（2026-09-21）。change `recruiter-and-photo-polish`（Issue #60、PR #61）をマージ・アーカイブ済み（2026-09-25）。**進行中の change は無い。**
+**v1 公開済み**（2026-09-21）。change `language-switch-toggle`（Issue #62、PR #63）をマージ・アーカイブ済み（2026-09-25）。**進行中の change は無い。**
 
 2026-09-23 から implementer も Opus で動かす（PO 指示、PR #44。`.claude/rules/review.md`）。
 
@@ -25,9 +25,9 @@
 - **経歴の一部文言・スキルを更新**（2026-09-22、`fix-misc`）。experience 先頭項目の role から「（全社横断）」を削除、bullets を「…開発標準活動を立ち上げリーディング」に変更。skills「クラウド」に「プラットフォームエンジニアリング」追加、「プログラミング言語」を `[Python, Java, Scala, C++, TypeScript]` に置き換え（SQL を除外）、新カテゴリ「言語」（英語を第一言語とするチームのリーディング）を追加。特許の区画見出しを「特許」→「代表的な特許」に変更（区画の構成・折りたたみの挙動は変更なし）
 - **AWS 認定資格 12 件へのバッジロゴ表示は一度実装したが、PO の判断（見た目が良くない）で取り消した**（2026-09-22、`fix-misc`）。詳細と再挑戦時の考慮点は `openspec/changes/archive/2026-09-22-fix-misc/tasks.md` の「提案」
 - **特許の `url` は必須**（2026-09-23、`followup-minors`）。欠けていたり、同じ言語の中で公報番号が重複したりするとビルドが落ちる。`url` のパスに `number` が区切りとして入っていない（別の公報を指す）ときもビルドが落ちる（2026-09-23、`followup-minors-3`）。特許の見出しはすべてリンクになる（全 65 件が元から `url` を持っていたので見た目は変わらない）
-- **ヘッダーの Photos / Career / 言語切り替えにトップ本文と同じドット絵**（2026-09-23、`header-nav-icons`）。幅 30rem（480px）未満ではヘッダーのアイコンを隠し、ヘッダーを 1 行に保つ（PO 決定。アイコンを付けたままだと 390〜443px でヘッダーが 2 行になる）。アイコンは `navLinks()` / `languageSwitch()` のデータが持ち、トップとヘッダーが同じ対応を使う。1 行のときロゴとナビの文字のベースラインは 0.5px 以内にそろう（PO 決定。`followup-minors-3` で 1.9px のずれを直した）
+- **ヘッダーの Photos / Career / 言語切り替えにトップ本文と同じドット絵**（2026-09-23、`header-nav-icons`）。幅 30rem（480px）未満ではヘッダーのアイコンを隠し、ヘッダーを 1 行に保つ（PO 決定。アイコンを付けたままだと 390〜443px でヘッダーが 2 行になる）。アイコンは `navLinks()` / `languageSwitch()` のデータが持ち、Photos / Career はトップとヘッダーが同じ対応を使う（言語切り替えは 2026-09-25 からヘッダーだけ）。1 行のときロゴとナビの文字のベースラインは 0.5px 以内にそろう（PO 決定。`followup-minors-3` で 1.9px のずれを直した）
 - トップページのドット絵のうち鞄（Career）と地球儀（言語切り替え）を描き直し、アイコン取り違えの番人を座標の完全一致に強化（2026-09-23、`icon-refresh`）
-- トップページ本文最下部を「サイト内導線（Photos/Career/言語切り替え） → 連絡先リンク（GitHub/LinkedIn）」の順に入れ替え、5 リンクにドット絵アイコンを追加（2026-09-22、`fix-misc`。`profile-and-career` spec 改定済み）
+- トップページ本文最下部を「サイト内導線 → 連絡先リンク（GitHub/LinkedIn）」の順に入れ替え、各リンクにドット絵アイコンを追加（2026-09-22、`fix-misc`。`profile-and-career` spec 改定済み）。本文の導線は 2026-09-25 から Photos / Career の 2 つだけ（`language-switch-toggle`）
 - **経歴のスキルに「コーヒー」を追加**（2026-09-23、PR #42）。スキル表の最終行に `コーヒー: [ハンドドリップ, モカポット, たいてい1日に5杯]` / `Coffee: [Hand drip, Moka pot, Usually five cups a day]` を置き、トップの肩書 "Builder, photographer, coffee lover" のコーヒーを経歴ページで回収した
 
 - **経歴ページの冒頭に要約 4 行**（2026-09-24、`recruiter-and-photo-polish`）。`career` の必須項目 `highlights`（1〜4 件）を `Career` 見出しの直下に見出しなしで出す。日英で件数が違うとビルドが落ちる。文言は YAML に手で書く
@@ -35,6 +35,7 @@
 - **幅 64rem（1024px）以上のトップは写真を左・文字を右の横並び**（同）。トップだけ本文の幅の上限（80rem）を外し、写真の左端はヘッダーのロゴにそろう（PO 決定）。写真は 1280×720 で約 730×486px、1920×1080 で約 1114×742px。代表写真の `sizes` は列の幅に合わせてある。64rem 未満は従来の縦並びのまま
 - **写真の個別ページの共有カードはその写真から作る**（同）。ほかのページは代表写真
 - **トップの「仕事の一行」（headline）は実装したが PO の判断で取り下げた**（同）。description と共有カードの説明は `tagline` のまま
+- **ヘッダーの言語切り替えは `JA / EN` のまとまり**（2026-09-25、`language-switch-toggle`）。並びはどのページでも `JA / EN` で、表示中の言語は太字でリンクにせず `aria-current="true"`、相手の言語だけが同じページの他言語版へのリンク（PO 決定 2026-09-24）。まとまりは `role="group"` で名前は「言語」/「Language」、先頭に地球儀を 1 つ、Career とのあいだに縦の区切り線。**トップ本文の導線には言語切り替えを置かない**（Photos / Career と同列だとページへの導線に見えるため。PO 決定 2026-09-25）。390px のヘッダーの余裕は 3.81px で、名前が 1 文字増えると 2 行になる
 
 編集時の細則は `docs/content-authoring.md`。
 
@@ -52,13 +53,15 @@
 
 1. 写真の追加・差し替え
 2. 独自ドメインへの移行（設計書 §9 の手順で `base` の削除が必要）
-3. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件、Change 10 の 35 件超、Change 11 の 19 件（20 件のうち隔離実行の手順の件は 2026-09-23 に対応済み）、`icon-refresh` の 3 件（各 `openspec/changes/archive/*/tasks.md` の末尾）。**Change 7〜11 の分は `followup-minors` で仕分け・対応済みで、束に入れなかったもの（新機能・PO 判断・写真表示まわり）が残る**。`followup-minors` 自身の申し送り（Minor・ponytail 約 25 件）は `openspec/changes/archive/2026-09-23-followup-minors/tasks.md` の末尾。`header-nav-icons` の申し送り 7 件と `followup-minors-2` の申し送り 20 件は `followup-minors-3` で仕分け・対応済み（対応しなかった件は `openspec/changes/archive/2026-09-23-followup-minors-3/proposal.md` の「含めない」）。`followup-minors-3` 自身の申し送り約 20 件（配信 CSS でメディアクエリが範囲構文に書き換わり design D2 の古い Safari 対策が効かない件の PO 判断、ベースラインの測り方の -0.112px の偏り、pid が取れず失敗したとき preview がポート 4399 に残る、ほか）は `openspec/changes/archive/2026-09-23-followup-minors-3/tasks.md` の「提案」。`recruiter-and-photo-polish` の申し送りは見た目の PO 判断 2 件（2560 幅でトップの右列の右に約 750px の空白、高さの上限が効く画面で写真と文字の間が約 78px）で、`openspec/changes/archive/2026-09-24-recruiter-and-photo-polish/tasks.md` の「提案」
+3. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件、Change 10 の 35 件超、Change 11 の 19 件（20 件のうち隔離実行の手順の件は 2026-09-23 に対応済み）、`icon-refresh` の 3 件（各 `openspec/changes/archive/*/tasks.md` の末尾）。**Change 7〜11 の分は `followup-minors` で仕分け・対応済みで、束に入れなかったもの（新機能・PO 判断・写真表示まわり）が残る**。`followup-minors` 自身の申し送り（Minor・ponytail 約 25 件）は `openspec/changes/archive/2026-09-23-followup-minors/tasks.md` の末尾。`header-nav-icons` の申し送り 7 件と `followup-minors-2` の申し送り 20 件は `followup-minors-3` で仕分け・対応済み（対応しなかった件は `openspec/changes/archive/2026-09-23-followup-minors-3/proposal.md` の「含めない」）。`followup-minors-3` 自身の申し送り約 20 件（配信 CSS でメディアクエリが範囲構文に書き換わり design D2 の古い Safari 対策が効かない件の PO 判断、ベースラインの測り方の -0.112px の偏り、pid が取れず失敗したとき preview がポート 4399 に残る、ほか）は `openspec/changes/archive/2026-09-23-followup-minors-3/tasks.md` の「提案」。`recruiter-and-photo-polish` の申し送りは見た目の PO 判断 2 件（2560 幅でトップの右列の右に約 750px の空白、高さの上限が効く画面で写真と文字の間が約 78px）で、`openspec/changes/archive/2026-09-24-recruiter-and-photo-polish/tasks.md` の「提案」。`language-switch-toggle` の申し送り（Minor 7 件と ponytail 3 件。本文から外したことで解消した 2 件を含む）は `openspec/changes/archive/2026-09-25-language-switch-toggle/tasks.md` の「提案」
 4. Change 4・5 の後続への提案と申し送り（各 `openspec/changes/archive/2026-09-21-*/tasks.md` の末尾）
 5. AWS 認定資格のバッジロゴ表示を再検討する場合は、見せ方（サイズ・配置・ドット絵化するか等）から設計し直す（一度実装し PO の判断で取り消し済み）
 
 ## PO 判断として残っている件
 
 **Change 10**: 写真の差し替え（同じ slug での `pnpm photo:add` 再実行）の実測は、偽の `gh` を使ってコード経路だけ通した。公開 Release の画像は入稿時に EXIF が落ちるため、それを入稿に渡すと差し替え経路へ到達しない。**PO 本人の元画像で 1 回実行すれば、spec の Scenario「差し替え後のビルドで古い版が残らない」まで確かめられる。**
+
+**`language-switch-toggle`**（2026-09-25）: 見た目の 3 件。①表示中の言語の太字は DotGothic16 の擬似太字でほとんど見えない（1280px で 400 と 700 の画素差は約 0.66%）。実際には下線の有無で見分けることになる。②区切り線の左右の余白が 20px / 12px（そろえるには nav の gap を変える）。③390px のヘッダーの余裕は 3.81px。詳細は `openspec/changes/archive/2026-09-25-language-switch-toggle/tasks.md` の「提案」
 
 ## 未決事項
 
