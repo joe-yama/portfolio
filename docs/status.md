@@ -1,6 +1,6 @@
 # 現在の状態
 
-最終更新: 2026-09-25（ブランチ `fix/adopt-agentic-harness` でハーネスを agentic-harness v0.2.0 に移した時点）。`AGENTS.md` の索引から参照される。
+最終更新: 2026-09-25（ブランチ `fix/harness-v0.2.1` でハーネスを agentic-harness v0.2.1 に更新した時点）。`AGENTS.md` の索引から参照される。
 
 ## フェーズ
 
@@ -73,7 +73,7 @@
 
 | Component | Version |
 |---|---|
-| agentic-harness | v0.2.0 |
+| agentic-harness | v0.2.1（2026-09-25 に v0.2.0 から `copier update` と `claude plugin update`） |
 | Superpowers | 6.4.1 |
 | OpenSpec CLI / skills | 1.13.1 / v1.13.1 |
 | Claude Code | 2.1.282 |
