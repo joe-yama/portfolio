@@ -1,6 +1,6 @@
 # 現在の状態
 
-最終更新: 2026-09-25（change `language-switch-toggle` のマージとアーカイブ時点）。`CLAUDE.md` の索引から参照される。
+最終更新: 2026-09-25（ブランチ `fix/adopt-agentic-harness` でハーネスを agentic-harness v0.2.0 に移した時点）。`AGENTS.md` の索引から参照される。
 
 ## フェーズ
 
@@ -73,8 +73,8 @@
 
 | Component | Version |
 |---|---|
-| agentic-harness | |
-| Superpowers | |
-| OpenSpec CLI / skills | |
-| Claude Code | |
-| adopt §8 の確認 | |
+| agentic-harness | v0.2.0 |
+| Superpowers | 6.4.1 |
+| OpenSpec CLI / skills | 1.13.1 / v1.13.1 |
+| Claude Code | 2.1.282 |
+| adopt §8 の確認 | 2026-09-25 PO 実施、5 項目すべて OK（guard が `BLOCKED by harness guard (rm-rf)`、`git push origin main` が ask-gate の確認（拒否）、`/plugin` に harness と superpowers が有効、`/agents` に harness:implementer と harness:reviewer、`gh skill list` に OpenSpec 6 個 v1.13.1 と ponytail 2 個） |
