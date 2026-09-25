@@ -15,7 +15,7 @@
 | 仕様・変更管理 | OpenSpec スキル 6 個 | v1.13.1 にピン留め（`Fission-AI/OpenSpec` の `skills/`） | PO 指示により `gh skill install Fission-AI/OpenSpec skills/<name> --agent claude-code --scope project --pin v1.13.1` で導入（init 生成物を置き換え）。`gh skill list` で管理 |
 | UI 検証 | Playwright MCP | @playwright/mcp 0.0.82（`.mcp.json` で固定。2026-09-25 までは `@latest` 指定で、導入時の実体は 0.0.81 / Playwright 1.64.0-alpha-2026-09-14） | `.mcp.json`（プロジェクトスコープ）。`--headless --isolated --output-dir .playwright-mcp` |
 | ブラウザ | Chromium | build 1228（`~/Library/Caches/ms-playwright`） | 既存のキャッシュを利用。追加インストールなし |
-| 配布版ハーネス | agentic-harness | v0.2.0（`.copier-answers.yml` と `.claude/settings.json` の `extraKnownMarketplaces` で固定） | Copier テンプレート（AGENTS.md・CLAUDE.md・`.claude/rules/`・settings・CI・Dependabot・PR テンプレート）+ プロジェクトスコープのプラグイン `harness@agentic-harness`。更新は `harness:adopt`「Updating」 |
+| 配布版ハーネス | agentic-harness | v0.2.1（2026-09-25 に v0.2.0 から更新。`.copier-answers.yml` と `.claude/settings.json` の `extraKnownMarketplaces` で固定） | Copier テンプレート（AGENTS.md・CLAUDE.md・`.claude/rules/`・settings・CI・Dependabot・PR テンプレート）+ プロジェクトスコープのプラグイン `harness@agentic-harness`。更新は `harness:adopt`「Updating」 |
 | 運用ルール | AGENTS.md + CLAUDE.md + `.claude/rules/` | — | テンプレート本文（英語）+ 末尾の「Portfolio specifics」（日本語）。rules は 4 ファイル（git / scope / security / testing）。レビューの手順は `harness:review-loop` |
 | 強制 | Hooks | — | プラグインの `guard` / `ask-gate` / `lint-on-edit` / `test-on-stop`。`HARNESS_LINT_CMD` / `HARNESS_TEST_CMD` を `.claude/settings.json` の `env` から読む。挙動は agentic-harness の README |
 | 強制 | コンテキスト予算の番人 | — | CI の job `check` の手順。`AGENTS.md` + `CLAUDE.md` + `.claude/rules/*.md` の合計を **16,000 B** に制限する（2026-09-22〜09-25 は `tests/unit/context-budget.test.ts` で 20,000 B） |
@@ -68,6 +68,7 @@ superpowers のスキルはプロジェクトに置かず、プラグインの�
 - **Playwright MCP の保存先**: `browser_run_code_unsafe` で（Change 2 の実測。`browser_take_screenshot` も同じ挙動と見られる）相対パスを指定すると、worktree で作業していてもファイルは**メインリポジトリの root** に落ちる。保存先は絶対パスで指定する
 - **worktree セッションの Bash ガード**: `EnterWorktree` で worktree に分離されたセッションでは、**git を含むコマンドのうち「worktree の中に留まると検証できない形」が拒否される**。2026-09-20 の実測: `for f in a b; do echo $f; done; git log --oneline -1 | sed -n '1p'` は `This session is isolated in the worktree ..., but this command names git in a form too complex to verify that it stays inside the worktree. Refusing to run it` で拒否。一方 `git status --short && echo ok`、`git log --oneline -1 | cat`、git を含まない `for` ループ、`sed ... && grep ...` は通った。Change 2 では `sed ... && git ...` と git という語を含む heredoc が拒否されている。同じ worktree を cwd とするサブエージェントのセッションには、この制限はかからない（レビュアーが同じ形を実行できた）。迷ったら git は 1 コマンドずつ実行する
 - **`.claude/` 配下の書き分け**: `.claude/rules/` と `CLAUDE.md` は Write / Edit ツールで編集できる。`.claude/settings.json` は auto mode の分類器が拒否する（§4 の注意）。サンドボックス内の Bash からはさらに `.claude/skills/` と `.mcp.json` も書き込めない
+- **プラグインのプロジェクトスコープの導入記録**（2026-09-25 実測）: `claude plugin install --scope project` の記録（`~/.claude/plugins/installed_plugins.json`）は実行したディレクトリのパスに付く。portfolio の harness は移行時の worktree（削除済み）のパスで記録されていて、その記録の `installPath` が `cache/agentic-harness/harness/0.2.1` を指す。main でも guard は効いている（ただし guard.sh は 0.2.0 と 0.2.1 で同一なので、どちらの版が読まれているかの証拠にはならない）。marketplace の登録（`~/.claude/plugins/known_marketplaces.json`）はユーザー全体で 1 つで、セッションを起動したチェックアウトの `extraKnownMarketplaces` の `ref` で上書きされる。最後に起動したチェックアウトが勝つので、ref が古いチェックアウト（マージ前の main など）で起動すると登録が古い版に戻る。版を上げるときは、新しい ref のチェックアウトでセッションを起動して登録の ref を確かめてから `claude plugin update harness@agentic-harness --scope project` を実行する
 - **コミット署名の現状**: このマシンでは `.claude/settings.local.json` がサンドボックスを無効にしているため、1Password SSH 署名付きの `git commit` はそのまま通る（2026-09-20 確認）。サンドボックスを戻すときは §5 の未検証項目を先に確かめる
 
 ## 4. 権限設定（PO 承認 2026-09-20、agentic-harness への移行 2026-09-25）
@@ -121,7 +122,7 @@ superpowers のスキルはプロジェクトに置かず、プラグインの�
 4. OpenSpec プロファイルをデフォルト（core）にした。拡張ワークフロー（`/opsx:ff` 等）が必要になったら追加
 5. 技術スタック導入時のハーネス更新は change `project-foundation` で実施済み（2026-09-18）: testing.md のコマンド節（2026-09-22 に CLAUDE.md へ統合）、hooks の `detect_lint()` → `pnpm exec biome check --error-on-warnings --no-errors-on-unmatched <file>`、`detect_test()` → `pnpm test`、CLAUDE.md のコマンド表
 6. agent teams 無効化（`env`）が次のセッションで効いているか: `ListAgents` の表示が Teammates ではなく Subagents になり、`~/.claude/projects/.../<session>/subagents/*.meta.json` の `taskKind` が `in_process_teammate` でなければ効いている
-7. `.claude/settings.json` の整形がテンプレートの出力と食い違っている: `claude plugin install --scope project` が Claude Code の書き出し形式（2 スペース、キーの並べ替え、依存の superpowers を `enabledPlugins` に追加）で書き直した（コミット 47bfa76、PO 決定 2026-09-25）。テンプレート側は agentic-harness v0.2.1 で直す。次の `copier update` では settings.json の衝突を解く
+7. `.claude/settings.json` の整形がテンプレートの出力と食い違っている: `claude plugin install --scope project` が Claude Code の書き出し形式（2 スペース、キーの並べ替え、依存の superpowers を `enabledPlugins` に追加）で書き直した（コミット 47bfa76、PO 決定 2026-09-25）。**2026-09-25 に解消**: agentic-harness v0.2.1 でテンプレートが同じ形式で出力するようになり、`copier update --vcs-ref v0.2.1` の衝突（2 か所）は更新前のファイルに `ref` だけ v0.2.1 にして解いた（テンプレート側の値の変更は superpowers の有効化だけで、47bfa76 で取り込み済みだったため）。版が変わる `claude plugin update`（0.2.0 → 0.2.1）が settings.json を変えないことは portfolio で実測した。install がテンプレートの出力を変えないことは agentic-harness v0.2.1 の CHANGELOG の実測による（portfolio 固有の要素がある状態での install は未実測）
 
 ## 6. 承認プロンプトとターン数の実測（2026-09-20）
 

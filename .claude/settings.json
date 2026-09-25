@@ -101,7 +101,7 @@
       "source": {
         "source": "github",
         "repo": "joe-yama/agentic-harness",
-        "ref": "v0.2.0"
+        "ref": "v0.2.1"
       }
     }
   },
