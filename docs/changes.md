@@ -1,6 +1,6 @@
 # change の履歴
 
-Change 1〜11 と `fix-misc`・`icon-refresh`・`followup-minors`・`header-nav-icons`・`followup-minors-2`・`followup-minors-3` はすべてマージ・アーカイブ済み。**正本は `openspec/changes/archive/<name>/` と GitHub の Issue / PR** で、この表はその索引。経緯・裁定・後続への提案を追うときは、まず下の「経緯の在り処」を見る。
+Change 1〜11 と `fix-misc`・`icon-refresh`・`followup-minors`・`header-nav-icons`・`followup-minors-2`・`followup-minors-3`・`recruiter-and-photo-polish` はすべてマージ・アーカイブ済み。**正本は `openspec/changes/archive/<name>/` と GitHub の Issue / PR** で、この表はその索引。経緯・裁定・後続への提案を追うときは、まず下の「経緯の在り処」を見る。
 
 | # | change | Issue | PR | 日付 | 要点 |
 |---|---|---|---|---|---|
@@ -23,6 +23,7 @@ Change 1〜11 と `fix-misc`・`icon-refresh`・`followup-minors`・`header-nav-
 | 15 | `header-nav-icons` | #51 | #53 | 2026-09-23 | ヘッダーの Photos / Career / 言語切り替えにトップ本文と同じ 16px のドット絵。アイコンは導線のデータ（`navLinks()` / `languageSwitch()`）が持ち `pairByIndex` を削除。**幅 30rem 未満ではヘッダーのアイコンを隠して 1 行を保つ**（実装中の PO 決定）。e2e のアイコン検査を行き先で選ぶ形に（75 → 107 件）。main spec `layout-shell` に delta を統合 |
 | 16 | `followup-minors-2` | #52 | #55 | 2026-09-23 | Change 4〜13 と `followup-minors` の申し送りの束。特許の見出し 4 件（PO 決定）、`.` や大文字を含む写真のファイル名でのビルド失敗（id をファイル名そのものに）、**写真 0 枚はビルド失敗**（PO 決定。spec の食い違いを解消）、入稿コマンドが画像として読めないファイルを 1 行で中断、経歴の検証を 1 回に、theme の色の桁数、番人の穴と挙動不変の整理（e2e 107 → 114 件）。main spec `content-schema` / `photo-pipeline` に delta を統合 |
 | 17 | `followup-minors-3` | #57 | #58 | 2026-09-23 | `header-nav-icons` と `followup-minors-2` の申し送り 27 件の束。**特許の `url` が代表公報を指さなければビルド失敗**（前方一致は不可）、**ヘッダーのロゴとナビの文字のベースラインをそろえる**（PO 決定、1.9px → 0.1px）、アイコンを隠す条件と 479px の検査、ヘッダーのリンクの並びの検査、e2e の cwd 依存と preview の pid、入稿コマンドの login 比較と一時ディレクトリ、番人の穴と挙動不変の整理（e2e 114 → 130 件）。main spec `content-schema` / `layout-shell` に delta を統合 |
+| 18 | `recruiter-and-photo-polish` | #60 | #61 | 2026-09-24 | 採用担当と写真向けの改善。経歴の冒頭に要約 `highlights`、**AWS 認定 12 件を 1 行に束ねて `<details>` で開く**（行の形は PO 決定）、64rem 以上のトップを写真左・文字右の横並びにし**トップだけ本文の幅の上限を外す**（PO 決定）、写真の個別ページの共有カードをその写真から。**仕事の一行（`headline`）は実装後に PO の判断で取り下げ**。レビューの提案 11 件も PO 指示で同じ PR で対応（e2e 130 → 157 件）。main spec `content-schema` / `layout-shell` / `photo-pipeline` / `profile-and-career` に delta を統合 |
 
 ## 経緯の在り処
 
@@ -43,6 +44,7 @@ Change 1〜11 と `fix-misc`・`icon-refresh`・`followup-minors`・`header-nav-
 | 15 | Issue #51 のコメント（実装開始時の裁定 2 件、方針変更、最終レビューの結果） | `openspec/changes/archive/2026-09-23-header-nav-icons/tasks.md` 末尾（7 件） |
 | 16 | Issue #52 のコメント（実装開始時の裁定 2 件、最終レビューの結果）。PR #55 の本文（実装中の裁定） | `openspec/changes/archive/2026-09-23-followup-minors-2/tasks.md` の「提案」（20 件）と変異の記録 |
 | 17 | Issue #57 のコメント（実装開始、最終レビューの結果）。PR #58 の本文（実装中の裁定 3 件） | `openspec/changes/archive/2026-09-23-followup-minors-3/tasks.md` の「提案」と 5.2 の注記 |
+| 18 | Issue #60 のコメント（実装開始時の裁定、方針変更 2 回、最終レビューと追加分のレビューの結果）。PR #61 の本文と `design.md` D5 末尾（実装時の裁定） | `openspec/changes/archive/2026-09-24-recruiter-and-photo-polish/tasks.md` の「提案」（見た目の PO 判断 2 件） |
 
 ## v1 リリース
 
