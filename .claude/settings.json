@@ -1,9 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "",
-    "MCP_TIMEOUT": "120000"
-  },
+  "env": {"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "0", "HARNESS_LINT_CMD": "pnpm exec biome check --error-on-warnings --no-errors-on-unmatched", "HARNESS_PROTECTED_BRANCHES": "main", "HARNESS_TEST_CMD": "pnpm test", "MCP_TIMEOUT": "120000"},
   "permissions": {
     "allow": [
       "Read",
@@ -16,9 +13,21 @@
       "Bash(git branch:*)",
       "Bash(git worktree list:*)",
       "Bash(git worktree remove:*)",
+      "Bash(git fetch:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
+      "Bash(gh api user --jq .login)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue create:*)",
+      "Bash(gh issue comment:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh run watch:*)",
       "Bash(pnpm test:*)",
       "Bash(pnpm lint:*)",
       "Bash(pnpm typecheck:*)",
@@ -34,12 +43,6 @@
       "Bash(pnpm exec biome:*)",
       "Bash(pnpm exec playwright test:*)",
       "Bash(pnpm install --frozen-lockfile:*)",
-      "Bash(gh api user:*)",
-      "Bash(gh issue list:*)",
-      "Bash(gh issue view:*)",
-      "Bash(gh issue create:*)",
-      "Bash(gh issue comment:*)",
-      "Bash(gh pr create:*)",
       "Bash(gh release view:*)",
       "Bash(gh release list:*)",
       "Bash(openspec:*)",
@@ -48,12 +51,15 @@
     "deny": [
       "Read(.env)",
       "Read(.env.*)",
+      "Read(!.env.example)",
       "Edit(.env)",
       "Edit(.env.*)",
+      "Edit(!.env.example)",
       "Read(~/.ssh/**)",
       "Read(~/.aws/**)",
       "Read(~/.gnupg/**)",
       "Read(~/.config/op/**)",
+      "Read(~/.config/gh/**)",
       "Bash(git push --force:*)",
       "Bash(git push -f:*)",
       "Bash(git push --force-with-lease:*)",
@@ -67,90 +73,48 @@
       "Bash(wget:*)",
       "Bash(gh pr merge:*)",
       "Bash(gh repo create:*)",
+      "Bash(gh repo delete:*)",
       "Bash(gh issue close:*)",
       "Bash(gh issue edit:*)",
       "Bash(gh release create:*)",
       "Bash(gh release upload:*)",
       "Bash(gh release delete-asset:*)",
-      "Bash(pnpm add:*)",
+      "Bash(gh workflow run:*)",
       "Bash(pnpm publish:*)"
     ]
   },
-  "enabledMcpjsonServers": ["playwright"],
   "sandbox": {
     "enabled": true,
     "autoAllowBashIfSandboxed": true,
-    "excludedCommands": ["git", "gh"],
+    "excludedCommands": ["git", "git *", "gh", "gh *"],
+    "filesystem": {
+      "denyRead": ["~/.ssh", "~/.aws", "~/.gnupg", "~/.config/op", "~/.config/gh"]
+    },
     "network": {
       "allowedDomains": [
-        "registry.npmjs.org",
         "github.com",
         "api.github.com",
         "codeload.github.com",
-        "raw.githubusercontent.com",
         "objects.githubusercontent.com",
-        "fonts.googleapis.com",
-        "fonts.gstatic.com",
+        "release-assets.githubusercontent.com",
+        "registry.npmjs.org",
         "pypi.org",
-        "files.pythonhosted.org"
+        "files.pythonhosted.org",
+        "crates.io",
+        "static.crates.io",
+        "index.crates.io",
+        "raw.githubusercontent.com",
+        "fonts.googleapis.com",
+        "fonts.gstatic.com"
       ],
       "allowLocalBinding": true
     }
   },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-destructive.sh\"",
-            "timeout": 10,
-            "statusMessage": "破壊的操作をチェック中"
-          },
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/ask-gate.sh\"",
-            "timeout": 10,
-            "statusMessage": "確認が必要な操作をチェック中"
-          }
-        ]
-      },
-      {
-        "matcher": "Read|Edit|Write|MultiEdit|NotebookEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-destructive.sh\"",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/lint-on-edit.sh\"",
-            "timeout": 120,
-            "statusMessage": "lint 実行中"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/test-on-stop.sh\"",
-            "timeout": 600,
-            "statusMessage": "完了前にテスト実行中"
-          }
-        ]
-      }
-    ]
-  }
+  "extraKnownMarketplaces": {
+    "agentic-harness": {
+      "source": { "source": "github", "repo": "joe-yama/agentic-harness", "ref": "v0.2.0" }
+    }
+  },
+  "enabledPlugins": { "harness@agentic-harness": true },
+  "enabledMcpjsonServers": ["playwright"]
 }
