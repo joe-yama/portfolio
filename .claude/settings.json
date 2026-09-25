@@ -1,6 +1,12 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "env": {"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "0", "HARNESS_LINT_CMD": "pnpm exec biome check --error-on-warnings --no-errors-on-unmatched", "HARNESS_PROTECTED_BRANCHES": "main", "HARNESS_TEST_CMD": "pnpm test", "MCP_TIMEOUT": "120000"},
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "0",
+    "HARNESS_LINT_CMD": "pnpm exec biome check --error-on-warnings --no-errors-on-unmatched",
+    "HARNESS_PROTECTED_BRANCHES": "main",
+    "HARNESS_TEST_CMD": "pnpm test",
+    "MCP_TIMEOUT": "120000"
+  },
   "permissions": {
     "allow": [
       "Read",
@@ -83,13 +89,25 @@
       "Bash(pnpm publish:*)"
     ]
   },
+  "enabledMcpjsonServers": [
+    "playwright"
+  ],
+  "enabledPlugins": {
+    "harness@agentic-harness": true,
+    "superpowers@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "agentic-harness": {
+      "source": {
+        "source": "github",
+        "repo": "joe-yama/agentic-harness",
+        "ref": "v0.2.0"
+      }
+    }
+  },
   "sandbox": {
     "enabled": true,
     "autoAllowBashIfSandboxed": true,
-    "excludedCommands": ["git", "git *", "gh", "gh *"],
-    "filesystem": {
-      "denyRead": ["~/.ssh", "~/.aws", "~/.gnupg", "~/.config/op", "~/.config/gh"]
-    },
     "network": {
       "allowedDomains": [
         "github.com",
@@ -108,13 +126,21 @@
         "fonts.gstatic.com"
       ],
       "allowLocalBinding": true
-    }
-  },
-  "extraKnownMarketplaces": {
-    "agentic-harness": {
-      "source": { "source": "github", "repo": "joe-yama/agentic-harness", "ref": "v0.2.0" }
-    }
-  },
-  "enabledPlugins": { "harness@agentic-harness": true },
-  "enabledMcpjsonServers": ["playwright"]
+    },
+    "filesystem": {
+      "denyRead": [
+        "~/.ssh",
+        "~/.aws",
+        "~/.gnupg",
+        "~/.config/op",
+        "~/.config/gh"
+      ]
+    },
+    "excludedCommands": [
+      "git",
+      "git *",
+      "gh",
+      "gh *"
+    ]
+  }
 }
