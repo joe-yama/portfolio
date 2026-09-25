@@ -59,3 +59,8 @@
 - `Header.astro` の `nav a :global(svg)` と `.lang-switch :global(svg)` の `align-self: center` を `nav :global(svg)` 1 つにまとめる
 - `links.spec.ts` の本文の導線の検査で `navIconTable[0]` / `[1]` を手で並べている箇所を `navIconTable.map` にする（4 で解消の見込み。本文の検査を書き直すため）
 - main（#61）の取り込み後、`tests/e2e/viewport.spec.ts` の横並びの検査（`main nav.links a`）は、言語切り替えのまとまりのうち相手の言語のリンクしか測らない（地球儀と表示中の項目は測らない）。同じ行にあるので主張は保たれるが、セレクタに `main nav.links [role="group"]` を足せば元どおりまとまり全体を測れる（4 で解消。本文から言語切り替えが無くなる）
+
+節 4 のレビュー（Approved、Critical / Important 0）の Minor・ponytail。
+- 地球儀の `viewBox 0 0 16 16` の検査は本文の検査（旧 2.2）にしか無かったので、今はどこにも無い（図柄と行の高さの検査は残る）。ヘッダーの `:scope > svg` に 1 行足せば戻る
+- main（#64）の取り込みのマージコミット d1793fd は git の既定メッセージのままで、種別と Co-Authored-By が無い（衝突なし・docs だけ。履歴の書き換えが要るので直さない）
+- ponytail: `expectLangSwitch` の戻り値を使う呼び出し元が無くなった。`Promise<void>` にして `return group` を消す
