@@ -50,7 +50,7 @@ Issue: #70
   - Verify: 次の各変異で対応するテストが落ち、変異なしの対照は緑: (a) `sortProjects` を並べ替えなしにする → `projects.test.ts`、(b) `validateProjects` の `order` 重複の検査を外す → `validate.test.ts`、(c) `navLinks` に Projects を足す → ヘッダーの e2e、(d) `topLinks` から Projects を外す → 本文の導線の e2e、(e) 名前のリンクに `target="_blank"` を付ける → 開発物ページの e2e、(f) 英語ページで `summary.ja` を出す → 開発物ページの e2e、(g) `sitemapEntries` から開発物を外す → `sitemap.test.ts`、(h) `projectIcons` の enum を `z.string()` にする → `schemas.test.ts`
   - Review: batch B
   - Risk: none
-- [ ] 4.2 すべての検証コマンドを実行する
+- [x] 4.2 すべての検証コマンドを実行する
   - Verify: `pnpm lint` / `pnpm typecheck` / `pnpm test` / `pnpm build` / `pnpm e2e` がすべて終了コード 0。コマンドと出力を報告に添える
   - Review: batch B
   - Risk: none
