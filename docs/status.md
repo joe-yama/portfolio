@@ -1,10 +1,10 @@
 # 現在の状態
 
-最終更新: 2026-09-25（ブランチ `fix/harness-v0.2.1` でハーネスを agentic-harness v0.2.1 に更新した時点）。`AGENTS.md` の索引から参照される。
+最終更新: 2026-10-06（change `projects-page` のマージとアーカイブ時点）。`AGENTS.md` の索引から参照される。
 
 ## フェーズ
 
-**v1 公開済み**（2026-09-21）。change `language-switch-toggle`（Issue #62、PR #63）をマージ・アーカイブ済み（2026-09-25）。**進行中の change は無い。**
+**v1 公開済み**（2026-09-21）。change `projects-page`（Issue #70、PR #71）をマージ・アーカイブ済み（2026-10-06）。**進行中の change は無い。**
 
 2026-09-23 から implementer も Opus で動かす（PO 指示、PR #44。2026-09-25 からは harness:implementer / harness:reviewer）。
 
@@ -36,13 +36,14 @@
 - **写真の個別ページの共有カードはその写真から作る**（同）。ほかのページは代表写真
 - **トップの「仕事の一行」（headline）は実装したが PO の判断で取り下げた**（同）。description と共有カードの説明は `tagline` のまま
 - **ヘッダーの言語切り替えは `JA / EN` のまとまり**（2026-09-25、`language-switch-toggle`）。並びはどのページでも `JA / EN` で、表示中の言語は太字でリンクにせず `aria-current="true"`、相手の言語だけが同じページの他言語版へのリンク（PO 決定 2026-09-24）。まとまりは `role="group"` で名前は「言語」/「Language」、先頭に地球儀を 1 つ、Career とのあいだに縦の区切り線。**トップ本文の導線には言語切り替えを置かない**（Photos / Career と同列だとページへの導線に見えるため。PO 決定 2026-09-25）。390px のヘッダーの余裕は 3.81px で、名前が 1 文字増えると 2 行になる
+- **開発物の紹介ページ `/{ja,en}/projects/`**（2026-10-06、`projects-page`）。載っているのは Tomoly（`https://tomoly.app`）1 件で、掲載文は PO 承認済み。開発物は `src/content/projects/<slug>.yaml` に 1 件 1 ファイルで書く（細則は `docs/content-authoring.md` の「開発物」）。**トップ本文の導線は Photos / Career / Projects の 3 つ、ヘッダーは Photos / Career のまま**（PO 決定。ヘッダーに足すと 390px で 2 行になる）。Tomoly のアイコンと Projects の導線の端末のアイコンは Agent 作のドット絵
 
 編集時の細則は `docs/content-authoring.md`。
 
 ## 仕様と設計
 
 - 設計書 `docs/superpowers/specs/2026-09-17-portfolio-site-design.md` を PO 承認・レビュー反映済み（2026-09-17、Change 2 の決定を 2026-09-18 に、公開先の決定を 2026-09-21 に反映）
-- main spec は `openspec/specs/` の 8 つ: `content-schema` / `deployment` / `i18n-routing` / `layout-shell` / `photo-pipeline` / `profile-and-career` / `quality-gates` / `sitemap`
+- main spec は `openspec/specs/` の 9 つ: `content-schema` / `deployment` / `i18n-routing` / `layout-shell` / `photo-pipeline` / `profile-and-career` / `projects` / `quality-gates` / `sitemap`
 - `docs/HANDOFF.md` §3 のセットアップ手順は再実行しない
 
 ## PO の手作業が要る宿題
@@ -53,9 +54,11 @@
 
 1. 写真の追加・差し替え
 2. 独自ドメインへの移行（設計書 §9 の手順で `base` の削除が必要）
-3. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件、Change 10 の 35 件超、Change 11 の 19 件（20 件のうち隔離実行の手順の件は 2026-09-23 に対応済み）、`icon-refresh` の 3 件（各 `openspec/changes/archive/*/tasks.md` の末尾）。**Change 7〜11 の分は `followup-minors` で仕分け・対応済みで、束に入れなかったもの（新機能・PO 判断・写真表示まわり）が残る**。`followup-minors` 自身の申し送り（Minor・ponytail 約 25 件）は `openspec/changes/archive/2026-09-23-followup-minors/tasks.md` の末尾。`header-nav-icons` の申し送り 7 件と `followup-minors-2` の申し送り 20 件は `followup-minors-3` で仕分け・対応済み（対応しなかった件は `openspec/changes/archive/2026-09-23-followup-minors-3/proposal.md` の「含めない」）。`followup-minors-3` 自身の申し送り約 20 件（配信 CSS でメディアクエリが範囲構文に書き換わり design D2 の古い Safari 対策が効かない件の PO 判断、ベースラインの測り方の -0.112px の偏り、pid が取れず失敗したとき preview がポート 4399 に残る、ほか）は `openspec/changes/archive/2026-09-23-followup-minors-3/tasks.md` の「提案」。`recruiter-and-photo-polish` の申し送りは見た目の PO 判断 2 件（2560 幅でトップの右列の右に約 750px の空白、高さの上限が効く画面で写真と文字の間が約 78px）で、`openspec/changes/archive/2026-09-24-recruiter-and-photo-polish/tasks.md` の「提案」。`language-switch-toggle` の申し送り（Minor 7 件と ponytail 3 件。本文から外したことで解消した 2 件を含む）は `openspec/changes/archive/2026-09-25-language-switch-toggle/tasks.md` の「提案」
+3. Change 7 が後続へ回した 14 件、Change 8 の 16 件、Change 9 の 8 件、Change 10 の 35 件超、Change 11 の 19 件（20 件のうち隔離実行の手順の件は 2026-09-23 に対応済み）、`icon-refresh` の 3 件（各 `openspec/changes/archive/*/tasks.md` の末尾）。**Change 7〜11 の分は `followup-minors` で仕分け・対応済みで、束に入れなかったもの（新機能・PO 判断・写真表示まわり）が残る**。`followup-minors` 自身の申し送り（Minor・ponytail 約 25 件）は `openspec/changes/archive/2026-09-23-followup-minors/tasks.md` の末尾。`header-nav-icons` の申し送り 7 件と `followup-minors-2` の申し送り 20 件は `followup-minors-3` で仕分け・対応済み（対応しなかった件は `openspec/changes/archive/2026-09-23-followup-minors-3/proposal.md` の「含めない」）。`followup-minors-3` 自身の申し送り約 20 件（配信 CSS でメディアクエリが範囲構文に書き換わり design D2 の古い Safari 対策が効かない件の PO 判断、ベースラインの測り方の -0.112px の偏り、pid が取れず失敗したとき preview がポート 4399 に残る、ほか）は `openspec/changes/archive/2026-09-23-followup-minors-3/tasks.md` の「提案」。`recruiter-and-photo-polish` の申し送りは見た目の PO 判断 2 件（2560 幅でトップの右列の右に約 750px の空白、高さの上限が効く画面で写真と文字の間が約 78px）で、`openspec/changes/archive/2026-09-24-recruiter-and-photo-polish/tasks.md` の「提案」。`language-switch-toggle` の申し送り（Minor 7 件と ponytail 3 件。本文から外したことで解消した 2 件を含む）は `openspec/changes/archive/2026-09-25-language-switch-toggle/tasks.md` の「提案」。`projects-page` の申し送り（Minor・過剰設計。`z.url()` が `javascript:` を通す件、e2e のヘッダー検査の `hreflang` 除外が広い件、テストの fixture の重複 ほか）は `openspec/changes/archive/2026-10-06-projects-page/tasks.md` の「Proposals」
 4. Change 4・5 の後続への提案と申し送り（各 `openspec/changes/archive/2026-09-21-*/tasks.md` の末尾）
-5. AWS 認定資格のバッジロゴ表示を再検討する場合は、見せ方（サイズ・配置・ドット絵化するか等）から設計し直す（一度実装し PO の判断で取り消し済み）
+5. **既存の e2e `viewport.spec.ts:453`（390×844 で写真が本文の幅いっぱい）が約 3/40 で落ちる**。画像の読み込みを待たずに測っている（`projects-page` の実装中に発見、直近 30 回の CI では失敗なし）。直し方は `openspec/changes/archive/2026-10-06-projects-page/tasks.md` の「Proposals」
+6. 開発物を 2 件目以降も載せる場合は `docs/content-authoring.md` の「開発物」の手順で、アイコンを `pixel.ts` に足してから YAML を書く
+7. AWS 認定資格のバッジロゴ表示を再検討する場合は、見せ方（サイズ・配置・ドット絵化するか等）から設計し直す（一度実装し PO の判断で取り消し済み）
 
 ## PO 判断として残っている件
 
