@@ -2,7 +2,16 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Locator, test } from '@playwright/test';
-import { briefcase, type Cell, camera, cells, github, globe, linkedin } from '../../src/lib/pixel';
+import {
+  briefcase,
+  type Cell,
+  camera,
+  cells,
+  github,
+  globe,
+  linkedin,
+  terminal,
+} from '../../src/lib/pixel';
 import { homePath } from '../../src/lib/site';
 import { pagePaths } from './paths';
 
@@ -45,6 +54,12 @@ function rectCells(link: Locator): Promise<Cell[]> {
 const navIconTable = [
   { name: 'Photos', selector: 'a[href$="/photos/"]:not([hreflang])', grid: camera },
   { name: 'Career', selector: 'a[href$="/career/"]:not([hreflang])', grid: briefcase },
+] as const;
+
+/** トップ本文の導線の行き先 → アイコン。ヘッダーの 2 つの後ろに Projects が付く（design D2・D3） */
+const topIconTable = [
+  ...navIconTable,
+  { name: 'Projects', selector: 'a[href$="/projects/"]:not([hreflang])', grid: terminal },
 ] as const;
 
 /** まとまりの名前（spec「言語切り替えのグループ名」） */
@@ -324,29 +339,38 @@ for (const lang of ['ja', 'en'] as const) {
 
     const nav = page.locator('main nav.links');
     const contactLinks = page.locator('main ul.links li a');
-    await expect(nav.locator('a')).toHaveCount(2);
+    await expect(nav.locator('a')).toHaveCount(3);
     await expect(contactLinks).toHaveCount(2);
 
     const navTop = await nav.evaluate((el) => el.getBoundingClientRect().top);
     const contactTop = await contactLinks.first().evaluate((el) => el.getBoundingClientRect().top);
     expect(navTop).toBeLessThan(contactTop);
 
-    // 並びは Photos → Career の 2 つだけ。言語切り替えはヘッダーにだけ置く（PO 決定 2026-09-25）
+    // 並びは Photos → Career → Projects の 3 つだけ。言語切り替えはヘッダーにだけ置く（PO 決定 2026-09-25）
     const order = await nav
       .locator(':scope > *')
       .evaluateAll((els) => els.map((el) => el.getAttribute('href')));
-    expect(order).toEqual([`${base}${lang}/photos/`, `${base}${lang}/career/`]);
+    expect(order).toEqual([
+      `${base}${lang}/photos/`,
+      `${base}${lang}/career/`,
+      `${base}${lang}/projects/`,
+    ]);
     await expect(nav.locator('[hreflang]')).toHaveCount(0);
     await expect(nav.locator('[role="group"]')).toHaveCount(0);
 
-    for (const { name, selector, grid } of navIconTable) {
+    for (const { name, selector, grid } of topIconTable) {
       const link = nav.locator(selector);
       await expect(link, name).toHaveCount(1);
+      await expect(link, name).toHaveAccessibleName(name);
       const svg = link.locator('svg[aria-hidden="true"]');
       await expect(svg, name).toHaveCount(1);
       await expect(svg, name).toHaveAttribute('viewBox', '0 0 16 16');
       expect(await rectCells(link), name).toEqual(cells(grid));
     }
+    // Projects の図柄は Photos・Career のどちらとも違う（spec「Projects のアイコン」）
+    const projectsCells = await rectCells(nav.locator(topIconTable[2].selector));
+    expect(projectsCells).not.toEqual(cells(camera));
+    expect(projectsCells).not.toEqual(cells(briefcase));
 
     for (const link of await contactLinks.all()) {
       const svg = link.locator('svg[aria-hidden="true"]');

@@ -30,7 +30,7 @@ Issue: #70
   - Test first: `paths.ts` の `pagePaths` に `${lang}/projects/` を足す（a11y・network・pages の検査が自動で対象に入る）。`pages.spec.ts` または `links.spec.ts` で、両ロケールの開発物ページについて次を確かめる: `<title>` が `Projects · <name>`、`h1` が `Projects`。`tomoly.yaml` を読み、`h2` の中のリンクの文字が `Tomoly`・`href` が `https://tomoly.app`・`target` なし。同じ項目に `<status> · 2026年〜`（en は `<status> · 2026–`）、そのロケールの `summary` と `description`、`tech` の `, ` 区切りの 1 行がある。en ページに `summary.ja` / `description.ja` が無い。項目の svg が `tomoly` の座標と完全一致で `aria-hidden="true"`、`img` なし。全ページのヘッダーに `href` が `/projects/` を含むリンクが無い。`/ja/projects/` のヘッダーの `EN` が `/en/projects/` を指す。失敗を確認してから実装する
   - Review: solo
   - Risk: ui
-- [ ] 2.3 トップ本文の導線を `topLinks` にする
+- [x] 2.3 トップ本文の導線を `topLinks` にする
   - Files: `src/pages/[lang]/index.astro`、`tests/e2e/links.spec.ts`、必要なら `tests/e2e/viewport.spec.ts`
   - Test first: `links.spec.ts` の本文の導線の検査を、`/ja/` と `/en/` で Photos → Career → Projects の 3 つ（`href` がそのロケールの `/photos/`・`/career/`・`/projects/`）で、Projects の svg が `terminal` と完全一致し camera・briefcase と一致しないこと、`[hreflang]` と `[role="group"]` が 0 件であることに直す。失敗を確認してから実装する。`viewport.spec.ts` の初見表示（1280×720・1440×900・1024×768、両ロケール）が導線の 3 つ目も対象にしていることを確かめ、していなければ足す。落ちたら design の Risks の手順に従う
   - Review: solo
