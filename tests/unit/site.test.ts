@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { briefcase, camera, globe } from '../../src/lib/pixel';
+import { briefcase, camera, globe, terminal } from '../../src/lib/pixel';
 import {
   alternateLinks,
   canonicalUrl,
@@ -9,6 +9,8 @@ import {
   navLinks,
   ogLocale,
   photoPath,
+  projectsPath,
+  topLinks,
   ui,
 } from '../../src/lib/site';
 
@@ -155,6 +157,33 @@ describe('careerPath', () => {
   it('ロケールごとの経歴のパスを返す', () => {
     expect(careerPath('ja', '/')).toBe('/ja/career/');
     expect(careerPath('en', '/portfolio')).toBe('/portfolio/en/career/');
+  });
+});
+
+describe('projectsPath', () => {
+  it('ロケールごとの開発物ページのパスを返す', () => {
+    expect(projectsPath('ja', '/portfolio/')).toBe('/portfolio/ja/projects/');
+    expect(projectsPath('en', '/')).toBe('/en/projects/');
+  });
+});
+
+describe('topLinks', () => {
+  it('Photos → Career → Projects の 3 つで、Projects のアイコンは terminal', () => {
+    expect(topLinks('ja', '/portfolio/')).toEqual([
+      { label: 'Photos', href: '/portfolio/ja/photos/', icon: camera },
+      { label: 'Career', href: '/portfolio/ja/career/', icon: briefcase },
+      { label: 'Projects', href: '/portfolio/ja/projects/', icon: terminal },
+    ]);
+    expect(topLinks('en', '/')).toEqual([
+      { label: 'Photos', href: '/en/photos/', icon: camera },
+      { label: 'Career', href: '/en/career/', icon: briefcase },
+      { label: 'Projects', href: '/en/projects/', icon: terminal },
+    ]);
+  });
+
+  it('ヘッダーの navLinks は Photos / Career の 2 つのまま（Projects を足さない）', () => {
+    expect(navLinks('ja', '/portfolio/').map((l) => l.label)).toEqual(['Photos', 'Career']);
+    expect(navLinks('en', '/portfolio/').map((l) => l.label)).toEqual(['Photos', 'Career']);
   });
 });
 

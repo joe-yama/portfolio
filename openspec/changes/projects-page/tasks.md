@@ -19,7 +19,7 @@ Issue: #70
 
 ## 2. ページとトップの導線（D2、D3、D6）
 
-- [ ] 2.1 導線のヘルパーと Projects のアイコンを足す
+- [x] 2.1 導線のヘルパーと Projects のアイコンを足す
   - Files: `src/lib/site.ts`、`src/lib/pixel.ts`、`tests/unit/site.test.ts`、`tests/unit/pixel.test.ts`
   - Interface: `projectsPath(lang: Locale, base: string): string`、`topLinks(lang: Locale, base: string): NavLink[]`（site.ts）、`terminal`（pixel.ts）
   - Test first: `site.test.ts` で `projectsPath('ja', '/portfolio/')` が `/portfolio/ja/projects/`、`topLinks` が Photos → Career → Projects の 3 つで Projects の icon が `terminal`、`navLinks` は Photos / Career の 2 つのまま。`pixel.test.ts` で `terminal` が D3 の 16 行と一致し、`camera` とも `briefcase` とも違うこと

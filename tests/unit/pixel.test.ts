@@ -10,6 +10,7 @@ import {
   linkedin,
   lost,
   projectIcons,
+  terminal,
   tomoly,
 } from '../../src/lib/pixel';
 
@@ -83,6 +84,7 @@ describe.each([
   ['briefcase', briefcase],
   ['globe', globe],
   ['tomoly', tomoly],
+  ['terminal', terminal],
 ])('%s', (_name, rows) => {
   it('16 行 × 16 文字で、. と # だけからなる', () => {
     expect(rows).toHaveLength(16);
@@ -132,5 +134,33 @@ describe('projectIcons', () => {
   it('アイコン名 tomoly が tomoly の絵を指す', () => {
     expect(Object.keys(projectIcons)).toEqual(['tomoly']);
     expect(projectIcons.tomoly).toBe(tomoly);
+  });
+});
+
+describe('terminal', () => {
+  it('design D3 の 16 行と一致する', () => {
+    expect(terminal).toEqual([
+      '................',
+      '................',
+      '.##############.',
+      '.#............#.',
+      '.##############.',
+      '.#............#.',
+      '.#.#..........#.',
+      '.#..#.........#.',
+      '.#...#........#.',
+      '.#..#.........#.',
+      '.#.#...####...#.',
+      '.#............#.',
+      '.##############.',
+      '................',
+      '................',
+      '................',
+    ]);
+  });
+
+  it('camera とも briefcase とも違う絵', () => {
+    expect(terminal).not.toEqual(camera);
+    expect(terminal).not.toEqual(briefcase);
   });
 });
