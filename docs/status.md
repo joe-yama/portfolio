@@ -76,4 +76,4 @@
 | agentic-harness | v0.4.0（2026-10-06 に v0.2.1 から `copier update`。Superpowers と OpenSpec スキルは外した） |
 | OpenSpec CLI / skills | 1.13.1 / なし（`/opsx:propose` `archive` `update` `sync` のコマンドのみ） |
 | Claude Code | 2.1.289 |
-| adopt §8 の確認 | 未実施（PR マージ後、新しいセッションで `claude plugin update harness@agentic-harness` のあと行う。前回は 2026-09-25 に v0.2.1 で 5 項目すべて OK） |
+| adopt §8 の確認 | 2026-10-06 v0.4.0 で実施、すべて OK（guard が `BLOCKED by harness guard (rm-rf)`、`git push origin main` で ask-gate の確認が出た（誤って承認したが up-to-date で送信なし）、プラグイン harness 0.4.0 が有効、スキルに `harness:design` / `harness:execute` があり `openspec-*` なし、`.claude/commands/opsx/` は propose・archive・update・sync の 4 個、`harness:implementer` / `harness:reviewer` あり、ruleset は名前が `main`（移行前に作成）で中身は `docs/harness/ruleset.json` と同じ 4 規則） |
