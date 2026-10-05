@@ -136,8 +136,18 @@ for (const path of pagePaths) {
     await expect(nav.locator(navIconTable[0].selector)).toHaveAccessibleName('Photos');
     await expect(nav.locator(navIconTable[1].selector)).toHaveAccessibleName('Career');
     await expectLangSwitch(page.locator('header'), path);
+    // 開発物ページへの導線はヘッダーに置かない（spec projects「ヘッダーのリンク」）。
+    // 開発物ページでは言語切り替えの href が /projects/ を含むので、それ（hreflang を持つもの）は除く
+    await expect(page.locator('header a[href*="/projects/"]:not([hreflang])')).toHaveCount(0);
   });
 }
+
+test('/ja/projects/ のヘッダーの EN は /en/projects/ を指す', async ({ page }) => {
+  await page.goto('ja/projects/');
+  const en = page.locator('header').getByRole('link', { name: 'EN', exact: true });
+  await expect(en).toHaveCount(1);
+  await expect(en).toHaveAttribute('href', `${base}en/projects/`);
+});
 
 for (const viewport of [
   { width: 1280, height: 720 },

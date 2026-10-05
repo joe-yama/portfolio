@@ -25,7 +25,7 @@ Issue: #70
   - Test first: `site.test.ts` で `projectsPath('ja', '/portfolio/')` が `/portfolio/ja/projects/`、`topLinks` が Photos → Career → Projects の 3 つで Projects の icon が `terminal`、`navLinks` は Photos / Career の 2 つのまま。`pixel.test.ts` で `terminal` が D3 の 16 行と一致し、`camera` とも `briefcase` とも違うこと
   - Review: batch A
   - Risk: none
-- [ ] 2.2 開発物ページ `/{ja,en}/projects/` を作る
+- [x] 2.2 開発物ページ `/{ja,en}/projects/` を作る
   - Files: 新規 `src/pages/[lang]/projects.astro`、`tests/e2e/paths.ts`、`tests/e2e/pages.spec.ts`、`tests/e2e/links.spec.ts`
   - Test first: `paths.ts` の `pagePaths` に `${lang}/projects/` を足す（a11y・network・pages の検査が自動で対象に入る）。`pages.spec.ts` または `links.spec.ts` で、両ロケールの開発物ページについて次を確かめる: `<title>` が `Projects · <name>`、`h1` が `Projects`。`tomoly.yaml` を読み、`h2` の中のリンクの文字が `Tomoly`・`href` が `https://tomoly.app`・`target` なし。同じ項目に `<status> · 2026年〜`（en は `<status> · 2026–`）、そのロケールの `summary` と `description`、`tech` の `, ` 区切りの 1 行がある。en ページに `summary.ja` / `description.ja` が無い。項目の svg が `tomoly` の座標と完全一致で `aria-hidden="true"`、`img` なし。全ページのヘッダーに `href` が `/projects/` を含むリンクが無い。`/ja/projects/` のヘッダーの `EN` が `/en/projects/` を指す。失敗を確認してから実装する
   - Review: solo

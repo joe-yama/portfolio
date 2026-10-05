@@ -19,6 +19,7 @@ export const pagePaths = locales.flatMap((lang) => [
   `${lang}/photos/`,
   ...photoSlugs.map((slug) => `${lang}/photos/${slug}/`),
   `${lang}/career/`,
+  `${lang}/projects/`,
 ]);
 
 /** 404 ページを確かめるための、存在しないパス */

@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
 import { type Locale, locales, toLocale } from '../../src/lib/i18n';
+import { cells, projectIcons } from '../../src/lib/pixel';
 import { ui } from '../../src/lib/site';
 import { pagePaths } from './paths';
 
@@ -742,5 +743,133 @@ test.describe('経歴ページの要約と資格の束ね', () => {
       Math.abs((line2?.left ?? Number.NaN) - (line1?.left ?? Number.NaN)),
       `2 行目の左端 ${line2?.left} が 1 行目の文字の左端 ${line1?.left} とそろわない`,
     ).toBeLessThanOrEqual(1);
+  });
+});
+
+type ProjectSummary = {
+  name: string;
+  url: string;
+  icon: string;
+  since: string;
+  status: Record<Locale, string>;
+  summary: Record<Locale, string>;
+  description: Record<Locale, string>;
+  tech: string[];
+};
+
+/** YAML の値の前後のクォート（" または '）を外す */
+const unquoteAny = (value: string) => value.replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1');
+
+/**
+ * projects/<slug>.yaml を雑に読む（開発物ページの検算専用。parsePatents と同じく YAML パーサーは使わない）。
+ * 前提: トップレベルの `key: 値`、1 行の `{ ja: "…", en: "…" }`、`  ja: …` / `  en: …` の入れ子、
+ * `  - …` の配列だけで書く
+ */
+function parseProject(slug: string): ProjectSummary {
+  const path = fileURLToPath(new URL(`../../src/content/projects/${slug}.yaml`, import.meta.url));
+  const scalars: Record<string, string> = {};
+  const localized: Record<string, Partial<Record<Locale, string>>> = {};
+  const lists: Record<string, string[]> = {};
+  let key = '';
+  for (const line of readFileSync(path, 'utf8').split('\n')) {
+    const top = line.match(/^(\w+):\s*(.*)$/);
+    if (top?.[1] !== undefined) {
+      key = top[1];
+      const value = top[2] ?? '';
+      const inline = value.match(/^\{ ja: "([^"]*)", en: "([^"]*)" \}$/);
+      if (inline) localized[key] = { ja: inline[1], en: inline[2] };
+      else if (value !== '') scalars[key] = unquoteAny(value);
+      continue;
+    }
+    const nested = line.match(/^ {2}(ja|en): (.+)$/);
+    if (nested?.[1] && nested[2]) {
+      localized[key] = { ...localized[key], [nested[1]]: unquoteAny(nested[2]) };
+      continue;
+    }
+    const item = line.match(/^ {2}- (.+)$/);
+    if (item?.[1]) lists[key] = [...(lists[key] ?? []), unquoteAny(item[1])];
+  }
+  const loc = (k: string): Record<Locale, string> => {
+    const v = localized[k];
+    if (!v?.ja || !v.en) throw new Error(`${path} の ${k} が読めない`);
+    return { ja: v.ja, en: v.en };
+  };
+  const scalar = (k: string): string => {
+    const v = scalars[k];
+    if (v === undefined) throw new Error(`${path} の ${k} が読めない`);
+    return v;
+  };
+  return {
+    name: scalar('name'),
+    url: scalar('url'),
+    icon: scalar('icon'),
+    since: scalar('since'),
+    status: loc('status'),
+    summary: loc('summary'),
+    description: loc('description'),
+    tech: lists.tech ?? [],
+  };
+}
+
+const tomoly = parseProject('tomoly');
+
+/** 開始年の表示を e2e から独立に計算する（spec projects: ja `<since>年〜`、en `<since>–`） */
+const expectedSince = (since: string, lang: Locale) =>
+  lang === 'ja' ? `${since}年〜` : `${since}–`;
+
+test.describe('開発物ページ', () => {
+  for (const lang of locales) {
+    test(`/${lang}/projects/ の title と h1 が Projects`, async ({ page }) => {
+      await page.goto(`./${lang}/projects/`);
+      await expect(page).toHaveTitle(`Projects · ${parseProfileLine(lang, 'name')}`);
+      const h1 = page.locator('main h1');
+      await expect(h1).toHaveCount(1);
+      await expect(h1).toHaveText('Projects');
+    });
+
+    test(`/${lang}/projects/ の Tomoly の項目が YAML の値を${lang === 'ja' ? '日本語' : '英語'}で表示する`, async ({
+      page,
+    }) => {
+      await page.goto(`./${lang}/projects/`);
+      const heading = page.locator('main h2').filter({ hasText: tomoly.name });
+      await expect(heading).toHaveCount(1);
+      const link = heading.locator('a');
+      await expect(link).toHaveCount(1);
+      await expect(link).toHaveText(tomoly.name);
+      await expect(link).toHaveAttribute('href', tomoly.url);
+      await expect(link).not.toHaveAttribute('target');
+
+      // 同じ項目 = その h2 を持つ article（has の locator は article からの相対で書く）
+      const item = page
+        .locator('main article')
+        .filter({ has: page.locator('h2', { hasText: tomoly.name }) });
+      await expect(item).toHaveCount(1);
+      const texts = await item
+        .locator('p')
+        .evaluateAll((ps) => ps.map((p) => p.textContent?.trim() ?? ''));
+      expect(texts).toContain(`${tomoly.status[lang]} · ${expectedSince(tomoly.since, lang)}`);
+      expect(texts).toContain(tomoly.summary[lang]);
+      expect(texts).toContain(tomoly.description[lang]);
+      expect(texts).toContain(tomoly.tech.join(', '));
+
+      // アイコンは tomoly の図柄と座標が完全一致する svg が 1 つで、支援技術から隠す。img は無い
+      const svg = item.locator('svg');
+      await expect(svg).toHaveCount(1);
+      await expect(svg).toHaveAttribute('aria-hidden', 'true');
+      const rects = await svg
+        .locator('rect')
+        .evaluateAll((rs) =>
+          rs.map((r) => ({ x: Number(r.getAttribute('x')), y: Number(r.getAttribute('y')) })),
+        );
+      expect(rects).toEqual(cells(projectIcons[tomoly.icon as keyof typeof projectIcons]));
+      await expect(item.locator('img')).toHaveCount(0);
+    });
+  }
+
+  test('/en/projects/ に summary.ja と description.ja が無い', async ({ page }) => {
+    await page.goto('./en/projects/');
+    const main = await page.locator('main').innerText();
+    expect(main).not.toContain(tomoly.summary.ja);
+    expect(main).not.toContain(tomoly.description.ja);
   });
 });
