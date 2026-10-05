@@ -67,3 +67,8 @@ Issue: #70
 - quality-gates「すべてのページの表示」「外部ホストへのリクエスト」「アクセシビリティ違反」→ 2.2（`pagePaths` への追加）、4.2。ほかの Scenario は既存の検査のまま（4.2）
 
 ## Proposals
+
+- （batch A レビュー Minor）`getProjects` の `sortProjects` 呼び出しを守るテストが無い（`src/lib/content.ts:57`）。呼び出しを外しても落ちない。開発物が 2 件以上になったときに e2e で並び順を確かめる
+- （batch A レビュー Minor）`order` 重複のテストが値を `toContain('7')` で見ている（`tests/unit/validate.test.ts:533`）。`toContain('order 7')` などにすると値を確実に固定できる
+- （batch A レビュー Minor）`z.url()` が `javascript:` を通す（`src/content/schemas.ts:143`、既存の `url` 項目も同じ）。`z.url({ protocol: /^https?$/ })` にできる
+- （batch A 過剰設計）`pixel.test.ts` の tomoly の 16×16 のテストは `describe.each` と重複、`project()` の fixture が validate / projects のテストで重複、`validateProjects` の重複検出が `validatePhotos` と同じループ（D2 で揃える指示どおり）
