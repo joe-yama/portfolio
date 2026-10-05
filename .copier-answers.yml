@@ -1,6 +1,8 @@
 # Changes here will be overwritten by Copier; do not edit manually.
-_commit: harness--v0.2.1
+_commit: harness--v0.4.0
 _src_path: gh:joe-yama/agentic-harness
+agents:
+- claude
 default_branch: main
 github_owner: joe-yama
 lint_cmd: pnpm exec biome check --error-on-warnings --no-errors-on-unmatched
