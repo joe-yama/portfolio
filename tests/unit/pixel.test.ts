@@ -9,6 +9,8 @@ import {
   gridSize,
   linkedin,
   lost,
+  projectIcons,
+  tomoly,
 } from '../../src/lib/pixel';
 
 describe('cells', () => {
@@ -80,6 +82,7 @@ describe.each([
   ['linkedin', linkedin],
   ['briefcase', briefcase],
   ['globe', globe],
+  ['tomoly', tomoly],
 ])('%s', (_name, rows) => {
   it('16 行 × 16 文字で、. と # だけからなる', () => {
     expect(rows).toHaveLength(16);
@@ -95,5 +98,39 @@ describe.each([
 
   it('全面塗りではない', () => {
     expect(cells(rows).length).toBeLessThan(256);
+  });
+});
+
+describe('tomoly', () => {
+  it('design D4 の 16 行と一致する', () => {
+    expect(tomoly).toEqual([
+      '................',
+      '.....######.....',
+      '....#......#....',
+      '...#........#...',
+      '..#.##.......#..',
+      '.#..##........#.',
+      '.#........##..#.',
+      '.#........##..#.',
+      '..#..........#..',
+      '...##......##...',
+      '.....######.....',
+      '......####......',
+      '......####......',
+      '......####......',
+      '..############..',
+      '................',
+    ]);
+  });
+
+  it('16×16 の格子', () => {
+    expect(gridSize(tomoly)).toEqual({ width: 16, height: 16 });
+  });
+});
+
+describe('projectIcons', () => {
+  it('アイコン名 tomoly が tomoly の絵を指す', () => {
+    expect(Object.keys(projectIcons)).toEqual(['tomoly']);
+    expect(projectIcons.tomoly).toBe(tomoly);
   });
 });

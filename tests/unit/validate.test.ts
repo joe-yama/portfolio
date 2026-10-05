@@ -1,11 +1,18 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
-import { type Career, type Patent, PHOTO_BASE_URL, type Photo } from '../../src/content/schemas';
+import {
+  type Career,
+  type Patent,
+  PHOTO_BASE_URL,
+  type Photo,
+  type ProjectEntry,
+} from '../../src/content/schemas';
 import type { Locale } from '../../src/lib/i18n';
 import {
   assertValid,
   validateCareerParity,
   validateCareerPatents,
   validatePhotos,
+  validateProjects,
 } from '../../src/lib/validate';
 
 function photo(id: string, over: Partial<Photo> = {}): { id: string; data: Photo } {
@@ -490,6 +497,48 @@ describe('validateCareerPatents', () => {
     expect(validateCareerPatents(en, 'en')).toEqual([
       `en: url が代表公報を指していない（number: JP7200645B2, url: ${url}）`,
     ]);
+  });
+});
+
+function project(id: string, order: number): ProjectEntry {
+  return {
+    id,
+    data: {
+      order,
+      name: id,
+      url: `https://${id}.example`,
+      icon: 'tomoly',
+      since: 2026,
+      status: { ja: 's', en: 's' },
+      summary: { ja: 's', en: 's' },
+      description: { ja: 'd', en: 'd' },
+      tech: ['TypeScript'],
+    },
+  };
+}
+
+describe('validateProjects', () => {
+  it('order が一意なら問題なし', () => {
+    expect(validateProjects([project('alpha', 1), project('bravo', 2)])).toEqual([]);
+  });
+
+  it('order が重複したら値と両方の slug を挙げて報告する', () => {
+    const errors = validateProjects([
+      project('alpha', 7),
+      project('bravo', 7),
+      project('charlie', 8),
+    ]);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('7');
+    expect(errors[0]).toContain('alpha');
+    expect(errors[0]).toContain('bravo');
+    expect(errors[0]).not.toContain('charlie');
+  });
+
+  it('0 件なら開発物が無いことを報告する', () => {
+    const errors = validateProjects([]);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain('開発物が無い');
   });
 });
 

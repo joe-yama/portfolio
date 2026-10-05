@@ -4,7 +4,7 @@ Issue: #70
 
 ## 1. 開発物のデータと検証（D1、D2、D4、D5）
 
-- [ ] 1.1 開発物のスキーマ、アイコン、集合の検証、並べ替えを足す
+- [x] 1.1 開発物のスキーマ、アイコン、集合の検証、並べ替えを足す
   - Files: `src/content/schemas.ts`、`src/lib/pixel.ts`、`src/lib/validate.ts`、新規 `src/lib/projects.ts`、`tests/unit/schemas.test.ts`、`tests/unit/validate.test.ts`、`tests/unit/pixel.test.ts`、新規 `tests/unit/projects.test.ts`
   - Interface: `projectSchema` / `Project` / `ProjectEntry`（schemas.ts）、`tomoly` / `projectIcons`（pixel.ts）、`validateProjects(entries: ProjectEntry[]): string[]`（validate.ts）、`sortProjects(entries: ProjectEntry[]): ProjectEntry[]` / `sinceLabel(year: number, lang: Locale): string`（projects.ts）
   - Test first: `schemas.test.ts` で全項目がそろった開発物が通り、`summary.en` 欠け・`icon: rocket`・`tech: []`・`since` が `26` と `'2026-09'` で落ちること。`validate.test.ts` で `order` 重複のエラーに値と両 slug が入り、0 件で「開発物が無い」旨のエラーになること。`projects.test.ts` で `order` 2・1 の順の入力が 1・2 に並び入力を変えないこと、`sinceLabel(2026, 'ja')` が `2026年〜`、`'en'` が `2026–`。`pixel.test.ts` で `tomoly` が D4 の 16 行と一致し 16×16 であること
