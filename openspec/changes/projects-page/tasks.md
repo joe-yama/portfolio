@@ -10,7 +10,7 @@ Issue: #70
   - Test first: `schemas.test.ts` で全項目がそろった開発物が通り、`summary.en` 欠け・`icon: rocket`・`tech: []`・`since` が `26` と `'2026-09'` で落ちること。`validate.test.ts` で `order` 重複のエラーに値と両 slug が入り、0 件で「開発物が無い」旨のエラーになること。`projects.test.ts` で `order` 2・1 の順の入力が 1・2 に並び入力を変えないこと、`sinceLabel(2026, 'ja')` が `2026年〜`、`'en'` が `2026–`。`pixel.test.ts` で `tomoly` が D4 の 16 行と一致し 16×16 であること
   - Review: batch A
   - Risk: none
-- [ ] 1.2 コレクションを登録し、Tomoly のデータと入稿の細則を足す
+- [x] 1.2 コレクションを登録し、Tomoly のデータと入稿の細則を足す
   - Files: `src/content.config.ts`、`src/lib/content.ts`、新規 `src/content/projects/tomoly.yaml`、`docs/content-authoring.md`、`tests/unit/content-config.test.ts`
   - Interface: `getProjects(): Promise<ProjectEntry[]>`（content.ts。`validateProjects` を `assertValid` に通し、`sortProjects` で並べて返す）
   - Test first: `content-config.test.ts` でコレクション `projects` が登録されていること（既存の profile / career / photos の検査の形に合わせる）。`tomoly.yaml` は D5 の値をそのまま書き、`pnpm build` が通ること。`docs/content-authoring.md` に「開発物」の節（1 件 1 ファイル、`order` の重複と 0 件でビルドが落ちる、`icon` は `pixel.ts` の `projectIcons` に絵を足してから使う）を足す

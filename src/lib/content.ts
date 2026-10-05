@@ -1,11 +1,13 @@
 import { getCollection, getEntry } from 'astro:content';
-import type { Career, PhotoEntry, Profile } from '../content/schemas';
+import type { Career, PhotoEntry, Profile, ProjectEntry } from '../content/schemas';
 import type { Locale } from './i18n';
+import { sortProjects } from './projects';
 import {
   assertValid,
   validateCareerParity,
   validateCareerPatents,
   validatePhotos,
+  validateProjects,
 } from './validate';
 
 export async function getProfile(lang: Locale): Promise<Profile> {
@@ -45,4 +47,12 @@ export async function getFeaturedPhoto(): Promise<PhotoEntry> {
   const featured = (await getPhotos()).find((p) => p.data.featured);
   if (!featured) throw new Error('到達しない: 検証を通った写真に featured が無い');
   return featured;
+}
+
+/** 開発物の一覧。集合の制約（1 件以上、order が一意）に反していればビルドを止め、order の小さい順に返す */
+export async function getProjects(): Promise<ProjectEntry[]> {
+  const entries = await getCollection('projects');
+  const projects = entries.map((e) => ({ id: e.id, data: e.data }));
+  assertValid(validateProjects(projects), 'projects');
+  return sortProjects(projects);
 }
