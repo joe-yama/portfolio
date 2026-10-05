@@ -94,14 +94,14 @@
   ],
   "enabledPlugins": {
     "harness@agentic-harness": true,
-    "superpowers@claude-plugins-official": true
+    "superpowers@claude-plugins-official": false
   },
   "extraKnownMarketplaces": {
     "agentic-harness": {
       "source": {
         "source": "github",
         "repo": "joe-yama/agentic-harness",
-        "ref": "v0.2.1"
+        "ref": "v0.4.0"
       }
     }
   },

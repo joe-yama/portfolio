@@ -1,6 +1,6 @@
 # ハーネス構築の記録
 
-2026-09-25 から、ハーネスは配布版 agentic-harness に移した（ブランチ fix/adopt-agentic-harness、設計 docs/superpowers/specs/2026-09-25-adopt-agentic-harness-design.md）。§2 と §6 以降は移行前の実測記録。
+2026-09-25 から、ハーネスは配布版 agentic-harness に移した（ブランチ fix/adopt-agentic-harness、設計 docs/superpowers/specs/2026-09-25-adopt-agentic-harness-design.md）。2026-10-06 に v0.4.0 へ更新し、Superpowers と OpenSpec スキルを外した。§2 と §6 以降は移行前の実測記録。
 
 - 構築日: 2026-09-17
 - 実施者: Claude Code（Fable 5.1）。手順は `docs/HANDOFF.md` セクション 3
@@ -10,18 +10,18 @@
 
 | 層 | 部品 | バージョン | 導入場所 / 方法 |
 |---|---|---|---|
-| 実行規律 | Superpowers | 6.4.1（`superpowers@claude-plugins-official`。導入時 2026-09-17 は 6.3.0） | `harness@agentic-harness` の依存として、プロジェクトの `.claude/settings.json` の `enabledPlugins` で有効。ユーザースコープのプラグインとしても入っている |
+| 実行規律 | Superpowers | 使わない（2026-09-17〜10-06 は 6.3.0 → 6.4.1 を使用） | agentic-harness v0.4.0 で依存から外れた。プロジェクトの `.claude/settings.json` の `enabledPlugins` で `false`。設計と実行は `harness:design` / `harness:execute` |
 | 仕様・変更管理 | OpenSpec CLI | 1.13.1（`@fission-ai/openspec`） | `npm install -g` → `openspec init --tools claude --language ja`。`openspec/` と `/opsx:*` コマンド 6 個を生成 |
-| 仕様・変更管理 | OpenSpec スキル 6 個 | v1.13.1 にピン留め（`Fission-AI/OpenSpec` の `skills/`） | PO 指示により `gh skill install Fission-AI/OpenSpec skills/<name> --agent claude-code --scope project --pin v1.13.1` で導入（init 生成物を置き換え）。`gh skill list` で管理 |
+| 仕様・変更管理 | OpenSpec スキル | 置かない（2026-09-25〜10-06 は 6 個を `gh skill` で v1.13.1 にピン留め） | agentic-harness v0.4.0 の方針で `.claude/skills/openspec-*` を削除。OpenSpec は `/opsx:*` コマンドから呼ぶ。CI の job `check` が復活を検出する |
 | UI 検証 | Playwright MCP | @playwright/mcp 0.0.82（`.mcp.json` で固定。2026-09-25 までは `@latest` 指定で、導入時の実体は 0.0.81 / Playwright 1.64.0-alpha-2026-09-14） | `.mcp.json`（プロジェクトスコープ）。`--headless --isolated --output-dir .playwright-mcp` |
 | ブラウザ | Chromium | build 1228（`~/Library/Caches/ms-playwright`） | 既存のキャッシュを利用。追加インストールなし |
-| 配布版ハーネス | agentic-harness | v0.2.1（2026-09-25 に v0.2.0 から更新。`.copier-answers.yml` と `.claude/settings.json` の `extraKnownMarketplaces` で固定） | Copier テンプレート（AGENTS.md・CLAUDE.md・`.claude/rules/`・settings・CI・Dependabot・PR テンプレート）+ プロジェクトスコープのプラグイン `harness@agentic-harness`。更新は `harness:adopt`「Updating」 |
-| 運用ルール | AGENTS.md + CLAUDE.md + `.claude/rules/` | — | テンプレート本文（英語）+ 末尾の「Portfolio specifics」（日本語）。rules は 4 ファイル（git / scope / security / testing）。レビューの手順は `harness:review-loop` |
+| 配布版ハーネス | agentic-harness | v0.4.0（2026-10-06 に v0.2.1 から更新。2026-09-25 に v0.2.0 → v0.2.1。`.copier-answers.yml` と `.claude/settings.json` の `extraKnownMarketplaces` で固定） | Copier テンプレート（AGENTS.md・CLAUDE.md・`.claude/rules/`・settings・CI・Dependabot・PR テンプレート）+ プロジェクトスコープのプラグイン `harness@agentic-harness`。更新は `harness:adopt`「Updating」 |
+| 運用ルール | AGENTS.md + CLAUDE.md + `.claude/rules/` | — | テンプレート本文（英語）+ 末尾の「Portfolio specifics」（日本語）。rules は 4 ファイル（git / scope / security / testing）。設計は `harness:design`、実装とレビューは `harness:execute`、モデルの割り当ては `docs/harness/models.md` |
 | 強制 | Hooks | — | プラグインの `guard` / `ask-gate` / `lint-on-edit` / `test-on-stop`。`HARNESS_LINT_CMD` / `HARNESS_TEST_CMD` を `.claude/settings.json` の `env` から読む。挙動は agentic-harness の README |
 | 強制 | コンテキスト予算の番人 | — | CI の job `check` の手順。`AGENTS.md` + `CLAUDE.md` + `.claude/rules/*.md` の合計を **16,000 B** に制限する（2026-09-22〜09-25 は `tests/unit/context-budget.test.ts` で 20,000 B） |
 | 権限・隔離 | permissions + sandbox | — | `.claude/settings.json`（下記「4. 権限設定」） |
 | 作業記憶（任意） | Beads | 未導入 | PO 判断待ち（HANDOFF 6.） |
-| 役割別サブエージェント | `harness:implementer`、`harness:reviewer`（どちらも Opus） | — | プラグインが提供。dispatch は `model: "opus"` を明示する |
+| 役割別サブエージェント | `harness:implementer`、`harness:reviewer`（どちらも Opus、PO 指示） | — | プラグインが提供。dispatch は `docs/harness/models.md` の表に従って `model` を明示する |
 
 ### openspec/ の構成
 
@@ -30,16 +30,13 @@
 `openspec/changes/<change-name>/` が進行中の変更で、`proposal.md`（何を・なぜ）、`design.md`（どう作るか）、`specs/`（既存仕様に対するデルタ: ADDED / MODIFIED / REMOVED）、`tasks.md`（実装タスク）を持つ。
 PO 受け入れ後に `/opsx:archive` すると、デルタが `specs/` に統合され、change 一式が `openspec/changes/archive/` に移って判断履歴として残る。
 
-Claude Code 向けコマンド（デフォルトプロファイル）: `/opsx:explore`, `/opsx:propose`, `/opsx:apply`, `/opsx:update`, `/opsx:sync`, `/opsx:archive`。
+Claude Code 向けコマンド: `/opsx:propose`, `/opsx:update`, `/opsx:sync`, `/opsx:archive` の 4 個だけを置く（agentic-harness v0.4.0 の方針。デフォルトプロファイルが生成する `/opsx:explore` と `/opsx:apply` は削除し、CI の job `check` が復活を検出する）。
 拡張プロファイル（`new`, `continue`, `ff`, `verify`, `bulk-archive`, `onboard`）は `openspec config profile` で追加可能。
 
-### スキルの更新ルール
+### OpenSpec の更新ルール
 
-`.claude/skills/openspec-*` は `gh skill` 管理下にある。更新は `gh skill update --all`（または `--pin` を新タグに変えて再 install）で行う。
-`openspec update` を実行すると CLI が同じディレクトリを init 版で上書きし、`gh skill` のメタデータ（`github-*`）が消えて `gh skill list` の出所が `-` に戻る。
-CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `openspec update`（コマンド更新）→ `gh skill install ... --pin v<ver> --force`（スキル再導入）」の順に行う。
-拡張プロファイルのスキル（`openspec-new-change`, `openspec-continue-change`, `openspec-ff-change`, `openspec-verify-change`, `openspec-bulk-archive-change`, `openspec-onboard`）も同じリポジトリの `skills/` から個別に導入できる。
-superpowers のスキルはプロジェクトに置かず、プラグインの依存 superpowers@claude-plugins-official から使う。
+`.claude/skills/openspec-*` は置かない（2026-10-06 に `gh skill` 管理の 6 個を削除）。
+CLI を上げるときは「`npm install -g @fission-ai/openspec@<ver>` → `openspec update`（コマンド更新）→ `.claude/skills/openspec-*` と `.claude/commands/opsx/{apply,explore}.md` を削除」の順に行う。`openspec update` はデフォルトプロファイルの生成物を戻すので、消し忘れると CI の job `check` が落ちる。
 
 ## 2. 動作確認結果
 
