@@ -81,3 +81,4 @@ Issue: #70
 - （batch B レビュー Minor）`tests/e2e/links.spec.ts:156` の `:not([hreflang])` は言語切り替え以外の `hreflang` 付きリンクも除く。`/ja/` のヘッダーで `.lang-switch` の外に `<a href=".../en/projects/" hreflang="en">` を置いても落ちない。`header a[href*="/projects/"]:not(.lang-switch a)` に狭める
 - （4.1 の記録）変異 (c) では `links.spec.ts:141` が先に落ちて `:156` が単独で試されなかった。batch B のレビュアーが隔離コピーで nav の外に `/projects/` のリンクを足し、12 ページすべてが `:156` で落ちることを確かめた
 - （batch B 過剰設計）`sitemap.test.ts:92` の `xhtml:link` 3 本の検査は `:56` と `:88` から従う（tasks が文字どおり求めたので残した）、`sitemap.spec.ts:45` の新しいテストは `:35` に `expect` 2 つを足せば済む
+- （最終レビュー Minor）ほかは上の Proposals と同じ（`links.spec.ts:156`、`pages.spec.ts:869` の status、`validate.test.ts:532`、アイコンが文字の前にあることの検査、`z.url()` の `javascript:`）。過剰設計の指摘も上と同じで、合計 -51 行にできる
