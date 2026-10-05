@@ -82,3 +82,4 @@ Issue: #70
 - （4.1 の記録）変異 (c) では `links.spec.ts:141` が先に落ちて `:156` が単独で試されなかった。batch B のレビュアーが隔離コピーで nav の外に `/projects/` のリンクを足し、12 ページすべてが `:156` で落ちることを確かめた
 - （batch B 過剰設計）`sitemap.test.ts:92` の `xhtml:link` 3 本の検査は `:56` と `:88` から従う（tasks が文字どおり求めたので残した）、`sitemap.spec.ts:45` の新しいテストは `:35` に `expect` 2 つを足せば済む
 - （最終レビュー Minor）ほかは上の Proposals と同じ（`links.spec.ts:156`、`pages.spec.ts:869` の status、`validate.test.ts:532`、アイコンが文字の前にあることの検査、`z.url()` の `javascript:`）。過剰設計の指摘も上と同じで、合計 -51 行にできる
+- （最終再レビュー Minor）`tests/unit/content.test.ts:125` に `project()` の fixture の 3 つ目の写しができた（`projects.test.ts:5`・`validate.test.ts:503`）。共有のヘルパー 1 つにできる（-17 行）
