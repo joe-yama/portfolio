@@ -38,7 +38,7 @@ Issue: #70
 
 ## 3. サイトマップ
 
-- [ ] 3.1 サイトマップに開発物ページを載せる
+- [x] 3.1 サイトマップに開発物ページを載せる
   - Files: `src/lib/sitemap.ts`、`tests/unit/sitemap.test.ts`、`tests/e2e/sitemap.spec.ts`
   - Test first: `sitemap.test.ts` で写真 2 枚のとき `<loc>` が 12 件、写真 3 枚で 14 件、英語の開発物ページの `<loc>` が `https://joe-yama.github.io/portfolio/en/projects/` で `xhtml:link` が 3 本。`sitemap.spec.ts` の件数の期待を `pagePaths` と一致させる
   - Review: batch B

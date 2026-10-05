@@ -8,27 +8,29 @@ const slugs = ['kariya-ferris-wheel', 'sunset-dinghies'];
 const prefix = 'https://joe-yama.github.io/portfolio';
 
 describe('sitemapEntries', () => {
-  it('写真 2 枚のとき 10 件の loc を返す', () => {
+  it('写真 2 枚のとき 12 件の loc を返す', () => {
     expect(sitemapEntries(slugs, site, base).map((e) => e.loc)).toEqual([
       `${prefix}/ja/`,
       `${prefix}/ja/career/`,
+      `${prefix}/ja/projects/`,
       `${prefix}/ja/photos/`,
       `${prefix}/ja/photos/kariya-ferris-wheel/`,
       `${prefix}/ja/photos/sunset-dinghies/`,
       `${prefix}/en/`,
       `${prefix}/en/career/`,
+      `${prefix}/en/projects/`,
       `${prefix}/en/photos/`,
       `${prefix}/en/photos/kariya-ferris-wheel/`,
       `${prefix}/en/photos/sunset-dinghies/`,
     ]);
   });
 
-  it('写真が 1 枚増えると 12 件になる', () => {
-    expect(sitemapEntries([...slugs, 'new-photo'], site, base)).toHaveLength(12);
+  it('写真が 1 枚増えると 14 件になる', () => {
+    expect(sitemapEntries([...slugs, 'new-photo'], site, base)).toHaveLength(14);
   });
 
-  it('写真が 0 枚でも 6 件返す', () => {
-    expect(sitemapEntries([], site, base)).toHaveLength(6);
+  it('写真が 0 枚でも 8 件返す', () => {
+    expect(sitemapEntries([], site, base)).toHaveLength(8);
   });
 
   it('振り分けページと 404 は含まない', () => {
@@ -51,6 +53,17 @@ describe('sitemapEntries', () => {
     ]);
   });
 
+  it('英語の開発物ページの loc は絶対 URL で、代替 3 本を持つ', () => {
+    const entry = sitemapEntries(slugs, site, base).find(
+      (e) => e.loc === 'https://joe-yama.github.io/portfolio/en/projects/',
+    );
+    expect(entry?.alternates).toEqual([
+      { hreflang: 'ja', href: `${prefix}/ja/projects/` },
+      { hreflang: 'en', href: `${prefix}/en/projects/` },
+      { hreflang: 'x-default', href: `${prefix}/ja/projects/` },
+    ]);
+  });
+
   it('base が無くても組み立てられる', () => {
     expect(sitemapEntries([], 'https://example.com', '/')[0]?.loc).toBe('https://example.com/ja/');
   });
@@ -68,12 +81,19 @@ describe('sitemapXml', () => {
     expect(xml).toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"');
   });
 
-  it('loc を 10 件持つ', () => {
-    expect([...xml.matchAll(/<loc>/g)]).toHaveLength(10);
+  it('loc を 12 件持つ', () => {
+    expect([...xml.matchAll(/<loc>/g)]).toHaveLength(12);
   });
 
-  it('xhtml:link を 30 本持つ', () => {
-    expect([...xml.matchAll(/<xhtml:link /g)]).toHaveLength(30);
+  it('xhtml:link を 36 本持つ', () => {
+    expect([...xml.matchAll(/<xhtml:link /g)]).toHaveLength(36);
+  });
+
+  it('英語の開発物ページの url は xhtml:link を 3 本持つ', () => {
+    const block = xml
+      .split('<url>')
+      .find((chunk) => chunk.includes(`<loc>${prefix}/en/projects/</loc>`));
+    expect([...(block ?? '').matchAll(/<xhtml:link /g)]).toHaveLength(3);
   });
 
   it('日本語トップの url を書き出す', () => {
