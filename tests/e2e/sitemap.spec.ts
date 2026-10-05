@@ -2,6 +2,7 @@ import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
+import { pagePaths } from './paths';
 
 const PUBLIC_PREFIX = 'https://joe-yama.github.io/portfolio/';
 // cwd に依存せず、このファイルの位置から dist を解決する
@@ -39,6 +40,14 @@ test('loc の集合がビルド出力のロケール配下ページと一致す�
   expect(expected.length).toBeGreaterThan(0);
   expect(locs).toHaveLength(expected.length);
   expect(new Set(locs)).toEqual(new Set(expected));
+});
+
+test('loc の集合が e2e の対象ページ（pagePaths）と一致する', async ({ request }) => {
+  const xml = await (await request.get('./sitemap.xml')).text();
+  const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+
+  expect(locs).toHaveLength(pagePaths.length);
+  expect(new Set(locs)).toEqual(new Set(pagePaths.map((path) => `${PUBLIC_PREFIX}${path}`)));
 });
 
 test('振り分けページと 404 は載っていない', async ({ request }) => {

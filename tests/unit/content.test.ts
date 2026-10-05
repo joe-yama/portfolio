@@ -1,18 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Career, Patent } from '../../src/content/schemas';
+import type { Career, Patent, Project } from '../../src/content/schemas';
 
 // getCareer がビルドの経路（getEntry → 検証）から検証を外したら落ちる番人（design D3）。
 // astro:content を差し替え、日英のデータをテストごとに入れ替える
 const entries = vi.hoisted(() => ({}) as Record<'ja' | 'en', Career>);
 // getPhotos の配線の番人（design D3）。写真の一覧もテストから差し替える
 const photoEntries = vi.hoisted(() => ({ list: [] as { id: string; data: unknown }[] }));
+// getProjects の配線の番人（検証と並べ替えの呼び出し。design D2）
+const projectEntries = vi.hoisted(() => ({ list: [] as { id: string; data: unknown }[] }));
 
 vi.mock('astro:content', () => ({
   getEntry: vi.fn(async (_collection: string, id: 'ja' | 'en') => ({ id, data: entries[id] })),
-  getCollection: vi.fn(async () => photoEntries.list),
+  getCollection: vi.fn(async (collection: string) =>
+    collection === 'projects' ? projectEntries.list : photoEntries.list,
+  ),
 }));
 
-import { getCareer, getFeaturedPhoto, getPhotos } from '../../src/lib/content';
+import { getCareer, getFeaturedPhoto, getPhotos, getProjects } from '../../src/lib/content';
 
 function patent(number: string): Patent {
   return {
@@ -114,6 +118,46 @@ describe('getPhotos の検証の配線', () => {
   it('getFeaturedPhoto も写真が 0 枚なら同じ検証で止まる', async () => {
     await expect(getFeaturedPhoto()).rejects.toThrow(
       /photos の内容に問題がある[\s\S]*featured[\s\S]*0 枚/,
+    );
+  });
+});
+
+function project(id: string, order: number): { id: string; data: Project } {
+  const text = { ja: 'あ', en: 'a' };
+  return {
+    id,
+    data: {
+      order,
+      name: id,
+      url: `https://example.com/${id}`,
+      icon: 'tomoly',
+      since: 2026,
+      status: text,
+      summary: text,
+      description: text,
+      tech: ['TypeScript'],
+    },
+  };
+}
+
+describe('getProjects の検証と並べ替えの配線', () => {
+  beforeEach(() => {
+    projectEntries.list = [];
+  });
+
+  it('order の小さい順に並べて返す', async () => {
+    projectEntries.list = [project('a', 2), project('b', 1)];
+    expect((await getProjects()).map((p) => p.id)).toEqual(['b', 'a']);
+  });
+
+  it('開発物が 0 件ならビルドを止める', async () => {
+    await expect(getProjects()).rejects.toThrow(/projects の内容に問題がある[\s\S]*開発物が無い/);
+  });
+
+  it('order が重複していればビルドを止め、値と両方の slug を挙げる', async () => {
+    projectEntries.list = [project('a', 7), project('b', 7)];
+    await expect(getProjects()).rejects.toThrow(
+      /projects の内容に問題がある[\s\S]*order 7 が重複している: a, b/,
     );
   });
 });

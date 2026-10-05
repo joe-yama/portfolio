@@ -1,6 +1,11 @@
 // photo-meta.ts（入稿コマンドが node で直接実行する経路）がこのファイルを import する。
 // Node の ESM 解決は拡張子を補わないので、相対 import に .ts を付ける
-import { type Career, PHOTO_BASE_URL, type PhotoEntry } from '../content/schemas.ts';
+import {
+  type Career,
+  PHOTO_BASE_URL,
+  type PhotoEntry,
+  type ProjectEntry,
+} from '../content/schemas.ts';
 import type { Locale } from './i18n.ts';
 
 /** 入稿コマンドが title / location / alt に入れる未記入の印 */
@@ -45,6 +50,23 @@ export function validatePhotos(entries: PhotoEntry[]): string[] {
         }
       }
     }
+  }
+
+  return errors;
+}
+
+/** Zod で表せない開発物コレクション全体の制約: 1 件以上あり、order が重複しない（spec content-schema） */
+export function validateProjects(entries: ProjectEntry[]): string[] {
+  const errors: string[] = [];
+
+  if (entries.length === 0) errors.push('開発物が無い（src/content/projects/ に 1 件以上置く）');
+
+  const byOrder = new Map<number, string[]>();
+  for (const e of entries) {
+    byOrder.set(e.data.order, [...(byOrder.get(e.data.order) ?? []), e.id]);
+  }
+  for (const [order, ids] of byOrder) {
+    if (ids.length > 1) errors.push(`order ${order} が重複している: ${ids.join(', ')}`);
   }
 
   return errors;

@@ -7,7 +7,7 @@ import {
   locales,
   withBase,
 } from './i18n';
-import { briefcase, camera, globe } from './pixel';
+import { briefcase, camera, globe, terminal } from './pixel';
 
 export type AlternateLink = { hreflang: Locale | 'x-default'; href: string };
 export type NavLink = { label: string; href: string; icon: readonly string[] };
@@ -128,6 +128,11 @@ export function careerPath(lang: Locale, base: string): string {
   return withBase(`/${lang}/career/`, base);
 }
 
+/** ロケールごとの開発物ページ */
+export function projectsPath(lang: Locale, base: string): string {
+  return withBase(`/${lang}/projects/`, base);
+}
+
 /** そのページ自身の絶対 URL（design D6）。lang はパスから判定する */
 export function canonicalUrl(path: string, site: string | URL, base: string): string {
   const lang = localeFromPath(path, base) ?? defaultLocale;
@@ -145,6 +150,17 @@ export function navLinks(lang: Locale, base: string): NavLink[] {
   return [
     { label: 'Photos', href: photoPath(null, lang, base), icon: camera },
     { label: 'Career', href: careerPath(lang, base), icon: briefcase },
+  ];
+}
+
+/**
+ * トップ本文の導線。ヘッダーの navLinks の後ろに Projects を足す。
+ * navLinks 自体は変えない（ヘッダーに Projects を足さない。design D2）
+ */
+export function topLinks(lang: Locale, base: string): NavLink[] {
+  return [
+    ...navLinks(lang, base),
+    { label: 'Projects', href: projectsPath(lang, base), icon: terminal },
   ];
 }
 

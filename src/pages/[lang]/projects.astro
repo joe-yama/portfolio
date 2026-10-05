@@ -1,0 +1,56 @@
+---
+// 開発物。並び順と検証は getProjects、開始年の表記は projects.ts の純関数（design D2・D6）。
+// スタイルは経歴ページの書き方と既存の変数（.muted）に合わせ、新しい色は足さない
+import PixelArt from '../../components/pixel/PixelArt.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getProjects } from '../../lib/content';
+import { locales, toLocale } from '../../lib/i18n';
+import { projectIcons } from '../../lib/pixel';
+import { sinceLabel } from '../../lib/projects';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const lang = toLocale(Astro.params.lang);
+const projects = await getProjects();
+---
+
+<BaseLayout title="Projects">
+  <h1>Projects</h1>
+  {
+    projects.map(({ data }) => (
+      <article>
+        <div class="head">
+          <PixelArt rows={projectIcons[data.icon]} scale={2} />
+          <h2>
+            <a href={data.url}>{data.name}</a>
+          </h2>
+        </div>
+        <p class="muted">
+          {data.status[lang]} · {sinceLabel(data.since, lang)}
+        </p>
+        <p>{data.summary[lang]}</p>
+        <p>{data.description[lang]}</p>
+        <p class="muted">{data.tech.join(', ')}</p>
+      </article>
+    ))
+  }
+</BaseLayout>
+
+<style>
+  article {
+    margin-bottom: 2.5rem;
+  }
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  h2 {
+    margin: 0;
+  }
+  p {
+    margin: 0 0 0.25rem;
+  }
+</style>

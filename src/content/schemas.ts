@@ -1,4 +1,6 @@
 import { z } from 'astro/zod';
+// 入稿コマンド（node で直接実行）がこのファイルを import するので、相対 import に .ts を付ける
+import { projectIcons } from '../lib/pixel.ts';
 
 /** 写真の元画像を置く GitHub Release（タグ photos）の asset URL の接頭辞 */
 export const PHOTO_BASE_URL = 'https://github.com/joe-yama/portfolio/releases/download/photos/';
@@ -129,3 +131,22 @@ export const profileSchema = z.object({
   ),
 });
 export type Profile = z.infer<typeof profileSchema>;
+
+/** 開発物のアイコン名。pixel.ts の projectIcons のキーだけを受ける（design D2） */
+const projectIconSchema = z.enum(
+  Object.keys(projectIcons) as [keyof typeof projectIcons, ...(keyof typeof projectIcons)[]],
+);
+
+export const projectSchema = z.object({
+  order: z.number().int(),
+  name: nonEmpty,
+  url: z.url(),
+  icon: projectIconSchema,
+  since: z.number().int().min(1000).max(9999),
+  status: localizedSchema,
+  summary: localizedSchema,
+  description: localizedSchema,
+  tech: z.array(nonEmpty).min(1),
+});
+export type Project = z.infer<typeof projectSchema>;
+export type ProjectEntry = { id: string; data: Project };

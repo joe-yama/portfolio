@@ -5,7 +5,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getFeaturedPhoto, getProfile } from '../../lib/content';
 import { locales, toLocale } from '../../lib/i18n';
 import { camera, github, linkedin } from '../../lib/pixel';
-import { navLinks, ui } from '../../lib/site';
+import { topLinks, ui } from '../../lib/site';
 
 /** 連絡先リンクの kind に対応するドット絵。github/linkedin 以外は spec 通りアイコンなし */
 const contactIcons: Partial<Record<string, readonly string[]>> = { github, linkedin };
@@ -33,7 +33,7 @@ const heroSizes = '(min-width: 64rem) calc((100vw - 4rem) * 0.6), calc(100vw - 2
       <p class="muted">{profile.tagline}</p>
 
       <nav class="links" aria-label={ui[lang].siteNav}>
-        {navLinks(lang, base).map((link) => (
+        {topLinks(lang, base).map((link) => (
           <a href={link.href}>
             <PixelArt rows={link.icon} scale={1} />
             {link.label}

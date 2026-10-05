@@ -8,6 +8,7 @@ import {
   patentSchema,
   photoSchema,
   profileSchema,
+  projectSchema,
 } from '../../src/content/schemas';
 
 const validPhoto = {
@@ -399,5 +400,41 @@ describe('実データの takenAt', () => {
         `${file} の takenAt がクォートされていない: ${match?.[1]}`,
       ).toBe(true);
     }
+  });
+});
+
+describe('projectSchema', () => {
+  const validProject = {
+    order: 1,
+    name: 'Tomoly',
+    url: 'https://tomoly.app',
+    icon: 'tomoly',
+    since: 2026,
+    status: { ja: '先行公開中', en: 'Early access' },
+    summary: { ja: '一行の説明', en: 'One-line summary' },
+    description: { ja: '紹介文', en: 'Description' },
+    tech: ['TypeScript', 'Hono'],
+  };
+
+  it('全項目がそろった開発物を受け付ける', () => {
+    expect(projectSchema.safeParse(validProject).success).toBe(true);
+  });
+
+  it('summary の英語が欠けていたら拒否する', () => {
+    expect(
+      projectSchema.safeParse({ ...validProject, summary: { ja: '一行の説明' } }).success,
+    ).toBe(false);
+  });
+
+  it('定義に無いアイコン名（rocket）を拒否する', () => {
+    expect(projectSchema.safeParse({ ...validProject, icon: 'rocket' }).success).toBe(false);
+  });
+
+  it('tech が空の配列なら拒否する', () => {
+    expect(projectSchema.safeParse({ ...validProject, tech: [] }).success).toBe(false);
+  });
+
+  it.each([26, '2026-09'])('since が 4 桁の西暦の整数でない（%s）なら拒否する', (since) => {
+    expect(projectSchema.safeParse({ ...validProject, since }).success).toBe(false);
   });
 });

@@ -7,18 +7,20 @@ import {
   careerPath,
   homePath,
   photoPath,
+  projectsPath,
 } from './site';
 
 export type SitemapEntry = { loc: string; alternates: AlternateLink[] };
 
 /**
- * ロケール配下のページのパス。サイトマップに載せるのはこの 4 種類で、
+ * ロケール配下のページのパス。サイトマップに載せるのはこの 5 種類で、
  * 写真の枚数だけ個別ページが増える（design D4）。振り分けページと 404 は載せない
  */
 function localePaths(lang: Locale, slugs: string[], base: string): string[] {
   return [
     homePath(lang, base),
     careerPath(lang, base),
+    projectsPath(lang, base),
     photoPath(null, lang, base),
     ...slugs.map((slug) => photoPath(slug, lang, base)),
   ];

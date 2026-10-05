@@ -1,0 +1,20 @@
+order: 1
+name: "Tomoly"
+url: "https://tomoly.app"
+icon: "tomoly"
+since: 2026
+status: { ja: "先行公開中", en: "Early access" }
+summary:
+  ja: "未就学児の親のための、友だちのいる公園がわかるアプリ"
+  en: "An app that shows parents of preschoolers which park their kids' friends are at"
+description:
+  ja: "公園で仲良くなった子ども同士が「フレンド」になると、いまどの公園で遊んでいるかをリアルタイムで確かめられる。居場所はフレンドにだけ公園単位で見せる。企画から設計・実装・運用までを一人で手がけている。"
+  en: 'When kids who hit it off at the park become "friends", their parents can see in real time which park each other is playing at. Locations are shown only to friends, and only at the park level. I handle everything myself, from planning and design to development and operations.'
+tech:
+  - "TypeScript"
+  - "React (PWA)"
+  - "Hono"
+  - "PostgreSQL"
+  - "Fly.io"
+  - "Cloudflare"
+  - "OpenTelemetry"
