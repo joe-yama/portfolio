@@ -72,3 +72,6 @@ Issue: #70
 - （batch A レビュー Minor）`order` 重複のテストが値を `toContain('7')` で見ている（`tests/unit/validate.test.ts:533`）。`toContain('order 7')` などにすると値を確実に固定できる
 - （batch A レビュー Minor）`z.url()` が `javascript:` を通す（`src/content/schemas.ts:143`、既存の `url` 項目も同じ）。`z.url({ protocol: /^https?$/ })` にできる
 - （batch A 過剰設計）`pixel.test.ts` の tomoly の 16×16 のテストは `describe.each` と重複、`project()` の fixture が validate / projects のテストで重複、`validateProjects` の重複検出が `validatePhotos` と同じループ（D2 で揃える指示どおり）
+- （2.2 レビュー Minor）`tests/e2e/pages.spec.ts:869-874` の「/en/projects/ に summary.ja と description.ja が無い」は応答の status を見ておらず、404 でも通る（いまは `pages.spec.ts:194` が間接に守る）。`expect(res?.status()).toBe(200)` を足す
+- （2.2 レビュー Minor）`pages.spec.ts` の `parseProject` は狭い YAML の書き方だけを読む手書きの読み取り（`parsePatents` と同じ流儀）。2 件目で別の引用符の書き方を使うときに広げる
+- （2.2 過剰設計）`links.spec.ts:145` の `/ja/projects/` の EN の検査は `expectLangSwitch` と重複、`ProjectSummary` 型は推論で足りる、`unquoteAny` と既存の `unquote` は 1 つにできる
