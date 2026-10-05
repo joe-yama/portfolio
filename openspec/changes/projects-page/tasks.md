@@ -78,3 +78,6 @@ Issue: #70
 - （2.3 レビュー Minor）本文の導線でアイコンが文字の前にあることを確かめるテストが無い（Photos・Career も同じで既存の穴）
 - （2.3 レビュー Minor、この change とは無関係）`tests/e2e/viewport.spec.ts:453`「390×844 で写真は本文の幅いっぱい」が約 3/40 で落ちる。画像の読み込みを待たずに測っている。`assertPhotoFillsMainContentWidth` の前に `waitForImageLoaded` を呼ぶ。CI は再試行なしだが直近 30 回の CI では e2e の失敗なし
 - （2.3 過剰設計）`links.spec.ts:370` の `projectsCells` の読み直しと `not.toEqual` 2 行は、368 行と `pixel.test.ts:163-164` で足りる（tasks が文字どおり求めたので残した）
+- （batch B レビュー Minor）`tests/e2e/links.spec.ts:156` の `:not([hreflang])` は言語切り替え以外の `hreflang` 付きリンクも除く。`/ja/` のヘッダーで `.lang-switch` の外に `<a href=".../en/projects/" hreflang="en">` を置いても落ちない。`header a[href*="/projects/"]:not(.lang-switch a)` に狭める
+- （4.1 の記録）変異 (c) では `links.spec.ts:141` が先に落ちて `:156` が単独で試されなかった。batch B のレビュアーが隔離コピーで nav の外に `/projects/` のリンクを足し、12 ページすべてが `:156` で落ちることを確かめた
+- （batch B 過剰設計）`sitemap.test.ts:92` の `xhtml:link` 3 本の検査は `:56` と `:88` から従う（tasks が文字どおり求めたので残した）、`sitemap.spec.ts:45` の新しいテストは `:35` に `expect` 2 つを足せば済む
