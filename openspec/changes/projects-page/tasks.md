@@ -75,3 +75,6 @@ Issue: #70
 - （2.2 レビュー Minor）`tests/e2e/pages.spec.ts:869-874` の「/en/projects/ に summary.ja と description.ja が無い」は応答の status を見ておらず、404 でも通る（いまは `pages.spec.ts:194` が間接に守る）。`expect(res?.status()).toBe(200)` を足す
 - （2.2 レビュー Minor）`pages.spec.ts` の `parseProject` は狭い YAML の書き方だけを読む手書きの読み取り（`parsePatents` と同じ流儀）。2 件目で別の引用符の書き方を使うときに広げる
 - （2.2 過剰設計）`links.spec.ts:145` の `/ja/projects/` の EN の検査は `expectLangSwitch` と重複、`ProjectSummary` 型は推論で足りる、`unquoteAny` と既存の `unquote` は 1 つにできる
+- （2.3 レビュー Minor）本文の導線でアイコンが文字の前にあることを確かめるテストが無い（Photos・Career も同じで既存の穴）
+- （2.3 レビュー Minor、この change とは無関係）`tests/e2e/viewport.spec.ts:453`「390×844 で写真は本文の幅いっぱい」が約 3/40 で落ちる。画像の読み込みを待たずに測っている。`assertPhotoFillsMainContentWidth` の前に `waitForImageLoaded` を呼ぶ。CI は再試行なしだが直近 30 回の CI では e2e の失敗なし
+- （2.3 過剰設計）`links.spec.ts:370` の `projectsCells` の読み直しと `not.toEqual` 2 行は、368 行と `pixel.test.ts:163-164` で足りる（tasks が文字どおり求めたので残した）
